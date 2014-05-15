@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 2.6)
 PROJECT( ursusheadcomp )
-IF(NOT EXISTS $ENV{ROBOCOMP}/CMake)
+IF(NOT EXISTS $ENV{ROBOCOMP}/cmake)
 MESSAGE(FATAL_ERROR "
  ROBOCOMPROOT variable not set, check your bashrc profile!
 ")
-ENDIF(NOT EXISTS $ENV{ROBOCOMP}/CMake)
-INCLUDE( $ENV{ROBOCOMP}/CMake/robocomp.cmake )
+ENDIF(NOT EXISTS $ENV{ROBOCOMP}/cmake)
+INCLUDE( $ENV{ROBOCOMP}/cmake/robocomp.cmake )
 INCLUDE ( CMakeListsSpecific.txt)
 
 # Sources set
@@ -17,8 +17,8 @@ SET ( SOURCES
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
-  $ENV{ROBOCOMP}/Classes/rapplication/rapplication.cpp
-  $ENV{ROBOCOMP}/Classes/qlog/qlog.cpp
+  $ENV{ROBOCOMP}/classes/rapplication/rapplication.cpp
+  $ENV{ROBOCOMP}/classes/qlog/qlog.cpp
 )
 
 # Headers set

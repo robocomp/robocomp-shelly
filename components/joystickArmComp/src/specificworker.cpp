@@ -104,7 +104,7 @@ void SpecificWorker::convertToJointMotor()
 			position =motor.last();
 // 			qDebug()<<"position.toInt()"<<position.toInt();
 			RoboCompJointMotor::MotorGoalPosition mg;
-			mg.name = name.toStdString(); mg.maxSpeed = 1,0; 
+			mg.name = name.toStdString(); mg.maxSpeed = 1.0; 
 			
 			int id=translateToJose(motor.first());
 			mg.position = Get_Valor_Motor(id, position.toInt());

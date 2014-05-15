@@ -11,8 +11,8 @@ SET ( SOURCES
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
-  $ENV{ROBOCOMP}/Classes/rapplication/rapplication.cpp
-  $ENV{ROBOCOMP}/Classes/qlog/qlog.cpp
+  $ENV{ROBOCOMP}/classes/rapplication/rapplication.cpp
+  $ENV{ROBOCOMP}/classes/qlog/qlog.cpp
 )
 
 # Headers set
@@ -26,16 +26,16 @@ SET ( HEADERS
 )
 
 # RoboComp
-INCLUDE( $ENV{ROBOCOMP}/CMake/robocomp.cmake )
+INCLUDE( $ENV{ROBOCOMP}/cmake/robocomp.cmake )
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
 ROBOCOMP_WRAP_ICE( CommonBehavior   JointMotor)
 
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # IPP
-# INCLUDE( $ENV{ROBOCOMP}/CMake/ipp.cmake )
+# INCLUDE( $ENV{ROBOCOMP}/cmake/ipp.cmake )
 # FrameWave
-# INCLUDE( $ENV{ROBOCOMP}/CMake/framewave.cmake )
+# INCLUDE( $ENV{ROBOCOMP}/cmake/framewave.cmake )
 
 # Qt4
 ADD_DEFINITIONS( -Wall -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB )

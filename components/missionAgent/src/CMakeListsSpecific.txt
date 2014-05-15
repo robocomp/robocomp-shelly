@@ -3,14 +3,14 @@
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
-  $ENV{ROBOCOMP}/Classes/rcdraw/rcdraw.cpp
+  $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  $ENV{ROBOCOMP}/Classes/rcdraw/rcdraw.h
+  $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.h
   /usr/local/include/agm_modelDrawer.h
 )
 

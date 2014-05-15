@@ -6,16 +6,10 @@ SET ( SOURCES
   cinematica_inversa.cpp
   generador.cpp
   target.cpp
-  $ENV{ROBOCOMP}/Classes/osgviewer/osgview.cpp
-  $ENV{ROBOCOMP}/Classes/osgviewer/viewerqt.cpp
-  $ENV{ROBOCOMP}/Classes/osgviewer/adapterwidget.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  $ENV{ROBOCOMP}/Classes/osgviewer/osgview.h
-  $ENV{ROBOCOMP}/Classes/osgviewer/viewerqt.h 
-  $ENV{ROBOCOMP}/Classes/osgviewer/adapterwidget.h  
 )
