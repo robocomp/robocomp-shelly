@@ -324,14 +324,14 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 	 if ( node.nodeIdentifier == 8)
 	 {
 		printf("taza!\n");
-		mesh.meshPath = "/home/robocomp/robocomp/Files/osgModels/mobiliario/taza.osg";
+		mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
 		mesh.pose.rx += 1.57;
 		mesh.pose.rz += 1.57;
 	 }
 	 else
 	 {
 		printf("mesa!\n");
-		mesh.meshPath = "/home/robocomp/robocomp/Files/osgModels/mobiliario/mesa_redonda.osg";
+		mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
 		//mesh.pose.rx += -1.57; //mesh from table is rotated
 	 }
 	 

@@ -45,7 +45,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	bodyParts["RIGHTARM"] 	= QPair<QStringList, QString>(listaBrazoDerecho, "grabPositionHandR"); 
 	bodyParts["HEAD"]		= QPair<QStringList, QString>(QStringList()," "); 
 		
-	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursus2Metros.xml");
+	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus2Metros.xml");
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
 	
 	goHomePosition(listaMotores); sleep(2);
