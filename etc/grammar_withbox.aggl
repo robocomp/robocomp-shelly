@@ -1,0 +1,853 @@
+spacePattern=3
+lineThickness=2
+fontName=FreeMono
+name=grammar
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=11
+longPattern=3
+===
+findObjectVisually : active(1)
+{
+	{
+		r:robot(-300,-140)
+	}
+	=>
+	{
+		cl:noClass(265,-110)
+		o:object(-15,-75)
+		re:noReach(265,-40)
+		r:robot(-180,-75)
+		po:pose(160,-10)
+		se:see(160,-140)
+		o->po(prop)
+		o->re(prop)
+		o->se(prop)
+		o->cl(prop)
+		r->o(know)
+	}
+}
+
+recognizeObjMug : active(1)
+{
+	{
+		c:noClass(265,-110)
+		o:object(-15,-75)
+		po:pose(265,-40)
+		r:robot(-180,-75)
+		other:object(-15,30)
+		se:see(160,-140)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+	}
+	=>
+	{
+		c:class(265,-110)
+		m:mug(160,-10)
+		o:object(-15,-75)
+		po:pose(265,-40)
+		r:robot(-180,-75)
+		other:object(-15,30)
+		se:see(160,-140)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+		o->m(prop)
+		o->other(in)
+	}
+}
+
+recognizeObjBox : active(1)
+{
+	{
+		c:noClass(265,-110)
+		o:object(-15,-75)
+		po:pose(265,-40)
+		r:robot(-180,-75)
+		other:object(-15,30)
+		se:see(160,-140)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+	}
+	=>
+	{
+		c:class(265,-110)
+		b:box(160,-10)
+		o:object(-15,-75)
+		po:pose(265,-40)
+		r:robot(-180,-75)
+		other:object(-15,30)
+		se:see(160,-140)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+		o->b(prop)
+		o->other(in)
+	}
+}
+
+recognizeObjTable : active(1)
+{
+	{
+		se:see(160,-140)
+		c:noClass(265,-110)
+		r:robot(-180,-75)
+		po:pose(265,-40)
+		o:object(-15,-75)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+	}
+	=>
+	{
+		c:class(265,-110)
+		o:object(-15,-75)
+		r:robot(-180,-75)
+		t:table(160,-10)
+		po:pose(265,-40)
+		se:see(160,-140)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+		o->t(prop)
+	}
+}
+
+recognizeObjFails : active(1)
+{
+	{
+		se:see(160,-140)
+		c:noClass(265,-110)
+		r:robot(-180,-75)
+		po:pose(265,-40)
+		o:object(-15,-75)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+	}
+	=>
+	{
+		se:see(160,-140)
+		c:classFail(265,-110)
+		r:robot(-180,-75)
+		po:pose(265,-40)
+		o:object(-15,-75)
+		r->o(know)
+		o->po(prop)
+		o->se(prop)
+		o->c(prop)
+	}
+}
+
+setObjectReach : active(1)
+{
+	{
+		r:noReach(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:reach(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+setObjectNotReach : passive(1)
+{
+	{
+		r:reach(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:noReach(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+graspObject : active(1)
+{
+	{
+		o:object(0,0)
+		r:reach(250,-50)
+		o->r(prop)
+	}
+	=>
+	{
+		o:object(0,0)
+		r:reach(250,-50)
+		g:grasp(250,+50)
+		o->r(prop)
+		o->g(prop)
+	}
+}
+
+setObjectSee : active(1)
+{
+	{
+		r:noSee(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:see(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+setObjectNotSee : passive(1)
+{
+	{
+		r:see(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:noSee(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+setObjectPosition : active(1)
+{
+	{
+		r:noPose(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:pose(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+setObjectNotPosition : passive(1)
+{
+	{
+		r:pose(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+	=>
+	{
+		r:noPose(250,0)
+		o:object(0,0)
+		o->r(prop)
+	}
+}
+
+tellHumanAboutMug : active(1)
+{
+	{
+		c:class(-170,100)
+		h:human(200,0)
+		m:mug(-140,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		cont1:object(0,200)
+		cont2:object(200,200)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		o->m(prop)
+		o->cont1(in)
+		cont1->cont2(eq)
+	}
+	=>
+	{
+		c:class(-170,100)
+		ch:class(390,100)
+		oh:object(200,100)
+		hr:reach(300,5)
+		h:human(200,0)
+		m:mug(-140,160)
+		mh:mug(375,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		cont1:object(0,200)
+		hs:see(300,195)
+		cont2:object(200,200)
+		ph:pose(375,40)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		h->oh(know)
+		oh->ch(prop)
+		oh->ph(prop)
+		o->m(prop)
+		oh->mh(prop)
+		o->oh(eq)
+		o->cont1(in)
+		oh->cont2(in)
+		cont1->cont2(eq)
+		oh->hr(prop)
+		oh->hs(prop)
+	}
+}
+
+tellHumanAboutBox : active(1)
+{
+	{
+		c:class(-170,100)
+		h:human(200,0)
+		m:box(-140,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		cont1:object(0,200)
+		cont2:object(200,200)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		o->m(prop)
+		o->cont1(in)
+		cont1->cont2(eq)
+	}
+	=>
+	{
+		c:class(-170,100)
+		ch:class(390,100)
+		oh:object(200,100)
+		hr:reach(300,5)
+		h:human(200,0)
+		m:box(-140,160)
+		mh:box(374,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		cont1:object(0,200)
+		hs:see(300,195)
+		cont2:object(200,200)
+		ph:pose(374,40)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		h->oh(know)
+		oh->ch(prop)
+		oh->ph(prop)
+		o->m(prop)
+		oh->mh(prop)
+		o->oh(eq)
+		o->cont1(in)
+		oh->cont2(in)
+		cont1->cont2(eq)
+		oh->hr(prop)
+		oh->hs(prop)
+	}
+}
+
+tellHumanAboutTable : active(1)
+{
+	{
+		c:class(-170,100)
+		h:human(200,0)
+		m:table(-140,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		o->m(prop)
+	}
+	=>
+	{
+		c:class(-170,100)
+		ch:class(390,100)
+		oh:object(200,100)
+		hr:reach(300,5)
+		h:human(200,0)
+		m:table(-140,160)
+		mh:mug(374,160)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		hs:see(300,195)
+		ph:pose(374,40)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		h->oh(know)
+		oh->ch(prop)
+		oh->ph(prop)
+		o->m(prop)
+		oh->mh(prop)
+		o->oh(eq)
+		oh->hr(prop)
+		oh->hs(prop)
+	}
+}
+
+tellHumanAboutUnknownObject : active(3)
+{
+	{
+		p:pose(-140,40)
+		c:classFail(-170,100)
+		r:robot(0,0)
+		o:object(0,100)
+		h:human(200,0)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+	}
+	=>
+	{
+		c:classFail(-170,100)
+		ch:noClass(370,130)
+		oh:object(200,100)
+		hr:reach(310,15)
+		h:human(200,0)
+		o:object(0,100)
+		p:pose(-140,40)
+		r:robot(0,0)
+		hs:see(310,180)
+		ph:pose(370,70)
+		r->o(know)
+		r->h(interact)
+		o->p(prop)
+		o->c(prop)
+		h->oh(know)
+		oh->ch(prop)
+		oh->ph(prop)
+		o->oh(eq)
+		oh->hr(prop)
+		oh->hs(prop)
+	}
+}
+
+makeHumanLook : active(2)
+{
+	{
+		h:human(200,0)
+		o:object(0,100)
+		p:pose(360,60)
+		r:robot(0,0)
+		nS:noSee(360,140)
+		o_h:object(200,100)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->p(prop)
+		o_h->nS(prop)
+	}
+	=>
+	{
+		h:human(200,0)
+		o:object(0,100)
+		p:pose(360,60)
+		r:robot(0,0)
+		nS:see(360,140)
+		o_h:object(200,100)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->nS(prop)
+		o_h->p(prop)
+	}
+}
+
+humanClassifiesMug : active(2)
+{
+	{
+		cl:noClass(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		cont2:object(15,110)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+	}
+	=>
+	{
+		cl:class(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		newobj:mug(-45,245)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		cont2:object(15,110)
+		o_h:object(155,35)
+		o->newobj(prop)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+		o_h->cont2(in)
+	}
+}
+
+
+humanClassifiesBox : active(2)
+{
+	{
+		cl:noClass(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		cont2:object(15,110)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+	}
+	=>
+	{
+		cl:class(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		newobj:box(-45,245)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		cont2:object(15,110)
+		o_h:object(155,35)
+		o_h->newobj(prop)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+		o_h->cont2(in)
+	}
+}
+
+humanClassifiesTable : active(2)
+{
+	{
+		cl:noClass(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+	}
+	=>
+	{
+		cl:class(45,245)
+		h:human(155,-75)
+		o:object(-285,35)
+		newobj:table(-45,245)
+		p:pose(255,250)
+		see:see(150,255)
+		r:robot(-285,-75)
+		o_h:object(155,35)
+		o_h->newobj(prop)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o_h->cl(prop)
+		o_h->see(prop)
+		o_h->p(prop)
+	}
+}
+
+humanTellsUsAboutMug : active(3)
+{
+	{
+		ch:class(80,255)
+		f:classFail(-290,255)
+		h:human(200,0)
+		mh:mug(210,255)
+		o:object(-285,35)
+		r:robot(0,0)
+		cont1:object(-175,190)
+		cont2:object(30,80)
+		o_h:object(200,100)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+		o_h->cont2(in)
+		cont1->cont2(eq)
+	}
+	=>
+	{
+		ch:class(90,250)
+		f:class(-340,250)
+		h:human(200,0)
+		mr:mug(-215,250)
+		mh:mug(220,250)
+		o:object(0,100)
+		r:robot(0,0)
+		cont1:object(-125,170)
+		cont2:object(10,85)
+		o_h:object(200,100)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o->mr(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+		o->cont1(in)
+		o_h->cont2(in)
+		cont1->cont2(eq)
+	}
+}
+
+
+humanTellsUsAboutBox : active(3)
+{
+	{
+		ch:class(80,255)
+		f:classFail(-290,255)
+		h:human(155,-75)
+		mh:box(210,255)
+		o:object(-285,35)
+		r:robot(-285,-75)
+		cont1:object(-175,190)
+		cont2:object(30,80)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+		o_h->cont2(in)
+		cont1->cont2(eq)
+	}
+	=>
+	{
+		ch:class(90,250)
+		f:class(-340,250)
+		h:human(155,-75)
+		mr:box(-215,250)
+		mh:box(220,250)
+		o:object(-285,35)
+		r:robot(-285,-75)
+		cont1:object(-125,170)
+		cont2:object(10,85)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o->mr(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+		o->cont1(in)
+		o_h->cont2(in)
+		cont1->cont2(eq)
+	}
+}
+
+humanTellsUsAboutTable : active(3)
+{
+	{
+		ch:class(80,255)
+		f:classFail(-290,255)
+		h:human(155,-75)
+		mh:table(210,255)
+		o:object(-285,35)
+		r:robot(-285,-75)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+	}
+	=>
+	{
+		ch:class(90,250)
+		f:class(-340,250)
+		h:human(155,-75)
+		mh:table(220,250)
+		o:object(-285,35)
+		r:robot(-285,-75)
+		mr:table(-215,250)
+		o_h:object(155,35)
+		o->o_h(eq)
+		r->h(interact)
+		r->o(know)
+		h->o_h(know)
+		o->f(prop)
+		o->mr(prop)
+		o_h->mh(prop)
+		o_h->ch(prop)
+	}
+}
+
+robotMovesMugFromTableToBox : active(1)
+{
+	{
+		b:box(-80,-5)
+		r1:reach(-80,-200)
+		m:mug(-80,-140)
+		rc1:reach(-80,-335)
+		rc2:reach(-80,-65)
+		r:robot(-625,-175)
+		o:object(-425,-175)
+		c2:object(-385,-45)
+		c1:object(-390,-305)
+		t:table(-80,-275)
+		r->o(know)
+		r->c2(know)
+		o->r1(prop)
+		o->m(prop)
+		c2->rc2(prop)
+		c2->b(prop)
+		r->c1(know)
+		c1->rc1(prop)
+		c1->t(prop)
+		o->c1(in)
+	}
+	=>
+	{
+		b:box(-80,-5)
+		r1:reach(-80,-200)
+		m:mug(-80,-140)
+		rc1:reach(-80,-335)
+		rc2:reach(-80,-65)
+		r:robot(-625,-175)
+		o:object(-425,-175)
+		c2:object(-385,-45)
+		c1:object(-390,-305)
+		t:table(-80,-275)
+		r->o(know)
+		r->c2(know)
+		o->r1(prop)
+		o->m(prop)
+		c2->rc2(prop)
+		c2->b(prop)
+		r->c1(know)
+		c1->rc1(prop)
+		c1->t(prop)
+		o->c2(in)
+	}
+}
+
+humanMovesMugFromTableToBox : active(1)
+{
+	{
+		b:box(-80,-5)
+		r1:reach(-80,-200)
+		m:mug(-80,-140)
+		rc1:reach(-80,-335)
+		rc2:reach(-80,-65)
+		r:human(-625,-175)
+		o:object(-425,-175)
+		c2:object(-385,-45)
+		c1:object(-390,-305)
+		t:table(-80,-275)
+		r->o(know)
+		r->c2(know)
+		o->r1(prop)
+		o->m(prop)
+		c2->rc2(prop)
+		c2->b(prop)
+		r->c1(know)
+		c1->rc1(prop)
+		c1->t(prop)
+		o->c1(in)
+	}
+	=>
+	{
+		b:box(-80,-5)
+		r1:reach(-80,-200)
+		m:mug(-80,-140)
+		rc1:reach(-80,-335)
+		rc2:reach(-80,-65)
+		r:human(-625,-175)
+		o:object(-425,-175)
+		c2:object(-385,-45)
+		c1:object(-390,-305)
+		t:table(-80,-275)
+		r->o(know)
+		r->c2(know)
+		o->r1(prop)
+		o->m(prop)
+		c2->rc2(prop)
+		c2->b(prop)
+		r->c1(know)
+		c1->rc1(prop)
+		c1->t(prop)
+		o->c2(in)
+	}
+	effect
+	{
+		(forall
+			other:object
+			(when
+				(eq o other)
+				(and
+					(forall
+						backcont:object
+						(not (in other backcont))
+					)
+					(in other c2)
+				)
+			)
+		)
+	}
+}
+

@@ -1,0 +1,17 @@
+<AGMModel>
+
+	<symbol id="1" type="robot"></symbol>
+	<symbol id="mug" type="object"></symbol>
+	<symbol id="mugClass" type="class"></symbol>
+	<symbol id="mugType" type="mug"></symbol>
+	<symbol id="mugReach" type="reach"></symbol>
+	<symbol id="mugGrasp" type="grasp"></symbol>
+
+	<link src="1"        dst="mug" label="know" />
+	<link src="mug"      dst="mugClass" label="prop" />
+	<link src="mugClass" dst="mugType" label="prop" />
+	<link src="mug"      dst="mugReach" label="prop" />
+	<link src="mug"      dst="mugGrasp" label="prop" />
+
+</AGMModel>
+

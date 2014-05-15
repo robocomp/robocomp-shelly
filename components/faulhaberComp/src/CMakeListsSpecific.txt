@@ -1,0 +1,25 @@
+
+# Sources set
+SET ( SOURCES
+  servo.cpp
+  specificworker.cpp
+  specificmonitor.cpp
+  $ENV{ROBOCOMP}/Classes/canbus/canbus.cpp
+  $ENV{ROBOCOMP}/Classes/canbus/faulhaberApi.cpp
+)
+
+# Headers set
+SET ( HEADERS
+  servo.h
+  specificworker.h
+  specificmonitor.h
+  $ENV{ROBOCOMP}/Classes/canbus/faulhaberApi.h
+)
+
+# FAULHABER
+INCLUDE( $ENV{ROBOCOMP}/CMake/faulhaber.cmake )
+IF (FAULHABER_FOUND EQUAL 0)
+  MESSAGE(STATUS "\n\nFaulhaber motor handle will NOT be built!\n\n")
+ELSE (FAULHABER_FOUND EQUAL 0)
+  MESSAGE(STATUS "\n\nFaulhaber motor handle WILL be built!\n\n")
+ENDIF (FAULHABER_FOUND EQUAL 0)

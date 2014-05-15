@@ -1,0 +1,15 @@
+import "/robocomp/Interfaces/IDSLs/AGMAgent.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMCommonBehavior.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMWorldModel.idsl";
+import "/robocomp/Interfaces/IDSLs/BodyInverseKinematics.idsl";
+Component inversekinematicsAgentComp{
+	Communications{
+		requires BodyInverseKinematics;
+		implements AGMCommonBehavior;
+		publishes AGMAgentTopic;
+		subscribesTo AGMExecutiveTopic;
+	};
+	language Cpp;
+	gui Qt(QWidget);
+};

@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+IceBox.Service.IceStorm=IceStormService,35:createIceStorm --Ice.Config=config.icestorm
+=======
+	IceBox.Service.IceStorm=IceStormService,35:createIceStorm --Ice.Config=config.icestorm
+>>>>>>> 851a8852224b01a41c73f42f830e252a3341a4b3

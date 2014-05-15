@@ -1,0 +1,9 @@
+import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/Interfaces/IDSLs/JoystickAdapter.idsl";
+Component ursusHeadComp{
+	Communications{
+		implements JoystickAdapter;
+		requires JointMotor;
+	};
+	language Cpp;
+};

@@ -1,0 +1,21 @@
+
+# Sources set
+SET ( SOURCES
+  specificworker.cpp
+  specificmonitor.cpp
+  $ENV{ROBOCOMP}/Classes/rcdraw/rcdraw.cpp
+)
+
+# Headers set
+SET ( HEADERS
+  specificworker.h
+  specificmonitor.h
+  $ENV{ROBOCOMP}/Classes/rcdraw/rcdraw.h
+  /usr/local/include/agm_modelDrawer.h
+)
+
+
+SET (LIBS ${LIBS}
+  -lagm
+  -lboost_system
+)

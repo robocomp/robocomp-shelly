@@ -1,0 +1,19 @@
+import "/robocomp/Interfaces/IDSLs/AGMAgent.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMCommonBehavior.idsl";
+import "/robocomp/Interfaces/IDSLs/AGMWorldModel.idsl";
+
+Component missionAgent
+{
+	Communications
+	{
+		requires AGMExecutive;
+		implements AGMCommonBehavior;
+		publishes AGMAgentTopic;
+		subscribesTo AGMExecutiveTopic;
+	};
+
+	language Cpp;
+
+	gui Qt(QWidget);
+};

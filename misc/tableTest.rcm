@@ -1,0 +1,7 @@
+Interfaces/InnerModelManager.ice
+innermodelmanager
+localhost
+tcp
+20202
+50
+tableTest.py

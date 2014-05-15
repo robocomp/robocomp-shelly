@@ -1,0 +1,39 @@
+<AGMModel>
+	<symbol id="11" type="object">
+	</symbol>
+	<symbol id="10" type="pose">
+	</symbol>
+	<symbol id="12" type="mug">
+	</symbol>
+	<symbol id="1" type="robot">
+	</symbol>
+	<symbol id="3" type="see">
+	</symbol>
+	<symbol id="2" type="noReach">
+	</symbol>
+	<symbol id="5" type="pose">
+	</symbol>
+	<symbol id="4" type="noClass">
+	</symbol>
+	<symbol id="7" type="reach">
+	</symbol>
+	<symbol id="6" type="object">
+	</symbol>
+	<symbol id="9" type="class">
+	</symbol>
+	<symbol id="8" type="see">
+	</symbol>
+	<link src="6" dst="5" label="prop" />
+	<link src="6" dst="2" label="prop" />
+	<link src="6" dst="3" label="prop" />
+	<link src="6" dst="4" label="prop" />
+	<link src="1" dst="6" label="know" />
+	<link src="11" dst="10" label="prop" />
+	<link src="11" dst="7" label="prop" />
+	<link src="11" dst="8" label="prop" />
+	<link src="11" dst="9" label="prop" />
+	<link src="1" dst="11" label="know" />
+	<link src="11" dst="12" label="prop" />
+	<link src="11" dst="6" label="in" />
+</AGMModel>
+

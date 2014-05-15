@@ -1,0 +1,10 @@
+#
+# This property is used to configure the endpoints of the subscriber adapter.
+#
+JoystickAdapterComp.Endpoints=tcp -p 10206
+CommonBehavior.Endpoints=tcp -p 12203
+
+# Remote servers proxies example
+#RemoteProxy = remote:tcp -h remotehost -p 10001
+
+JointMotorProxy = jointmotor:tcp -h localhost -p 10067
