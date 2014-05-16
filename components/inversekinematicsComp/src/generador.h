@@ -42,15 +42,14 @@
 #include <qt4/QtCore/qmap.h>
 #include <qt4/QtCore/qpair.h>
 #include <qt4/QtCore/qqueue.h>
-
 #include <innermodel/innermodel.h> //si no lo pngo no reconoce QVec
 #include<stdlib.h>
 #include<time.h>
 #include "target.h"
-
+#include "bodypart.h"
 
 using namespace std;
-
+class SpecificWorker;
 class Generador
 {
 
@@ -59,7 +58,7 @@ public:
 	~Generador();
 	
 	//// MÉTODOS PÚBLICOS ////
-	QQueue<Target> generarListaTargets(InnerModel *inner, QMap<QString,QPair<QStringList,QString> > bodyParts, QString bodyPart);
+	QQueue<Target> generarListaTargets(InnerModel *inner, const QMap<QString, BodyPart> &bodyParts, QString bodyPart);
 	
 	QList<QVec> generarPuntosTargetRectaY(QVec coordenadasRobot, QVec rotacionRobot, int nPuntos, float Nm); //genera puntos a lo largo de una recta en ele eje Y
 	QList<QVec> generarPuntosTargetRectaZ(QVec coordenadasRobot, QVec rotacionRobot, int nPuntos, float Nm); //genera puntos a lo largo de una recta en ele eje Z

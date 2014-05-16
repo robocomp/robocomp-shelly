@@ -43,7 +43,7 @@ Target::Target()
  * 			   las coordenadas del effector final TODO pasarle la parte del cuerpo a la que pertenece el target.
  * 			   la distancia máxima del target al tip por si debe trocear.
  */ 
-Target::Target(InnerModel* innerModel, QVec pose, QMap<QString,QPair<QStringList,QString> > bodyParts, QString bodyPart)
+Target::Target(InnerModel* innerModel, QVec pose, const QMap<QString,BodyPart > &bodyParts, QString bodyPart)
 {
 	this->activo = true;
 	this->inner = innerModel;
@@ -51,7 +51,7 @@ Target::Target(InnerModel* innerModel, QVec pose, QMap<QString,QPair<QStringList
 	this->bodyPart = bodyPart;
 	this->robotBodyParts = bodyParts;
 	
-	trocearTarget();
+	trocearTarget();// Si lo comento ya no funciona???
 }
 
 Target::~Target()
@@ -99,7 +99,7 @@ void Target::setStartTime(QTime newStart)
 void Target::trocearTarget()
 {
 	// Sacamos el tip:
-	QString endEffector = robotBodyParts.value(bodyPart).second; //DA PROBLEMAS AL LEER
+	QString endEffector = robotBodyParts.value(bodyPart).tip; //DA PROBLEMAS AL LEER
 	
 	//TRASLACIÓN: 
 	QVec traslacionPose = QVec::vec3(pose[0], pose[1], pose[2]);

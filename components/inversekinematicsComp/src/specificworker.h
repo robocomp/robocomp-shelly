@@ -32,10 +32,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <boost/graph/graph_concepts.hpp>
 
 #include "cinematica_inversa.h"
 #include "generador.h"
 #include "target.h"
+#include "bodypart.h"
 
 using namespace std;
 
@@ -43,6 +45,7 @@ using namespace std;
        \brief
        @author Mercedes Paoletti Ávila
 */
+
 
 class SpecificWorker : public GenericWorker
 {
@@ -53,7 +56,7 @@ class SpecificWorker : public GenericWorker
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
 		bool setTarget(const string& bodyPart, const Pose6D& target);
-
+		
 	public slots:
 		void compute(); 
 
@@ -62,7 +65,9 @@ class SpecificWorker : public GenericWorker
 		//// VARIABLES DE CLASE ////
 		InnerModel *innerModel;									// Para trabajar con el innerModel
 		
-		QMap<QString, QPair<QStringList,QString> >  bodyParts;	// Mapa con identificador, lista motores y efector final
+		//QMap<QString, QPair<QStringList,QString> >  bodyParts;	// Mapa con identificador, lista motores y efector final
+		QMap<QString, BodyPart>  bodyParts;	// Mapa con identificador, lista motores y efector final
+		
 		QQueue<Target> listaTargetsBrazoDerecho;				// Lista de targets para el brazo derecho
 		QQueue<Target> listaTargetsBrazoIzquierdo;				// Lista de targets para el brazo izquierdo
 		QQueue<Target> listaTargetsCabeza;						// Lista de targets para la cabeza

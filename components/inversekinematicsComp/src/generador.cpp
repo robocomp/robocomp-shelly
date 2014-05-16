@@ -23,9 +23,8 @@
     OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 #include "generador.h"
-#include <boost/graph/graph_concepts.hpp>
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 								CONSTRUCTORES Y DESTRUCTORES												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
@@ -41,7 +40,7 @@ Generador::~Generador()
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS PÚBLICOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-QQueue< Target > Generador::generarListaTargets(InnerModel* inner, QMap<QString,QPair<QStringList,QString> > bodyParts, QString bodyPart)
+QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const QMap<QString, BodyPart > &bodyParts, QString bodyPart)
 {
 	QQueue<Target> listaTargets;
 	QVec traslaciones(3), rotaciones(3), punto(6);

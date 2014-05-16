@@ -18,6 +18,7 @@
  */
  
 #include "specificworker.h"
+#include "generador.h"
 
 /**
 * \brief Default constructor
@@ -36,31 +37,44 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	qDebug()<<"\n--------------- CONSTRUCTOR ------------------\n";
 	
 	// RECONFIGURABLE PARA CADA ROBOT:
-	listaBrazoIzquierdo <<  "shoulder_left_1" << "shoulder_left_2"<<"shoulder_left_3"<<"elbow_left"<<"wrist_left_1"<<"wrist_left_3"<<"wrist_left_4";
-	listaBrazoDerecho <<  "shoulder_right_1" << "shoulder_right_2"<<"shoulder_right_3"<<"elbow_right"<<"wrist_right_1"<<"wrist_right_3"<<"wrist_right_4";
-	listaMotores << "shoulder_right_1" << "shoulder_right_2"<<"shoulder_right_3"<<"elbow_right"<<"wrist_right_1"<<"wrist_right_2"<<"wrist_right_3"<<"wrist_right_4"
-	             <<"shoulder_left_1" << "shoulder_left_2"<<"shoulder_left_3"<<"elbow_left"<<"wrist_left_1"<<"wrist_left_2"<<"wrist_left_3"<<"wrist_left_4";;
+	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist2"<<"leftWrist3";
+	listaBrazoDerecho << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist2"<<"rightWrist3";
+	listaCabeza << " ";
+	listaMotores <<  "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist2"<<"rightWrist3" 	
+							 <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist2"<<"leftWrist3";
+							 
+// 	bodyParts["LEFTARM"] 	= QPair<QStringList, QString>(listaBrazoIzquierdo, "grabPositionHandL"); 
+// 	bodyParts["RIGHTARM"] 	= QPair<QStringList, QString>(listaBrazoDerecho, "grabPositionHandR"); 
+// 	bodyParts["HEAD"]		= QPair<QStringList, QString>(QStringList()," "); 
+// 		
+
+ 	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursus2Metros.xml");
+
+	QString tipRight = "grabPositionHandR";
+	QString tipLeft = "grabPositionHandL";
+	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
+	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
+							 
+	bodyParts.insert("LEFTARM", BodyPart("LEFTARM",listaBrazoIzquierdo, IK_BrazoIzquierdo, tipLeft));
+	bodyParts.insert("RIGHTARM", BodyPart("RIGHTARM", listaBrazoDerecho, IK_BrazoDerecho, tipRight)); 
 	
-	bodyParts["LEFTARM"] 	= QPair<QStringList, QString>(listaBrazoIzquierdo, "grabPositionHandL"); 
-	bodyParts["RIGHTARM"] 	= QPair<QStringList, QString>(listaBrazoDerecho, "grabPositionHandR"); 
-	bodyParts["HEAD"]		= QPair<QStringList, QString>(QStringList()," "); 
-		
-	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus2Metros.xml");
+	//bodyParts["HEAD"]		= BodyPart("HEAD", listaCabeza, IK_Cabeza, " "); 
+									 
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
 	
 	goHomePosition(listaMotores); sleep(2);
 	actualizarInnermodel(listaMotores);
 		
+	//Open file to write errors
+	fichero.open("");
+	
 	//Creamos la lista de targets en el generador. Le pasamos las coordendas del endEffector
 	listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts,"RIGHTARM");
+	//bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
 	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts, "LEFTARM"); //añadido
+	//bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);
 	
-	// Inicializamos las variables para cinemática inversa del brazo derecho con los motores que va a utilizar para posicionarse.
-	// Le pasamos el innerModel, la lista de motores con los que trabajará y la punta o endEffector:
-	QString tipRight = "grabPositionHandR";
-	QString tipLeft = "grabPositionHandL";
-	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
-	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
+
 	
 	qDebug()<<"\n---------------FIN CONSTRUCTOR ------------------\n";
 }
@@ -109,13 +123,34 @@ void SpecificWorker::compute( )
 		actualizarInnermodel(listaMotores);  //read the entire robot		
 		listaTargetsBrazoIzquierdo.dequeue();
 		
-		qDebug()<<"ERROR: "<<IK_BrazoIzquierdo->devolverError();
+		float error = IK_BrazoIzquierdo->devolverError();
+		qDebug()<<"ERROR: "<< error;
+		fichero << error;
 	}
 	else
 	{
 		//qDebug()<<"Hemos acabado";
 		//qFatal("FARY");
 	}
+// 	if (listaTargetsBrazoIzquierdo.isEmpty() == false)
+// 	{
+// 		Target target = listaTargetsBrazoIzquierdo.head();
+// 		moverTarget(target.getPose()); // colocamos el target en su posición (representación en el innerModel).
+// 		QVec angulos = IK_BrazoIzquierdo->resolverTarget(target.getPose()); //intentamos resolver el target.
+// 		moverBrazo(angulos, target.getMotorList());  	
+// 		usleep(100000);
+// 		actualizarInnermodel(listaMotores);  //read the entire robot		
+// 		listaTargetsBrazoIzquierdo.dequeue();
+// 		
+// 		float error = IK_BrazoIzquierdo->devolverError();
+// 		qDebug()<<"ERROR: "<< error;
+// 		fichero << error;
+// 	}
+// 	else
+// 	{
+// 		//qDebug()<<"Hemos acabado";
+// 		//qFatal("FARY");
+// 	}
 
 	mutex->unlock();
 }
