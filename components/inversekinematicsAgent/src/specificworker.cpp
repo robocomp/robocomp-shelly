@@ -25,6 +25,9 @@
 
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {
+	worldModel = AGMModel::SPtr(new AGMModel());
+	worldModel->name = "worldModel";
+	active = false;
 }
 
 /**
@@ -34,39 +37,107 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
 void SpecificWorker::compute( )
 {
+	/// FUSCA TEMPORAL
+	printf("%s\n", action.c_str());
+	if (action == "findobjectvisually")
+	{
+	}
 }
+
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	timer.start(Period);
 	return true;
-};
-bool SpecificWorker::activateAgent(const ParameterMap& prs){
-	//return 0;
 }
-bool SpecificWorker::deactivateAgent(){
-	//return 0;
-}
-StateStruct SpecificWorker::getAgentState(){
-	//return 0;
-}
-ParameterMap SpecificWorker::getAgentParameters(){
-	//return 0;
-}
-bool SpecificWorker::setAgentParameters(const ParameterMap& prs){
-	//return 0;
-}
-void SpecificWorker::killAgent(){
-}
-int SpecificWorker::uptimeAgent(){
-	//return 0;
-}
-bool SpecificWorker::reloadConfigAgent(){
+
+bool SpecificWorker::activateAgent(const ParameterMap& prs)
+{
 	//return 0;
 }
 
-void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification){
+bool SpecificWorker::deactivateAgent()
+{
+	//return 0;
 }
-void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification){
+
+StateStruct SpecificWorker::getAgentState()
+{
+	//return 0;
+}
+
+ParameterMap SpecificWorker::getAgentParameters()
+{
+	//return 0;
+}
+
+bool SpecificWorker::setAgentParameters(const ParameterMap& prs)
+{
+	//return 0;
+}
+
+void SpecificWorker::killAgent()
+{
+}
+
+int SpecificWorker::uptimeAgent()
+{
+	//return 0;
+}
+
+bool SpecificWorker::reloadConfigAgent()
+{
+	//return 0;
+}
+
+void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
+{
+}
+
+void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
+{
+}
+
+
+bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
+{
+	// We didn't reactivate the component
+	reactivated = false;
+
+	// Update parameters
+	params.clear();
+	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
+	{
+		params[it->first] = it->second;
+	}
+
+	try
+	{
+		action = params["action"].value;
+		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
+
+		if (action == "findObjectVisually")
+		{
+			active = true;
+		}
+		else
+		{
+			active = true;
+		}
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	// Check if we should reactivate the component
+	if (active)
+	{
+		active = true;
+		reactivated = true;
+	}
+
+	return true;
 }

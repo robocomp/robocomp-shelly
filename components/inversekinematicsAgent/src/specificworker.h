@@ -38,14 +38,23 @@ public:
 	StateStruct getAgentState();
 	ParameterMap getAgentParameters();
 	bool setAgentParameters(const ParameterMap& prs);
-	void  killAgent();
+	void killAgent();
 	int uptimeAgent();
 	bool reloadConfigAgent();
-	void  modelModified(const RoboCompAGMWorldModel::Event& modification);
-	void  modelUpdated(const RoboCompAGMWorldModel::Node& modification);
+	void modelModified(const RoboCompAGMWorldModel::Event& modification);
+	void modelUpdated(const RoboCompAGMWorldModel::Node& modification);
 
 public slots:
- 	void compute(); 	
+ 	void compute();
+
+private:
+	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
+	bool active;
+
+private:
+	std::string action;
+	ParameterMap params;
+	AGMModel::SPtr worldModel;
 };
 
 #endif

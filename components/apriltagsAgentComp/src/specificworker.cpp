@@ -28,7 +28,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
-
 	active = false;
 }
 
@@ -112,7 +111,7 @@ void SpecificWorker::compute( )
 	//
 	// Remove objects which have not been seen in a while
 	//
-// 	printf("Remove objects which have not been seen in a while\n");
+	// printf("Remove objects which have not been seen in a while\n");
 	std::vector<int32_t> symbolsToRemove;
 	for (AGMModel::iterator itModel=worldModel->begin(); itModel!=worldModel->end(); itModel++)
 	{
@@ -363,7 +362,7 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 		action = params["action"].value;
 		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
 
-		if (action == "findObjectVisually")
+		if (action == "graspobject")
 		{
 			active = true;
 		}
