@@ -37,6 +37,7 @@
 #include <qt4/QtCore/QTime>
 #include <qt4/QtCore/qmap.h>
 #include <qt4/QtCore/qpair.h>
+#include "bodypart.h"
 
 using namespace std;
 
@@ -47,7 +48,7 @@ class Target
 public:
 	
 	Target();
-	Target(InnerModel* innerModel, QVec pose, QMap<QString, QPair<QStringList,QString> > bodyParts, QString bodyPart);
+	Target(InnerModel* innerModel, QVec pose, const QMap<QString, BodyPart > &bodyParts, QString bodyPart);
 	~Target();
 
 	// MÉTODOS GET:
@@ -56,8 +57,8 @@ public:
 	QTime getStartTime() { return start; };
 	bool getActivo() { return activo; };
 	QString getBodyPart() {return bodyPart;};
-	QStringList getMotorList(){ return robotBodyParts.value(bodyPart).first;};
-	QString getTip(){ return robotBodyParts.value(bodyPart).second;};
+	QStringList getMotorList(){ return robotBodyParts.value(bodyPart).motorList;};
+	QString getTip(){ return robotBodyParts.value(bodyPart).tip;};
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
@@ -72,7 +73,7 @@ private:
 	// ATRIBUTOS DE LA CLASE
 	InnerModel *inner;											//copia del innermodel que usa el specificworker.
 	QString bodyPart; 											//Nombre de la parte del robot al que está asociado el target
-	QMap<QString,QPair<QStringList,QString> > robotBodyParts;	//Mapa con motores y endEffector del robot.
+	QMap<QString,BodyPart> robotBodyParts;	//Mapa con motores y endEffector del robot.
 	QVec pose; 													//vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
 	QQueue <QVec> subtargets; 									//lista de subtargets desde el body part hasta el target original.
 	QTime start;												//tiempo en que comenzó a trabajar el robot con el target original.

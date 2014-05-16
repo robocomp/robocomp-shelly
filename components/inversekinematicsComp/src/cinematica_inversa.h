@@ -78,6 +78,7 @@ private:
 	
 	// DE CÁLCULO.....
 	QVec calcularAngulos(); //devuelve el vcetor de todos los ángulos de los motores
+	void calcularModuloFloat(QVec &angles, float mod);
 
 	// DE ACTUALIZACIÓN...
 	void actualizarAngulos(QVec angulos_nuevos);

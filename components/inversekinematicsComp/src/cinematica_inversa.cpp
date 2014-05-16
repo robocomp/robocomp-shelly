@@ -183,7 +183,6 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.
 	QVec error = calcularVectorError(); //error de la posición actual con la deseada.
-
 	
 	QMat We = QMat::identity(6); //matriz de pesos para compensar milímietros con radianes.
  	We(0,0) = 1;		We(1,1) = 1;		We(2,2) = 1; // Traslaciones: cuando trabajamos con metros lo ponemos a 1.
@@ -217,12 +216,13 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 			if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))
 			{
 				stop = true;
-				qDebug()<<"Me atasco en iteracion: "<<k;
+// 				qDebug()<<"Me atasco en iteracion: "<<k;
 			}
 			else
 			{
 				aux = angulos-incrementos; 
-				
+				calcularModuloFloat(aux, 2*M_PI); // NORMALIZAMOS
+
 				if(dentroLimites(aux, motores) == false)
 				{
 					qDebug()<<"FUERA DE LOS LIMITES";
@@ -294,6 +294,24 @@ QVec Cinematica_Inversa::calcularAngulos()
 	}
 	return angulos;
 }
+
+/*
+* Metodo moduloFloat
+* Devuelve el m��dulo entre dos n��meros reales.
+* FUNCIONA.
+*/ 
+void Cinematica_Inversa::calcularModuloFloat(QVec &angles, float mod)
+{
+	for(int i=0; i<angles.size(); i++)
+	{
+		int cociente = (int)(angles[i] / mod);
+		angles[i] = angles[i] -(cociente*mod);
+		
+		if(angles[i] > M_PI)
+			angles[i] = angles[i]- M_PI;
+	}
+}
+
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE ACTUALIZACIÓN											   *
