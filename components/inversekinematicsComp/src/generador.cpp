@@ -40,29 +40,19 @@ Generador::~Generador()
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS PÚBLICOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const QMap<QString, BodyPart > &bodyParts, QString bodyPart)
+QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const BodyPart &bodyPart)
 {
 	QQueue<Target> listaTargets;
 	QVec traslaciones(3), rotaciones(3), punto(6);
 	QList<QVec> listaTraslaciones;
 
-	/*// Sacamos coordenadas de la punta del robot:
-	QVec coordenadasRobot = inner->transform("world", QVec::zeros(3), bodyParts.value(bodyPart).second);
 
-	// Sacamos las rotaciones de la punta del robot:
-	QMat matriz = inner->getRotationMatrixTo("world", bodyParts.value(bodyPart).second);
-	QVec ManoEnMundo = inner->getTransformationMatrix("world",bodyParts.value(bodyPart).second).extractAnglesR3(matriz);
-	QVec angulos1 = QVec::vec3(ManoEnMundo[0], ManoEnMundo[1], ManoEnMundo[2]);
-	QVec angulos2 = QVec::vec3(ManoEnMundo[3], ManoEnMundo[4], ManoEnMundo[5]);
-	QVec rotacionesRobot;
-	if(angulos1.norm2() < angulos2.norm2())
-		rotacionesRobot = angulos1;
-	else
-		rotacionesRobot = angulos2;*/
-	if(bodyPart == "RIGHTARM")
-		listaTraslaciones = generarPuntosCamareroDiestro();
-	if(bodyPart == "LEFTARM")
-		listaTraslaciones = generarPuntosCamareroZurdo();
+// 	if(bodyPart.getPartName() == "RIGHTARM")
+// 		listaTraslaciones = generarPuntosCamareroDiestro();
+// 	if(bodyPart.getPartName() == "LEFTARM")
+// 		listaTraslaciones = generarPuntosCamareroZurdo();
+	
+	listaTraslaciones = generarPuntosCamareroCentro();
 	
 	for(int i=0; i<listaTraslaciones.size(); i++)
 	{
@@ -77,8 +67,8 @@ QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const QMap<QS
 			punto [h] = traslaciones[h];
 			punto[h+3] = rotaciones[h];
 		}
-		
-		Target target (inner, punto, bodyParts, bodyPart);
+		//Construye el target pasándole el innerModel, el punto y el nombre del efector final.
+		Target target (inner, punto, bodyPart.getTip());
 		listaTargets.enqueue(target);
 
 	}	
@@ -298,7 +288,11 @@ QVec Generador::generarPuntoEsfera(int i, QVec centro, int radio)
 	return paux;
 }
 
-
+/*
+ * Método generarPuntosCamareroDiestro
+ * Crea una trayectoria cuadrada para la mano derecha del robot. Datos tomados del espacio de trabajo de ursus.
+ * Las longitudes están en metros
+ */ 
 QList<QVec> Generador::generarPuntosCamareroDiestro()
 {
 	QVec traslacion(3);
@@ -339,6 +333,11 @@ QList<QVec> Generador::generarPuntosCamareroDiestro()
 	return traslaciones;
 }
 
+/*
+ * Método generarPuntosCamareroZurdo
+ * Crea una trayectoria cuadrada para el brazo izquierdo del robot. Datos tomados del espacio de trabajo de ursus.
+ * Las longitudes están en metros.
+ */ 
 QList<QVec> Generador::generarPuntosCamareroZurdo()
 {
 	QVec traslacion(3);
@@ -379,4 +378,48 @@ QList<QVec> Generador::generarPuntosCamareroZurdo()
 	return traslaciones;
 }
 
+/*
+ * Método generarPuntosCamareroCentro.
+ *Crea una trayectoria para los dos brazos del robot. Los coloca aproximadamente por el pecho.
+ *Las longitudes están en metros. MADE IN PABLO. 
+ */ 
+QList<QVec> Generador::generarPuntosCamareroCentro()
+{
+	QVec traslacion(3);
+	QList<QVec> traslaciones;
+	float xAux, yAux;
+	
+	// lado inferior en X 1: 
+	for(float i=-0.15; i>=0.15; i=i+0.01)
+	{
+		traslacion[0] = i; traslacion[1] = 0.9; traslacion[2] = 0.350;
+		traslaciones.append(traslacion);
+		xAux = i;
+	}
+	
+	// Y 1:
+	for(float j=0.9; j<1.10; j=j+0.01)
+	{
+		traslacion[0] = xAux; traslacion[1] = j; traslacion[2] = 0.350;
+		traslaciones.append(traslacion);
+		yAux = j;
+	}
+	
+	// X 2:
+	for(float i=xAux; i>=-0.15; i=i-0.01)
+	{
+		traslacion[0] = i; traslacion[1] = yAux; traslacion[2] = 0.35;
+		traslaciones.append(traslacion);
+		xAux = i;
+	}
+	// Y 2:
+	for(float j=yAux; j>=0.9; j=j-0.01)
+	{
+		traslacion[0] = xAux; traslacion[1] = j; traslacion[2] = 0.35;
+		traslaciones.append(traslacion);
+		yAux = j;
+	}
+	
+	return traslaciones;
+}
 

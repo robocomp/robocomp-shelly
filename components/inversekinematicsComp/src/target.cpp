@@ -39,58 +39,60 @@ Target::Target()
 /**
  * \brief Constructor parametrizado
  * Inicializa las estructuras que componen sus atributos de clase. 
- * Le pasamos: los límites de las traslaciones en los que queremos poner el target.
- * 			   las coordenadas del effector final TODO pasarle la parte del cuerpo a la que pertenece el target.
- * 			   la distancia máxima del target al tip por si debe trocear.
+ * Le pasamos: 
+ * 			- El innerModel, para poder hacer sus cálculos cuando tenga que trocear la trayectoria.
+ * 			- El vector POSE, vector de 3 traslaciones y 3 rotaciones.
+ * 			- El nombre del EFECTOR FINAL.
  */ 
-Target::Target(InnerModel* innerModel, QVec pose, const QMap<QString,BodyPart > &bodyParts, QString bodyPart)
+Target::Target(InnerModel* innerModel, QVec pose, QString tip)
 {
 	this->activo = true;
-	this->inner = innerModel;
 	this->pose = pose;
-	this->bodyPart = bodyPart;
-	this->robotBodyParts = bodyParts;
+	this->tip = tip;
+	this->inner = innerModel;
 	
 	trocearTarget();// Si lo comento ya no funciona???
 }
 
+/**
+ * \brief Destructor por defecto
+ */ 
 Target::~Target()
 {
 
 }
 
 /*--------------------------------------------------------------------------*
- *						MÉTODOS PÚBLICOS									*
+ *		      									MÉTODOS PÚBLICOS															*
  *--------------------------------------------------------------------------*/
-void Target::setInnerModel(InnerModel *newInner)
-{
-	this->inner = newInner;
-}
-
+/*
+ * Método SET POSE
+ * Asigna el valor del vector de 6 elementos de entrada (3 traslaciones y 3 rotaciones)
+ * al atributo pose de la clase TARGET.
+ */ 
 void Target::setPose(QVec newPose)
 {
 	this->pose = newPose;
 }
 
-void Target::setBodyPart(QString newBodyPart)
-{
-	this->bodyPart = newBodyPart;
-}
-
+/*
+ * Método SET ACTIVO.
+ * Asigna el valor del booleano de entrada newActivo, al atributo activo de la clase
+ */ 
 void Target::setActivo(bool newActivo)
 {
 	this->activo = newActivo;
 }
 
+/*
+ * Método SET START TIME
+ * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
+ */ 
 void Target::setStartTime(QTime newStart)
 {
 	this->start = newStart;
 }
 
-
-/*--------------------------------------------------------------------------*
- *						MÉTODOS PRIVADOS									*
- *--------------------------------------------------------------------------*/
 /*
  * Método TROCEAR TARGET
  * Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
@@ -98,21 +100,19 @@ void Target::setStartTime(QTime newStart)
  */ 
 void Target::trocearTarget()
 {
-	// Sacamos el tip:
-	QString endEffector = robotBodyParts.value(bodyPart).tip; //DA PROBLEMAS AL LEER
 	
 	//TRASLACIÓN: 
-	QVec traslacionPose = QVec::vec3(pose[0], pose[1], pose[2]);
-	QVec traslaciones = (traslacionPose - inner->transform("world", QVec::zeros(3), endEffector));
+	QVec traslacionPose = QVec::vec3(pose[0], pose[1], pose[2]); //sacamos la traslación de la pose.
+	QVec traslaciones = (traslacionPose - inner->transform("world", QVec::zeros(3), this->tip));
 	
 	//ROTACIÓN:
 	// Hay que calcular las rotaciones de otra forma. No tenemos actualizado el innerModel para saber cúanto
-	// debe girar el endEffector para alcanzar la rotación del target.
-	// Sacamos las rotaciones del endEffector y restamos rotaciones. Si son iguales la resta da 0.
-	QMat matriz = inner->getRotationMatrixTo("world", endEffector);
-	QVec endEffectorEnMundo = inner->getTransformationMatrix("world", endEffector).extractAnglesR3(matriz);
-	QVec angulos1 = QVec::vec3(endEffectorEnMundo[0], endEffectorEnMundo[1], endEffectorEnMundo[2]);
-	QVec angulos2 = QVec::vec3(endEffectorEnMundo[3], endEffectorEnMundo[4], endEffectorEnMundo[5]);
+	// debe girar el this->tip para alcanzar la rotación del target.
+	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0.
+	QMat matriz = inner->getRotationMatrixTo("world", this->tip);
+	QVec tipEnMundo = inner->getTransformationMatrix("world", this->tip).extractAnglesR3(matriz);
+	QVec angulos1 = QVec::vec3(tipEnMundo[0], tipEnMundo[1], tipEnMundo[2]);
+	QVec angulos2 = QVec::vec3(tipEnMundo[3], tipEnMundo[4], tipEnMundo[5]);
 	QVec rot;
 	if(angulos1.norm2() < angulos2.norm2())
 		rot = angulos1;
@@ -139,16 +139,9 @@ void Target::trocearTarget()
 		{
 			float landa = 1/(Npuntos) * i;
 			
-			QVec R = inner->transform("world", QVec::zeros(3), endEffector)*(1-landa) + pose*landa;
-			subtargets.append(R);
+			QVec R = inner->transform("world", QVec::zeros(3), this->tip)*(1-landa) + pose*landa;
+			subtargets.append(R); //añadimos subtarget a la lista.
 		}
 	}
-	// R(6) = P*(1-landa) + Q*landa
-	// P = tip
-	// Q = target
 }
-
-
-
-
 

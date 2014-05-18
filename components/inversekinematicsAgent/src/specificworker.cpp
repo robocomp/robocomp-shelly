@@ -25,6 +25,8 @@
 
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {
+	setlocale (LC_ALL, "C");
+
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	active = false;
@@ -40,11 +42,33 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-	/// FUSCA TEMPORAL
-	printf("%s\n", action.c_str());
-	if (action == "findobjectvisually")
+	printf("action: %s\n", action.c_str());
+	if (action == "graspobject")
 	{
+		int32_t object = atoi(params["o"].value.c_str());
+		printf("go get %d\n", object);
+		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
+		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
+		RoboCompBodyInverseKinematics::Pose6D target;
+		target.x = tx;
+		target.y = ty;
+		target.z = tz;
+		target.rx = rx;
+		target.ry = ry;
+		target.rz = rz;
+		bool ret = bodyinversekinematics_proxy->setTarget("leftHand", target);
+		printf("success=%d\n", ret);
 	}
+	else
+	{
+		printf("ignoring this action...\n");
+	}
+	printf("\n\n");
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -55,49 +79,86 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 bool SpecificWorker::activateAgent(const ParameterMap& prs)
 {
-	//return 0;
+	bool activated = false;
+	if (setParametersAndPossibleActivation(prs, activated))
+	{
+		if (not activated)
+		{
+			mutex->lock();
+			active = true;
+			mutex->unlock();
+			return true;
+		}
+	}
+	else
+	{
+		return false;
+	}
+	return true;
 }
 
 bool SpecificWorker::deactivateAgent()
 {
-	//return 0;
+	mutex->lock();
+	active = false;
+	mutex->unlock();
+	return true;
 }
 
 StateStruct SpecificWorker::getAgentState()
 {
-	//return 0;
+	StateStruct s;
+	if (active)
+	{
+		s.state = Running;
+	}
+	else
+	{
+		s.state = Stopped;
+	}
+	s.info = action;
+	return s;
 }
+
 
 ParameterMap SpecificWorker::getAgentParameters()
 {
-	//return 0;
+	return params;
 }
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& prs)
 {
-	//return 0;
+	bool activated = false;
+	return setParametersAndPossibleActivation(prs, activated);
 }
 
 void SpecificWorker::killAgent()
 {
+	exit(-1);
 }
 
 int SpecificWorker::uptimeAgent()
 {
-	//return 0;
+	return 0;
 }
 
 bool SpecificWorker::reloadConfigAgent()
 {
-	//return 0;
+	return true;
 }
 
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
+	mutex->lock();
+	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
+	mutex->unlock();	
 }
 
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
+	mutex->lock();
+	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+	mutex->unlock();
 }
 
 
@@ -117,8 +178,9 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	{
 		action = params["action"].value;
 		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
+		
 
-		if (action == "findObjectVisually")
+		if (action == "findobjectvisually")
 		{
 			active = true;
 		}

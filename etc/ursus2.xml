@@ -65,7 +65,7 @@
 						<transform id="arm_right_1" tx="155" tz="975" ry="1.5707963267948966" > 
 							<!-- Gira en Z -->
 							<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="1.5707963267948966" tz="-55" tx="30" scale="1000" />
-							<joint id="shoulder_right_1" port="20000" axis="z" home="-1.6507">
+							<joint id="rightShoulder1" port="20000" axis="z" home="-1.6507">
 								<transform id="axessr1" > 
 									<plane id="xsr1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 									<plane id="ysr1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -74,7 +74,7 @@
 								<mesh id="shoulder_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000"    />
 								<transform id="arm_right_2" tz="41" >
 									<!-- Gira en X -->
-									<joint id="shoulder_right_2" port="20000"  axis="x"  home="-1.3034" >
+									<joint id="rightShoulder2" port="20000"  axis="x"  home="-1.3034" >
 										<transform id="axessr2" > 
 											<plane id="xsr2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 											<plane id="ysr2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -83,7 +83,7 @@
 										<mesh id="shoulder_right_2_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" rx="0" scale="1000"     />
 										<transform id="arm_right_3" tz="234"  >
 											<!-- Gira en Z -->
-											<joint id="shoulder_right_3" port="20000"  axis="z" home="-3.14159265359">
+											<joint id="rightShoulder3" port="20000"  axis="z" home="-3.14159265359">
 												<transform id="axessr3" > 
 													<plane id="xsr3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 													<plane id="ysr3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -92,7 +92,7 @@
 												<mesh id="shoulder_right_3_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" rz="3.14159265359" scale="1000"     />
 												<transform id="arm_right_4" ty="-28"  tz="20"    > <!--Codo-->
 													<!-- Gira en X -->
-													<joint id="elbow_right" port="20000"  axis="x"  min="0" max="3.148352986419" home="0.5" >
+													<joint id="rightElbow" port="20000"  axis="x"  min="0" max="3.148352986419" home="0.5" >
 													<transform id="axeser1" > 
 														<plane id="xer1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 														<plane id="yer1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -101,7 +101,7 @@
 													<mesh id="elbow_right_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive" rz="3.14159265359" ty="0.0" scale="1000"     />													
 														<transform id="arm_right_5" ty="28" tz="166"    > <!--Giro1 muñeca-->
 															<!-- Gira en Z-->
-															<joint id="wrist_right_1" port="20000" min="-3.14159265359" max="3.14159265359" axis="z">
+															<joint id="rightForeArm" port="20000" min="-3.14159265359" max="3.14159265359" axis="z">
 																<transform id="axeswr1" > 
 																	<plane id="xwr1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																	<plane id="ywr1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -110,24 +110,24 @@
 																<mesh id="wrist_right_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="2"    />
 																<transform id="arm_right_6" tz="1" >
 																	<!-- Prismatica en Z -->
-																	<joint id="wrist_right_2" port="20000" axis="z">
-																	<!-- Gira en X -->
-																	<joint id="wrist_right_3" port="20000" min="-0.8" max="0.8" axis="x">
-																	<!-- Gira en Y -->
-																	<joint id="wrist_right_4" port="20000" min="-0.8" max="0.8" axis="y">
-																		<transform id="arm_right_7" tx="0.0"    > <!--Mano-->
-																			<joint id="hand_right" port="20000">
-																				<mesh id="hand_right_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/mano.ive" scale="1000" ry="-1.5707963267948966" tz="80"/>
-																				<transform id="axesHandR" > 
-																					<plane id="xHandR" px="100" nx="1" size="10,10,100" repeat="1" texture="#ff0000" />
-																					<plane id="yHandR" py="100" nx="1" size="10,100,10" repeat="1" texture="#00ff00" />
-																					<plane id="zHandR" pz="100" nx="1" size="100,10,10" repeat="1" texture="#0000ff" />
-																					<transform id="grabPositionHandR" tz="200" />	
+																	<joint id="rightWrist1" port="20000" axis="z">
+																		<!-- Gira en X -->
+																		<joint id="rightWrist2" port="20000" min="-0.8" max="0.8" axis="x">
+																			<!-- Gira en Y -->
+																			<joint id="rightWrist3" port="20000" min="-0.8" max="0.8" axis="y">
+																				<transform id="arm_right_7" tx="0.0"    > <!--Mano-->
+																					<joint id="rightHand" port="20000">
+																						<mesh id="hand_right_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/mano.ive" scale="1000" ry="-1.5707963267948966" tz="80"/>
+																						<transform id="axesHandR" > 
+																							<plane id="xHandR" px="100" nx="1" size="10,10,100" repeat="1" texture="#ff0000" />
+																							<plane id="yHandR" py="100" nx="1" size="10,100,10" repeat="1" texture="#00ff00" />
+																							<plane id="zHandR" pz="100" nx="1" size="100,10,10" repeat="1" texture="#0000ff" />
+																							<transform id="grabPositionHandR" tz="200" />	
+																						</transform>
+																					</joint>
 																				</transform>
 																			</joint>
-																		</transform>
-																	</joint>
-																	</joint>
+																		</joint>
 																	</joint>
 																</transform>
 															</joint>
@@ -150,7 +150,7 @@
 	
 							<!-- Gira en Z -->
 							<mesh id="arm_left_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="1.5707963267948966" tz="-55" tx="30" scale="1000"    />
-							<joint id="shoulder_left_1" port="20000" min="-3.14159265359" max="3.14159265359" axis="z" home="-1.6">
+							<joint id="leftShoulder1" port="20000" min="-3.14159265359" max="3.14159265359" axis="z" home="-1.6">
 								<transform id="axessl1" > 
 									<plane id="xsl1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 									<plane id="ysl1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -159,7 +159,7 @@
 								<mesh id="shoulder_left_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000"    />
 								<transform id="arm_left_2" tz="41" >
 									<!-- Gira en X -->
-									<joint id="shoulder_left_2" port="20000" min="-3.47" max="3.147" axis="x" home="-1.30" >
+									<joint id="leftShoulder2" port="20000" min="-3.47" max="3.147" axis="x" home="-1.30" >
 										<transform id="axessl2" > 
 											<plane id="xsl2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 											<plane id="ysl2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -168,7 +168,7 @@
 										<mesh id="shoulder_left_2_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" rx="0" scale="1000"  />
 										<transform id="arm_left_3" tz="234"  >
 											<!-- Gira en Z -->
-											<joint id="shoulder_left_3" port="20000" min="-3.14159265359" max="3.14159265359" axis="z" home="0.1" >
+											<joint id="leftShoulder3" port="20000" min="-3.14159265359" max="3.14159265359" axis="z" home="0.1" >
 												<transform id="axessl3" > 
 													<plane id="xsl3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 													<plane id="ysl3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -177,7 +177,7 @@
 												<mesh id="shoulder_left_3_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" scale="1000"  />
 												<transform id="arm_left_4"  ty="28"  tz="20" > <!--Codo-->
 													<!-- Gira en X -->
-													<joint id="elbow_left" port="20000" min="-3.14" max="3.15" axis="x" home="-0.2" >
+													<joint id="leftElbow" port="20000" min="-3.14" max="3.15" axis="x" home="-0.2" >
 														<transform id="axesel1" > 
 															<plane id="xel1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 															<plane id="yel1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -186,7 +186,7 @@
 														<mesh id="elbow_left_mesh"  file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive"  ty="0.0" scale="1000"   />
 														<transform id="arm_left_5" ty="-28" tz="166"    > <!--Giro1 muñeca-->
 															<!-- Gira en Z-->
-															<joint id="wrist_left_1" port="20000" min="-3.14159265359" max="3.14159265359" axis="z">
+															<joint id="leftForeArm" port="20000" min="-3.14159265359" max="3.14159265359" axis="z">
 																<transform id="axeswl1" > 
 																	<plane id="xwl1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																	<plane id="ywl1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
@@ -195,11 +195,11 @@
 																<mesh id="wrist_left_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="2"    />
 																<transform id="arm_left_6" tz="1" >
 																	<!-- Prismatica en Z -->
-																	<joint id="wrist_left_2" port="20000" axis="z">
+																	<joint id="leftWrist1" port="20000" axis="z">
 																	<!-- Gira en X -->
-																	<joint id="wrist_left_3" port="20000" min="-0.8" max="0.8" axis="x">
+																	<joint id="leftWrist2" port="20000" min="-0.8" max="0.8" axis="x">
 																	<!-- Gira en Y -->
-																	<joint id="wrist_left_4" port="20000" min="-0.8" max="0.8" axis="y">
+																	<joint id="leftWrist3" port="20000" min="-0.8" max="0.8" axis="y">
 																		<transform id="arm_left_7" tx="0.0"    > <!--Mano-->
 																			<joint id="hand_left" port="20000">
 																				<mesh id="hand_left_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/mano.ive" scale="1000" ry="-1.5707963267948966" tz="80" />

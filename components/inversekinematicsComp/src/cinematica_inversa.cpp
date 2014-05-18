@@ -187,6 +187,8 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 	QMat We = QMat::identity(6); //matriz de pesos para compensar milímietros con radianes.
  	We(0,0) = 1;		We(1,1) = 1;		We(2,2) = 1; // Traslaciones: cuando trabajamos con metros lo ponemos a 1.
 	We(3,3) = 1;		We(4,4) = 1;		We(5,5) = 1; // Rotaciones.
+// 	We(3,3) = 0;		We(4,4) = 0;		We(5,5) = 0; // Rotaciones.
+
 
 	QMat J = jacobian(motores);
 	QMat H = J.transpose()*(We*J);

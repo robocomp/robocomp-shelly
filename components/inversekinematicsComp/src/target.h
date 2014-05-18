@@ -30,17 +30,18 @@
 /*
  * CLASE AÑADIDA: TARGET.
  * Sirve para marcar puntos objetivos donde llevar diferentes partes del robot, como el brazo
- * derecho, el brazo izquierdo o la cabeza...
+ * derecho, el brazo izquierdo o la cabeza... Necesita varias cosas:
+ * 		- Un vector POSE que le indique cuál es su traslación y su rotación.
+ * 		- El tip o endEffector al que está asignado.
+ * 		- El innerModel parapoder trocear la trayectoria desde el endEffector hasta el target.
  */ 
 #include <innermodel/innermodel.h>
 #include <qt4/QtCore/qstring.h>
 #include <qt4/QtCore/QTime>
 #include <qt4/QtCore/qmap.h>
-#include <qt4/QtCore/qpair.h>
-#include "bodypart.h"
+#include <qt4/QtCore/qqueue.h>
 
 using namespace std;
-
 
 class Target
 {
@@ -48,40 +49,34 @@ class Target
 public:
 	
 	Target();
-	Target(InnerModel* innerModel, QVec pose, const QMap<QString, BodyPart > &bodyParts, QString bodyPart);
+	Target(InnerModel *inner, QVec pose, QString bodyPart);
 	~Target();
-
+	
 	// MÉTODOS GET:
-	QVec getPose() { return pose; };
-	QQueue <QVec> getSubtargets() { return subtargets; };
-	QTime getStartTime() { return start; };
-	bool getActivo() { return activo; };
-	QString getBodyPart() {return bodyPart;};
-	QStringList getMotorList(){ return robotBodyParts.value(bodyPart).motorList;};
-	QString getTip(){ return robotBodyParts.value(bodyPart).tip;};
+	QString getTipName() const { return this->tip; }; 	//Devuelve el nombre del TIP.
+	QVec getPose() const { return this->pose; }; 				// Devuelve el vector pose del target
+	QTime getStartTime() const { return this->start; }; // Devuelve el tiempo del target.
+	bool getActivo() const { return this->activo; };		// Devuelve el estado del target
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
 	void setPose(QVec newPose);
-	void setBodyPart(QString newBodyPart);
-	
 	void setStartTime (QTime newStart);
 	void setActivo (bool newActivo);	
+	
+	// OTROS MÉTODOS
+	void trocearTarget();
 	
 private:
 	
 	// ATRIBUTOS DE LA CLASE
-	InnerModel *inner;											//copia del innermodel que usa el specificworker.
-	QString bodyPart; 											//Nombre de la parte del robot al que está asociado el target
-	QMap<QString,BodyPart> robotBodyParts;	//Mapa con motores y endEffector del robot.
-	QVec pose; 													//vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-	QQueue <QVec> subtargets; 									//lista de subtargets desde el body part hasta el target original.
-	QTime start;												//tiempo en que comenzó a trabajar el robot con el target original.
-	bool activo;												//bandera para indicar si el target es válido y el robot debe trabajar con él o no.
-
+	QString tip; 							// Nombre del efector final al que está asociado el target
+	QTime start;							// Tiempo en que comenzó a trabajar el robot con el target original.
+	bool activo;							// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
+	QVec pose; 								// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
+	QQueue<QVec> subtargets;	// Cola de subtargets (trayectorias troceadas) para cada target.
+	InnerModel *inner;				// Innermodel para calcular cosas.
 	
-	// OTROS MÉTODOS
-	void trocearTarget();
 };
 
 
