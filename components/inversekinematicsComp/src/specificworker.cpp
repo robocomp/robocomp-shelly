@@ -37,41 +37,81 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	qDebug()<<"\n--------------- CONSTRUCTOR ------------------\n";
 	
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist2"<<"leftWrist3";
+	listaBrazoIzquierdo  << "base" <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist2"<<"leftWrist3";
 	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist2"<<"rightWrist3";
-	listaCabeza << " ";
+	listaCabeza  << "tilt" << "roll" << "pan";
 	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 							 <<"rightWrist3"<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
-							 <<"leftWrist2"<<"leftWrist3";
-							 
+							 <<"leftWrist2"<<"leftWrist3" << "base" << "pan" << "tilt" << "roll";
+
  	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus2Metros.xml");
 
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
+	QString nose = "sensor_transform";
+	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
-			
+	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza, nose);
+							 
 	// CREA EL MAPA DE PARTES DEL CUERPO: por ahora los brazos.
 	bodyParts.insert("LEFTARM", BodyPart(innerModel, IK_BrazoIzquierdo, "LEFTARM", tipLeft, listaBrazoIzquierdo));
 	bodyParts.insert("RIGHTARM", BodyPart(innerModel, IK_BrazoDerecho, "RIGHTARM", tipRight, listaBrazoDerecho)); 
+	bodyParts.insert("HEAD", BodyPart(innerModel, IK_Cabeza, "HEAD", nose, listaCabeza)); 
 										 
-printf("%s: %d\n", __FILE__, __LINE__);
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
-printf("%s: %d\n", __FILE__, __LINE__);
 	
-	goHomePosition(listaMotores); sleep(2);
+	goHomePosition(listaMotores); 
+	sleep(2);
 	actualizarInnermodel(listaMotores);
 		
 	//Open file to write errors
-	fichero.open("");
+	fichero.open("errores.txt", ios::out);
 	
 	//CREA LA LISTA DE TARGETS PARA CADA PARTE DEL CUERPO: necesita innerModel y el bodypart
-	listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts.value("RIGHTARM"));
-	bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
+	//USAMOS LA INTERFAZ DE ICE
 	
-	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts.value("LEFTARM")); //añadido
-	bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);
+	QVec w(6);
+	w.set(1.f);
+	
+// 	listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts.value("RIGHTARM"), w);
+// 	bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
+// 	
+//  	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts.value("LEFTARM"), w); 
+// 	foreach(Target t, listaTargetsBrazoIzquierdo)
+// 	{
+// 		RoboCompBodyInverseKinematics::Pose6D pose;
+// 		RoboCompBodyInverseKinematics::WeightVector weights;
+// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
+// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
+// 		weights.x = t.getWeights().x();	weights.y = t.getWeights().y();	weights.z = t.getWeights().z();
+// 		weights.rx = t.getWeights().rx();	weights.ry = t.getWeights().ry(); weights.rz = t.getWeights().rz();
+// 		this->setTargetPose6D("LEFTARM", pose, weights);
+// 	}
+// 	qDebug() << "Size lista  " << bodyParts.value("LEFTARM").getListaTargets().size();
+	
+  //bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);
+// 	listaTargetsCabeza = generador.generarListaTargets(innerModel, bodyParts.value("HEAD"),w); //añadido
+// 	foreach(Target t, listaTargetsCabeza)
+// 	{
+// 		RoboCompBodyInverseKinematics::Pose6D pose;
+// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
+// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
+// 		this->pointAxisTowardsTarget("HEAD", pose, "z", true, 0.f);		
+// 	}
+	
+	//bodyParts["HEAD"].addListaTarget(listaTargetsCabeza);
+		
+	//RRT path-Planning stuff
+// 	planner = new Planner(innerModel);
+// 	qDebug("Planning ...");
+// 	QVec targetToGo;
+// 	planner->computePath(target);	
+// 	if(planner->getPath().size() == 0)
+// 		qFatal("Path NOT found");
+// 	QList<QVec> path = planner->getPath();
+
 		
 	qDebug()<<"\n---------------FIN CONSTRUCTOR ------------------\n";
 }
@@ -88,55 +128,32 @@ void SpecificWorker::compute( )
 {
 	mutex->lock();
 	
-	// SIN ITERADOR :
-// 		for(int i=0; i<2; i++) //desde i=0 hasta 1
-// 		{
-// 			// Preparamos para sacar la parte del cuerpo que corresponda: Si 0--> la izquierda, si no 0--> la derecha.
-// 			QString parte;	
-// 			if(i==0) parte = "LEFTARM";  
-// 			else parte = "RIGHTARM";
-// 			
-// 			// Hacemos la cinemática inversa para esa parte:
-// 			if(bodyParts[parte].getListaTargets().isEmpty() == false)
-// 			{
-// 				Target target = bodyParts[parte].getHeadFromListaTargets(); //miramos el primer target.
-// 				moverTarget(target.getPose()); // colocamos el target en su posición 8en el innermodel).
-// 
-// 				QVec angulos = bodyParts[parte].getInverseKinematics()->resolverTarget(target.getPose());
-// 				moverBrazo(angulos, bodyParts[parte].getMotorList());
-// 				usleep(100000);
-// 				actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
-// 				
-// 				bodyParts[parte].removeHeadFromListaTargets(); //eliminamos el target resuelto.
-// 				
-// 				float error = bodyParts[parte].getInverseKinematics()->devolverError();
-// 				fichero <<error;
-// 			}
-// 		}
-	
-	// CON ITERADOR:
-	 QMapIterator<QString, BodyPart> iterador (bodyParts);
-	 while (iterador.hasNext())
-	 {
+ QMapIterator<QString, BodyPart> iterador (bodyParts);
+ while (iterador.hasNext())
+ {
 		 iterador.next();
-		 
-		  if(bodyParts[iterador.value().getPartName()].getListaTargets().isEmpty() == false)
-      {
-				Target target = bodyParts[iterador.value().getPartName()].getHeadFromListaTargets(); //miramos el primer target.
-        moverTarget(target.getPose()); // colocamos el target en su posición 8en el innermodel).
-        
-        QVec angulos = bodyParts[iterador.value().getPartName()].getInverseKinematics()->resolverTarget(target.getPose());
-        moverBrazo(angulos, bodyParts[iterador.value().getPartName()].getMotorList());
-        usleep(100000);
-        actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
-               
-        bodyParts[iterador.value().getPartName()].removeHeadFromListaTargets(); //eliminamos el target resuelto.
-               
-        float error = bodyParts[iterador.value().getPartName()].getInverseKinematics()->devolverError();
-        fichero <<error;
-			}
+		 QString part = iterador.value().getPartName();
+		 if(bodyParts[part].getListaTargets().isEmpty() == false)
+     {
+				Target target = bodyParts[part].getHeadFromListaTargets(); //miramos el primer target.
+				moverTarget(target.getPose()); // colocamos el target en su posición 8en el innermodel).
+				QVec angulos = bodyParts[part].getInverseKinematics()->resolverTarget(target);
+				moverBrazo(angulos, bodyParts[part].getMotorList());
+				usleep(50000);
+				actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
+								
+				bodyParts[part].removeHeadFromListaTargets(); //eliminamos el target resuelto.
+								
+				//float error = bodyParts[iterador.value().getPartName()].getInverseKinematics()->devolverError();
+				//fichero << iterador.value().getPartName().toStdString() << " " << QString::number(error).toStdString() << std::endl;
+				//fichero.close();fichero.open("errores.txt", ios::out | ios::app);
+	}
+		else
+		{
+		
+		}
 	 }
-	 
+
 	mutex->unlock();
 }
 
@@ -151,43 +168,178 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 ///////////////////////////////////////////////
 /// SERVANTS  OJO se ejecuta en el  hilo de ICE
 //////////////////////////////////////////////
+/**
+ * @brief ...
+ * 
+ * @param bodyPart ...
+ * @param target ...
+ * @return bool
+ */
 bool SpecificWorker::setTarget(const std::string& bodyPart, const Pose6D& target)
 {
 	QString partName;
-	BodyPart bodypart;
 	if ( bodyParts.contains(QString::fromStdString(bodyPart)))
-	{
 		partName = QString::fromStdString(bodyPart);
-		bodypart = bodyParts.value(partName);
-	}
 	else
 	{
-		qDebug() << "Not recognized body part";
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		return false;
 	}
 	
 	//Se debe comprobar condiciones del target cuando las tengamos.
 	QVec tar(6);
-	tar[0] = target.x;
-	tar[1] = target.y;
-	tar[2] = target.z;
-	tar[3] = target.rx;
-	tar[4] = target.ry;
-	tar[5] = target.rz;
+	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
 	
-	Target t(innerModel, tar, bodypart.getTip());
+	QVec w(6);
+	w.set(1.f);
+	Target t(innerModel, tar, bodyParts[partName].getTip(), w);
 	t.setActivo(true);
 	
 	mutex->lock();
-		if(bodyPart=="RIGHTARM")
-			listaTargetsBrazoDerecho.enqueue( t );
+		bodyParts[partName].addTargetToList(t);
 	mutex->unlock();
 	
-	qDebug() << "New target arrived: " << partName;
+	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
 	tar.print("target in world coordinates");
 	
 	return true;
 }
+
+/**
+ * @brief ...
+ * 
+ * @param bodyPart ...
+ * @param target ...
+ * @param weights ...
+ * @return void
+ */
+void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights)
+{
+	QString partName;
+	if ( this->bodyParts.contains(QString::fromStdString(bodyPart)))
+		partName = QString::fromStdString(bodyPart);
+	else
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	
+	//Se debe comprobar condiciones del target cuando las tengamos.
+	QVec tar(6);
+	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
+
+	//Weights vector
+	QVec w(6);
+	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
+
+	Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::POSE6D);
+	t.print();
+	mutex->lock();
+		bodyParts[partName].addTargetToList(t);
+	mutex->unlock();
+	
+	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
+	
+
+}
+
+/**
+ * @brief ...
+ * 
+ * @param bodyPart ...
+ * @param target ...
+ * @param axis ...
+ * @param axisConstraint ...
+ * @param axisAngleConstraint ...
+ * @return void
+ */
+void SpecificWorker::pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint)
+{
+	QString partName;
+	BodyPart bodypart;
+	if ( bodyParts.contains(QString::fromStdString(bodyPart)) and ((axis == "x") or (axis == "X") or (axis == "y") or (axis == "Y") or (axis == "z") or (axis == "Z")))
+		partName = QString::fromStdString(bodyPart);
+	else
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part or incorrect axis";
+		throw ex;
+	}
+	
+	//Se debe comprobar condiciones del target cuando las tengamos.
+	QVec tar(6);
+	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
+
+	//Weights vector
+	QVec w(6);	w.set(1.f);
+	Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::ALIGNAXIS, QString::fromStdString(axis), axisConstraint, axisAngleConstraint );
+	
+	mutex->lock();
+		bodyParts[partName].addTargetToList(t);
+	mutex->unlock();
+	
+	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
+	tar.print("target in world coordinates");
+
+}
+
+
+/**
+ * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
+ * 
+ * @param bodyPart ...
+ * @param ax ...
+ * @param dist ...
+ * @return void
+ */
+void SpecificWorker::advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist)
+{
+	QString partName;
+	BodyPart bodypart;
+	if ( bodyParts.contains(QString::fromStdString(bodyPart)))
+		partName = QString::fromStdString(bodyPart);
+	else
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	//Se deberían comprobar condiciones del target cuando las tengamos.
+	QVec tar(6); tar.set(0.f);
+	//Code axis as a dist norm vector in tip reference frame
+	QVec axis = QVec::vec3(	ax.x, ax.y,	ax.z).normalize();
+	axis = axis * (T)dist;
+	tar.inject(axis,0);
+	
+	//Weights vector
+	QVec w(6);	w.set(1.f);
+	w.inject(QVec::zeros(3),3);  //Ignore rotations
+	Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::ADVANCEALONGAXIS);
+	
+	mutex->lock();
+		bodyParts[partName].addTargetToList(t);
+	mutex->unlock();
+	
+	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
+	tar.print("target in world coordinates");
+
+}
+
+/**
+ * @brief ...
+ * 
+ * @param d ...
+ * @return void
+ */
+void SpecificWorker::setFingers(float d)
+{
+
+}
+
 
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS    PRIVADOS                                *
@@ -206,22 +358,37 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 	{
 		MotorList mList;
 		for(int i=0; i<listaJoints.size(); i++)
-		{
-			printf("AAA%s\n", listaJoints[i].toStdString().c_str());
 			mList.push_back(listaJoints[i].toStdString());
-		}
-
+		
 		RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap(mList);
 		
 		for(int j=0; j<listaJoints.size(); j++)
-		{
-			printf("BBB %s\n", listaJoints[j].toStdString().c_str());
 			innerModel->updateJointValue(listaJoints[j], mMap.at(listaJoints[j].toStdString()).pos);
-		}
-	}
-	catch (const Ice::Exception &ex)
-	{
+
+	} catch (const Ice::Exception &ex) {
 		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
+	}
+}
+
+
+/*
+ * Metodo goHomePosition.
+ * Lleva al brazo a una posicion determinada para comenzar a moverlo.
+ */ 
+void SpecificWorker::goHomePosition(const QStringList &listaJoints )
+{
+	
+	for(int i=0; i<listaJoints.size(); i++){
+		try {
+			RoboCompJointMotor::MotorGoalPosition nodo;
+			nodo.name = listaJoints.at(i).toStdString();
+			nodo.position = innerModel->getJoint(listaJoints.at(i))->home;
+			nodo.maxSpeed = 5; //radianes por segundo
+			jointmotor_proxy->setPosition(nodo);
+			
+		} catch (const Ice::Exception &ex) {
+			cout<<"Excepción en mover Brazo: "<<ex<<endl;	
+		}
 	}
 }
 
@@ -229,6 +396,40 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS PARA MOVER                                 *
  *-----------------------------------------------------------------------------*/ 
+
+// /*
+//  * Método moverTarget.
+//  * Mueve el target (la esfera objetivo del innerModel) a una posición guardada 
+//  * en la lista de posiciones de Targets listaTargets. Crea una pose a cero y le
+//  * actualiza las traslaciones tx, ty y tz y las rotaciones rx, ry y rz con los 
+//  * datos almacenados en la lista.
+//  */ 
+// void SpecificWorker::moverTarget(int contador)
+// {
+// 	if(contador < listaPosicionTarget.size())
+// 	{
+// 		try{
+// 			RoboCompInnerModelManager::Pose3D p;
+// 			p.x=p.y=p.z=p.rx=p.ry=p.rz=0.0; //Primero inicializamos a cero.
+// 			ptarget = listaPosicionTarget.at(contador); //sacamos posicion del target de la lista de posiciones.
+// 		
+// // 			p.x = ptarget[0]; p.y = ptarget[1]; p.z = ptarget[2];
+// // 			p.rx = ptarget[3]; p.ry = ptarget[4]; p.rz = ptarget[5];
+// 			innerModel->transform("world", QVec::zeros(3), "tip");
+// 			p.x = 0.35; p.y = 0.8; p.z = 0.2;
+// 			p.rx = 0; p.ry = 0; p.rz = 0; //rot a 0
+// 				
+// 			innermodelmanager_proxy->setPoseFromParent("target",p);
+// 			innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
+// 			
+// 			}catch (const Ice::Exception &ex) {
+// 				cout<<"Excepción en moverTarget: "<<ex<<endl;
+// 			}
+// 	}
+// 	else
+// 		qDebug()<<"ERROR al mover target: Fuera de la lista de posiciones";
+// }
+
 /*
  * Método moverBrazo.
  * Mueve el brazo cambiando los ángulos que forman con el eje X 
@@ -272,7 +473,6 @@ void SpecificWorker::moverTarget(const QVec &pose)
 			
 		innermodelmanager_proxy->setPoseFromParent("target",p);
 		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
-		
 		}
 	catch (const Ice::Exception &ex) 
 	{
@@ -280,61 +480,6 @@ void SpecificWorker::moverTarget(const QVec &pose)
 	}
 }
 
-
-// /*
-//  * Método moverTarget.
-//  * Mueve el target (la esfera objetivo del innerModel) a una posición guardada 
-//  * en la lista de posiciones de Targets listaTargets. Crea una pose a cero y le
-//  * actualiza las traslaciones tx, ty y tz y las rotaciones rx, ry y rz con los 
-//  * datos almacenados en la lista.
-//  */ 
-// void SpecificWorker::moverTarget(int contador)
-// {
-// 	if(contador < listaPosicionTarget.size())
-// 	{
-// 		try{
-// 			RoboCompInnerModelManager::Pose3D p;
-// 			p.x=p.y=p.z=p.rx=p.ry=p.rz=0.0; //Primero inicializamos a cero.
-// 			ptarget = listaPosicionTarget.at(contador); //sacamos posicion del target de la lista de posiciones.
-// 		
-// // 			p.x = ptarget[0]; p.y = ptarget[1]; p.z = ptarget[2];
-// // 			p.rx = ptarget[3]; p.ry = ptarget[4]; p.rz = ptarget[5];
-// 			innerModel->transform("world", QVec::zeros(3), "tip");
-// 			p.x = 0.35; p.y = 0.8; p.z = 0.2;
-// 			p.rx = 0; p.ry = 0; p.rz = 0; //rot a 0
-// 				
-// 			innermodelmanager_proxy->setPoseFromParent("target",p);
-// 			innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
-// 			
-// 			}catch (const Ice::Exception &ex) {
-// 				cout<<"Excepción en moverTarget: "<<ex<<endl;
-// 			}
-// 	}
-// 	else
-// 		qDebug()<<"ERROR al mover target: Fuera de la lista de posiciones";
-// }
-// 
-
-/*
- * Metodo goHomePosition.
- * Lleva al brazo a una posicion determinada para comenzar a moverlo.
- */ 
-void SpecificWorker::goHomePosition(const QStringList &listaJoints )
-{
-	
-	for(int i=0; i<listaJoints.size(); i++){
-		try {
-			RoboCompJointMotor::MotorGoalPosition nodo;
-			nodo.name = listaJoints.at(i).toStdString();
-			nodo.position = innerModel->getJoint(listaJoints.at(i))->home;
-			nodo.maxSpeed = 5; //radianes por segundo
-			jointmotor_proxy->setPosition(nodo);
-			
-		} catch (const Ice::Exception &ex) {
-			cout<<"Excepción en mover Brazo: "<<ex<<endl;	
-		}
-	}
-}
 
 
 /*-----------------------------------------------------------------------------*
@@ -344,19 +489,21 @@ void SpecificWorker::goHomePosition(const QStringList &listaJoints )
  * Método getRotacionMano
  * Devuelve la rotación de la mano del robot
  */ 
-QVec SpecificWorker::getRotacionMano (QString puntaMano)
-{
-	QMat matriz = innerModel->getRotationMatrixTo("world", puntaMano);
-	QVec ManoEnMundo = innerModel->getTransformationMatrix("world", puntaMano).extractAnglesR3(matriz);
-	QVec angulos1 = QVec::vec3(ManoEnMundo[0], ManoEnMundo[1], ManoEnMundo[2]);
-	QVec angulos2 = QVec::vec3(ManoEnMundo[3], ManoEnMundo[4], ManoEnMundo[5]);
-	QVec rot;
-	if(angulos1.norm2() < angulos2.norm2())
-		rot = angulos1;
-	else
-		rot = angulos2;
-	
-	return rot;
-}
+// QVec SpecificWorker::getRotacionMano (QString puntaMano)
+// {
+// 	QMat matriz = innerModel->getRotationMatrixTo("world", puntaMano);
+// 	QVec ManoEnMundo = innerModel->getTransformationMatrix("world", puntaMano).extractAnglesR3(matriz);
+// 	QVec angulos1 = QVec::vec3(ManoEnMundo[0], ManoEnMundo[1], ManoEnMundo[2]);
+// 	QVec angulos2 = QVec::vec3(ManoEnMundo[3], ManoEnMundo[4], ManoEnMundo[5]);
+// 	QVec rot;
+// 	if(angulos1.norm2() < angulos2.norm2())
+// 		rot = angulos1;
+// 	else
+// 		rot = angulos2;
+// 	
+// 	return rot;
+// }
+
+
 
 

@@ -23,20 +23,19 @@
     OTHER DEALINGS IN THE SOFTWARE.
 */
 
-
 #include "cinematica_inversa.h"
 #include <qt4/QtCore/qstringlist.h>
+#include <boost/graph/graph_concepts.hpp>
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 								CONSTRUCTORES Y DESTRUCTORES												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_) : inner(inner_), listaJoints(joints_), endEffector(endEffector_)
+Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_) 
+		:	inner(inner_), listaJoints(joints_), endEffector(endEffector_)
 {
 	// Inicializa los atributos de la clase a partir de los : //
-	this->inner = inner;  //solo hay que asignarlo aquí
 	this->ERROR = 0;
 }
-
 
 Cinematica_Inversa::~Cinematica_Inversa()
 {
@@ -53,10 +52,34 @@ Cinematica_Inversa::~Cinematica_Inversa()
  * un objetivo distinto: cada vez que llamemos al Levenberg-Marquardt.
  * FUNCIONA.
  */ 
-QVec Cinematica_Inversa::resolverTarget(const QVec& target)
+QVec Cinematica_Inversa::resolverTarget(const Target& target)
 {
-	this->puntoObjetivo = target; 
-	return levenbergMarquardt();
+	this->target = target;
+	this->puntoObjetivo = target.getPose();
+	this->weights = target.getWeights();
+	QVec ang;
+	
+	if(target.getType() == Target::ALIGNAXIS)  //Change current tip to tip of virtual nose
+	{
+		float len = inner->transform(this->endEffector,QVec::zeros(3),"target").norm2();   //distance from tip to target
+		InnerModelNode *nodeTip = inner->getNode(this->endEffector);
+		InnerModelTransform *nodeAppex = inner->newTransform("appex", "static", nodeTip, 0, 0, 0, 0, 0, 0, 0);
+		nodeTip->addChild(nodeAppex);
+		QString axisName = target.getAxisName();
+		if(axisName == "x" or axisName == "X")
+			inner->updateTransformValues("appex", len, 0, 0, 0, 0, 0, this->endEffector);
+		if(axisName == "y" or axisName == "Y")
+			inner->updateTransformValues("appex", 0, len, 0, 0, 0, 0, this->endEffector);
+		if(axisName == "z" or axisName == "Z")
+			inner->updateTransformValues("appex", 0, 0, len, 0, 0, 0, this->endEffector);
+		
+		ang = levenbergMarquardt();
+		inner->removeNode("appex");
+	}
+	else
+		ang = levenbergMarquardt();
+		
+	return ang;
 }
 
 float Cinematica_Inversa::devolverError()
@@ -129,32 +152,70 @@ QVec Cinematica_Inversa::calcularVectorError()
 {
 	QVec errorTotal = QVec::zeros(6); //Vector error final
 	
-	// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
-  	QVec errorTraslaciones = QVec::zeros(3);
-	// TODO ÑAPA ahora el vector punto objetivo TIENE 6 elementos --> tx ty tz rx ry rz. Solo nos interesan las traslaciones:
-	QVec auxTraslaciones = QVec::vec3(puntoObjetivo[0], puntoObjetivo[1], puntoObjetivo[2]);
-	QVec targetInRoot = inner->transform(this->listaJoints[0], auxTraslaciones ,"world");
-	QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
-	errorTraslaciones = targetInRoot - tip;
-	
-	// ---> ROTACIONES: Sacamos los ángulos del TARGET en la MANO. Podemos añadir un offset.
-	QMat matriz = inner->getRotationMatrixTo(listaJoints.last(), "target") /** Rot3DOX(1.57)*/;
- 	QVec TARGETenMANO = inner->getTransformationMatrix(listaJoints.last(), "target").extractAnglesR3(matriz);
-	QVec angulos1 = QVec::vec3(TARGETenMANO[0], TARGETenMANO[1], TARGETenMANO[2]);
-	QVec angulos2 = QVec::vec3(TARGETenMANO[3], TARGETenMANO[4], TARGETenMANO[5]);
-	QVec errorRotaciones;
-	if(angulos1.norm2() < angulos2.norm2())
-		errorRotaciones = angulos1;
-	else
-		errorRotaciones = angulos2;
-			
-	// Montamos el ERROR FINAL:
-	for(int i=0; i<3; i++)
+	if(target.getType() == Target::POSE6D)
 	{
-		errorTotal[i] = errorTraslaciones[i];
-		errorTotal[i+3] = errorRotaciones[i];
+		// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
+		QVec errorTraslaciones = QVec::zeros(3);
+		QVec auxTraslaciones = QVec::vec3(puntoObjetivo[0], puntoObjetivo[1], puntoObjetivo[2]);
+		QVec targetInRoot = inner->transform(this->listaJoints[0], auxTraslaciones ,"world");
+		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
+		errorTraslaciones = targetInRoot - tip;
+		//ROTATIONS
+		QMat matriz = inner->getRotationMatrixTo(listaJoints.last(), "target") /** Rot3DOX(1.57)*/;
+		QVec TARGETenMANO = inner->getTransformationMatrix(listaJoints.last(), "target").extractAnglesR3(matriz);
+		QVec angulos1 = QVec::vec3(TARGETenMANO[0], TARGETenMANO[1], TARGETenMANO[2]);
+		QVec angulos2 = QVec::vec3(TARGETenMANO[3], TARGETenMANO[4], TARGETenMANO[5]);
+		QVec errorRotaciones;
+		if(angulos1.norm2() < angulos2.norm2())
+			errorRotaciones = angulos1;
+		else
+			errorRotaciones = angulos2;
+				
+		// Montamos el ERROR FINAL:
+		for(int i=0; i<3; i++)
+		{
+			errorTotal[i] = errorTraslaciones[i];
+			errorTotal[i+3] = errorRotaciones[i];
+		}
+	}
+
+	//AXIS ALIGN BY INSERTING A VIRTUAL APPEX
+	if(target.getType() == Target::ALIGNAXIS)
+	{
+		QVec errorTraslaciones = QVec::zeros(3);
+		QVec auxTraslaciones = QVec::vec3(puntoObjetivo[0], puntoObjetivo[1], puntoObjetivo[2]);
+		QVec targetInRoot = inner->transform(this->listaJoints[0], auxTraslaciones ,"world");
+		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), "appex");
+		errorTraslaciones = targetInRoot - tip;	
+		errorTotal.inject(errorTraslaciones,0);
+		//Compute rotation error at the original tip, not at the tip of the virtual appex
+		if( target.getAxisConstraint() == true )
+		{
+			QMat matriz = inner->getRotationMatrixTo(listaJoints.last(), "target");  //ESTO NO ESTA DEL TODO BIEN. La restriccón debe ser sobre el axisName directamente
+			QVec ang = matriz.extractAnglesR3(matriz);		
+			QString axisName = target.getAxisName();
+			if(axisName == "x" or axisName == "X")
+				errorTotal[3] = ang[0];
+			if(axisName == "y" or axisName == "Y")
+				errorTotal[4] = ang[1];
+			if(axisName == "z" or axisName == "Z")	
+				errorTotal[5] = ang[2];
+		}
 	}
 	
+	if(target.getType() == Target::ADVANCEALONGAXIS)
+	{
+		QVec errorTraslaciones = QVec::zeros(3);
+		//Get the axis
+		QVec axis = target.getPose().subVector(0,2);
+		//Compute the target form the axis
+		QVec targetInRoot = inner->transform(this->listaJoints[0], axis, this->endEffector);
+		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
+		errorTraslaciones = targetInRoot - tip;	
+		errorTotal.inject(errorTraslaciones,0);
+	}
+	
+	//errorTotal.print("errortotal");
 	return errorTotal;
 }
 
@@ -170,7 +231,7 @@ QVec Cinematica_Inversa::calcularVectorError()
  */ 
 QVec Cinematica_Inversa::levenbergMarquardt()
 {
-	qDebug()<<"\n--ALGORITMO DE LEVENBERG-MARQUARDT --\n";
+	//qDebug()<<"\n--ALGORITMO DE LEVENBERG-MARQUARDT --\n";
 	//e3 = 10
 	const float e1 = 0.0001, e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
 	const int kMax = 100;
@@ -184,12 +245,8 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.
 	QVec error = calcularVectorError(); //error de la posición actual con la deseada.
 	
-	QMat We = QMat::identity(6); //matriz de pesos para compensar milímietros con radianes.
- 	We(0,0) = 1;		We(1,1) = 1;		We(2,2) = 1; // Traslaciones: cuando trabajamos con metros lo ponemos a 1.
-	We(3,3) = 1;		We(4,4) = 1;		We(5,5) = 1; // Rotaciones.
-// 	We(3,3) = 0;		We(4,4) = 0;		We(5,5) = 0; // Rotaciones.
-
-
+	QMat We = QMat::makeDiagonal(this->weights);  //matriz de pesos para compensar milímietros con radianes.
+	
 	QMat J = jacobian(motores);
 	QMat H = J.transpose()*(We*J);
 	QVec g = J.transpose()*(We*error);		
@@ -227,7 +284,7 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 
 				if(dentroLimites(aux, motores) == false)
 				{
-					qDebug()<<"FUERA DE LOS LIMITES";
+					//qDebug()<<"FUERA DE LOS LIMITES";
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
 					J = jacobian(motores);
@@ -237,7 +294,7 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 				
 				else
 				{
-					for(int i=0; i<motores.size(); i++)
+					for(int i=0; i<motores.size(); i++)  //Cambiar por .set((T)0);
 						motores[i] = 0;
 					
 					actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
@@ -247,7 +304,7 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 					{
 						// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo. 
 						stop = ((We*error).norm2() - (We*calcularVectorError()).norm2()) < e4*(We*error).norm2();
-						qDebug()<<"HAY MEJORA ";
+						//qDebug()<<"HAY MEJORA ";
 						angulos = aux;
 						// Recalculamos con nuevos datos.
 						error = calcularVectorError();						
@@ -261,7 +318,7 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 					}
 					else
 					{
-						qDebug()<<"NO HAY MEJORA: ";
+						//qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "NO IMPROVEMENT";
 						actualizarAngulos(angulos); //volvemos a los ángulos viejos.
 						n = n*v;
 						v= 2*v;
@@ -271,9 +328,9 @@ QVec Cinematica_Inversa::levenbergMarquardt()
 		}while(ro<=0 and stop==false);
 		stop = (We*error).norm2() <= e3;
 	}
-	qDebug()<<"Vector: "<<error<<" norma: "<<error.norm2();
+	//qDebug()<<"Error vector: "<<error<<" norm: "<<error.norm2();
 	ERROR = ERROR + error.norm2();
-	qDebug()<<"K: "<<k;
+	//qDebug()<<"K: "<<k;
 		
 	return angulos;
 }
@@ -357,7 +414,7 @@ bool Cinematica_Inversa::dentroLimites(QVec angulos, QVec &motores)
 		{
 			noSupera = false;
 			motores[i] = 1;
-			qDebug()<<"MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
+			//qDebug()<<"MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
 		}
 	}
 	
@@ -365,5 +422,49 @@ bool Cinematica_Inversa::dentroLimites(QVec angulos, QVec &motores)
 }
 
 
+///  CODE TO ALIGN A BODYPART WITHOUT CREATING A VIRTUAL APPEX (NOT WORKING)
 
+// 	if(target.getType() == Target::ALIGNAXIS)
+// 	{
+// 		// compute a vector going from tip to target
+// 		qDebug() << target.getTipName();
+// 		QVec targetInTip = inner->transform(target.getTipName(),QVec::zeros(3),"target").normalize();
+// 		//targetInTip.print("targetInTip");
+// 		
+// 		QString axis = target.getAxisName();
+// 		QVec a(3);
+// 		if(axis == "x" or axis == "X")
+// 			a = QVec::vec3(1,0,0);
+// 		else if (axis == "y" or axis == "Y")
+// 			a = QVec::vec3(0,1,0);
+// 		else if (axis == "z" or axis == "Z")
+// 			a = QVec::vec3(0,0,1);
+// 		else
+// 		{
+// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Target axis not recognized";
+// 			return QVec();
+// 		}
+// 		QVec o = a^targetInTip; // axis to rotate
+// 		float ang = asin(o.norm2());  //Angle to rotate
+// 		//o.print("o");
+// 		//qDebug()<< "ang " << ang;
+// 		QMat c = o.crossProductMatrix();
+// 		//c.print("c");
+// 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
+// 		//r.print("r");
+// 		QVec rotaciones = r.extractAnglesR3(r);
+// 		QVec errorRotaciones(3);
+// 		//rotaciones.print("rotaciones");
+// 		//rotaciones.subVector(0,2).print("sb");
+// 		//rotaciones.subVector(3,5).print("sb2");
+// 		if(rotaciones.subVector(0,2).norm2() < rotaciones.subVector(3,5).norm2())
+// 			errorRotaciones = rotaciones.subVector(0,2);
+// 		else
+// 			errorRotaciones = rotaciones.subVector(3,5);
+// 		//errorRotaciones.print("rotaciones");
+// 	
+// 		errorTotal[3] = errorRotaciones[0];
+// 		errorTotal[4] = errorRotaciones[1];
+// 		errorTotal[5] = errorRotaciones[2];
+// 	}
 

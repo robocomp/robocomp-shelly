@@ -41,7 +41,7 @@
 
 #include <innermodel/innermodel.h>
 #include <innermodel/innermodelviewer.h>
-
+#include "target.h"
 #include <osgviewer/osgview.h>
 
 using namespace std;
@@ -49,12 +49,12 @@ using namespace std;
 class Cinematica_Inversa
 {
 public:
-	Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_);
+	Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_);  ///QUITAR ENDEFFECTOR DE AQUI. YA VA EN EL TARGET
 	~Cinematica_Inversa();
 	
 	
 	///// MÉTODOS PÚBLICOS /////
-	QVec resolverTarget(const QVec &target);			// Fija el punto objetivo.
+	QVec resolverTarget(const Target &target);			// Fija el punto objetivo.
 	float devolverError();
 	
 private:
@@ -66,6 +66,8 @@ private:
 	QStringList listaJoints;		// Lista de motores que entra en liza
 	QString endEffector;			// Nombre del efector final (la mano del robot)
 	float ERROR;
+	Target target;
+	QVec weights;							//Pesos para W
 	
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//

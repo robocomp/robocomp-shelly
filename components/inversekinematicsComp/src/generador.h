@@ -59,7 +59,7 @@ public:
 	~Generador();
 	
 	//// MÉTODOS PÚBLICOS ////
-	QQueue<Target> generarListaTargets(InnerModel *inner, const  BodyPart &bodyParts);
+	QQueue<Target> generarListaTargets(InnerModel *inner, const  BodyPart &bodyParts, const QVec &weights);
 	
 	QList<QVec> generarPuntosTargetRectaY(QVec coordenadasRobot, QVec rotacionRobot, int nPuntos, float Nm); //genera puntos a lo largo de una recta en ele eje Y
 	QList<QVec> generarPuntosTargetRectaZ(QVec coordenadasRobot, QVec rotacionRobot, int nPuntos, float Nm); //genera puntos a lo largo de una recta en ele eje Z
@@ -73,7 +73,12 @@ private:
 	QVec generarPuntoEsfera(int i, QVec centro, int radio);			// añadido
 	QList<QVec> generarPuntosCamareroDiestro();
 	QList<QVec> generarPuntosCamareroZurdo();
-	QList<QVec> generarPuntosCamareroCentro();
+	QQueue< Target > generarPuntosCamareroCentro();
+	QQueue< Target > generarPuntosCabeza();
+	QQueue< Target > generarPuntosCabezaCentro();
+	InnerModel* inner;
+	BodyPart bodyPart;
+	QVec weights;
 
 protected:
 	void time(int arg1);

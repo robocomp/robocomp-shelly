@@ -48,8 +48,10 @@ class Target
 	
 public:
 	
+	enum TargetType {POSE6D, ALIGNAXIS, ADVANCEALONGAXIS};
+	
 	Target();
-	Target(InnerModel *inner, QVec pose, QString bodyPart);
+	Target(InnerModel *inner, QVec pose, QString tip, const QVec &weights, TargetType tt = POSE6D, QString axisName = "", bool axisConstraint = false, float axisAngleConstraint=0);
 	~Target();
 	
 	// MÉTODOS GET:
@@ -57,25 +59,39 @@ public:
 	QVec getPose() const { return this->pose; }; 				// Devuelve el vector pose del target
 	QTime getStartTime() const { return this->start; }; // Devuelve el tiempo del target.
 	bool getActivo() const { return this->activo; };		// Devuelve el estado del target
+	QVec getWeights() const { return this->weights; };
+	TargetType getType() const { return targetType;};
+	QString getAxisName() const { return axisName;};
+	bool getAxisConstraint() const {return axisConstraint;};
+	float getAxisAngleConstraint() const {return axisAngleConstraint;};
+	
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
 	void setPose(QVec newPose);
 	void setStartTime (QTime newStart);
 	void setActivo (bool newActivo);	
+	void setWeights(const QVec &weights);
+	void setAxis(const QVec &axis, QString axisName);
 	
 	// OTROS MÉTODOS
 	void trocearTarget();
+	void print();
 	
 private:
 	
-	// ATRIBUTOS DE LA CLASE
 	QString tip; 							// Nombre del efector final al que está asociado el target
 	QTime start;							// Tiempo en que comenzó a trabajar el robot con el target original.
 	bool activo;							// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
 	QVec pose; 								// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-	QQueue<QVec> subtargets;	// Cola de subtargets (trayectorias troceadas) para cada target.
-	InnerModel *inner;				// Innermodel para calcular cosas.
+	QVec axis;								// Target axis to be aligned with
+	QString axisName;						// Name of tip axis to aligned with "axis"
+	QQueue<QVec> subtargets;				// Cola de subtargets (trayectorias troceadas) para cada target.
+	InnerModel *inner;						// Innermodel para calcular cosas.
+	QVec weights;							// Pesos para restringir translaciones, rotaciones o ponderar el resultado
+	TargetType targetType;					// 
+	bool axisConstraint;					// True if constraint is to be applien on axis for ALINGAXIS mode
+	float axisAngleConstraint;				// constraint oto be applied to axis in case axisConstrint is TRUE
 	
 };
 

@@ -36,4 +36,20 @@ bool BodyInverseKinematicsI::setTarget(const string& bodyPart, const Pose6D& tar
 	return worker->setTarget(bodyPart,target);
 }
 
+void BodyInverseKinematicsI::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, const Ice::Current&){
+	worker->setTargetPose6D(bodyPart,target,weights);
+}
+
+void BodyInverseKinematicsI::pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint, const Ice::Current&){
+	worker->pointAxisTowardsTarget(bodyPart,target,axis,axisConstraint,axisAngleConstraint);
+}
+
+void BodyInverseKinematicsI::advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist, const Ice::Current&){
+	worker->advanceAlongAxis(bodyPart,ax,dist);
+}
+
+void BodyInverseKinematicsI::setFingers(float d, const Ice::Current&){
+	worker->setFingers(d);
+}
+
 

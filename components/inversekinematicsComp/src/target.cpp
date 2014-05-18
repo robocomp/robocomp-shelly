@@ -44,14 +44,34 @@ Target::Target()
  * 			- El vector POSE, vector de 3 traslaciones y 3 rotaciones.
  * 			- El nombre del EFECTOR FINAL.
  */ 
-Target::Target(InnerModel* innerModel, QVec pose, QString tip)
+Target::Target(InnerModel* inner, QVec pose, QString tip, const QVec& weights, Target::TargetType tt, QString axisName, bool axisConstraint, float axisAngleConstraint)		//TIP should be taken form IK
 {
 	this->activo = true;
 	this->pose = pose;
 	this->tip = tip;
-	this->inner = innerModel;
+	this->inner = inner;
+	this->weights = weights;
+	this->targetType = tt;
+	this->axisName = axisName;
 	
-	trocearTarget();// Si lo comento ya no funciona???
+	if(this->targetType == ALIGNAXIS)
+	{
+		this->axisConstraint = axisConstraint;
+		this->axisAngleConstraint = axisAngleConstraint;
+		this->weights.set((T)1);
+		this->weights.inject(QVec::zeros(3),3);  //Set zero for rotations
+		if(axisConstraint == true)
+		{
+			if(axisName == "x" or axisName == "X")
+				this->weights[3] = (T)1;
+			if(axisName == "y" or axisName == "y")
+				this->weights[4] = (T)1;
+			if(axisName == "z" or axisName == "Z")
+				this->weights[5] = (T)1;
+			
+		}
+	}
+	//trocearTarget();// Si lo comento ya no funciona???
 }
 
 /**
@@ -59,7 +79,6 @@ Target::Target(InnerModel* innerModel, QVec pose, QString tip)
  */ 
 Target::~Target()
 {
-
 }
 
 /*--------------------------------------------------------------------------*
@@ -91,6 +110,15 @@ void Target::setActivo(bool newActivo)
 void Target::setStartTime(QTime newStart)
 {
 	this->start = newStart;
+}
+
+/*
+ * Método SET WEIGHTS
+ * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
+ */ 
+void Target::setWeights(const QVec &weights)
+{
+	this->weights = weights;
 }
 
 /*
@@ -145,3 +173,9 @@ void Target::trocearTarget()
 	}
 }
 
+void Target::print()
+{
+	qDebug() << "-----TARGET-------";
+	pose.print("pose");
+	qDebug() << "------------------";
+}

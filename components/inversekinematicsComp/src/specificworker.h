@@ -38,6 +38,7 @@
 #include "generador.h"
 #include "target.h"
 #include "bodypart.h"
+#include "planner.h"
 
 using namespace std;
 
@@ -56,6 +57,10 @@ class SpecificWorker : public GenericWorker
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
 		bool setTarget(const string& bodyPart, const Pose6D& target);
+		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
+		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint);
+		void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist);
+		void  setFingers(float d);
 		
 	public slots:
 		void compute(); 
@@ -84,6 +89,7 @@ class SpecificWorker : public GenericWorker
 		
 		ofstream fichero;														// fichero de salida.
 			
+		Planner *planner;
 		
 		//// MÉTODOS PRIVADOS ////
 		// MÉTODOS PARA ACTUALIZAR //
@@ -96,7 +102,7 @@ class SpecificWorker : public GenericWorker
 		void goHomePosition(const QStringList& listaJoints);
 		
 		// MÉTODOS AUXILIARES:
-		QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
+		//QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
 		
 
 };

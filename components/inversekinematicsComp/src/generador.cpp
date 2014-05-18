@@ -40,38 +40,76 @@ Generador::~Generador()
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS PÚBLICOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const BodyPart &bodyPart)
+QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const BodyPart &bodyPart, const QVec &weigths)
 {
 	QQueue<Target> listaTargets;
 	QVec traslaciones(3), rotaciones(3), punto(6);
 	QList<QVec> listaTraslaciones;
+	this->inner = inner;
+	this->bodyPart = bodyPart;
+	this->weights = weigths;
 
-
-// 	if(bodyPart.getPartName() == "RIGHTARM")
-// 		listaTraslaciones = generarPuntosCamareroDiestro();
-// 	if(bodyPart.getPartName() == "LEFTARM")
-// 		listaTraslaciones = generarPuntosCamareroZurdo();
+ 	if(bodyPart.getPartName() == "RIGHTARM")
+  		listaTargets = generarPuntosCamareroCentro();
+//			listaTargets = generarPuntosCabeza();
+ 	else if(bodyPart.getPartName() == "LEFTARM")
+ 		listaTargets = generarPuntosCamareroCentro();
+		//listaTargets = generarPuntosCabeza();
+	else if(bodyPart.getPartName() == "HEAD")
+		//listaTargets = generarPuntosCabeza();
+		listaTargets = generarPuntosCabezaCentro();
 	
-	listaTraslaciones = generarPuntosCamareroCentro();
+	else return QQueue<Target>();
 	
-	for(int i=0; i<listaTraslaciones.size(); i++)
-	{
-		// TRASLACIONES:
-		traslaciones = listaTraslaciones[i];
-		// ROTACIONES:
-		rotaciones[0]= 0; rotaciones[1] = 0; rotaciones[2]=-M_PI/2;
-		
+// 	QVec traslacion(3);
+// 	traslacion[0] = -0.2; traslacion[1] = 1; traslacion[2] = 0.350;
+// 	listaTraslaciones.append(traslacion);
+// 	
+// 	for(int i=0; i<listaTraslaciones.size(); i++)
+// 	{
+// 		// TRASLACIONES:
+// 		traslaciones = listaTraslaciones[i];
+// 		// ROTACIONES:
+// 		if(bodyPart.getPartName() == "HEAD")
+// 		{
+// 			inner->updateTransformValues("target",traslaciones.x(),traslaciones.y(),traslaciones.z(),0,0,0);
+// 			QVec a = inner->transform("sensor_transform",QVec::zeros(3),"target").normalize();
+// 			QVec b = QVec::vec3(0,0,1);
+// 			QVec o = b^a; // axis to rotate
+// 				a.print("a");
+// 				o.print("o");
+// 			float ang = asin(o.norm2());  //Angle to rotate
+// 			qDebug()<< "ang " << ang;
+// 			QMat c = o.crossProductMatrix();
+// 			QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
+// 			rotaciones = r.extractAnglesR3(r);
+// 			rotaciones[0] -= M_PI/2.;
+// 			rotaciones[2] = -rotaciones[2];
+// 	
+// 		}
+// 		else
+// 		{
+// 			rotaciones[0]= 0; rotaciones[1] = 0; rotaciones[2]=-M_PI/2;     /// PASAR ESTO A CADA METODO
+// 		}
+// 		
 		// Componemos el punto primero con las traslaciones y después con las rotaciones
-		for(int h=0; h<traslaciones.size(); h++)
-		{
-			punto [h] = traslaciones[h];
-			punto[h+3] = rotaciones[h];
-		}
-		//Construye el target pasándole el innerModel, el punto y el nombre del efector final.
-		Target target (inner, punto, bodyPart.getTip());
-		listaTargets.enqueue(target);
+// 		for(int h=0; h<traslaciones.size(); h++)
+// 		{
+// 			punto [h] = traslaciones[h];
+// 			punto[h+3] = rotaciones[h];
+// 		}
+		//Construye el target pasándole el innerModel, el punto y el nombre del efector final.    //TAMBIEN PASAR AL METODO
+// 		QVec w(6);
+// 		if( weigths.isEmpty())
+// 			w.set(1.f);
+// 		else
+// 			w = weigths;
+// 
+// 		Target target (inner, punto, bodyPart.getTip(), w);
+// 		target.print();
+// 		listaTargets.enqueue(target);
 
-	}	
+//	}	
 	return listaTargets;
 }
 
@@ -329,6 +367,7 @@ QList<QVec> Generador::generarPuntosCamareroDiestro()
 		traslaciones.append(traslacion);
 		yAux = j;
 	}
+
 	
 	return traslaciones;
 }
@@ -383,43 +422,157 @@ QList<QVec> Generador::generarPuntosCamareroZurdo()
  *Crea una trayectoria para los dos brazos del robot. Los coloca aproximadamente por el pecho.
  *Las longitudes están en metros. MADE IN PABLO. 
  */ 
-QList<QVec> Generador::generarPuntosCamareroCentro()
+QQueue< Target > Generador::generarPuntosCamareroCentro()
 {
-	QVec traslacion(3);
-	QList<QVec> traslaciones;
+	QQueue<Target> targets;
+	QVec weights(6);
+	QVec pose = QVec::zeros(6);
+	weights.set((T)1);
 	float xAux, yAux;
 	
 	// lado inferior en X 1: 
-	for(float i=-0.15; i>=0.15; i=i+0.01)
+	for(float i=-0.15; i<=0.15; i=i+0.01)
 	{
-		traslacion[0] = i; traslacion[1] = 0.9; traslacion[2] = 0.350;
-		traslaciones.append(traslacion);
+		pose[0] = i; pose[1] = 0.9; pose[2] = 0.350;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::POSE6D);
+		targets.append(target);
 		xAux = i;
 	}
 	
 	// Y 1:
 	for(float j=0.9; j<1.10; j=j+0.01)
 	{
-		traslacion[0] = xAux; traslacion[1] = j; traslacion[2] = 0.350;
-		traslaciones.append(traslacion);
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.350;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::POSE6D);
+		targets.append(target);
 		yAux = j;
 	}
 	
 	// X 2:
 	for(float i=xAux; i>=-0.15; i=i-0.01)
 	{
-		traslacion[0] = i; traslacion[1] = yAux; traslacion[2] = 0.35;
-		traslaciones.append(traslacion);
+		pose[0] = i; pose[1] = yAux; pose[2] = 0.35;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::POSE6D);
+		targets.append(target);
 		xAux = i;
 	}
 	// Y 2:
 	for(float j=yAux; j>=0.9; j=j-0.01)
 	{
-		traslacion[0] = xAux; traslacion[1] = j; traslacion[2] = 0.35;
-		traslaciones.append(traslacion);
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.35;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::POSE6D);
+		targets.append(target);
+		yAux = j;
+	}
+	return targets;
+}
+
+QQueue< Target > Generador::generarPuntosCabeza()
+{
+	float xAux, yAux;
+	Target target;
+	QVec pose(6);
+	QQueue<Target> targets;
+	QVec weights = QVec::zeros(6);
+	weights[0] = 1.f;
+	weights[1] = 1.f;
+	weights[2] = 1.f;
+	
+	// lado inferior en X 1: 
+	for(float i=-0.5; i<=0.5; i=i+0.01)
+	{
+		pose[0] = i; pose[1] = 0.9; pose[2] = 0.350;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+		xAux = i;
+	}
+	
+	// Y 1:
+	for(float j=0.9; j<1.10; j=j+0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.350;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
 		yAux = j;
 	}
 	
-	return traslaciones;
+	// X 2:
+	for(float i=xAux; i>=-0.15; i=i-0.01)
+	{
+		pose[0] = i; pose[1] = yAux; pose[2] = 0.35;
+  	pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+		xAux = i;
+	}
+	// Y 2:
+	for(float j=yAux; j>=0.9; j=j-0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.35;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+
+		yAux = j;
+	}
+	return targets;
+
 }
+
+QQueue< Target > Generador::generarPuntosCabezaCentro()
+{
+	float xAux, yAux;
+	Target target;
+	QVec pose(6);
+	QQueue<Target> targets;
+	QVec weights = QVec::zeros(6);
+	weights[0] = 1.f;
+	weights[1] = 1.f;
+	weights[2] = 1.f;
+	
+	// lado inferior en X 1: 
+	for(float i=-0.15; i<=0.15; i=i+0.01)
+	{
+		pose[0] = i; pose[1] = 0.9; pose[2] = 0.350;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target( inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+		xAux = i;
+	}
+	
+	// Y 1:
+	for(float j=0.9; j<1.10; j=j+0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.350;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+		yAux = j;
+	}
+	
+	// X 2:
+	for(float i=xAux; i>=-0.15; i=i-0.01)
+	{
+		pose[0] = i; pose[1] = yAux; pose[2] = 0.35;
+  	pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+		xAux = i;
+	}
+	// Y 2:
+	for(float j=yAux; j>=0.9; j=j-0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.35;
+		pose[3] = 0; pose[4] = 0; pose[5] = 0;
+		Target target(inner, pose, this->bodyPart.getTip(), weights, Target::ALIGNAXIS, "z");
+		targets.append(target);
+
+		yAux = j;
+	}
+	return targets;
+
+}
+
 
