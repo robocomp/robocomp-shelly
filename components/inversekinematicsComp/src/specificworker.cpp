@@ -43,8 +43,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 							 <<"rightWrist3"<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
 							 <<"leftWrist2"<<"leftWrist3" << "base" << "pan" << "tilt" << "roll";
-
- 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus2Metros.xml");
+							 
+ 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusM.xml");
 
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
