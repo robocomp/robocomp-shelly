@@ -88,7 +88,6 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 {
 	//Read params from config file
 	//Example
-	
 	RoboCompCommonBehavior::Parameter aux;
 	aux.editable = true;
 	configGetString( "BIK.InnerModel", aux.value,"no file");

@@ -76,12 +76,12 @@
 #include "specificworker.h"
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
-#include <bodyinversekinematicsI.h>
 
 // Includes for remote proxy example
 // #include <Remote.h>
 #include <ui_guiDlg.h>
-#include <JointMotor.h>
+#include <InnerModelManager.h>
+#include <BodyInverseKinematics.h>
 
 
 // User includes here
@@ -89,11 +89,11 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
+using namespace RoboCompInnerModelManager;
 using namespace RoboCompBodyInverseKinematics;
-using namespace RoboCompJointMotor;
 
 
-class lokiArmComp : public RoboComp::Application
+class LokiArmTesterComp : public RoboComp::Application
 {
 private:
 	// User private data here
@@ -105,13 +105,13 @@ public:
 	virtual int run(int, char*[]);
 };
 
-void lokiArmComp::initialize()
+void LokiArmTesterComp::initialize()
 {
 	// Config file properties read example
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
-int lokiArmComp::run(int argc, char* argv[])
+int LokiArmTesterComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
 	QApplication a(argc, argv);  // GUI application
@@ -122,7 +122,8 @@ int lokiArmComp::run(int argc, char* argv[])
 
 	// Remote server proxy access example
 	// RemoteComponentPrx remotecomponent_proxy;
-	JointMotorPrx jointmotor_proxy;
+	InnerModelManagerPrx innermodelmanager_proxy;
+BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 
 
 	string proxy;
@@ -153,15 +154,26 @@ int lokiArmComp::run(int argc, char* argv[])
 	//Remote server proxy creation example
 	try
 	{
-		jointmotor_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotorProxy") ) );
+		innermodelmanager_proxy = InnerModelManagerPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("InnerModelManagerProxy") ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("JointMotorProxy initialized Ok!");
-	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);
+	rInfo("InnerModelManagerProxy initialized Ok!");
+	mprx["InnerModelManagerProxy"] = (::IceProxy::Ice::Object*)(&innermodelmanager_proxy);//Remote server proxy creation example
+	try
+	{
+		bodyinversekinematics_proxy = BodyInverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("BodyInverseKinematicsProxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("BodyInverseKinematicsProxy initialized Ok!");
+	mprx["BodyInverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&bodyinversekinematics_proxy);
 	
 	GenericWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread
@@ -180,11 +192,6 @@ int lokiArmComp::run(int argc, char* argv[])
 		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
 		adapterCommonBehavior->activate();
 		// Server adapter creation and publication
-		Ice::ObjectAdapterPtr adapterBodyInverseKinematics = communicator()->createObjectAdapter("BodyInverseKinematicsComp");
-		BodyInverseKinematicsI *bodyinversekinematics = new BodyInverseKinematicsI(worker);
-		adapterBodyInverseKinematics->add(bodyinversekinematics, communicator()->stringToIdentity("bodyinversekinematics"));
-
-		adapterBodyInverseKinematics->activate();
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )
@@ -217,7 +224,7 @@ int main(int argc, char* argv[])
 {
 	bool hasConfig = false;
 	string arg;
-	lokiArmComp app;
+	LokiArmTesterComp app;
 
 	// Search in argument list for --Ice.Config= argument
 	for (int i = 1; i < argc; ++i)

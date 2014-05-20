@@ -21,7 +21,6 @@
 
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
-#include <JointMotor.h>
 
 #include <qt4/QtCore/qstring.h>
 #include <qt4/QtCore/qdebug.h>
@@ -53,7 +52,7 @@ class SpecificWorker : public GenericWorker
 	Q_OBJECT
 	
 	public:
-		SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
+		SpecificWorker(MapPrx& mprx, QWidget *parent = 0);	
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
 		bool setTarget(const string& bodyPart, const Pose6D& target);
@@ -66,6 +65,8 @@ class SpecificWorker : public GenericWorker
 		void compute(); 
 
 	private:
+		
+		void init();							// Things to do after params are set
 		
 		//// VARIABLES DE CLASE ////
 		InnerModel *innerModel;											// Para trabajar con el innerModel
@@ -98,13 +99,15 @@ class SpecificWorker : public GenericWorker
 		// MÉTODOS PARA MOVER COSAS DE LUGAR //
 		void moverBrazo(QVec angles, const QStringList &listaJoints);
 		//void moverTarget(int contador);
-		void moverTarget(const QVec& pose);
+		//void moverTarget(const QVec& pose);
 		void goHomePosition(const QStringList& listaJoints);
+		void createInnerModelTarget(Target &target);
+		void removeInnerModelTarget(const Target &target);
 		
 		// MÉTODOS AUXILIARES:
 		//QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
 		
-
+		int correlativeID;
 };
 
 #endif

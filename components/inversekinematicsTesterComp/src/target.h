@@ -64,7 +64,7 @@ public:
 	QString getAxisName() const { return axisName;};
 	bool getAxisConstraint() const {return axisConstraint;};
 	float getAxisAngleConstraint() const {return axisAngleConstraint;};
-	QString getNameInInnerModel() const {return nameInInnerModel;};
+	
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
@@ -73,13 +73,10 @@ public:
 	void setActivo (bool newActivo);	
 	void setWeights(const QVec &weights);
 	void setAxis(const QVec &axis, QString axisName);
-	void setNameInInnerModel(const QString &name);
 	
 	// OTROS MÉTODOS
 	void trocearTarget();
 	void print();
-	
-	
 	
 private:
 	
@@ -95,7 +92,7 @@ private:
 	TargetType targetType;					// 
 	bool axisConstraint;					// True if constraint is to be applien on axis for ALINGAXIS mode
 	float axisAngleConstraint;				// constraint oto be applied to axis in case axisConstrint is TRUE
-	QString nameInInnerModel;				// generated name to create provisional targets
+	
 };
 
 

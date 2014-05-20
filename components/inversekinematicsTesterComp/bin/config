@@ -1,0 +1,12 @@
+#
+# This property is used to configure the endpoints of the subscriber adapter.
+#
+CommonBehavior.Endpoints=tcp -p 12214
+
+# Remote servers proxies example
+#RemoteProxy = remote:tcp -h remotehost -p 10001
+
+BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
+InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
+
+BIK.InnerModel = /home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusMConMesa.xml

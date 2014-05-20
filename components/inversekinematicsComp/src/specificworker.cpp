@@ -20,32 +20,73 @@
 #include "specificworker.h"
 #include "generador.h"
 
-/**
-* \brief Default constructor
-* COSAS QUE HACE:
-* 			- 0) Abre el fichero.
-* 			- 1) Inicializa el innerModel y lo actualiza
-* 			- 2) Crea la lista de motores del brazo.
-* 			- 3) Crea el generador de puntos para target y de ángulos.
-* 			- 4) Crea la lista de ángulos del brazo y mueve el brazo a la primera posición.
-* 			- 5) Crea la lista de posiciones del target alredor de la primera posición del brazo.
-* 			- 6) Coloca el target en el primer destino.
-* 			- 7) Inicializa la cinematica inversa IK.
-*/
-SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx, parent)	
-{	
-	qDebug()<<"\n--------------- CONSTRUCTOR ------------------\n";
-	
-	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo  << "base" <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist2"<<"leftWrist3";
-	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist2"<<"rightWrist3";
-	listaCabeza  << "tilt" << "roll" << "pan";
-	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
-							 <<"rightWrist3"<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
-							 <<"leftWrist2"<<"leftWrist3" << "base" << "pan" << "tilt" << "roll";
-							 
- 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusM.xml");
 
+SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
+{	
+	correlativeID = 0;		//Unique ID to name provisional targets
+	hide();
+}
+
+/**
+ * @brief Method called by the thread Monitor to pass the configuration parmaeters read from the config file
+ * 
+ * @param params ...
+ * @return bool
+ */
+bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
+{
+	try
+	{
+		RoboCompCommonBehavior::Parameter par = params.at("BIK.InnerModel") ;
+		if( QFile(QString::fromStdString(par.value)).exists() == true)
+		{
+			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
+			innerModel = new InnerModel(par.value);
+			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;		
+		}
+		else
+		{	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
+			qFatal("Exiting now.");
+		}
+	}
+	catch(std::exception e)
+	{
+		qFatal("Error reading config params");
+	}
+	
+	//timer.start(Period);
+	init();
+	timer.start(0);
+	return true;
+};
+
+/**
+ * @brief Initializing procedures to be done once params are read
+ * 
+ * @return void
+ */
+void SpecificWorker::init()
+{
+	/**
+	* \brief Default constructor
+	* COSAS QUE HACE:
+	* 			- 0) Abre el fichero.
+	* 			- 1) Inicializa el innerModel y lo actualiza
+	* 			- 2) Crea la lista de motores del brazo.
+	* 			- 3) Crea el generador de puntos para target y de ángulos.
+	* 			- 4) Crea la lista de ángulos del brazo y mueve el brazo a la primera posición.
+	* 			- 5) Crea la lista de posiciones del target alredor de la primera posición del brazo.
+	* 			- 6) Coloca el target en el primer destino.
+	* 			- 7) Inicializa la cinematica inversa IK.
+	*/
+	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
+	listaBrazoIzquierdo << "base" <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
+	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaCabeza << "head1" << "head2" << "head3";
+	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
+				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
+				<<"leftWrist2"<< "base" << "head1" << "head2" << "head3"; 
+	
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
@@ -69,39 +110,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
 	
-	//CREA LA LISTA DE TARGETS PARA CADA PARTE DEL CUERPO: necesita innerModel y el bodypart
-	//USAMOS LA INTERFAZ DE ICE
 	
-	QVec w(6);
-	w.set(1.f);
-	
-// 	listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts.value("RIGHTARM"), w);
-// 	bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
-// 	
-//  	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts.value("LEFTARM"), w); 
-// 	foreach(Target t, listaTargetsBrazoIzquierdo)
-// 	{
-// 		RoboCompBodyInverseKinematics::Pose6D pose;
-// 		RoboCompBodyInverseKinematics::WeightVector weights;
-// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
-// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
-// 		weights.x = t.getWeights().x();	weights.y = t.getWeights().y();	weights.z = t.getWeights().z();
-// 		weights.rx = t.getWeights().rx();	weights.ry = t.getWeights().ry(); weights.rz = t.getWeights().rz();
-// 		this->setTargetPose6D("LEFTARM", pose, weights);
-// 	}
-// 	qDebug() << "Size lista  " << bodyParts.value("LEFTARM").getListaTargets().size();
-	
-  //bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);
-// 	listaTargetsCabeza = generador.generarListaTargets(innerModel, bodyParts.value("HEAD"),w); //añadido
-// 	foreach(Target t, listaTargetsCabeza)
-// 	{
-// 		RoboCompBodyInverseKinematics::Pose6D pose;
-// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
-// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
-// 		this->pointAxisTowardsTarget("HEAD", pose, "z", true, 0.f);		
-// 	}
-	
-	//bodyParts["HEAD"].addListaTarget(listaTargetsCabeza);
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -111,9 +120,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 // 	if(planner->getPath().size() == 0)
 // 		qFatal("Path NOT found");
 // 	QList<QVec> path = planner->getPath();
-
-		
-	qDebug()<<"\n---------------FIN CONSTRUCTOR ------------------\n";
+	
+	qDebug() << "LokiArm --> Waiting for requests!";
 }
 
 /**
@@ -127,56 +135,75 @@ SpecificWorker::~SpecificWorker()
 void SpecificWorker::compute( )
 {
 	mutex->lock();
-	
- QMapIterator<QString, BodyPart> iterador (bodyParts);
- while (iterador.hasNext())
- {
-		 iterador.next();
-		 QString part = iterador.value().getPartName();
-		 if(bodyParts[part].getListaTargets().isEmpty() == false)
-     {
+		QMapIterator<QString, BodyPart> iterador (bodyParts);
+		while (iterador.hasNext())
+		{
+			iterador.next();
+			QString part = iterador.value().getPartName();
+			if(bodyParts[part].getListaTargets().isEmpty() == false)
+			{
 				Target target = bodyParts[part].getHeadFromListaTargets(); //miramos el primer target.
-				moverTarget(target.getPose()); // colocamos el target en su posición 8en el innermodel).
+				//moverTarget(target.getPose()); // colocamos el target en su posición 8en el innermodel).
+				
+				//QVec p = target.getPose();
+				//innerModel->updateTransformValues("target",p.x(),p.y(),p.z(),p.rx(),p.ry(),p.rz());
+				//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
+				createInnerModelTarget(target);
+				
 				QVec angulos = bodyParts[part].getInverseKinematics()->resolverTarget(target);
 				moverBrazo(angulos, bodyParts[part].getMotorList());
 				usleep(50000);
 				actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
 								
 				bodyParts[part].removeHeadFromListaTargets(); //eliminamos el target resuelto.
-								
-				//float error = bodyParts[iterador.value().getPartName()].getInverseKinematics()->devolverError();
-				//fichero << iterador.value().getPartName().toStdString() << " " << QString::number(error).toStdString() << std::endl;
-				//fichero.close();fichero.open("errores.txt", ios::out | ios::app);
-	}
-		else
-		{
+				removeInnerModelTarget(target);
 		
-		}
+			}
 	 }
 
 	mutex->unlock();
 }
 
-bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
+/**
+ * @brief Creates a target element inside InnerModel to be used by IK. Avoids having a "target" in the XML file.
+ * 		  Each "target" node in InnerModel is created for each target that arrives here, and deleted when finished.
+ * 		  Each bodypart may have a different target and BIK eliminates its dependence of InnerModelManager
+ * 
+ * @param target ...
+ * @return void
+ */
+void SpecificWorker::createInnerModelTarget(Target &target)
 {
-	//timer.start(Period);
-	timer.start(0);
+	InnerModelNode *nodeParent = innerModel->getNode("world");
+	target.setNameInInnerModel(QString::number(correlativeID++));
+	InnerModelTransform *node = innerModel->newTransform(target.getNameInInnerModel(), "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	QVec p = target.getPose();
+	innerModel->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), p.rx(), p.ry(), p.rz(), "world");
 	
-	return true;
-};
+}
+void SpecificWorker::removeInnerModelTarget(const Target& target)
+{
+	innerModel->removeNode(target.getNameInInnerModel());
+}
+
 
 ///////////////////////////////////////////////
 /// SERVANTS  OJO se ejecuta en el  hilo de ICE
 //////////////////////////////////////////////
 /**
- * @brief ...
+ * @brief ... Interfaz setTarget. Prepara el target que se le pasa como parámetro de entrada para que la parte del cuerpo que le
+ * corresponda lo resuelva.
  * 
- * @param bodyPart ...
- * @param target ...
+ * @param bodyPart ... Nombre d ela parte del cuerpo que debe resolver el target
+ * @param target ... pose de 6 elementos donde se sitúa el target.
  * @return bool
  */
 bool SpecificWorker::setTarget(const std::string& bodyPart, const Pose6D& target)
 {
+	// 1) Miramos si el mapa de partes del cuerpo contiene ese bodyPart.
+	// Si lo tiene lo pasamos a un QString para trabajar son las clases después.
+	// Si no lo tiene lanzamos un mensaje de error.
 	QString partName;
 	if ( bodyParts.contains(QString::fromStdString(bodyPart)))
 		partName = QString::fromStdString(bodyPart);
@@ -186,18 +213,30 @@ bool SpecificWorker::setTarget(const std::string& bodyPart, const Pose6D& target
 		return false;
 	}
 	
-	//Se debe comprobar condiciones del target cuando las tengamos.
+	// 2) Se debe comprobar condiciones del target cuando las tengamos.
 	QVec tar(6);
-	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
+	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	
+	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
 	
+	//PASAMOS A METROS
+	tar[0] = tar[0] / (T)1000;
+	tar[1] = tar[1] / (T)1000;
+	tar[2] = tar[2] / (T)1000;
+	
+	
+	// 3) Preparamos el vector de pesos para el LM. Inicialmente puesto a 1.
 	QVec w(6);
 	w.set(1.f);
+	
+	// 4) Creamos el target y lo añadimos a la lista de targets de la parte del cuerpo a la
+	// que corresponda. Mutex para controlar los accesos.
 	Target t(innerModel, tar, bodyParts[partName].getTip(), w);
 	t.setActivo(true);
 	
 	mutex->lock();
 		bodyParts[partName].addTargetToList(t);
 	mutex->unlock();
+	
 	
 	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
 	tar.print("target in world coordinates");
@@ -215,6 +254,8 @@ bool SpecificWorker::setTarget(const std::string& bodyPart, const Pose6D& target
  */
 void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights)
 {
+	QMutexLocker locker(mutex);
+	
 	QString partName;
 	if ( this->bodyParts.contains(QString::fromStdString(bodyPart)))
 		partName = QString::fromStdString(bodyPart);
@@ -228,20 +269,24 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	
 	//Se debe comprobar condiciones del target cuando las tengamos.
 	QVec tar(6);
-	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
+	tar[0] = target.x;	tar[1] = target.y;	tar[2] = target.z;
+	tar[3] = target.rx;	tar[4] = target.ry;	tar[5] = target.rz;
 
+	//PASAMOS A METROS
+	tar[0] = tar[0] / (T)1000;
+	tar[1] = tar[1] / (T)1000;
+	tar[2] = tar[2] / (T)1000;
+	
 	//Weights vector
 	QVec w(6);
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
 	Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::POSE6D);
+	bodyParts[partName].addTargetToList(t);
+	
+	qDebug() << "--------------------------------------------------------------------------";
+	qDebug() << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
 	t.print();
-	mutex->lock();
-		bodyParts[partName].addTargetToList(t);
-	mutex->unlock();
-	
-	qDebug() <<  __FILE__ << __FUNCTION__ << __LINE__<< "New target arrived: " << partName;
-	
 
 }
 
@@ -461,24 +506,24 @@ void SpecificWorker::moverBrazo(QVec angles, const QStringList &listaJoints)
  * rotaciones rx, ry y rz con los datos del parámetro de entrada.
  * Sirve para colocar el target en el innerModel. Para nada más.
  */ 
-void SpecificWorker::moverTarget(const QVec &pose)
-{
-	try
-	{
-		RoboCompInnerModelManager::Pose3D p;
-		p.x=p.y=p.z=p.rx=p.ry=p.rz=0.0; //Primero inicializamos a cero.
-
-		p.x = pose[0]; p.y = pose[1]; p.z = pose[2];
-		p.rx = pose[3]; p.ry = pose[4]; p.rz = pose[5];
-			
-		innermodelmanager_proxy->setPoseFromParent("target",p);
-		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
-		}
-	catch (const Ice::Exception &ex) 
-	{
-		cout<<"Excepción en moverTarget: "<<ex<<endl;
-	}
-}
+// void SpecificWorker::moverTarget(const QVec &pose)
+// {
+// 	try
+// 	{
+// 		RoboCompInnerModelManager::Pose3D p;
+// 		p.x=p.y=p.z=p.rx=p.ry=p.rz=0.0; //Primero inicializamos a cero.
+// 
+// 		p.x = pose[0]; p.y = pose[1]; p.z = pose[2];
+// 		p.rx = pose[3]; p.ry = pose[4]; p.rz = pose[5];
+// 			
+// 		innermodelmanager_proxy->setPoseFromParent("target",p);
+// 		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
+// 		}
+// 	catch (const Ice::Exception &ex) 
+// 	{
+// 		cout<<"Excepción en moverTarget: "<<ex<<endl;
+// 	}
+// }
 
 
 

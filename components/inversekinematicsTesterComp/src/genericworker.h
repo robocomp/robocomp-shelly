@@ -26,7 +26,7 @@
 #include <CommonBehavior.h>
 #include <ui_guiDlg.h>
 #include "config.h"
-#include <JointMotor.h>
+#include <InnerModelManager.h>
 #include <BodyInverseKinematics.h>
 
 #define CHECK_PERIOD 5000
@@ -40,7 +40,7 @@ using namespace std;
        \brief
        @author authorname
 */
-using namespace RoboCompJointMotor;
+using namespace RoboCompInnerModelManager;
 using namespace RoboCompBodyInverseKinematics;
 class GenericWorker :
 #ifdef USE_QTGUI
@@ -59,12 +59,8 @@ public:
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;                //Shared mutex with servant
 
-	JointMotorPrx jointmotor_proxy;
-	virtual bool setTarget(const string& bodyPart, const Pose6D& target) = 0;
-	virtual void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights) = 0;
-	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint) = 0;
-	virtual void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist) = 0;
-	virtual void  setFingers(float d) = 0;
+	InnerModelManagerPrx innermodelmanager_proxy;
+	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 protected:
 	QTimer timer;
 	int Period;

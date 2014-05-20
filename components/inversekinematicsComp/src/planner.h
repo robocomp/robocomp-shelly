@@ -24,12 +24,12 @@
 #include <qmat/QMatAll>
 #include "tree.hh"
 #include <innermodel/innermodel.h>
-#include <InnerModelManager.h>
+//#include <InnerModelManager.h>
 
 
 #define GLOBAL_OCCUPANCY_THRESHOLD 18.f
 
-using namespace RoboCompInnerModelManager;
+//using namespace RoboCompInnerModelManager;
 
 class Planner : public QObject
 {

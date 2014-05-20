@@ -61,55 +61,7 @@ QQueue< Target > Generador::generarListaTargets(InnerModel* inner, const BodyPar
 	
 	else return QQueue<Target>();
 	
-// 	QVec traslacion(3);
-// 	traslacion[0] = -0.2; traslacion[1] = 1; traslacion[2] = 0.350;
-// 	listaTraslaciones.append(traslacion);
-// 	
-// 	for(int i=0; i<listaTraslaciones.size(); i++)
-// 	{
-// 		// TRASLACIONES:
-// 		traslaciones = listaTraslaciones[i];
-// 		// ROTACIONES:
-// 		if(bodyPart.getPartName() == "HEAD")
-// 		{
-// 			inner->updateTransformValues("target",traslaciones.x(),traslaciones.y(),traslaciones.z(),0,0,0);
-// 			QVec a = inner->transform("sensor_transform",QVec::zeros(3),"target").normalize();
-// 			QVec b = QVec::vec3(0,0,1);
-// 			QVec o = b^a; // axis to rotate
-// 				a.print("a");
-// 				o.print("o");
-// 			float ang = asin(o.norm2());  //Angle to rotate
-// 			qDebug()<< "ang " << ang;
-// 			QMat c = o.crossProductMatrix();
-// 			QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
-// 			rotaciones = r.extractAnglesR3(r);
-// 			rotaciones[0] -= M_PI/2.;
-// 			rotaciones[2] = -rotaciones[2];
-// 	
-// 		}
-// 		else
-// 		{
-// 			rotaciones[0]= 0; rotaciones[1] = 0; rotaciones[2]=-M_PI/2;     /// PASAR ESTO A CADA METODO
-// 		}
-// 		
-		// Componemos el punto primero con las traslaciones y después con las rotaciones
-// 		for(int h=0; h<traslaciones.size(); h++)
-// 		{
-// 			punto [h] = traslaciones[h];
-// 			punto[h+3] = rotaciones[h];
-// 		}
-		//Construye el target pasándole el innerModel, el punto y el nombre del efector final.    //TAMBIEN PASAR AL METODO
-// 		QVec w(6);
-// 		if( weigths.isEmpty())
-// 			w.set(1.f);
-// 		else
-// 			w = weigths;
-// 
-// 		Target target (inner, punto, bodyPart.getTip(), w);
-// 		target.print();
-// 		listaTargets.enqueue(target);
 
-//	}	
 	return listaTargets;
 }
 

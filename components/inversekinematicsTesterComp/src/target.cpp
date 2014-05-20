@@ -121,20 +121,6 @@ void Target::setWeights(const QVec &weights)
 	this->weights = weights;
 }
 
-
-/**
- * @brief ...
- * 
- * @param name ...
- * @return void
- */
-void Target::setNameInInnerModel(const QString& name)
-{
-	nameInInnerModel = name;
-}
-
-
-
 /*
  * Método TROCEAR TARGET
  * Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
@@ -189,17 +175,7 @@ void Target::trocearTarget()
 
 void Target::print()
 {
-	qDebug() << "-----TARGET BEGIN---------------";
-	if(targetType == POSE6D)
-		qDebug() << "TargetType: POSE6D";
-	if(targetType == ALIGNAXIS)
-		qDebug() << "TargetType: ALIGNAXIS";
-	qDebug() << "Tip " << tip;
-	qDebug() << "Activo " << activo;
-	pose.print("pose in meters");
+	qDebug() << "-----TARGET-------";
+	pose.print("pose");
 	qDebug() << "------------------";
-	qDebug() << "Axis name " << axisName;
-	axis.print("axis");
-	weights.print("weights");
-	qDebug() << "-----TARGET END-----------------";
 }

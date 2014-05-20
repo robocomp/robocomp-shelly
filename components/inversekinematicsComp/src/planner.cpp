@@ -279,7 +279,6 @@ QVec Planner::trySegmentToTarget(const QVec & origin , const QVec & target, bool
 {
 	float stepSize = 100.f; //100 mms chunks
 	uint nSteps = (uint)rint((origin - target).norm2() / stepSize);  
-	float acumOccupancy=0.;
 	float step;
 	
 	//if too close return target
@@ -303,7 +302,6 @@ QVec Planner::trySegmentToTarget(const QVec & origin , const QVec & target, bool
 		// center of robot position
 		point = (origin * (1-landa)) + (target * landa);
 		
-		acumOccupancy=0.;
 		//Collision detector
 		if (collisionDetector( point, innerModel) == true)
 		{
