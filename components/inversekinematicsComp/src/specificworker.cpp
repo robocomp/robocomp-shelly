@@ -20,7 +20,12 @@
 #include "specificworker.h"
 #include "generador.h"
 
-
+/*-----------------------------------------------------------------------------------*
+ * 									CONSTRUCTOR										 *
+ *-----------------------------------------------------------------------------------*/
+/**
+ * @brief default Constructor. 
+ */ 
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
@@ -28,7 +33,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mp
 }
 
 /**
- * @brief Method called by the thread Monitor to pass the configuration parmaeters read from the config file
+ * @brief Method called by the thread Monitor to pass the configuration parameters read from the config file
  * 
  * @param params ...
  * @return bool

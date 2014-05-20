@@ -19,6 +19,9 @@
 
 #include "specificworker.h"
 
+/*--------------------------------------------------------------*
+ * 					CONSTRUCTOR AND DESTRUCTOR					*
+ *--------------------------------------------------------------*/
 /**
 * \brief Default constructor
 */
@@ -35,9 +38,14 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
+/*--------------------------------------------------------------*
+ * 						SLOTS									*
+ *--------------------------------------------------------------*/ 
 void SpecificWorker::compute( )
 {
 }
+
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
@@ -60,17 +68,17 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Error reading config params");
 	}
-	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusM.xml");
+	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusM.xml");
 
 	timer.start(Period);
 	return true;
 };
 
 /**
- * @brief SLOT ejecutar. Crea el target que el usuario ha especificado en la interfaz y se
- * lo pasa a lokiArm para que lo ejecute.
+ * @brief SLOT ejecutar. Crea el target que el usuario ha especificado en la interfaz (la parte del cuerpo a la que
+ * pertenece, la pose y el vector de pesos) y se lo pasa al inverseKinematicsComp para que lo ejecute.
  * @return void
- * */
+ */
 void SpecificWorker::ejecutar()
 {
 	
@@ -83,7 +91,7 @@ void SpecificWorker::ejecutar()
 	pose[4] = poseRy->value();
 	pose[5] = poseRz->value();
 		
-	//Movemos el target en RCIS
+	//Movemos el target en RCIS (coordenadas pasadas a metros)
 	QVec nPose = pose;
 	nPose[0] = pose[0]/1000;
 	nPose[1] = pose[1]/1000;
@@ -102,14 +110,11 @@ void SpecificWorker::ejecutar()
 	
 	QString type = typeBox->currentText();		
 	Target::TargetType tt;
-	if(type == "POSE6D")
-		tt = Target::POSE6D;
-	if(type == "ALIGNAXIS")
-		tt = Target::ALIGNAXIS;
+	if(type == "POSE6D")  	tt = Target::POSE6D;
+	if(type == "ALIGNAXIS")	tt = Target::ALIGNAXIS;
 	
 	std::string part = partBox->currentText().toStdString();
 	
-	// 		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
 	Target t(innerModel, pose, tip, pesos, tt); //no me deja poner el tipo de target...
 	
 	RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -138,8 +143,8 @@ void SpecificWorker::ejecutar()
 	}
 }
 
-/*
- * Método moverTarget versión 2.
+/**
+ * @brief Método moverTarget versión 2.
  * Mueve el target a una posición que se le pasa como parámetro de entrada. 
  * Crea una pose3D a cero y actualiza sus traslaciones tx, ty y tz y sus 
  * rotaciones rx, ry y rz con los datos del parámetro de entrada.

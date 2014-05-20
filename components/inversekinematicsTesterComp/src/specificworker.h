@@ -42,7 +42,7 @@ public slots:
 	void ejecutar();
 	
 private:
-	InnerModel *innerModel;											// Para trabajar con el innerModel
+	InnerModel *innerModel;									// Para trabajar con el innerModel
 	void moverTargetEnRCIS(const QVec &pose);
 };
 
