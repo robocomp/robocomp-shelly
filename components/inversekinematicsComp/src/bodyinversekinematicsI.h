@@ -42,6 +42,7 @@ void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const Weight
 void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint, const Ice::Current& = Ice::Current());
 void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist, const Ice::Current& = Ice::Current());
 void  setFingers(float d, const Ice::Current& = Ice::Current());
+void  goHome(const string& part, const Ice::Current& = Ice::Current());
 
 
 	QMutex *mutex;

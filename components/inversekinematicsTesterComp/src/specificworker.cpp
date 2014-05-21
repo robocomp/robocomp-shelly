@@ -16,12 +16,10 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
+ 
+ #include "specificworker.h"
+#include <specificworker.h>
 
-#include "specificworker.h"
-
-/*--------------------------------------------------------------*
- * 					CONSTRUCTOR AND DESTRUCTOR					*
- *--------------------------------------------------------------*/
 /**
 * \brief Default constructor
 */
@@ -29,6 +27,9 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {	
 	connect(ejecutarButton,SIGNAL(clicked()), this, SLOT(ejecutar()));
+	connect(camareroButton,SIGNAL(clicked()), this, SLOT(moveCamarero()));
+	connect(homeButton,SIGNAL(clicked()), this, SLOT(goHome()));
+	connect(closeButton,SIGNAL(clicked()), this, SLOT(closeFingers()));
 }
 
 /**
@@ -38,14 +39,9 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
-
-/*--------------------------------------------------------------*
- * 						SLOTS									*
- *--------------------------------------------------------------*/ 
 void SpecificWorker::compute( )
 {
 }
-
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
@@ -68,17 +64,16 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Error reading config params");
 	}
-	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusM.xml");
 
 	timer.start(Period);
 	return true;
 };
 
 /**
- * @brief SLOT ejecutar. Crea el target que el usuario ha especificado en la interfaz (la parte del cuerpo a la que
- * pertenece, la pose y el vector de pesos) y se lo pasa al inverseKinematicsComp para que lo ejecute.
+ * @brief SLOT ejecutar. Crea el target que el usuario ha especificado en la interfaz y se
+ * lo pasa a lokiArm para que lo ejecute.
  * @return void
- */
+ * */
 void SpecificWorker::ejecutar()
 {
 	
@@ -91,7 +86,7 @@ void SpecificWorker::ejecutar()
 	pose[4] = poseRy->value();
 	pose[5] = poseRz->value();
 		
-	//Movemos el target en RCIS (coordenadas pasadas a metros)
+	//Movemos el target en RCIS
 	QVec nPose = pose;
 	nPose[0] = pose[0]/1000;
 	nPose[1] = pose[1]/1000;
@@ -110,11 +105,14 @@ void SpecificWorker::ejecutar()
 	
 	QString type = typeBox->currentText();		
 	Target::TargetType tt;
-	if(type == "POSE6D")  	tt = Target::POSE6D;
-	if(type == "ALIGNAXIS")	tt = Target::ALIGNAXIS;
+	if(type == "POSE6D")
+		tt = Target::POSE6D;
+	if(type == "ALIGNAXIS")
+		tt = Target::ALIGNAXIS;
 	
 	std::string part = partBox->currentText().toStdString();
 	
+	// 		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
 	Target t(innerModel, pose, tip, pesos, tt); //no me deja poner el tipo de target...
 	
 	RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -143,8 +141,8 @@ void SpecificWorker::ejecutar()
 	}
 }
 
-/**
- * @brief Método moverTarget versión 2.
+/*
+ * Método moverTarget versión 2.
  * Mueve el target a una posición que se le pasa como parámetro de entrada. 
  * Crea una pose3D a cero y actualiza sus traslaciones tx, ty y tz y sus 
  * rotaciones rx, ry y rz con los datos del parámetro de entrada.
@@ -171,12 +169,117 @@ void SpecificWorker::moverTargetEnRCIS(const QVec &pose)
 
 
 
+/**
+ * @brief Create a sequence of targets simulating a person handling a tray
+ * 
+ * @return void
+ */
+void SpecificWorker::moveCamarero()
+{
+    QVec pesos(6);
+    QVec pose = QVec::zeros(6);
+    float xAux, yAux;
+	QQueue<QVec> poses;
+   
+    // lado inferior en X 1:
+	for(float i=-0.15; i<=0.15; i=i+0.01)
+	{
+		pose[0] = i; pose[1] = 0.9; pose[2] = 0.350;
+		poses.enqueue(pose);
+		xAux = i;
+	}
+
+	// Y 1:
+	for(float j=0.9; j<1.10; j=j+0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.350;
+		poses.enqueue(pose);
+		yAux = j;
+	}
+
+	// X 2:
+	for(float i=xAux; i>=-0.15; i=i-0.01)
+	{
+		pose[0] = i; pose[1] = yAux; pose[2] = 0.35;
+		poses.enqueue(pose);
+		xAux=i;
+	}
+	// Y 2:
+	for(float j=yAux; j>=0.9; j=j-0.01)
+	{
+		pose[0] = xAux; pose[1] = j; pose[2] = 0.35;
+		poses.enqueue(pose);
+		yAux = j;
+	}
+	
+    foreach(QVec p, poses)
+    {
+		try
+        {
+			moverTargetEnRCIS(p);
+            pose[0] = p[0] * (T)1000;
+            pose[1] = p[1] * (T)1000;
+            pose[2] = p[2] * (T)1000;
+			
+            RoboCompBodyInverseKinematics::Pose6D pose6D;
+            pose6D.x = pose[0];     pose6D.y = pose[1];     pose6D.z = pose[2];
+            pose6D.rx = pose[3];    pose6D.ry = pose[4];    pose6D.rz = pose[5];
+			
+			pesos.set((T)0);
+			if(WTx->isChecked()) pesos[0] = 1;	if(WTy->isChecked()) pesos[1] = 1;	if(WTz->isChecked()) pesos[2] = 1;
+			if(WRx->isChecked()) pesos[3] = 1;	if(WRy->isChecked()) pesos[4] = 1;	if(WRz->isChecked()) pesos[5] = 1;
+            RoboCompBodyInverseKinematics::WeightVector weights;
+            weights.x = pesos[0];    weights.y = pesos[1];     weights.z = pesos[2];    weights.rx = pesos[3];    weights.ry = pesos[4];    weights.rz = pesos[5];
+   
+			std::string part = partBox->currentText().toStdString();
+			QString type = typeBox->currentText();		
+			
+			if(part == "HEAD")
+				bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, "z", false, 0 );
+			else if(type == "POSE6D") 				
+				bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights );
+// 			else if(type == "ADVANCEALONGAXIS")
+// 				bodyinversekinematics_proxy->advanceAlongAxis(part, axis, dist);
+			
+            usleep(50000);
+        }
+        catch(Ice::Exception ex)
+        {
+            std::cout<<"Error al pasar el target: "<<ex<<endl;
+        }
+    }
+}
+
+void SpecificWorker::goHome()
+{
+	try 
+	{	
+		std::string part = partBox->currentText().toStdString();
+		qDebug() << "Go gome" << QString::fromStdString(part);
+		bodyinversekinematics_proxy->goHome(part);
+	} 
+	catch (Ice::Exception ex) 
+	{
+		cout << ex << endl;
+	}
+}
 
 
-
-
-
-
+void SpecificWorker::closeFingers()
+{
+	try 
+	{	
+		qDebug() << "Close/Open fingers";
+		if(closeButton->isChecked())
+			bodyinversekinematics_proxy->setFingers(0);
+		else
+			bodyinversekinematics_proxy->setFingers(1);
+	} 
+	catch (Ice::Exception ex) 
+	{
+		cout << ex << endl;
+	}
+}
 
 
 
