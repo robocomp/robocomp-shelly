@@ -40,9 +40,12 @@ public:
 public slots:
  	void compute(); 
 	void ejecutar();
+	void moveCamarero();
+	void goHome();
+	void closeFingers();
 	
 private:
-	InnerModel *innerModel;									// Para trabajar con el innerModel
+	InnerModel *innerModel;											// Para trabajar con el innerModelç
 	void moverTargetEnRCIS(const QVec &pose);
 };
 

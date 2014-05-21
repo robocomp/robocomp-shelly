@@ -20,12 +20,7 @@
 #include "specificworker.h"
 #include "generador.h"
 
-/*-----------------------------------------------------------------------------------*
- * 									CONSTRUCTOR										 *
- *-----------------------------------------------------------------------------------*/
-/**
- * @brief default Constructor. 
- */ 
+
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
@@ -33,7 +28,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mp
 }
 
 /**
- * @brief Method called by the thread Monitor to pass the configuration parameters read from the config file
+ * @brief Method called by the thread Monitor to pass the configuration parmaeters read from the config file
  * 
  * @param params ...
  * @return bool
@@ -61,7 +56,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	
 	//timer.start(Period);
 	init();
-	timer.start(0);
+	timer.start(50);
 	return true;
 };
 
@@ -85,7 +80,7 @@ void SpecificWorker::init()
 	* 			- 7) Inicializa la cinematica inversa IK.
 	*/
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo << "base" <<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
+	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
 	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
 	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
@@ -95,7 +90,7 @@ void SpecificWorker::init()
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
-	QString nose = "sensor_transform";
+	QString nose = "tablet";
 	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
@@ -387,8 +382,44 @@ void SpecificWorker::advanceAlongAxis(const string& bodyPart, const Axis& ax, fl
  */
 void SpecificWorker::setFingers(float d)
 {
-
+	QVec angles(2);
+	if( d == 0 )
+		angles = QVec::vec2(-1,1);
+	else
+		angles = QVec::vec2(0,0);
+		
+	QStringList joints;
+	joints << "rightFinger1" << "rightFinger2";
+	moverBrazo(angles, joints);
 }
+
+/**
+ * @brief ...
+ * 
+ * @param part ...
+ * @return void
+ */
+void SpecificWorker::goHome(const string& part)
+{
+	QString partName;
+	BodyPart bodypart;
+	if ( bodyParts.contains(QString::fromStdString(part)))
+		partName = QString::fromStdString(part);
+	else
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	qDebug() << "----------------------------------------";
+	qDebug() << "Go gome" << QString::fromStdString(part);
+	qDebug() << bodyParts[partName].getMotorList();
+	goHomePosition( bodyParts[partName].getMotorList());
+	sleep(1);
+	
+}
+
 
 
 /*-----------------------------------------------------------------------------*

@@ -60,6 +60,7 @@ class SpecificWorker : public GenericWorker
 		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint);
 		void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist);
 		void  setFingers(float d);
+		void  goHome(const string& part);;
 		
 	public slots:
 		void compute(); 

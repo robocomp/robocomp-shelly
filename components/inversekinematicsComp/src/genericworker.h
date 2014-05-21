@@ -65,6 +65,7 @@ public:
 	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint) = 0;
 	virtual void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist) = 0;
 	virtual void  setFingers(float d) = 0;
+	virtual void  goHome(const string& part) = 0;
 protected:
 	QTimer timer;
 	int Period;

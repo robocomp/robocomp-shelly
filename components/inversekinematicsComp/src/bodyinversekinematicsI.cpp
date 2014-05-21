@@ -52,4 +52,8 @@ void BodyInverseKinematicsI::setFingers(float d, const Ice::Current&){
 	worker->setFingers(d);
 }
 
+void BodyInverseKinematicsI::goHome(const string& part, const Ice::Current&){
+	worker->goHome(part);
+}
+
 
