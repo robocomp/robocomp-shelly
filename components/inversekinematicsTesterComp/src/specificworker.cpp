@@ -91,7 +91,7 @@ void SpecificWorker::ejecutar()
 	nPose[0] = pose[0]/1000;
 	nPose[1] = pose[1]/1000;
 	nPose[2] = pose[2]/1000;
-// 	moverTargetEnRCIS(nPose);
+ 	moverTargetEnRCIS(nPose);
 	
 	QString tip = tipBox->currentText();
 	
@@ -112,7 +112,6 @@ void SpecificWorker::ejecutar()
 	
 	std::string part = partBox->currentText().toStdString();
 	
-	// 		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
 	Target t(innerModel, pose, tip, pesos, tt); //no me deja poner el tipo de target...
 	
 	RoboCompBodyInverseKinematics::Pose6D pose6D;
