@@ -91,7 +91,7 @@ void SpecificWorker::ejecutar()
 	nPose[0] = pose[0]/1000;
 	nPose[1] = pose[1]/1000;
 	nPose[2] = pose[2]/1000;
-	moverTargetEnRCIS(nPose);
+// 	moverTargetEnRCIS(nPose);
 	
 	QString tip = tipBox->currentText();
 	
@@ -157,9 +157,11 @@ void SpecificWorker::moverTargetEnRCIS(const QVec &pose)
 
 		p.x = pose[0]; p.y = pose[1]; p.z = pose[2];
 		p.rx = pose[3]; p.ry = pose[4]; p.rz = pose[5];
-			
-		innermodelmanager_proxy->setPoseFromParent("target",p);
-		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
+
+		
+
+// 		innermodelmanager_proxy->setPoseFromParent("___iktester_target",p);
+// 		innerModel->updateTransformValues("___iktester_target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
 		}
 	catch (const Ice::Exception &ex) 
 	{

@@ -45,7 +45,7 @@ class C(QWidget):
 			pose = self.mods['RoboCompInnerModelManager'].Pose3D()
 			pose.x = 500.*math.cos(self.a)
 			pose.y = 900
-			pose.z = 450
+			pose.z = 350
 			pose.rx = pose.ry = pose.rz = 0
 			self.proxy.setPoseFromParent("target", pose)
 			self.a += 0.015

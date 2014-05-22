@@ -30,6 +30,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	active = false;
+	
+	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
+
 }
 
 /**
@@ -47,22 +50,36 @@ void SpecificWorker::compute( )
 	{
 		int32_t object = atoi(params["o"].value.c_str());
 		printf("go get %d\n", object);
-		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
-		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
-		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
-		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
-		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
-		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
-		RoboCompBodyInverseKinematics::Pose6D target;
-		target.x = tx;
-		target.y = ty;
-		target.z = tz;
-		target.rx = rx;
-		target.ry = ry;
-		target.rz = rz;
-		bool ret = bodyinversekinematics_proxy->setTarget("leftHand", target);
-		printf("success=%d\n", ret);
+		try
+		{
+			float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+			float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty")) - 200;
+			float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+			float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+			float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+			float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+			
+			QVec poseTr = innerModel->transform("robot", QVec::vec3(tx, ty, tz), "rgbd");
+			tx = poseTr(0);
+			ty = poseTr(1);
+			tz = poseTr(2);
+			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
+			RoboCompBodyInverseKinematics::Pose6D target;
+			target.x = tx;
+			target.y = ty;
+			target.z = tz;
+			target.rx = rx;
+			target.ry = ry;
+			target.rz = rz;
+			RoboCompBodyInverseKinematics::WeightVector weights;
+			weights.x  = weights.y  = weights.z  = 1;
+			weights.rx = weights.ry = weights.rz = 0;
+			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+		}
+		catch(AGMModelException &e)
+		{
+			printf("I don't know about object %d\n", object);
+		}
 	}
 	else
 	{

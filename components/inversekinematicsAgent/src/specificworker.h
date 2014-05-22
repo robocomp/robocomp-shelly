@@ -21,6 +21,8 @@
 
 #include <genericworker.h>
 
+#include <innermodel/innermodel.h>
+
 /**
        \brief
        @author authorname
@@ -52,6 +54,7 @@ private:
 	bool active;
 
 private:
+	InnerModel *innerModel;
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
