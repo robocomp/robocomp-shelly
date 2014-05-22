@@ -369,6 +369,9 @@ void Cinematica_Inversa::calcularModuloFloat(QVec &angles, float mod)
 		
 		if(angles[i] > M_PI)
 			angles[i] = angles[i]- M_PI;
+		else
+			if(angles[i]<-M_PI)
+				angles[i]=angles[i]+M_PI;
 	}
 }
 
