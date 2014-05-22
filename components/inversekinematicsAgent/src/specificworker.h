@@ -48,16 +48,38 @@ public:
 
 public slots:
  	void compute();
+	void slotStop();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	bool active;
-
+	
+	void stateMachine();
+	///states functions.
+	void stop();
+	void closeHand();
+	void approachFinger();
+	void touchFinger();
+	void openHand();
+	void approachHand();	
+	void grasp();
+	void take();
+	
+	
+	
 private:
 	InnerModel *innerModel;
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
+	typedef enum nameStates {STOP,CLOSEHAND, APPROACHFINGER, TOUCHFINGER,OPENHAND,APPROACHHAND,GRASP,TAKE } nameStates;
+	nameStates currenState;
+	QTimer timerAutomataApproachFinger; //using a connect to exit when the time was excesived	
+	QTimer timerAutomataTouch;
+	QTimer timerAutomataApproachHand;
+	QTime elapsedTime;	
+	bool exec;
+	
 };
 
 #endif

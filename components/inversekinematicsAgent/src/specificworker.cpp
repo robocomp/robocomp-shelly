@@ -32,60 +32,352 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	active = false;
 	
 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
+	currenState =STOP;
+	
+	connect(&timerAutomataApproachFinger,SIGNAL(timeout()),this,SLOT(slotStop())),
+	
+	timerAutomataApproachFinger.setSingleShot(true);
+	timerAutomataTouch.setSingleShot(true);
+	timerAutomataApproachHand.setSingleShot(true);
+	exec=false;;
 
 }
+void SpecificWorker::stop()
+{
+    qDebug()<<"stop()"<<"exec"<<exec;
+    timerAutomataApproachFinger.stop();
+    timerAutomataTouch.stop();
+    timerAutomataApproachHand.stop();
+}
+void SpecificWorker::closeHand()
+{
+	qDebug()<<"closeHand()"<<elapsedTime.elapsed()<<currenState<<"exec"<<exec;
+	
+	
+	if (elapsedTime.elapsed()>1000)
+	{
+		qDebug()<<"Hand should be closed"<<currenState<<"exec"<<exec;
+		if (currenState==CLOSEHAND)
+		{
+			
+			exec=false;			
+			elapsedTime.restart();
+			currenState=APPROACHFINGER;
+			return;
+			
+		}
+		else if (currenState==APPROACHHAND)
+		{			
+			exec=false;
+			elapsedTime.restart();
+			currenState=TAKE;
+			return;
+			
+		}
+		else
+			qDebug()<<"que cojones hago AQUI, closeHand";
+		
+	}
+	if (exec==true)
+		return;
+	try
+	{
+		bodyinversekinematics_proxy->setFingers(0.0);
+		exec=true;
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::closeHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+	
+}
 
-/**
-* \brief Default destructor
-*/
-SpecificWorker::~SpecificWorker()
+void SpecificWorker::approachFinger()
+{
+	qDebug()<<"approachFinger()"<<"exec"<<exec<<"currenState"<<currenState<<"elapsedTime.elapsed()"<<elapsedTime.elapsed();
+	int32_t object = atoi(params["o"].value.c_str());
+	printf("go get %d\n", object);
+	
+	
+	if (elapsedTime.elapsed()>2000)
+	{
+		qDebug()<<"Fingers should be close to target";
+		currenState=TOUCHFINGER;
+		exec=false;
+		elapsedTime.restart();
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	
+	try
+	{
+		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
+		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+
+		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty, tz), "rgbd");
+		tx = poseTr(0);
+		ty = poseTr(1);
+		tz = poseTr(2);
+		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
+		RoboCompBodyInverseKinematics::Pose6D target;
+		target.x = tx;
+		target.y = ty;
+		target.z = tz;
+		target.rx = rx;
+		target.ry = ry;
+		target.rz = rz;
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x  = weights.y  = weights.z  = 1;
+		weights.rx = weights.ry = weights.rz = 0;
+		try
+		{
+			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
+			exec =true;
+			//timerAutomataApproachFinger.start(5000);
+		}
+		catch (Ice::Exception e)
+		{
+			qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
+		}
+	}
+	catch(AGMModelException &e)
+	{
+		printf("I don't know about object %d\n", object);
+	}
+
+}
+void SpecificWorker::touchFinger()
+{
+	qDebug()<<"touchFinger(), waiting for touchSensor"<<"exec"<<exec;
+	
+	if (elapsedTime.elapsed()>2000)
+	{
+		qDebug()<<"Fingers should be close to target";
+		currenState=OPENHAND;
+		exec=false;
+		elapsedTime.restart();
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	
+	try
+	{
+		bodyinversekinematics_proxy->setFingers(1.0);
+		exec=true;
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::closeHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+	//ok
+// 	timerAutomataTouch.start(500);
+// 	if (timerAutomataTouch.isActive())
+// 	   return;
+// 	currenState=OPENHAND;
+
+}
+void SpecificWorker::openHand()
+{
+	qDebug()<<"openHand(), waiting for OPEN"<<"exec"<<exec;
+	
+	if (elapsedTime.elapsed()>2000)
+	{
+		qDebug()<<"HAND should be open";
+		currenState=APPROACHHAND;
+		exec=false;
+		elapsedTime.restart();
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	try
+	{
+		bodyinversekinematics_proxy->setFingers(1.0);
+		exec=true;
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::openHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+}
+
+void SpecificWorker::approachHand()
+{
+	qDebug()<<"approachHand(), avancing through the axis"<<"currenState"<<currenState;
+	if (elapsedTime.elapsed()>1000)
+	{
+		qDebug()<<"HAND should be close to target";
+		currenState=GRASP;
+		exec=false;
+		elapsedTime.restart();
+		sleep(2);
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	
+	try
+	{
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x=0.0;axis.y=0.;axis.z=1.0;
+		//bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, -100.0);		
+		exec=true;
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::approachHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+      
+}
+
+void SpecificWorker::grasp()
+{
+     qDebug()<<"take, I hang on the mug";   
+     
+	if (elapsedTime.elapsed()>2000)
+	{
+		qDebug()<<"HAND should be grasping the MUG";
+		currenState=TAKE;
+		exec=false;
+		elapsedTime.restart();
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	
+	try
+	{
+		bodyinversekinematics_proxy->setFingers(0.0);
+		exec=true;
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::grasp(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+}
+
+void SpecificWorker::take()
+{
+     qDebug()<<"take, I hang on the mug";   
+     
+	if (elapsedTime.elapsed()>2000)
+	{
+		qDebug()<<"HAND should be grasping the MUG";
+		currenState=CLOSEHAND;
+		exec=false;
+		elapsedTime.restart();
+		return;
+	}
+	//este exec no me convence, mientras estoy haciendo la accion no llamo
+	if (exec == true)
+		return;
+	
+	RoboCompBodyInverseKinematics::Pose6D target;
+	target.x = 0.;
+	target.y = 1000.;
+	target.z = 200.;
+	target.rx = 0.0;
+	target.ry = -1.50;
+	target.rz = 0;
+	RoboCompBodyInverseKinematics::WeightVector weights;
+	weights.x  = weights.y  = weights.z  = 1;
+	weights.rx = weights.ry = weights.rz = 1;
+	try
+	{
+		///pn
+					
+		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
+		exec =true;
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
+}
+
+void SpecificWorker::stateMachine()
 {
 
+
+	switch (currenState)
+	{
+	case STOP :
+		stop();
+	break;
+	case CLOSEHAND :
+		closeHand();
+	break;
+		
+	case APPROACHFINGER :
+		approachFinger();
+	break;
+
+	case TOUCHFINGER:
+		touchFinger();
+	break;
+
+	case OPENHAND:
+		openHand();
+	break;
+
+	case APPROACHHAND:
+		approachHand();
+	break;
+	
+	case GRASP:
+		grasp();
+	break;
+
+	case TAKE:
+		take();
+	break;
+
+	default:
+		qDebug()<<"state not valid"<<currenState;
+	break;
+	}
 }
 
+///slot
 void SpecificWorker::compute( )
 {
 	printf("action: %s\n", action.c_str());
-	if (action == "graspobject")
-	{
-		int32_t object = atoi(params["o"].value.c_str());
-		printf("go get %d\n", object);
-		try
+	if (action == "graspobject" )
+	{		
+		if (currenState==STOP )
 		{
-			float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
-			float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty")) - 200;
-			float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
-			float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
-			float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
-			float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-			
-			QVec poseTr = innerModel->transform("robot", QVec::vec3(tx, ty, tz), "rgbd");
-			tx = poseTr(0);
-			ty = poseTr(1);
-			tz = poseTr(2);
-			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
-			RoboCompBodyInverseKinematics::Pose6D target;
-			target.x = tx;
-			target.y = ty;
-			target.z = tz;
-			target.rx = rx;
-			target.ry = ry;
-			target.rz = rz;
-			RoboCompBodyInverseKinematics::WeightVector weights;
-			weights.x  = weights.y  = weights.z  = 1;
-			weights.rx = weights.ry = weights.rz = 0;
-			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+			currenState=CLOSEHAND;		
+			elapsedTime.start();
 		}
-		catch(AGMModelException &e)
-		{
-			printf("I don't know about object %d\n", object);
-		}
+		
 	}
 	else
 	{
 		printf("ignoring this action...\n");
 	}
 	printf("\n\n");
+	stateMachine();
+}
+
+void SpecificWorker::slotStop()
+{
+	currenState=STOP;
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -93,6 +385,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	timer.start(Period);
 	return true;
 }
+///agents
 
 bool SpecificWorker::activateAgent(const ParameterMap& prs)
 {
@@ -219,4 +512,13 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	}
 
 	return true;
+}
+
+
+/**
+* \brief Default destructor
+*/
+SpecificWorker::~SpecificWorker()
+{
+
 }
