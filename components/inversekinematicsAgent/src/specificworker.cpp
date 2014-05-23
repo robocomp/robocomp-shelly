@@ -17,7 +17,9 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "specificworker.h"
+#include "specificworker.h"
+#include <agm.h>
+
 
 /**
 * \brief Default constructor

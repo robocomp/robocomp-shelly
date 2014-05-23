@@ -19,8 +19,6 @@
  
 #include "specificworker.h"
 
-#include <agm_modelPrinter.h>
-
 /**
 * \brief Default constructor
 */
@@ -207,15 +205,13 @@ void SpecificWorker::compute( )
 	
 	if (modelModified)
 	{
-// 		printf("Publishing....\n");
-// 		printf("BACK\n");
-// 		AGMModelPrinter::printWorld(worldModel);
-// 		printf("NEW\n");
-// 		AGMModelPrinter::printWorld(newModel);
-		AGMModelConverter::fromInternalToIce(worldModel, e.backModel);
-		AGMModelConverter::fromInternalToIce(newModel,   e.newModel);
-		agmagenttopic->modificationProposal(e);
-// 		printf("Published....\n");
+		//printf("Publishing....\n");
+		//printf("BACK\n");
+		//AGMModelPrinter::printWorld(worldModel);
+		//printf("NEW\n");
+		//AGMModelPrinter::printWorld(newModel);
+		AGMMisc::publishModification(newModel, agmagenttopic, worldModel);
+		//printf("Published....\n");
 	}
 }
 

@@ -19,7 +19,6 @@
 #ifndef GENERICWORKER_H
 #define GENERICWORKER_H
 
-// #include <ipp.h>
 #include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
