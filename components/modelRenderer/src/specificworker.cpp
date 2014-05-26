@@ -38,6 +38,7 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
 void SpecificWorker::compute( )
 {
   if (!initial_broadcast)
@@ -48,50 +49,67 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	timer.start(Period);
 	return true;
-};
-bool SpecificWorker::activateAgent(const ParameterMap& prs){
+}
+
+bool SpecificWorker::activateAgent(const ParameterMap& prs)
+{
 	bool activated = false;
-	if (setParametersAndPossibleActivation(prs, activated)){
-		if (not activated){
+	if (setParametersAndPossibleActivation(prs, activated))
+	{
+		if (not activated)
+		{
 			return activate(p);
 		}
-	}else{
+	}
+	else
+	{
 		return false;
 	}
 	return true;
 }
 
-bool SpecificWorker::deactivateAgent(){
+bool SpecificWorker::deactivateAgent()
+{
 		return deactivate();
 }
 
-StateStruct SpecificWorker::getAgentState(){
+StateStruct SpecificWorker::getAgentState()
+{
 	StateStruct s;
-	if (isActive()){
+	if (isActive())
+	{
 		s.state = Running;
-	}else{
+	}
+	else
+	{
 		s.state = Stopped;
 	}
 	s.info = p.action.name;
 	return s;
 }
 
-ParameterMap SpecificWorker::getAgentParameters(){
+ParameterMap SpecificWorker::getAgentParameters()
+{
 	return params;
 }
 
-bool SpecificWorker::setAgentParameters(const ParameterMap& prs){
+bool SpecificWorker::setAgentParameters(const ParameterMap& prs)
+{
 	bool activated = false;
 	return setParametersAndPossibleActivation(prs, activated);
 }
 
-void SpecificWorker::killAgent(){
+void SpecificWorker::killAgent()
+{
 }
-Ice::Int SpecificWorker::uptimeAgent(){
+
+Ice::Int SpecificWorker::uptimeAgent()
+{
 	return 0;
 }
 
-bool SpecificWorker::reloadConfigAgent(){
+bool SpecificWorker::reloadConfigAgent()
+{
 	return true;
 }
 
@@ -140,9 +158,9 @@ std::string SpecificWorker::node2String(const RoboCompAGMWorldModel::Node &node)
 
 void SpecificWorker::updateRCISNode(const RoboCompAGMWorldModel::Node &modified)
 {
-	 RoboCompAGMWorldModel::Node node = modified;
+	RoboCompAGMWorldModel::Node node = modified;
     printf(" - - - - updateRCISNode %s\n", node2String(modified).c_str());
-	 if(node.nodeType == "object")
+	if(node.nodeType == "object")
 		RCIS_update_object(node);
 }
 
@@ -415,3 +433,5 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 		printf("SHIT %s:%d\n", __FILE__, __LINE__);
 	}
 }
+
+
