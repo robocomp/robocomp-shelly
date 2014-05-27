@@ -28,7 +28,7 @@
 						
 						<transform id="base_head" tz="1080"    >
 							<!-- Giro en X -->
-							<joint id="tilt" port="30000" min="-0.5" max="0.5" axis="x" home="0.45" rx="0.45" >
+							<joint id="tilt" port="30000" min="-0.85" max="0.85" axis="x" home="0.75" rx="0.75" >
 								
 								<!-- Giro en Y -->
 								<transform id="rolll2_pre" rx="3.14159265359">
@@ -36,7 +36,7 @@
 										<transform id="rolll2_pos" rx="-3.14159265359">
 											<!-- Giro en Z -->
 											<joint id="pan" port="30000" min="-1.40" max="1.40" axis="z" home="0">
-												<transform id="sensor_transform" tz="60" ty="-90" rx="1.5708">
+												<transform id="sensor_transform" tz="60" ty="-90" rx="1.57079632">
 													<plane id="sensor" nz="1" pz="-0.05" size="10" repeat="1" texture="#0000ff" />
 													<transform id="axesSensor" ty="80"> 
 														<plane id="xSensor" px="50" nx="1" size="10,10,100" repeat="1" texture="#ff0000" />

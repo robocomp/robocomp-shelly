@@ -41,9 +41,11 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	timerAutomataApproachFinger.setSingleShot(true);
 	timerAutomataTouch.setSingleShot(true);
 	timerAutomataApproachHand.setSingleShot(true);
-	exec=false;;
+
+	exec=false;
 
 }
+
 void SpecificWorker::stop()
 {
     qDebug()<<"stop()"<<"exec"<<exec;
@@ -51,22 +53,20 @@ void SpecificWorker::stop()
     timerAutomataTouch.stop();
     timerAutomataApproachHand.stop();
 }
+
 void SpecificWorker::closeHand()
 {
 	qDebug()<<"closeHand()"<<elapsedTime.elapsed()<<currenState<<"exec"<<exec;
-	
-	
+
 	if (elapsedTime.elapsed()>1000)
 	{
 		qDebug()<<"Hand should be closed"<<currenState<<"exec"<<exec;
 		if (currenState==CLOSEHAND)
 		{
-			
 			exec=false;			
 			elapsedTime.restart();
 			currenState=APPROACHFINGER;
 			return;
-			
 		}
 		else if (currenState==APPROACHHAND)
 		{			
@@ -74,11 +74,11 @@ void SpecificWorker::closeHand()
 			elapsedTime.restart();
 			currenState=TAKE;
 			return;
-			
 		}
 		else
-			qDebug()<<"que cojones hago AQUI, closeHand";
-		
+		{
+			qDebug() << "comentario inapropiado, closeHand";
+		}
 	}
 	if (exec==true)
 		return;
@@ -86,13 +86,11 @@ void SpecificWorker::closeHand()
 	{
 		bodyinversekinematics_proxy->setFingers(0.0);
 		exec=true;
-		
 	}
 	catch (Ice::Exception e)
 	{
 		qDebug()<<"SpecificWorker::closeHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
 	}
-	
 }
 
 void SpecificWorker::approachFinger()
@@ -101,11 +99,11 @@ void SpecificWorker::approachFinger()
 	int32_t object = atoi(params["o"].value.c_str());
 	printf("go get %d\n", object);
 	
-	
 	if (elapsedTime.elapsed()>2000)
 	{
 		qDebug()<<"Fingers should be close to target";
-		currenState=TOUCHFINGER;
+// 		currenState=TOUCHFINGER;
+		currenState=STOP;
 		exec=false;
 		elapsedTime.restart();
 		return;
@@ -137,7 +135,9 @@ void SpecificWorker::approachFinger()
 		target.rz = rz;
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x  = weights.y  = weights.z  = 1;
-		weights.rx = weights.ry = weights.rz = 0;
+		weights.rx = 1;
+		weights.ry = 0;
+		weights.rz = 1;
 		try
 		{
 			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
@@ -153,8 +153,9 @@ void SpecificWorker::approachFinger()
 	{
 		printf("I don't know about object %d\n", object);
 	}
-
 }
+
+
 void SpecificWorker::touchFinger()
 {
 	qDebug()<<"touchFinger(), waiting for touchSensor"<<"exec"<<exec;
@@ -241,8 +242,7 @@ void SpecificWorker::approachHand()
 	catch (Ice::Exception e)
 	{
 		qDebug()<<"SpecificWorker::approachHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
-	}
-      
+	}      
 }
 
 void SpecificWorker::grasp()
@@ -315,44 +315,35 @@ void SpecificWorker::take()
 
 void SpecificWorker::stateMachine()
 {
-
-
 	switch (currenState)
 	{
 	case STOP :
 		stop();
-	break;
+		break;
 	case CLOSEHAND :
 		closeHand();
-	break;
-		
+		break;
 	case APPROACHFINGER :
 		approachFinger();
-	break;
-
+		break;
 	case TOUCHFINGER:
 		touchFinger();
-	break;
-
+		break;
 	case OPENHAND:
 		openHand();
-	break;
-
+		break;
 	case APPROACHHAND:
 		approachHand();
-	break;
-	
+		break;
 	case GRASP:
 		grasp();
-	break;
-
+		break;
 	case TAKE:
 		take();
-	break;
-
+		break;
 	default:
 		qDebug()<<"state not valid"<<currenState;
-	break;
+		break;
 	}
 }
 
@@ -367,13 +358,11 @@ void SpecificWorker::compute( )
 			currenState=CLOSEHAND;		
 			elapsedTime.start();
 		}
-		
 	}
 	else
 	{
 		printf("ignoring this action...\n");
 	}
-	printf("\n\n");
 	stateMachine();
 }
 
@@ -387,7 +376,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	timer.start(Period);
 	return true;
 }
-///agents
+
 
 bool SpecificWorker::activateAgent(const ParameterMap& prs)
 {
