@@ -35,13 +35,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
 	currenState =STOP;
-	
-	connect(&timerAutomataApproachFinger,SIGNAL(timeout()),this,SLOT(slotStop())),
-	
-	timerAutomataApproachFinger.setSingleShot(true);
-	timerAutomataTouch.setSingleShot(true);
-	timerAutomataApproachHand.setSingleShot(true);
-
+		
 	exec=false;
 
 }
@@ -49,9 +43,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 void SpecificWorker::stop()
 {
     qDebug()<<"stop()"<<"exec"<<exec;
-    timerAutomataApproachFinger.stop();
-    timerAutomataTouch.stop();
-    timerAutomataApproachHand.stop();
 }
 
 void SpecificWorker::closeHand()
@@ -84,7 +75,7 @@ void SpecificWorker::closeHand()
 		return;
 	try
 	{
-		bodyinversekinematics_proxy->setFingers(0.0);
+		bodyinversekinematics_proxy->setFingers(1.0);
 		exec=true;
 	}
 	catch (Ice::Exception e)
@@ -130,9 +121,9 @@ void SpecificWorker::approachFinger()
 		target.x = tx;
 		target.y = ty;
 		target.z = tz;
-		target.rx = rx;
-		target.ry = ry;
-		target.rz = rz;
+		target.rx = 0; //rx;
+		target.ry = 0; //ry;
+		target.rz = 0; //rz;
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x  = weights.y  = weights.z  = 1;
 		weights.rx = 1;
