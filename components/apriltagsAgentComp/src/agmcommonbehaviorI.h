@@ -43,7 +43,7 @@ StateStruct getAgentState(const Ice::Current& = Ice::Current());
 ParameterMap getAgentParameters(const Ice::Current& = Ice::Current());
 bool setAgentParameters(const ParameterMap& prs, const Ice::Current& = Ice::Current());
 void  killAgent(const Ice::Current& = Ice::Current());
-int uptimeAgent(const Ice::Current& = Ice::Current());
+Ice::Int uptimeAgent(const Ice::Current& = Ice::Current());
 bool reloadConfigAgent(const Ice::Current& = Ice::Current());
 
 

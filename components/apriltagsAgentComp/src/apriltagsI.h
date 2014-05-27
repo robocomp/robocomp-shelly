@@ -37,8 +37,7 @@ Q_OBJECT
 public:
 	AprilTagsI( GenericWorker *_worker, QObject *parent = 0 );
 	~AprilTagsI();
-	void  newAprilTag(const tagsList& tags, const Ice::Current& = Ice::Current());
-
+	
 
 	QMutex *mutex;
 private:

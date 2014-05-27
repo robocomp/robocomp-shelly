@@ -21,7 +21,8 @@
 AprilTagsI::AprilTagsI(GenericWorker *_worker, QObject *parent) : QObject(parent)
 {
 	worker = _worker;
-	mutex = worker->mutex;
+	mutex = worker->mutex;       // Shared worker mutex
+	// Component initialization...
 }
 
 
@@ -31,9 +32,4 @@ AprilTagsI::~AprilTagsI()
 }
 
 // Component functions, implementation
-void AprilTagsI::newAprilTag(const tagsList& tags, const Ice::Current&)
-{
-	worker->newAprilTag(tags);
-}
-
 

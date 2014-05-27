@@ -83,6 +83,7 @@
 // Includes for remote proxy example
 // #include <Remote.h>
 #include <ui_guiDlg.h>
+#include <JointMotor.h>
 #include <AGMAgent.h>
 
 
@@ -94,6 +95,7 @@ using namespace RoboCompCommonBehavior;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompAprilTags;
+using namespace RoboCompJointMotor;
 using namespace RoboCompAGMAgent;
 
 
@@ -115,6 +117,7 @@ void apriltagsAgentComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int apriltagsAgentComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
@@ -126,7 +129,7 @@ int apriltagsAgentComp::run(int argc, char* argv[])
 
 	// Remote server proxy access example
 	// RemoteComponentPrx remotecomponent_proxy;
-	AGMAgentTopicPrx agmagenttopic_proxy;
+	JointMotorPrx jointmotor_proxy;
 
 
 	string proxy;
@@ -154,18 +157,29 @@ int apriltagsAgentComp::run(int argc, char* argv[])
 	//}
 	//rInfo("RemoteProxy initialized Ok!");
 	// 	// Now you can use remote server proxy (remotecomponent_proxy) as local object
-	
+	//Remote server proxy creation example
+	try
+	{
+		jointmotor_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotorProxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("JointMotorProxy initialized Ok!");
+	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);
 	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
-	
 	IceStorm::TopicPrx agmagenttopic_topic;
     while(!agmagenttopic_topic){
 		try {
-			agmagenttopic_topic = topicManager->retrieve("AGMAgentTopic");
-		}catch (const IceStorm::NoSuchTopic&){
+			agmagenttopic_topic = topicManager->create(communicator()->getProperties()->getProperty("AGMAgentTopic"));
+		}catch (const IceStorm::TopicExists&){
+		  	// Another client created the topic.
 			try{
-				agmagenttopic_topic = topicManager->create("AGMAgentTopic");
-			}catch (const IceStorm::TopicExists&){
-				// Another client created the topic.
+				agmagenttopic_topic = topicManager->retrieve(communicator()->getProperties()->getProperty("AGMAgentTopic"));
+			}catch (const IceStorm::NoSuchTopic&){
+				//Error. Topic does not exist.	
 			}
 		}
 	}
@@ -195,15 +209,20 @@ int apriltagsAgentComp::run(int argc, char* argv[])
     	AGMExecutiveTopicPtr agmexecutivetopicI_ = new AGMExecutiveTopicI(worker);
     	Ice::ObjectPrx agmexecutivetopic_proxy = AGMExecutiveTopic_adapter->addWithUUID(agmexecutivetopicI_)->ice_oneway();
     	IceStorm::TopicPrx agmexecutivetopic_topic;
-    	while(!agmexecutivetopic_topic){
+    	if(!agmexecutivetopic_topic){
 	    	try {
-	    		agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
-	    	 	IceStorm::QoS qos;
-	      		agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic_proxy);
+	    		agmexecutivetopic_topic = topicManager->create("AGMExecutiveTopic");
 	    	}
-	    	catch (const IceStorm::NoSuchTopic&) {
-	       		// Error! No topic found!
+	    	catch (const IceStorm::TopicExists&) {
+	    	  	//Another client created the topic
+	    	  	try{
+	       			agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
+	    	  	}catch(const IceStorm::NoSuchTopic&){
+	    	  	  	//Error. Topic does not exist
+				}
 	    	}
+	    	IceStorm::QoS qos;
+	      	agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic_proxy);
     	}
     	AGMExecutiveTopic_adapter->activate();
     	// Server adapter creation and publication
@@ -211,15 +230,20 @@ int apriltagsAgentComp::run(int argc, char* argv[])
     	AprilTagsPtr apriltagsI_ = new AprilTagsI(worker);
     	Ice::ObjectPrx apriltags_proxy = AprilTags_adapter->addWithUUID(apriltagsI_)->ice_oneway();
     	IceStorm::TopicPrx apriltags_topic;
-    	while(!apriltags_topic){
+    	if(!apriltags_topic){
 	    	try {
-	    		apriltags_topic = topicManager->retrieve("AprilTags");
-	    	 	IceStorm::QoS qos;
-	      		apriltags_topic->subscribeAndGetPublisher(qos, apriltags_proxy);
+	    		apriltags_topic = topicManager->create("AprilTags");
 	    	}
-	    	catch (const IceStorm::NoSuchTopic&) {
-	       		// Error! No topic found!
+	    	catch (const IceStorm::TopicExists&) {
+	    	  	//Another client created the topic
+	    	  	try{
+	       			apriltags_topic = topicManager->retrieve("AprilTags");
+	    	  	}catch(const IceStorm::NoSuchTopic&){
+	    	  	  	//Error. Topic does not exist
+				}
 	    	}
+	    	IceStorm::QoS qos;
+	      	apriltags_topic->subscribeAndGetPublisher(qos, apriltags_proxy);
     	}
     	AprilTags_adapter->activate();
     	// Server adapter creation and publication

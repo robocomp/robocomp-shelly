@@ -36,7 +36,7 @@ apriltagsI.h
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  AGMCommonBehavior AGMExecutive Planning AprilTags AGMAgent  AGMWorldModel)
+ROBOCOMP_WRAP_ICE( CommonBehavior  AGMCommonBehavior AGMExecutive Planning AprilTags JointMotor AGMAgent  AGMWorldModel)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4
