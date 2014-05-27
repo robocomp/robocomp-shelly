@@ -45,6 +45,7 @@ private:
 	GenericWorker *worker;
 public slots:
 
+	void newAprilTag(const tagsList &l, const Ice::Current &);
 
 };
 

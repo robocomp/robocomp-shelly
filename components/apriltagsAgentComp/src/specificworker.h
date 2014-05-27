@@ -80,6 +80,8 @@ private:
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
+	InnerModel *innerModel;
+	InnerModelTransform *trTag;
 	TagModelMap tagMap;
 };
 

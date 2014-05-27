@@ -152,7 +152,7 @@ void Target::trocearTarget()
 	// debe girar el this->tip para alcanzar la rotación del target.
 	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0.
 	QMat matriz = inner->getRotationMatrixTo("world", this->tip);
-	QVec tipEnMundo = inner->getTransformationMatrix("world", this->tip).extractAnglesR3(matriz);
+	QVec tipEnMundo = matriz.extractAnglesR();
 	QVec angulos1 = QVec::vec3(tipEnMundo[0], tipEnMundo[1], tipEnMundo[2]);
 	QVec angulos2 = QVec::vec3(tipEnMundo[3], tipEnMundo[4], tipEnMundo[5]);
 	QVec rot;

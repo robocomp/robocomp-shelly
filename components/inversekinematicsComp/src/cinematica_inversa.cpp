@@ -164,7 +164,7 @@ QVec Cinematica_Inversa::calcularVectorError()
 		errorTraslaciones = targetInRoot - tip;
 		//ROTATIONS
 		QMat matriz = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel()) /** Rot3DOX(1.57)*/;
-		QVec TARGETenMANO = inner->getTransformationMatrix(listaJoints.last(), target.getNameInInnerModel()).extractAnglesR3(matriz);
+		QVec TARGETenMANO = matriz.extractAnglesR();
 		QVec angulos1 = QVec::vec3(TARGETenMANO[0], TARGETenMANO[1], TARGETenMANO[2]);
 		QVec angulos2 = QVec::vec3(TARGETenMANO[3], TARGETenMANO[4], TARGETenMANO[5]);
 		QVec errorRotaciones;
@@ -194,7 +194,7 @@ QVec Cinematica_Inversa::calcularVectorError()
 		if( target.getAxisConstraint() == true )
 		{
 			QMat matriz = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel());  //ESTO NO ESTA DEL TODO BIEN. La restriccón debe ser sobre el axisName directamente
-			QVec ang = matriz.extractAnglesR3(matriz);		
+			QVec ang = matriz.extractAnglesR();		
 			QString axisName = target.getAxisName();
 			if(axisName == "x" or axisName == "X")
 				errorTotal[3] = ang[0];
@@ -456,7 +456,7 @@ bool Cinematica_Inversa::dentroLimites(QVec angulos, QVec &motores)
 // 		//c.print("c");
 // 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
 // 		//r.print("r");
-// 		QVec rotaciones = r.extractAnglesR3(r);
+// 		QVec rotaciones = r.extractAnglesR();
 // 		QVec errorRotaciones(3);
 // 		//rotaciones.print("rotaciones");
 // 		//rotaciones.subVector(0,2).print("sb");

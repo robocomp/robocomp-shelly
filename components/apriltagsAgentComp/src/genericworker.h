@@ -90,6 +90,7 @@ public:
 	virtual void  modelModified(const RoboCompAGMWorldModel::Event& modification) = 0;
 	virtual void  modelUpdated(const RoboCompAGMWorldModel::Node& modification) = 0;
 
+	virtual void newAprilTag(const tagsList &l) = 0;
 
 protected:
 	QTimer timer;

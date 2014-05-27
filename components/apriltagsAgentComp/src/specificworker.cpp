@@ -24,9 +24,16 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {
+	active = false;
+
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
-	active = false;
+
+	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
+	trTag = innerModel->newTransform("trTag", "static", innerModel->getTransform("rgbd_transform"));
+	innerModel->getTransform("rgbd_transform")->addChild(trTag);
+
+
 }
 
 /**
@@ -39,20 +46,19 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	printf("------------------ %d \n", (int)tagMap.size());
 	//
-	// Every once in a while...
-	//
-	static int tick = 0;
-	if (tick++ % 10 == 0) printf("Tags: %ld\n", tagMap.size());
-
-	//
-	// Get current time
-	//
-	QTime now = QTime::currentTime();
+	// Update InnerModel using the joints of the robot
+	MotorStateMap mstateMap;
+	jointmotor_proxy->getAllMotorState(mstateMap);
+	for (MotorStateMap::iterator it= mstateMap.begin(); it!=mstateMap.end(); it++)
+	{
+		innerModel->updateJointValue(QString::fromStdString(it->first), it->second.pos);
+	}
 
 	//
 	// Remove tags which have not been seen in two seconds
-	//
+	QTime now = QTime::currentTime(); // Get current time
 	for (TagModelMap::iterator i=tagMap.begin();  i!=tagMap.end(); )
 	{
 		if (i->second.lastTime.msecsTo(now) > 2000)
@@ -68,7 +74,6 @@ void SpecificWorker::compute( )
 
 	//
 	// Create a copy of the model and get the symbol of the robot (just in case)
-	//
 	bool modelModified = false;
 	RoboCompAGMWorldModel::Event e;
 	e.sender = "apriltags";
@@ -77,15 +82,16 @@ void SpecificWorker::compute( )
 	int32_t robotId = newModel->getIdentifierByType("robot");
 	if (robotId == -1)
 	{
+		printf("didn't find the robot!!\n");
 		return;
 	}
 	AGMModelSymbol::SPtr robot = newModel->getSymbol(robotId);
 
 	//
 	// Include new tags which are not currently in the model and update those which are
-	//
 	for (TagModelMap::iterator itMap=tagMap.begin();  itMap!=tagMap.end(); itMap++)
 	{
+		printf("* See %d\n", itMap->second.id);
 		bool found = false;
 		for (AGMModel::iterator itModel=worldModel->begin(); itModel!=worldModel->end(); itModel++)
 		{
@@ -101,32 +107,34 @@ void SpecificWorker::compute( )
 		}
 		if (not found)
 		{
+			printf("    NOT found in model\n");
 			includeObjectInModel(newModel, itMap->second);
-			/// p u b l i s h
 			modelModified = true;
 		}
+		else
+			printf("    found in model\n");
 	}
 	//
 	// Remove objects which have not been seen in a while
-	//
-	// printf("Remove objects which have not been seen in a while\n");
 	std::vector<int32_t> symbolsToRemove;
 	for (AGMModel::iterator itModel=worldModel->begin(); itModel!=worldModel->end(); itModel++)
 	{
 		if (itModel->symbolType == "object")
 		{
+			printf("* Stored %d\n", str2int(itModel->attributes["id"]));
 			bool found = false;
 			for (TagModelMap::iterator itMap=tagMap.begin();  itMap!=tagMap.end(); itMap++)
 			{
 				if (itMap->second.id == str2int(itModel->attributes["id"]))
 				{
 					found = true;
+					printf("    found in current tags\n");
 					break;
 				}
 			}
 			if (not found)
 			{
-				printf("object %d not found on (%p)\n", itModel->identifier, newModel.get());
+				printf("    NOT found\n");
 				modelModified = true;
 				for (AGMModelSymbol::iterator itEdge=itModel->edgesBegin(newModel); itEdge!=itModel->edgesEnd(newModel); itEdge++)
 				{
@@ -188,28 +196,32 @@ void SpecificWorker::compute( )
 	else
 	{
 		printf("no action\n");
-		
 	}
-	
-	
-	
+
 	if (modelModified)
 	{
-		//printf("Publishing....\n");
-		//printf("BACK\n");
-		//AGMModelPrinter::printWorld(worldModel);
-		//printf("NEW\n");
-		//AGMModelPrinter::printWorld(newModel);
-		AGMMisc::publishModification(newModel, agmagenttopic, worldModel);
-		//printf("Published....\n");
+		printf("MODIFIED!\n");
+// 		AGMMisc::publishModification(newModel, agmagenttopic, worldModel);
+		RoboCompAGMWorldModel::Event e;
+		e.why = RoboCompAGMWorldModel::BehaviorBasedModification;
+		AGMModelConverter::fromInternalToIce(worldModel, e.backModel);
+		AGMModelConverter::fromInternalToIce(newModel, e.newModel);
+		printf("<<%d\n", newModel->numberOfSymbols());
+		// 	AGMModelPrinter::printWorld(newModel);
+		agmagenttopic->modificationProposal(e);
+		printf(">>\n");
+		
+		
+		
 	}
 }
 
 
 void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag)
 {
-	QVec T = innerModel->transform("robot", QVec::vec3(tag.tx, tag.ty, tag.ty), "rgbd");
-	
+	innerModel->updateTransformValues("trTag", tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
+	QVec T = innerModel->transform("robot", QVec::vec3(0,0,0), "trTag");
+	QVec R = innerModel->getRotationMatrixTo("trTag", "robot").extractAnglesR_min();
 
    //threshold to update set to 20 mm and 0.1 rad
    if ( fabs(str2float((symbol->attributes["tx"])) - T(0)) > 20  ||
@@ -222,13 +234,12 @@ void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const Apri
 		symbol->attributes["tx"] = float2str(T(0));
 		symbol->attributes["ty"] = float2str(T(1));
 		symbol->attributes["tz"] = float2str(T(2));
-		symbol->attributes["rx"] = float2str(tag.rx);
-		symbol->attributes["ry"] = float2str(tag.ry);
-		symbol->attributes["rz"] = float2str(tag.rz);
+		symbol->attributes["rx"] = float2str(R(0));
+		symbol->attributes["ry"] = float2str(R(1));
+		symbol->attributes["rz"] = float2str(R(2));
 		RoboCompAGMWorldModel::Node symbolICE;
 		AGMModelConverter::fromInternalToIce(symbol, symbolICE);
 		agmagenttopic->update(symbolICE);
-		printf("__\n");
 	}
 }
 

@@ -31,5 +31,9 @@ AprilTagsI::~AprilTagsI()
 	// Free component resources here
 }
 
-// Component functions, implementation
 
+void AprilTagsI::newAprilTag(const tagsList &l, const Ice::Current&)
+{
+// 	printf("AprilTagsI::newAprilTag %d\n", l.size());
+	worker->newAprilTag(l);
+}

@@ -66,9 +66,11 @@
 												</transform>	
 										-->		
 												<transform id="sensor_transform" tz="60" ty="-90" rx="1.5708">
-												  <transform id="sensor_transform2" rx="0.75">
-													  <plane id="sensor" nz="1" pz="-50" size="80,60" repeat="1" texture="#0000ff" />
-													  <rgbd id="rgbd" focal="400" width="640" height="480" port="10096" ifconfig="20000,10004" />
+													<transform id="sensor_transform2" rx="0.75">
+														<plane id="sensor" nz="1" pz="-50" size="80,60" repeat="1" texture="#0000ff" />
+														<transform id="rgbd_transform">
+															<rgbd id="rgbd" focal="400" width="640" height="480" port="10096" ifconfig="20000,10004" />
+														</transform>
 												  </transform>
 												</transform>
 												<transform id="tablet" ty="-30" tz="20" rx="1.5707963267948966">
