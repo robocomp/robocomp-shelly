@@ -29,6 +29,7 @@
 #include <map>
 
 #include <agm.h>
+#include <innermodel/innermodel.h>
 
 class AprilTagModel
 {

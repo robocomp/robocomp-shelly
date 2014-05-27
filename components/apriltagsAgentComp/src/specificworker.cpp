@@ -128,14 +128,10 @@ void SpecificWorker::compute( )
 			{
 				printf("object %d not found on (%p)\n", itModel->identifier, newModel.get());
 				modelModified = true;
-// 					printf("<LINKS\n");
 				for (AGMModelSymbol::iterator itEdge=itModel->edgesBegin(newModel); itEdge!=itModel->edgesEnd(newModel); itEdge++)
 				{
-// 						printf("%d\n", itEdge.index);
-// 						printf("(%d)----[%s]---->(%d)\n", itEdge->symbolPair.first, itEdge->linking.c_str(), itEdge->symbolPair.second);
 					if (itEdge->linking == "prop")
 					{
-// 							printf("prop %d, %d, %s\n", itEdge->symbolPair.first, itEdge->symbolPair.second, itEdge->linking.c_str());
 						// If the object is known, we should also remove its type label
 						AGMModelSymbol::SPtr class_p = newModel->getSymbol(itEdge->symbolPair.second);
 						if (class_p->symbolType == "class")
@@ -145,18 +141,13 @@ void SpecificWorker::compute( )
 								symbolsToRemove.push_back(itEdgeClass->symbolPair.second);
 							}
 						}
-// 							printf("prop 2\n");
 						symbolsToRemove.push_back(itEdge->symbolPair.second);
-// 							printf("prop 3\n");
 					}
 				}
-// 					printf("LINKS>\n");
 				symbolsToRemove.push_back(itModel->identifier);
-// 					printf("%d not found... done\n", itModel->identifier);
 			}
 		}
 	}
-// 	printf("Actual removal of symbols\n");
 	for (uint32_t iii=0; iii<symbolsToRemove.size(); iii++)
 	{
 		printf("removing  %d (%d)\n", iii, symbolsToRemove[iii]);
@@ -173,8 +164,7 @@ void SpecificWorker::compute( )
 	
 	
 	
-	
-	/// FUSCA TEMPORAL
+	/// 
 	printf("%s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
@@ -218,18 +208,20 @@ void SpecificWorker::compute( )
 
 void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag)
 {
+	QVec T = innerModel->transform("robot", QVec::vec3(tag.tx, tag.ty, tag.ty), "rgbd");
+	
+
    //threshold to update set to 20 mm and 0.1 rad
-   if ( atof((symbol->attributes["tx"]).c_str()) - tag.tx > 20  || atof((symbol->attributes["tx"]).c_str()) - tag.tx < -20 ||
-	     atof((symbol->attributes["ty"]).c_str()) - tag.tx > 20  || atof((symbol->attributes["ty"]).c_str()) - tag.tx < -20 ||
-	     atof((symbol->attributes["tz"]).c_str()) - tag.tx > 20  || atof((symbol->attributes["tz"]).c_str()) - tag.tx < -20 ||
-	     
-	     atof((symbol->attributes["rx"]).c_str()) - tag.rx > 0.1 || atof((symbol->attributes["rx"]).c_str()) - tag.rx < -0.1 ||
-	     atof((symbol->attributes["ry"]).c_str()) - tag.rx > 0.1 || atof((symbol->attributes["rx"]).c_str()) - tag.rx < -0.1 ||
-	     atof((symbol->attributes["rz"]).c_str()) - tag.rx > 0.1 || atof((symbol->attributes["rx"]).c_str()) - tag.rx < -0.1 )
+   if ( fabs(str2float((symbol->attributes["tx"])) - T(0)) > 20  ||
+	     fabs(str2float((symbol->attributes["ty"])) - T(1)) > 20  ||
+	     fabs(str2float((symbol->attributes["tz"])) - T(2)) > 20  ||
+	     fabs(str2float((symbol->attributes["rx"])) - R(0)) > 0.1 ||
+	     fabs(str2float((symbol->attributes["ry"])) - R(1)) > 0.1 ||
+	     fabs(str2float((symbol->attributes["rz"])) - R(2)) > 0.1 )
 	{
-		symbol->attributes["tx"] = float2str(tag.tx);
-		symbol->attributes["ty"] = float2str(tag.ty);
-		symbol->attributes["tz"] = float2str(tag.tz);
+		symbol->attributes["tx"] = float2str(T(0));
+		symbol->attributes["ty"] = float2str(T(1));
+		symbol->attributes["tz"] = float2str(T(2));
 		symbol->attributes["rx"] = float2str(tag.rx);
 		symbol->attributes["ry"] = float2str(tag.ry);
 		symbol->attributes["rz"] = float2str(tag.rz);
