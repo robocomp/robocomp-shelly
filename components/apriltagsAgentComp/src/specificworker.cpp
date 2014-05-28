@@ -219,7 +219,7 @@ void SpecificWorker::compute( )
 
 void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag)
 {
-	innerModel->updateTransformValues("trTag", tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
+	innerModel->updateTransformValues("trTag", tag.tx, tag.ty, tag.tz, tag.rx+M_PIl, tag.ry, tag.rz);
 	QVec T = innerModel->transform("robot", QVec::vec3(0,0,0), "trTag");
 	QVec R = innerModel->getRotationMatrixTo("trTag", "robot").extractAnglesR_min();
 

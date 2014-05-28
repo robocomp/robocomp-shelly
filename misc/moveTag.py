@@ -44,17 +44,17 @@ class C(QWidget):
 		if not self.check.isChecked():
 			pose = self.mods['RoboCompInnerModelManager'].Pose3D()
 			pose.x  = 100.+400.*math.cos(self.a)
-			pose.y  = 950.
-			pose.z  = 400.
-			pose.rx = -math.pi
-			pose.ry = 0#math.pi
-			pose.rz = 0
+			pose.y  = 940.
+			pose.z  = 240.
+			pose.rx = 0#-math.pi
+			pose.ry = -0.1
+			pose.rz = 0.
 			self.proxy.setPoseFromParent("target", pose)
 
 			pose.x  = 0
-			pose.y  = 810.
+			pose.y  = 800.
 			pose.z  = 800.
-			pose.rx = math.pi
+			pose.rx = 0
 			pose.ry = 0.
 			pose.rz = 0.
 			self.proxy.setPoseFromParent("mesaT", pose)

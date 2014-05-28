@@ -37,7 +37,8 @@ Q_OBJECT
 public:
 	AprilTagsI( GenericWorker *_worker, QObject *parent = 0 );
 	~AprilTagsI();
-	
+	void  newAprilTag(const tagsList& tags, const Ice::Current& = Ice::Current());
+
 
 	QMutex *mutex;
 private:
@@ -45,7 +46,6 @@ private:
 	GenericWorker *worker;
 public slots:
 
-	void newAprilTag(const tagsList &l, const Ice::Current &);
 
 };
 

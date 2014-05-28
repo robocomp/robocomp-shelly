@@ -130,7 +130,7 @@ int apriltagsAgentComp::run(int argc, char* argv[])
 	// Remote server proxy access example
 	// RemoteComponentPrx remotecomponent_proxy;
 	JointMotorPrx jointmotor_proxy;
-
+	AGMAgentTopicPrx agmagenttopic_proxy;
 
 	string proxy;
 
@@ -173,13 +173,12 @@ int apriltagsAgentComp::run(int argc, char* argv[])
 	IceStorm::TopicPrx agmagenttopic_topic;
     while(!agmagenttopic_topic){
 		try {
-			agmagenttopic_topic = topicManager->create(communicator()->getProperties()->getProperty("AGMAgentTopic"));
-		}catch (const IceStorm::TopicExists&){
-		  	// Another client created the topic.
+			agmagenttopic_topic = topicManager->retrieve("AGMAgentTopic");
+		}catch (const IceStorm::NoSuchTopic&){
 			try{
-				agmagenttopic_topic = topicManager->retrieve(communicator()->getProperties()->getProperty("AGMAgentTopic"));
-			}catch (const IceStorm::NoSuchTopic&){
-				//Error. Topic does not exist.	
+				agmagenttopic_topic = topicManager->create("AGMAgentTopic");
+			}catch (const IceStorm::TopicExists&){
+				// Another client created the topic.
 			}
 		}
 	}
