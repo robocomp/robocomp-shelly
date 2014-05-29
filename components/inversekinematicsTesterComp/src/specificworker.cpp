@@ -18,17 +18,12 @@
  */
  
  #include "specificworker.h"
-<<<<<<< HEAD
-=======
-#include <specificworker.h>
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 
 /**
 * \brief Default constructor
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {	
-<<<<<<< HEAD
 	// Inicializamos las banderas de los targets a FALSE:
 	banderaTrayectoria = banderaRCIS= false;
 	
@@ -71,12 +66,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 // 	frameOsg->show();
 
-=======
-	connect(ejecutarButton,SIGNAL(clicked()), this, SLOT(ejecutar()));
-	connect(camareroButton,SIGNAL(clicked()), this, SLOT(moveCamarero()));
-	connect(homeButton,SIGNAL(clicked()), this, SLOT(goHome()));
-	connect(closeButton,SIGNAL(clicked()), this, SLOT(closeFingers()));
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 }
 
 /**
@@ -86,13 +75,7 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
-<<<<<<< HEAD
 
-=======
-void SpecificWorker::compute( )
-{
-}
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
@@ -115,10 +98,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Error reading config params");
 	}
-<<<<<<< HEAD
 	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusM.xml");
-=======
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 
 	try
 	{
@@ -206,7 +186,6 @@ void SpecificWorker::compute( )
  * 									SLOTS DE LOS BOTONES DE ENVÍO										*
  *------------------------------------------------------------------------------------------------------*/
 /**
-<<<<<<< HEAD
  * @brief SLOT ENVIAR RCIS. Envía una pose suelta o una trayectoria completa, dependiendo de si
  * está levantada la banderaTrayectoria, al componente inverseKinematicsComp. El tipo del target
  * dependerá de la pestaña que esté abierta en ese momento.
@@ -214,13 +193,6 @@ void SpecificWorker::compute( )
  * @return void
  */ 
 void SpecificWorker::enviarRCIS()
-=======
- * @brief SLOT ejecutar. Crea el target que el usuario ha especificado en la interfaz y se
- * lo pasa a lokiArm para que lo ejecute.
- * @return void
- * */
-void SpecificWorker::ejecutar()
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 {
 	try
 	{
@@ -287,7 +259,6 @@ void SpecificWorker::actualizarInnerModel()
 	{
 			RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap( this->motorList);
 		
-<<<<<<< HEAD
 			for(uint j=0; j<motorList.size(); j++)
 				innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
 
@@ -331,14 +302,6 @@ void SpecificWorker::activarDesactivar()
 		partBox1_AlongAxis->setEnabled(false);	partBox1_AlongAxis->repaint(); 	Part1_AlongAxis->setCheckState(Qt::Unchecked);
 		partesActivadas[0] = 0;
 	}
-=======
-	//Movemos el target en RCIS
-	QVec nPose = pose;
-	nPose[0] = pose[0]/1000;
-	nPose[1] = pose[1]/1000;
-	nPose[2] = pose[2]/1000;
- 	moverTargetEnRCIS(nPose);
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 	
 	//----------------------------------------------------------------------------//
 	if((Part2_pose6D->isChecked() and pestanias->currentIndex()==0) or 
@@ -359,7 +322,6 @@ void SpecificWorker::activarDesactivar()
 		partesActivadas[1] = 0;
 	}
 	
-<<<<<<< HEAD
 	//----------------------------------------------------------------------------//
 	if((Part3_pose6D->isChecked() and pestanias->currentIndex()==0) or 
 	   (Part3_AxisAlign->isChecked() and pestanias->currentIndex()==1) or 
@@ -394,14 +356,6 @@ void SpecificWorker::activarDesactivar()
 void SpecificWorker::camareroZurdo()
 {
 	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
-=======
-	QString type = typeBox->currentText();		
-	Target::TargetType tt;
-	if(type == "POSE6D")
-		tt = Target::POSE6D;
-	if(type == "ALIGNAXIS")
-		tt = Target::ALIGNAXIS;
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 	
 	//DEFINIMOS VARIABLES:
 	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
@@ -594,7 +548,6 @@ void SpecificWorker::goHome()
 	}
 }
 
-<<<<<<< HEAD
 /*--------------------------------------------------------------------------------------------------*
  * 							SLOTS PARA LA PESTAÑA SET FINGERS								*
  *--------------------------------------------------------------------------------------------------*/
@@ -628,13 +581,6 @@ void SpecificWorker::closeFingers()
  * @brief Metodo MOVER TARGET. Mueve el target dentro del innerModel a una posicion que se le pasa 
  * como parametro de entrada. Crea una pose3D a cero y actualiza sus traslaciones tx, ty y tz y sus 
  * rotaciones rx, ry y rz con los datos del parámetro de entrada. 
-=======
-/*
- * Método moverTarget versión 2.
- * Mueve el target a una posición que se le pasa como parámetro de entrada. 
- * Crea una pose3D a cero y actualiza sus traslaciones tx, ty y tz y sus 
- * rotaciones rx, ry y rz con los datos del parámetro de entrada.
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
  * Sirve para colocar el target en el innerModel. Para nada más.
  * @param QVec pose es la posicion en la que se debe pintar el target en el innerModel. 
  * 
@@ -649,24 +595,11 @@ void SpecificWorker::moverTargetEnRCIS(const QVec &pose)
 
 		p.x = pose[0]; p.y = pose[1]; p.z = pose[2];
 		p.rx = pose[3]; p.ry = pose[4]; p.rz = pose[5];
-<<<<<<< HEAD
 			
 		innermodelmanager_proxy->setPoseFromParent("target",p);
 		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);        ////CREO QUE SE PUEDE QUITAR
 		
 	}catch (const Ice::Exception &ex){ cout<<"Excepción en moverTarget: "<<ex<<endl; }
-=======
-
-		
-
-// 		innermodelmanager_proxy->setPoseFromParent("___iktester_target",p);
-// 		innerModel->updateTransformValues("___iktester_target",p.x,p.y,p.z,p.rx,p.ry,p.rz);
-		}
-	catch (const Ice::Exception &ex) 
-	{
-		cout<<"Excepción en moverTarget: "<<ex<<endl;
-	}
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 }
 
 /**
@@ -747,7 +680,6 @@ void SpecificWorker::enviarPose6D(QVec p)
 
 
 /**
-<<<<<<< HEAD
  * @brief Metodo ENVIAR AXIS ALIGN. Saca de la segunda pestaña de la interfaz del usuario los datos para 
  * componer un target del tipo AXISALIGN y enviarselo a una parte o a varias partes del cuerpo del robot.
  * 
@@ -824,89 +756,8 @@ void SpecificWorker::moveAlongAxis()
 		catch(Ice::Exception ex){ std::cout<<"Error al pasar el target tipo ADVANCEALONGAXIS: "<<ex<<endl;}
 	}
 }
-=======
- * @brief Create a sequence of targets simulating a person handling a tray
- * 
- * @return void
- */
-void SpecificWorker::moveCamarero()
-{
-    QVec pesos(6);
-    QVec pose = QVec::zeros(6);
-    float xAux, yAux;
-	QQueue<QVec> poses;
-   
-    // lado inferior en X 1:
-	for(float i=-0.15; i<=0.15; i=i+0.01)
-	{
-		pose[0] = i; pose[1] = 0.9; pose[2] = 0.350;
-		poses.enqueue(pose);
-		xAux = i;
-	}
 
-	// Y 1:
-	for(float j=0.9; j<1.10; j=j+0.01)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 0.350;
-		poses.enqueue(pose);
-		yAux = j;
-	}
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 
-	// X 2:
-	for(float i=xAux; i>=-0.15; i=i-0.01)
-	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 0.35;
-		poses.enqueue(pose);
-		xAux=i;
-	}
-	// Y 2:
-	for(float j=yAux; j>=0.9; j=j-0.01)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 0.35;
-		poses.enqueue(pose);
-		yAux = j;
-	}
-	
-    foreach(QVec p, poses)
-    {
-		try
-        {
-			moverTargetEnRCIS(p);
-            pose[0] = p[0] * (T)1000;
-            pose[1] = p[1] * (T)1000;
-            pose[2] = p[2] * (T)1000;
-			
-            RoboCompBodyInverseKinematics::Pose6D pose6D;
-            pose6D.x = pose[0];     pose6D.y = pose[1];     pose6D.z = pose[2];
-            pose6D.rx = pose[3];    pose6D.ry = pose[4];    pose6D.rz = pose[5];
-			
-			pesos.set((T)0);
-			if(WTx->isChecked()) pesos[0] = 1;	if(WTy->isChecked()) pesos[1] = 1;	if(WTz->isChecked()) pesos[2] = 1;
-			if(WRx->isChecked()) pesos[3] = 1;	if(WRy->isChecked()) pesos[4] = 1;	if(WRz->isChecked()) pesos[5] = 1;
-            RoboCompBodyInverseKinematics::WeightVector weights;
-            weights.x = pesos[0];    weights.y = pesos[1];     weights.z = pesos[2];    weights.rx = pesos[3];    weights.ry = pesos[4];    weights.rz = pesos[5];
-   
-			std::string part = partBox->currentText().toStdString();
-			QString type = typeBox->currentText();		
-			
-			if(part == "HEAD")
-				bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, "z", false, 0 );
-			else if(type == "POSE6D") 				
-				bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights );
-// 			else if(type == "ADVANCEALONGAXIS")
-// 				bodyinversekinematics_proxy->advanceAlongAxis(part, axis, dist);
-			
-            usleep(50000);
-        }
-        catch(Ice::Exception ex)
-        {
-            std::cout<<"Error al pasar el target: "<<ex<<endl;
-        }
-    }
-}
-
-<<<<<<< HEAD
 /**
  * @brief Metodo MOSTRAR DATOS. Muestra los datos de los motores por la interfaz: el nombre del motor, los
  * limites que tiene, la posicion angular en radianes actual y la velocidad en radianes por segundo.
@@ -948,46 +799,6 @@ void SpecificWorker::mostrarDatos()
 		}				
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en MOSTRAR DATOS: "<<ex<<endl;}
 }
-=======
-void SpecificWorker::goHome()
-{
-	try 
-	{	
-		std::string part = partBox->currentText().toStdString();
-		qDebug() << "Go gome" << QString::fromStdString(part);
-		bodyinversekinematics_proxy->goHome(part);
-	} 
-	catch (Ice::Exception ex) 
-	{
-		cout << ex << endl;
-	}
-}
-
-
-void SpecificWorker::closeFingers()
-{
-	try 
-	{	
-		qDebug() << "Close/Open fingers";
-		if(closeButton->isChecked())
-			bodyinversekinematics_proxy->setFingers(0);
-		else
-			bodyinversekinematics_proxy->setFingers(1);
-	} 
-	catch (Ice::Exception ex) 
-	{
-		cout << ex << endl;
-	}
-}
-
-
-
-
-
-
-
-
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 
 
 /////CODIGO DE LOKIARM PARA INICIALIZAR DESDE EL GENERADOR

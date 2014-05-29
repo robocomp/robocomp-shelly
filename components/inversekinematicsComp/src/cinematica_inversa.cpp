@@ -71,7 +71,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 		inner->transform("world", QVec::zeros(3), this->endEffector).print("position of tip");
 		
 		QMat mat = inner->getRotationMatrixTo("world", this->endEffector);
-		QVec rot = mat.extractAnglesR();
+		QVec rot = mat.extractAnglesR3(mat);
 		QVec r(3);
 		if(rot.subVector(0,2).norm2() < rot.subVector(3,5).norm2())
 			r = rot.subVector(0,2);
@@ -161,10 +161,10 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
 		QVec targetInRoot = inner->getTranslationVectorTo( listaJoints[0], target.getNameInInnerModel());		
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
 		errorTraslaciones = targetInRoot - tip;
-
+	
 		// ---> ROTATIONS
  		QMat matriz = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel());
-		QVec TARGETenMANO = matriz.extractAnglesR();
+		QVec TARGETenMANO = matriz.extractAnglesR3(matriz);
 		QVec angulos1 = QVec::vec3(TARGETenMANO[0], TARGETenMANO[1], TARGETenMANO[2]);
 		QVec angulos2 = QVec::vec3(TARGETenMANO[3], TARGETenMANO[4], TARGETenMANO[5]);
 		QVec errorRotaciones;
@@ -199,7 +199,7 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
 		float ang = atan2(si,co);	
 		QMat c = o.crossProductMatrix();
 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));  ///Rodrigues formula to compute R from <vector-angle>
-		QVec rotaciones = r.extractAnglesR();
+		QVec rotaciones = r.extractAnglesR3(r);
 		QVec errorRotaciones(3);
 			
 		if(rotaciones.subVector(0,2).norm2() < rotaciones.subVector(3,5).norm2())
@@ -385,7 +385,6 @@ void Cinematica_Inversa::calcularModuloFloat(QVec &angles, float mod)
 		else
 			if(angles[i] < -M_PI)
 				angles[i] = angles[i] + M_PI;
-
 	}
 }
 
@@ -470,7 +469,7 @@ bool Cinematica_Inversa::outLimits(QVec angulos, QVec &motores)
 // 		//c.print("c");
 // 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
 // 		//r.print("r");
-// 		QVec rotaciones = r.extractAnglesR();
+// 		QVec rotaciones = r.extractAnglesR3(r);
 // 		QVec errorRotaciones(3);
 // 		//rotaciones.print("rotaciones");
 // 		//rotaciones.subVector(0,2).print("sb");
