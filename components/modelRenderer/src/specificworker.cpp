@@ -366,7 +366,7 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		innermodelmanager_proxy->addMesh(ident.toStdString(), ident.toStdString()+"_T2", mesh);
 		printf("ADDED: %s", ident.toStdString().c_str());
 	}
-	catch (InnerModelManagerError e)
+	catch (RoboCompInnerModelManager::InnerModelManagerError e)
 	{
 		if (e.err != NodeAlreadyExists)
 			qFatal("%s", e.text.c_str());
