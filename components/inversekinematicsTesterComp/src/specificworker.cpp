@@ -98,7 +98,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Error reading config params");
 	}
-	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusM.xml");
 
 	try
 	{
