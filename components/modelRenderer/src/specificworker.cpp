@@ -349,7 +349,7 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		{
 			printf("taza!\n");
 			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
-			pose2.z = 80; // La x va claramente a la derecha
+			pose2.z = 160; // La x va claramente a la derecha
 			mesh.scaleX = 120;
 			mesh.scaleY = 120;
 			mesh.scaleZ = 120;
