@@ -55,6 +55,8 @@ void SpecificWorker::compute( )
 	{
 		innerModel->updateJointValue(QString::fromStdString(it->first), it->second.pos);
 	}
+	/// Update wrist position in the robot symbol according to innermodel or the corresponding April tag
+	updateWristPose();
 
 	//
 	// Remove tags which have not been seen in two seconds
@@ -455,6 +457,21 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 		tagMap[tags[i].id].rz = tags[i].rz;
 		tagMap[tags[i].id].lastTime = c;
 	}
+}
+
+
+void SpecificWorker::updateWristPose()
+{
+	int32_t robotId = newModel->getIdentifierByType("robot");
+	if (robotId == -1)
+	{
+		printf("didn't find the robot!!\n");
+		return;
+	}
+	AGMModelSymbol::SPtr robot = newModel->getSymbol(robotId);
+
+				if (itMap->second.id == str2int(itModel->attributes["id"]))
+	
 }
 
 

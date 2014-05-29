@@ -71,6 +71,7 @@ public slots:
 private:
 	void updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag);
 	void includeObjectInModel(AGMModel::SPtr &newModel, const AprilTagModel &tag);
+	void updateWristPose();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);

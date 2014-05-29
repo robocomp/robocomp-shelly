@@ -99,19 +99,20 @@ void SpecificWorker::approachFinger()
 	int32_t object = atoi(params["o"].value.c_str());
 	printf("go get %d\n", object);
 	
-	if (elapsedTime.elapsed()>2000)
-	{
-		qDebug()<<"Fingers should be close to target";
-// 		currenState=TOUCHFINGER;
-		currenState=STOP;
-		exec=false;
-		elapsedTime.restart();
-		return;
-	}
-	//este exec no me convence, mientras estoy haciendo la accion no llamo
-	if (exec == true)
-		return;
-	
+// 	if (elapsedTime.elapsed()>2000)
+// 	{
+// 		qDebug()<<"Fingers should be close to target";
+// // 		currenState=TOUCHFINGER;
+// 		currenState=STOP;
+// // 		exec=false;
+// 		exec=true;
+// 		elapsedTime.restart();
+// 		return;
+// 	}
+// 	//este exec no me convence, mientras estoy haciendo la accion no llamo
+// 	if (exec == true)
+// 		return;
+// 	
 	try
 	{
 		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
@@ -121,16 +122,15 @@ void SpecificWorker::approachFinger()
 		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
 		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
 
-		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty, tz), "rgbd");
+		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty, tz), "robot");
 		tx = poseTr(0);
 		ty = poseTr(1);
 		tz = poseTr(2);
-		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", tx, ty, tz, rx, ry, rz);
 		RoboCompBodyInverseKinematics::Pose6D target;
 		target.x = tx;
-		target.y = ty;
+		target.y = ty-70;
 		target.z = tz;
-		target.rx = rx;
+		target.rx = rx-M_PI_2;
 		target.ry = ry;
 		target.rz = rz;
 		RoboCompBodyInverseKinematics::WeightVector weights;
@@ -140,6 +140,7 @@ void SpecificWorker::approachFinger()
 		weights.rz = 1;
 		try
 		{
+			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
 			exec =true;
 			//timerAutomataApproachFinger.start(5000);
@@ -353,11 +354,13 @@ void SpecificWorker::compute( )
 	printf("action: %s\n", action.c_str());
 	if (action == "graspobject" )
 	{		
-		if (currenState==STOP )
-		{
-			currenState=CLOSEHAND;		
-			elapsedTime.start();
-		}
+// 		if (currenState==STOP )
+// 		{
+// 			currenState=CLOSEHAND;		
+// 			elapsedTime.start();
+// 		}
+		approachFinger();
+		return;
 	}
 	else
 	{
