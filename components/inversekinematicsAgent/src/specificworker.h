@@ -21,6 +21,9 @@
 
 #include <genericworker.h>
 
+#include <innermodel/innermodel.h>
+#include <agm.h>
+
 /**
        \brief
        @author authorname
@@ -46,15 +49,37 @@ public:
 
 public slots:
  	void compute();
+	void slotStop();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	bool active;
-
+	
+	void stateMachine();
+	///states functions.
+	void stop();
+	void closeHand();
+	void approachFinger();
+	void touchFinger();
+	void openHand();
+	void approachHand();	
+	void grasp();
+	void take();
+	
+	void ajusteFino();
+	
+	
+	
 private:
+	InnerModel *innerModel;
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
+	typedef enum nameStates {STOP,CLOSEHAND, APPROACHFINGER, TOUCHFINGER,OPENHAND,APPROACHHAND,GRASP,TAKE } nameStates;
+	nameStates currenState;	
+	QTime elapsedTime;	
+	bool exec;
+	
 };
 
 #endif

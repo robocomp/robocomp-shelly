@@ -1,10 +1,13 @@
+import "/robocomp/Interfaces/IDSLs/AGMAgent.idsl";
 import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
 import "/robocomp/Interfaces/IDSLs/AGMCommonBehavior.idsl";
 import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
 import "/robocomp/Interfaces/IDSLs/InnerModelManager.idsl";
 
-Component modelRendererComp{
-	Communications{
+Component modelRendererComp
+{
+	Communications
+	{
 		requires InnerModelManager, AGMExecutive;
 		implements AGMCommonBehavior;
 		subscribesTo AGMExecutiveTopic;

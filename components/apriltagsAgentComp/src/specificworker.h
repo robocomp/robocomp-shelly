@@ -29,6 +29,7 @@
 #include <map>
 
 #include <agm.h>
+#include <innermodel/innermodel.h>
 
 class AprilTagModel
 {
@@ -70,6 +71,7 @@ public slots:
 private:
 	void updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag);
 	void includeObjectInModel(AGMModel::SPtr &newModel, const AprilTagModel &tag);
+	void updateWristPose();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
@@ -79,6 +81,8 @@ private:
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
+	InnerModel *innerModel;
+	InnerModelTransform *trTag;
 	TagModelMap tagMap;
 };
 

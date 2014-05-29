@@ -161,7 +161,7 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
 		QVec targetInRoot = inner->getTranslationVectorTo( listaJoints[0], target.getNameInInnerModel());		
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
 		errorTraslaciones = targetInRoot - tip;
-	
+
 		// ---> ROTATIONS
  		QMat matriz = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel());
 		QVec TARGETenMANO = matriz.extractAnglesR();
@@ -385,6 +385,7 @@ void Cinematica_Inversa::calcularModuloFloat(QVec &angles, float mod)
 		else
 			if(angles[i] < -M_PI)
 				angles[i] = angles[i] + M_PI;
+
 	}
 }
 
@@ -469,7 +470,7 @@ bool Cinematica_Inversa::outLimits(QVec angulos, QVec &motores)
 // 		//c.print("c");
 // 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));
 // 		//r.print("r");
-// 		QVec rotaciones = r.extractAnglesR3(r);
+// 		QVec rotaciones = r.extractAnglesR();
 // 		QVec errorRotaciones(3);
 // 		//rotaciones.print("rotaciones");
 // 		//rotaciones.subVector(0,2).print("sb");

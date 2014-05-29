@@ -19,10 +19,12 @@
  
 #include "specificworker.h"
 
+
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
 	hide();
+	qDebug() << __FILE__ << __LINE__;
 }
 
 /**
@@ -38,23 +40,27 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		RoboCompCommonBehavior::Parameter par = params.at("BIK.InnerModel") ;
 		if( QFile(QString::fromStdString(par.value)).exists() == true)
 		{
-			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
+			qDebug() << __FILE__ << __LINE__ << "Reading Innermodel file ";
 			innerModel = new InnerModel(par.value);
-			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;		
+			qDebug() << __FILE__ << __LINE__ << "Innermodel file read OK!" ;		
 		}
 		else
-		{	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
+		{
+			qDebug() << __FILE__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
 			qFatal("Exiting now.");
 		}
 	}
 	catch(std::exception e)
 	{
+		qDebug() << __FILE__ << __LINE__;
 		qFatal("Error reading config params");
 	}
 	
 	//timer.start(Period);
 	init();
 	timer.start(50);
+
+	qDebug() << __FILE__ << __LINE__;
 	return true;
 };
 
@@ -77,6 +83,7 @@ void SpecificWorker::init()
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
 	QString nose = "axesh3";  //OJO PROV
+
 	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
@@ -350,7 +357,7 @@ void SpecificWorker::setFingers(float d)
 	// Ahora cinemática inversa: ang = asin(D/l)
 	// ang1  = ang - 1;
 	// ang2 = -ang + 1;
-	
+
 }
 
 /**
@@ -412,6 +419,7 @@ void SpecificWorker::setRobot(const int t)
 			proxy = jointmotor1_proxy;
 	mutex->unlock();
 }
+
 
 
 /*-----------------------------------------------------------------------------*

@@ -7,6 +7,7 @@ SUBDIRS(
   #faulhaberComp
   inversekinematicsAgent
   inversekinematicsComp
+  inversekinematicsTesterComp
   #joystickArmComp
   missionAgent
   modelRenderer

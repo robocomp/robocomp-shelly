@@ -56,4 +56,3 @@ void BodyInverseKinematicsI::setRobot(int type, const Ice::Current&){
 	worker->setRobot(type);
 }
 
-

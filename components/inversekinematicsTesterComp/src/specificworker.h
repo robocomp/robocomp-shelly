@@ -49,6 +49,7 @@ public:
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
 public slots:
+<<<<<<< HEAD
 	
 	void compute(); 
 	
@@ -87,6 +88,16 @@ private:
 	int tabIndex;										//Index of current tabIndex	
 		
 	// MÉTODOS
+=======
+ 	void compute(); 
+	void ejecutar();
+	void moveCamarero();
+	void goHome();
+	void closeFingers();
+	
+private:
+	InnerModel *innerModel;											// Para trabajar con el innerModelç
+>>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 	void moverTargetEnRCIS(const QVec &pose);
 	void enviarPose6D(QVec p);
 	void enviarAxisAlign();

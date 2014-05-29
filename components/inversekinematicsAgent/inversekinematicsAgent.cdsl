@@ -3,6 +3,7 @@ import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
 import "/robocomp/Interfaces/IDSLs/AGMCommonBehavior.idsl";
 import "/robocomp/Interfaces/IDSLs/AGMWorldModel.idsl";
 import "/robocomp/Interfaces/IDSLs/BodyInverseKinematics.idsl";
+
 Component inversekinematicsAgentComp{
 	Communications{
 		requires BodyInverseKinematics;

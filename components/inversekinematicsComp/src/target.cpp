@@ -202,7 +202,7 @@ void Target::trocearTarget()
 	//ROTACIÓN:
 	// Hay que calcular las rotaciones de otra forma. No tenemos actualizado el innerModel para saber cúanto
 	// debe girar el this->tip para alcanzar la rotación del target.
-	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0.
+	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0
 	QVec tipEnMundo = inner->getRotationMatrixTo("world", this->tip).extractAnglesR();
 	QVec angulos1 = QVec::vec3(tipEnMundo[0], tipEnMundo[1], tipEnMundo[2]);
 	QVec angulos2 = QVec::vec3(tipEnMundo[3], tipEnMundo[4], tipEnMundo[5]);

@@ -18,7 +18,7 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import Ice, sys, math, traceback
+import Ice, sys, math, traceback, time
 
 from PyQt4.QtCore import *
 from PyQt4.QtGui import *
@@ -41,11 +41,22 @@ class C(QWidget):
 		self.show()
 
 	def job(self):
-		if self.check.isChecked():
+		if not self.check.isChecked():
 			pose = self.mods['RoboCompInnerModelManager'].Pose3D()
-			pose.x = 500.*math.cos(self.a)
-			pose.y = 900
-			pose.z = 450
-			pose.rx = pose.ry = pose.rz = 0
+			pose.x  = 100.+400.*math.cos(self.a)
+			pose.y  = 900.
+			pose.z  = 400.
+			pose.rx = 0.#-math.pi
+			pose.ry = 0.#-0.1
+			pose.rz = 0.
 			self.proxy.setPoseFromParent("target", pose)
-			self.a += 0.015
+
+			pose.x  = 0
+			pose.y  = 800.
+			pose.z  = 800.
+			pose.rx = 0
+			pose.ry = 0.
+			pose.rz = 0.
+			self.proxy.setPoseFromParent("mesaT", pose)
+
+			self.a += 0.04
