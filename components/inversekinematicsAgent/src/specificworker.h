@@ -66,6 +66,8 @@ private:
 	void grasp();
 	void take();
 	
+	void ajusteFino();
+	
 	
 	
 private:
@@ -74,10 +76,7 @@ private:
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	typedef enum nameStates {STOP,CLOSEHAND, APPROACHFINGER, TOUCHFINGER,OPENHAND,APPROACHHAND,GRASP,TAKE } nameStates;
-	nameStates currenState;
-	QTimer timerAutomataApproachFinger; //using a connect to exit when the time was excesived	
-	QTimer timerAutomataTouch;
-	QTimer timerAutomataApproachHand;
+	nameStates currenState;	
 	QTime elapsedTime;	
 	bool exec;
 	
