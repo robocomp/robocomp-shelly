@@ -22,8 +22,8 @@
 #include <genericworker.h>
 
 /**
-       \brief
-       @author authorname
+    \brief
+    @author authorname
 */
 
 #include <map>
@@ -71,7 +71,7 @@ public slots:
 private:
 	void updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const AprilTagModel &tag);
 	void includeObjectInModel(AGMModel::SPtr &newModel, const AprilTagModel &tag);
-	void updateWristPose();
+	bool updateWristPose();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
