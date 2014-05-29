@@ -507,7 +507,8 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 
 void SpecificWorker::ajusteFino()
 {
-/*
+	int32_t object = atoi(params["o"].value.c_str());
+
 	// Make sure we have the robot in the model, otherwise there's nothing to do yet...
 	int32_t robotId = worldModel->getIdentifierByType("robot");
 	if (robotId == -1)
@@ -523,15 +524,15 @@ void SpecificWorker::ajusteFino()
 		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
 		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
 		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
-		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
-		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
-		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+		//float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+		//float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+		//float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
 		float txw = str2float(robot->getAttribute("wrist_tx"));
 		float tyw = str2float(robot->getAttribute("wrist_ty"));
 		float tzw = str2float(robot->getAttribute("wrist_tz"));
-		float rxw = str2float(robot->getAttribute("wrist_rx"));
-		float ryw = str2float(robot->getAttribute("wrist_ry"));
-		float rzw = str2float(robot->getAttribute("wrist_rz"));
+		//float rxw = str2float(robot->getAttribute("wrist_rx"));
+		//float ryw = str2float(robot->getAttribute("wrist_ry"));
+		//mfloat rzw = str2float(robot->getAttribute("wrist_rz"));
 
 		QVec targetT = QVec::vec3(tx,  ty , tz);
 		QVec wristT  = QVec::vec3(txw, tyw, tzw);
@@ -556,8 +557,6 @@ void SpecificWorker::ajusteFino()
 // 	{
 // 		printf("I don't know about object %d\n", object);
 // 	}
-
-*/
 }
 
 /**
