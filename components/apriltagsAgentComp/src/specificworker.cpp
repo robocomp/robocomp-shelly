@@ -470,25 +470,34 @@ bool SpecificWorker::updateWristPose()
 	}
 	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
 
-	// Set back and current T
-	QVec T_back = QVec::vec3(
-	   str2float(robot->attributes["rightwrist_tx"]),
-		str2float(robot->attributes["rightwrist_ty"]),
-	   str2float(robot->attributes["rightwrist_tz"]));
+	// Set current T and R
 	QVec T = innerModel->transform("robot", QVec::vec3(0,0,0), "arm_right_8");
-
-	// Set back and current R
-	QVec R_back = QVec::vec3(
-	   str2float(robot->attributes["rightwrist_rx"]),
-		str2float(robot->attributes["rightwrist_ry"]),
-	   str2float(robot->attributes["rightwrist_rz"]));
 	QVec R = innerModel->getRotationMatrixTo("arm_right_8", "robot").extractAnglesR_min();
 
+	// Set back T and R
+	
+	QVec T_back, R_back;
+	bool force = false;
+	try
+	{
+		T_back = QVec::vec3(
+		  str2float(robot->attributes["rightwrist_tx"]),
+		  str2float(robot->attributes["rightwrist_ty"]),
+		  str2float(robot->attributes["rightwrist_tz"]));
+		R_back = QVec::vec3(
+		  str2float(robot->attributes["rightwrist_rx"]),
+		  str2float(robot->attributes["rightwrist_ry"]),
+		  str2float(robot->attributes["rightwrist_rz"]));
+	}
+	catch(...)
+	{
+		force = true;
+	}
 	#warning These thresholds should be set in the config file!!!
 	#warning These thresholds should be set in the config file!!!
 	#warning These thresholds should be set in the config file!!!
 	#warning These thresholds should be set in the config file!!!
-	if ((T-T_back).norm2()>15 or (R-R_back).norm2()>0.05)
+	if ( force or (T-T_back).norm2()>15 or (R-R_back).norm2()>0.05)
 	{
 		robot->attributes["rightwrist_tx"] = float2str(T(0));
 		robot->attributes["rightwrist_ty"] = float2str(T(1));
