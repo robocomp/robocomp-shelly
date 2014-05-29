@@ -1,11 +1,11 @@
 import "/robocomp/Interfaces/IDSLs/BodyInverseKinematics.idsl";
-import "/robocomp/Interfaces/IDSLs/InnerModelManager.idsl";
 import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
 
 Component lokiArmComp{
 	Communications{
-		requires  JointMotor, InnerModelManager;
+		requires  JointMotor, JointMotor;
 		implements BodyInverseKinematics;
 	};
+	gui Qt(QWidget);
 	language Cpp;
 };

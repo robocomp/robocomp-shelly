@@ -21,7 +21,7 @@
 #define PLANNER_H
 
 #include <QtCore>
-#include <qmat/QMatAll>
+#include <QMat/QMatAll>
 #include "tree.hh"
 #include <innermodel/innermodel.h>
 //#include <InnerModelManager.h>

@@ -20,6 +20,7 @@
 #define GENERICWORKER_H
 
 // #include <ipp.h>
+#include "config.h"
 #include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
@@ -27,6 +28,7 @@
 #include <ui_guiDlg.h>
 #include "config.h"
 #include <InnerModelManager.h>
+#include <JointMotor.h>
 #include <BodyInverseKinematics.h>
 
 #define CHECK_PERIOD 5000
@@ -41,10 +43,11 @@ using namespace std;
        @author authorname
 */
 using namespace RoboCompInnerModelManager;
+using namespace RoboCompJointMotor;
 using namespace RoboCompBodyInverseKinematics;
 class GenericWorker :
 #ifdef USE_QTGUI
-public QWidget, public Ui_guiDlg
+public QDialog, public Ui_Form
 #else
 public QObject
 #endif
@@ -60,6 +63,7 @@ public:
 	QMutex *mutex;                //Shared mutex with servant
 
 	InnerModelManagerPrx innermodelmanager_proxy;
+	JointMotorPrx jointmotor_proxy;
 	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 protected:
 	QTimer timer;

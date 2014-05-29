@@ -54,7 +54,7 @@ public:
 	
 	
 	///// MÉTODOS PÚBLICOS /////
-	QVec resolverTarget(const Target &target);			// Fija el punto objetivo.
+	void resolverTarget( Target &target);			// Fija el punto objetivo.
 	float devolverError();
 	
 private:
@@ -62,18 +62,15 @@ private:
 	///// VARIABLES DE CLASE /////
 	
 	InnerModel *inner;				// Inermodel para sacar información del robot
-	QVec puntoObjetivo;				// Punto Objetivo 3D al que queremos llevar el endEffector
 	QStringList listaJoints;		// Lista de motores que entra en liza
 	QString endEffector;			// Nombre del efector final (la mano del robot)
 	float ERROR;
-	Target target;
-	QVec weights;							//Pesos para W
-	
+
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
 	QMat jacobian(QVec motores);				// devuelve la matriz jacobiana de la función.
-	QVec calcularVectorError();		//devuelve el vector error de traslaciones y rotaciones
-	QVec levenbergMarquardt();		// algoritmo de Levenberg-Marquart completo.
+	QVec calcularVectorError(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
+	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
 
 	//_-----------------------------------------------------------------------------
 		
@@ -86,7 +83,7 @@ private:
 	void actualizarAngulos(QVec angulos_nuevos);
 	
 	// DE CONSULTA...
-	bool dentroLimites(QVec angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
+	bool outLimits(QVec angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
 };
 
 #endif // CINEMATICA_INVERSA_H

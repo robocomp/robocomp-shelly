@@ -24,6 +24,7 @@
 */
 
 #include "target.h"
+#include <boost/graph/buffer_concepts.hpp>
 
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 								CONSTRUCTORES Y DESTRUCTORES												   *
@@ -44,41 +45,92 @@ Target::Target()
  * 			- El vector POSE, vector de 3 traslaciones y 3 rotaciones.
  * 			- El nombre del EFECTOR FINAL.
  */ 
-Target::Target(InnerModel* inner, QVec pose, QString tip, const QVec& weights, Target::TargetType tt, QString axisName, bool axisConstraint, float axisAngleConstraint)		//TIP should be taken form IK
-{
-	this->activo = true;
-	this->pose = pose;
-	this->tip = tip;
-	this->inner = inner;
-	this->weights = weights;
-	this->targetType = tt;
-	this->axisName = axisName;
-	
-	if(this->targetType == ALIGNAXIS)
-	{
-		this->axisConstraint = axisConstraint;
-		this->axisAngleConstraint = axisAngleConstraint;
-		this->weights.set((T)1);
-		this->weights.inject(QVec::zeros(3),3);  //Set zero for rotations
-		if(axisConstraint == true)
-		{
-			if(axisName == "x" or axisName == "X")
-				this->weights[3] = (T)1;
-			if(axisName == "y" or axisName == "y")
-				this->weights[4] = (T)1;
-			if(axisName == "z" or axisName == "Z")
-				this->weights[5] = (T)1;
-			
-		}
-	}
-	//trocearTarget();// Si lo comento ya no funciona???
-}
+
 
 /**
  * \brief Destructor por defecto
  */ 
 Target::~Target()
 {
+}
+
+/**
+ * @brief Constructor for ADVANCE ALONG AXIS target
+ * 
+ * @param tt ...
+ * @param inner ...
+ * @param tip ...
+ * @param axis ...
+ * @param step ...
+ */
+Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, const QVec &axis, float step)
+{
+	this->activo = true;
+	this->pose6D = QVec::zeros(6);  //Needed to resize the Jacobian
+	this->tip = tip;
+	this->inner = inner;
+	this->targetType = tt;
+	this->axis = axis;
+	this->error = 0.f;
+	QVec w(6);w.set((T)1);
+	this->weights = w;
+	this->step = step;
+	this->startTime = QTime::currentTime();
+	this->iter = 0;
+	this->elapsedTime = 0;
+	this->finish = START;
+}
+
+/**
+ * @brief Constructor for ALIGN AXIS target
+ * 
+ * @param tt ...
+ * @param inner ...
+ * @param tip ...
+ * @param pose6D ...
+ * @param axis ...
+ * @param weights ...
+ */
+Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, const QVec &pose6D, const QVec &axis, const QVec &weights)
+{
+	this->activo = true;
+	this->pose6D = pose6D;
+	this->tip = tip;
+	this->inner = inner;
+	this->targetType = tt;
+	this->axis = axis;
+	this->axisConstraint = axisConstraint;
+	this->error = 0.f;
+	this->weights = weights;
+	this->startTime = QTime::currentTime();
+	this->iter = 0;
+	this->elapsedTime = 0;
+	this->finish = START;
+}
+
+/**
+ * @brief Constructor for POSE6D target
+ * 
+ * @param tt ...
+ * @param inner ...
+ * @param tip ...
+ * @param pose6D ...
+ * @param weights ...
+ */
+Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, const QVec &pose6D, const QVec& weights)
+{
+	this->activo = true;
+	this->pose6D = pose6D;
+	this->tip = tip;
+	this->inner = inner;
+	this->targetType = tt;
+	this->axis = QVec();
+	this->error = 0.f;
+	this->weights = weights;
+	this->startTime = QTime::currentTime();
+	this->iter = 0;
+	this->elapsedTime = 0;
+	this->finish = START;
 }
 
 /*--------------------------------------------------------------------------*
@@ -91,7 +143,7 @@ Target::~Target()
  */ 
 void Target::setPose(QVec newPose)
 {
-	this->pose = newPose;
+	this->pose6D = newPose;
 }
 
 /*
@@ -144,15 +196,14 @@ void Target::trocearTarget()
 {
 	
 	//TRASLACIÓN: 
-	QVec traslacionPose = QVec::vec3(pose[0], pose[1], pose[2]); //sacamos la traslación de la pose.
+	QVec traslacionPose = QVec::vec3(pose6D[0], pose6D[1], pose6D[2]); //sacamos la traslación de la pose.
 	QVec traslaciones = (traslacionPose - inner->transform("world", QVec::zeros(3), this->tip));
 	
 	//ROTACIÓN:
 	// Hay que calcular las rotaciones de otra forma. No tenemos actualizado el innerModel para saber cúanto
 	// debe girar el this->tip para alcanzar la rotación del target.
 	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0.
-	QMat matriz = inner->getRotationMatrixTo("world", this->tip);
-	QVec tipEnMundo = inner->getTransformationMatrix("world", this->tip).extractAnglesR3(matriz);
+	QVec tipEnMundo = inner->getRotationMatrixTo("world", this->tip).extractAnglesR();
 	QVec angulos1 = QVec::vec3(tipEnMundo[0], tipEnMundo[1], tipEnMundo[2]);
 	QVec angulos2 = QVec::vec3(tipEnMundo[3], tipEnMundo[4], tipEnMundo[5]);
 	QVec rot;
@@ -161,7 +212,7 @@ void Target::trocearTarget()
 	else
 		rot = angulos2;
 	
-	QVec rotacionPose = QVec::vec3(pose[3], pose[4], pose[5]); 
+	QVec rotacionPose = QVec::vec3(pose6D[3], pose6D[4], pose6D[5]); 
 	QVec rotaciones = rotacionPose - rot;
 		
 	QVec ambos(6);
@@ -181,25 +232,42 @@ void Target::trocearTarget()
 		{
 			float landa = 1/(Npuntos) * i;
 			
-			QVec R = inner->transform("world", QVec::zeros(3), this->tip)*(1-landa) + pose*landa;
+			QVec R = inner->transform("world", QVec::zeros(3), this->tip)*(1-landa) + pose6D*landa;
 			subtargets.append(R); //añadimos subtarget a la lista.
 		}
 	}
 }
 
-void Target::print()
+void Target::print(const QString &msg)
 {
-	qDebug() << "-----TARGET BEGIN---------------";
+	qDebug() << "-----TARGET BEGIN----------" << msg;
 	if(targetType == POSE6D)
-		qDebug() << "TargetType: POSE6D";
+		qDebug() << "	TargetType: POSE6D";
 	if(targetType == ALIGNAXIS)
-		qDebug() << "TargetType: ALIGNAXIS";
-	qDebug() << "Tip " << tip;
-	qDebug() << "Activo " << activo;
-	pose.print("pose in meters");
-	qDebug() << "------------------";
-	qDebug() << "Axis name " << axisName;
-	axis.print("axis");
-	weights.print("weights");
+		qDebug() << "	TargetType: ALIGNAXIS";
+	if(targetType == ADVANCEAXIS)
+		qDebug() << "	TargetType: ADVANCEAXIS";
+	qDebug() << "	Tip " << tip;
+	qDebug() << "	Activo " << activo;
+	qDebug() << "	Pose6D" << pose6D;
+	qDebug() << "	axis" << axis;
+	qDebug() << "	Weights" << weights;
+	qDebug() << "	Error vector" << errorVector;
+	qDebug() << "	Error vector norm" << error;
+	qDebug() << "	Name in Inner" << nameInInnerModel;
+	if(finish == START)
+		qDebug() << "	Status = START";
+	if(finish == LOW_ERROR)
+		qDebug() << "	Status = LOW_ERROR";
+	if(finish == KMAX)
+		qDebug() << "	Status = KMAX";
+	if(finish == LOW_INCS)
+		qDebug() << "	Status = LOW_INCS";
+	if(finish == NAN_INCS)
+		qDebug() << "	Status = NAN_INCS";
+	qDebug() << " 	Start time" << startTime;
+	qDebug() << " 	Running time" << runTime;
+	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
+	qDebug() << "		Final angles after IK" << finalAngles;
 	qDebug() << "-----TARGET END-----------------";
 }

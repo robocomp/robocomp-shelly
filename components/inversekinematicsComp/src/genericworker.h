@@ -59,12 +59,14 @@ public:
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;                //Shared mutex with servant
 
-	JointMotorPrx jointmotor_proxy;
-	virtual bool setTarget(const string& bodyPart, const Pose6D& target) = 0;
+	JointMotorPrx jointmotor0_proxy;
+	JointMotorPrx jointmotor1_proxy;
 	virtual void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights) = 0;
-	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint) = 0;
+	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, float axisAngleConstraint) = 0;
 	virtual void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist) = 0;
 	virtual void  setFingers(float d) = 0;
+	virtual void  goHome(const string& part) = 0;
+	virtual void  setRobot(int type) = 0;
 protected:
 	QTimer timer;
 	int Period;

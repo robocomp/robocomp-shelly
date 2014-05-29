@@ -1,0 +1,13 @@
+#
+# This property is used to configure the endpoints of the subscriber adapter.
+#
+JointMotorComp.Endpoints=tcp -p 40000
+CommonBehavior.Endpoints=tcp -p 12215
+
+# Remote servers proxies example
+#RemoteProxy = remote:tcp -h remotehost -p 10001
+
+JointMotor0Proxy = jointmotor:tcp -h localhost -p 10068  #Dynamixel head wrist and hands bus
+JointMotor1Proxy = jointmotor:tcp -h localhost -p 10067  #Faulhaber arms bus
+
+InnerModel = /home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusMTray.xml

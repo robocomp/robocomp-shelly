@@ -393,6 +393,11 @@
 		<plane id="C1_4" ny="-1"  px="0" 		py="0" 		pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-1.png" />
 		<plane id="C1_5" nz="-1"  px="0" 		py="50" 	pz="50" 	size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-2.png" />-->
 		<plane id="C1_6" nz="-1" px="0"   py="50"  pz="50" size="-216,279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
+		
+		<plane id="axisC1x" px="50" nx="1" size="20,20,150" repeat="1" texture="#ff0000" />
+		<plane id="axisC1y" py="50" nx="1" size="20,150,20" repeat="1" texture="#00ff00" />
+		<plane id="axisC1z" pz="50" nx="1" size="150,20,20" repeat="1" texture="#0000ff" />
+		
 	</transform>	
 	<!--<plane id="mesa" ny="1"  px="0"   py="10000"  pz="1000000" size="-100000,100000,1000" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />-->
 	<plane id="mesa" ny="1" px="0"   py="10"  pz="1000" size="-216,279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />

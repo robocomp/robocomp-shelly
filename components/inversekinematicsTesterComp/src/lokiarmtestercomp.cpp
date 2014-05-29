@@ -81,6 +81,7 @@
 // #include <Remote.h>
 #include <ui_guiDlg.h>
 #include <InnerModelManager.h>
+#include <JointMotor.h>
 #include <BodyInverseKinematics.h>
 
 
@@ -90,6 +91,7 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 using namespace RoboCompInnerModelManager;
+using namespace RoboCompJointMotor;
 using namespace RoboCompBodyInverseKinematics;
 
 
@@ -123,6 +125,7 @@ int LokiArmTesterComp::run(int argc, char* argv[])
 	// Remote server proxy access example
 	// RemoteComponentPrx remotecomponent_proxy;
 	InnerModelManagerPrx innermodelmanager_proxy;
+JointMotorPrx jointmotor_proxy;
 BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 
 
@@ -163,6 +166,17 @@ BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 	}
 	rInfo("InnerModelManagerProxy initialized Ok!");
 	mprx["InnerModelManagerProxy"] = (::IceProxy::Ice::Object*)(&innermodelmanager_proxy);//Remote server proxy creation example
+	try
+	{
+		jointmotor_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotorProxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("JointMotorProxy initialized Ok!");
+	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);//Remote server proxy creation example
 	try
 	{
 		bodyinversekinematics_proxy = BodyInverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("BodyInverseKinematicsProxy") ) );

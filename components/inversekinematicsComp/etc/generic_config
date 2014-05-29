@@ -7,5 +7,5 @@ CommonBehavior.Endpoints=tcp -p 12207
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 
-InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
-JointMotorProxy = jointmotor:tcp -h localhost -p 10067
+JointMotor0Proxy = jointmotor:tcp -h localhost -p 10067
+JointMotor1Proxy = jointmotor:tcp -h localhost -p 10067

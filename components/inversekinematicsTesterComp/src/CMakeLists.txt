@@ -12,6 +12,7 @@ INCLUDE ( CMakeListsSpecific.txt)
 SET ( SOURCES
   ${SOURCES}
   lokiarmtestercomp.cpp
+  
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
@@ -22,14 +23,17 @@ SET ( SOURCES
 # Headers set
 SET ( HEADERS
   ${HEADERS}
+  
   genericmonitor.h
   commonbehaviorI.h
   genericworker.h
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  BodyInverseKinematics  InnerModelManager)
+ROBOCOMP_WRAP_ICE( CommonBehavior  BodyInverseKinematics InnerModelManager  JointMotor)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
+
+
 
 # Qt4
 ADD_DEFINITIONS( -Wall -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB )

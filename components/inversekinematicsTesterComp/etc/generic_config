@@ -7,4 +7,5 @@ CommonBehavior.Endpoints=tcp -p 12214
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 
 InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
+JointMotorProxy = jointmotor:tcp -h localhost -p 20000
 BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220

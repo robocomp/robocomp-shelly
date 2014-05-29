@@ -37,11 +37,12 @@ Q_OBJECT
 public:
 	BodyInverseKinematicsI( GenericWorker *_worker, QObject *parent = 0 );
 	~BodyInverseKinematicsI();
-	bool setTarget(const string& bodyPart, const Pose6D& target, const Ice::Current& = Ice::Current());
-void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, const Ice::Current& = Ice::Current());
-void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint, const Ice::Current& = Ice::Current());
+	void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, const Ice::Current& = Ice::Current());
+void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, float axisAngleConstraint, const Ice::Current& = Ice::Current());
 void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist, const Ice::Current& = Ice::Current());
 void  setFingers(float d, const Ice::Current& = Ice::Current());
+void  goHome(const string& part, const Ice::Current& = Ice::Current());
+void  setRobot(int type, const Ice::Current& = Ice::Current());
 
 
 	QMutex *mutex;

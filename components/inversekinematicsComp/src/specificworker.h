@@ -31,10 +31,8 @@
 
 #include <iostream>
 #include <fstream>
-#include <boost/graph/graph_concepts.hpp>
 
 #include "cinematica_inversa.h"
-#include "generador.h"
 #include "target.h"
 #include "bodypart.h"
 #include "planner.h"
@@ -55,11 +53,12 @@ class SpecificWorker : public GenericWorker
 		SpecificWorker(MapPrx& mprx, QWidget *parent = 0);	
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
-		bool setTarget(const string& bodyPart, const Pose6D& target);
 		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
-		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const string& axis, bool axisConstraint, float axisAngleConstraint);
+		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis &axis, bool axisConstraint, float axisAngleConstraint);
 		void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist);
 		void  setFingers(float d);
+		void  goHome(const string& part);
+		void  setRobot(const int type) ;
 		
 	public slots:
 		void compute(); 
@@ -85,22 +84,16 @@ class SpecificWorker : public GenericWorker
 		Cinematica_Inversa *IK_BrazoDerecho;				// Para realizar las operaciones de cinemática inversa para el brazo derecho
 		Cinematica_Inversa *IK_BrazoIzquierdo;			// Para realizar las operaciones de cinemática inversa para el brazo izquierdo
 		Cinematica_Inversa *IK_Cabeza;							// Para realizar las operaciones de cinemática inversa para la cabeza
-		
-		Generador generador;												//Para crear la lista de targets iniciales con las que va a trabajar.
-		
+			
 		ofstream fichero;														// fichero de salida.
 			
 		Planner *planner;
 		
-		//// MÉTODOS PRIVADOS ////
 		// MÉTODOS PARA ACTUALIZAR //
 		void actualizarInnermodel(const QStringList &listaJoints);
 		
 		// MÉTODOS PARA MOVER COSAS DE LUGAR //
-		void moverBrazo(QVec angles, const QStringList &listaJoints);
-		//void moverTarget(int contador);
-		//void moverTarget(const QVec& pose);
-		void goHomePosition(const QStringList& listaJoints);
+		void moveRobotPart(QVec angles, const QStringList &listaJoints);
 		void createInnerModelTarget(Target &target);
 		void removeInnerModelTarget(const Target &target);
 		
@@ -108,6 +101,8 @@ class SpecificWorker : public GenericWorker
 		//QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
 		
 		int correlativeID;
+		int typeR;
+		RoboCompJointMotor::JointMotorPrx proxy;
 };
 
 #endif

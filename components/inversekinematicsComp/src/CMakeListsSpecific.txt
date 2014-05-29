@@ -4,7 +4,6 @@ SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
   cinematica_inversa.cpp
-  generador.cpp
   target.cpp
   planner.cpp
 )

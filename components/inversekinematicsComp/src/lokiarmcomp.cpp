@@ -122,7 +122,8 @@ int lokiArmComp::run(int argc, char* argv[])
 
 	// Remote server proxy access example
 	// RemoteComponentPrx remotecomponent_proxy;
-	JointMotorPrx jointmotor_proxy;
+	JointMotorPrx jointmotor0_proxy;
+JointMotorPrx jointmotor1_proxy;
 
 
 	string proxy;
@@ -153,15 +154,26 @@ int lokiArmComp::run(int argc, char* argv[])
 	//Remote server proxy creation example
 	try
 	{
-		jointmotor_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotorProxy") ) );
+		jointmotor0_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotor0Proxy") ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("JointMotorProxy initialized Ok!");
-	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);
+	rInfo("JointMotor0Proxy initialized Ok!");
+	mprx["JointMotor0Proxy"] = (::IceProxy::Ice::Object*)(&jointmotor0_proxy);//Remote server proxy creation example
+	try
+	{
+		jointmotor1_proxy = JointMotorPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("JointMotor1Proxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("JointMotor1Proxy initialized Ok!");
+	mprx["JointMotor1Proxy"] = (::IceProxy::Ice::Object*)(&jointmotor1_proxy);
 	
 	GenericWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread

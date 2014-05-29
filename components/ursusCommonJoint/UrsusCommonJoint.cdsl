@@ -1,0 +1,12 @@
+import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
+
+Component UrsusCommonJointComp
+{
+	Communications
+	{
+		implements JointMotor;
+		requires JointMotor, JointMotor;
+		
+	};
+	language Cpp;
+};

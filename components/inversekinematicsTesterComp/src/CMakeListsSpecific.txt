@@ -3,12 +3,15 @@
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
-  target.cpp
+  $ENV{ROBOCOMP}/components/robocomp-ursus/components/inversekinematicsComp/src/target.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  target.h
+  $ENV{ROBOCOMP}/components/robocomp-ursus/components/inversekinematicsComp/src/target.h
+
 )
+
+SET (LIBS ${LIBS} -losgViewer)

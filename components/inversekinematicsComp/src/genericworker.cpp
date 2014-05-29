@@ -28,7 +28,8 @@ QObject()
 #endif
 
 {
-	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
+	jointmotor0_proxy = (*(JointMotorPrx*)mprx["JointMotor0Proxy"]);
+	jointmotor1_proxy = (*(JointMotorPrx*)mprx["JointMotor1Proxy"]);
 
 	mutex = new QMutex();
 	#ifdef USE_QTGUI
