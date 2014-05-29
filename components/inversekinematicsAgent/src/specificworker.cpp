@@ -19,6 +19,7 @@
  
 #include "specificworker.h"
 #include <agm.h>
+#include <boost/concept_check.hpp>
 
 
 /**
@@ -341,6 +342,11 @@ void SpecificWorker::stateMachine()
 ///slot
 void SpecificWorker::compute( )
 {
+	
+	ajusteFino();
+	sleep(2);
+	return;
+	
 	printf("action: %s\n", action.c_str());
 	if (action == "graspobject" )
 	{		
@@ -496,6 +502,52 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	return true;
 }
 
+void SpecificWorker::ajusteFino()
+{
+	
+// 	try
+// 	{
+
+		//habría que sacar las posiciones de las marcas del modelo, target y aprilWrist
+		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
+		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+		float txw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_tx"));
+		float tyw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_ty"));
+		float tzw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_tz"));
+		float rxw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_rx"));
+		float ryw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_ry"));
+		float rzw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_rz"));
+
+		QVec targetT = QVec::vec3(tx,  ty , tz);
+		QVec wristT  = QVec::vec3(txw, tyw, tzw);
+		QVec poseTr = targetT - wristT;
+		poseTr.print("poseTr");
+		float d = poseTr.norm2();
+		QVec vNormal = poseTr.normalize();
+		vNormal.print("vNormal");
+		qDebug()<<"d"<<d;
+		try
+		{
+			RoboCompBodyInverseKinematics::Axis axis;
+			axis.x=vNormal.x() ;axis.y=vNormal.y();axis.z=vNormal.z();			
+			bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, d/2.0);									
+		}
+		catch (Ice::Exception e)
+		{
+			qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
+		}
+// 	}
+// 	catch(AGMModelException &e)
+// 	{
+// 		printf("I don't know about object %d\n", object);
+// 	}
+
+}
+
 
 /**
 * \brief Default destructor
@@ -504,3 +556,4 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+

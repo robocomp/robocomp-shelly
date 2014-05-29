@@ -66,6 +66,8 @@ private:
 	void grasp();
 	void take();
 	
+	void ajusteFino();
+	
 	
 	
 private:
