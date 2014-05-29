@@ -201,6 +201,8 @@ void SpecificWorker::compute( )
 	if (modelModified)
 	{
 		printf("MODIFIED!\n");
+		try
+{
 // 		AGMMisc::publishModification(newModel, agmagenttopic, worldModel);
 		RoboCompAGMWorldModel::Event e;
 		e.why = RoboCompAGMWorldModel::BehaviorBasedModification;
@@ -210,7 +212,11 @@ void SpecificWorker::compute( )
 		// 	AGMModelPrinter::printWorld(newModel);
 		agmagenttopic->modificationProposal(e);
 		printf(">>\n");
-		
+}
+catch(...)
+{
+	exit(1);
+}
 		
 		
 	}
