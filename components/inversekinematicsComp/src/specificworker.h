@@ -96,6 +96,7 @@ class SpecificWorker : public GenericWorker
 		void moveRobotPart(QVec angles, const QStringList &listaJoints);
 		void createInnerModelTarget(Target &target);
 		void removeInnerModelTarget(const Target &target);
+		void convertInnerModelFromMilimetersToMeters(InnerModelNode* node);
 		
 		// MÉTODOS AUXILIARES:
 		//QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
@@ -103,6 +104,7 @@ class SpecificWorker : public GenericWorker
 		int correlativeID;
 		int typeR;
 		RoboCompJointMotor::JointMotorPrx proxy;
+	
 };
 
 #endif
