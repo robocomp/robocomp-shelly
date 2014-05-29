@@ -344,9 +344,9 @@ void SpecificWorker::stateMachine()
 void SpecificWorker::compute( )
 {
 	
-	ajusteFino();
-	sleep(2);
-	return;
+// 	ajusteFino();
+// 	sleep(2);
+// 	return;
 	
 	printf("action: %s\n", action.c_str());
 	if (action == "graspobject" )
@@ -516,47 +516,49 @@ void SpecificWorker::ajusteFino()
 		return;
 	}
 	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
-	
-// 	try
-// 	{
 
+	float tx, ty, tz;
+	float txw, tyw, tzw;
+	try
+	{
 		//habría que sacar las posiciones de las marcas del modelo, target y aprilWrist
-		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
-		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
-		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+		tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+		ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
+		tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
 		//float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
 		//float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
 		//float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-		float txw = str2float(robot->getAttribute("wrist_tx"));
-		float tyw = str2float(robot->getAttribute("wrist_ty"));
-		float tzw = str2float(robot->getAttribute("wrist_tz"));
+		txw = str2float(robot->getAttribute("wrist_tx"));
+		tyw = str2float(robot->getAttribute("wrist_ty"));
+		tzw = str2float(robot->getAttribute("wrist_tz"));
 		//float rxw = str2float(robot->getAttribute("wrist_rx"));
 		//float ryw = str2float(robot->getAttribute("wrist_ry"));
 		//mfloat rzw = str2float(robot->getAttribute("wrist_rz"));
+	}
+	catch(...)
+	{
+		printf("right wrist position is not set yet... aborting\n");
+		return;
+	}
 
-		QVec targetT = QVec::vec3(tx,  ty , tz);
-		QVec wristT  = QVec::vec3(txw, tyw, tzw);
-		QVec poseTr = targetT - wristT;
-		poseTr.print("poseTr");
-		float d = poseTr.norm2();
-		QVec vNormal = poseTr.normalize();
-		vNormal.print("vNormal");
-		qDebug()<<"d"<<d;
-		try
-		{
-			RoboCompBodyInverseKinematics::Axis axis;
-			axis.x=vNormal.x() ;axis.y=vNormal.y();axis.z=vNormal.z();			
-			bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, d/2.0);									
-		}
-		catch (Ice::Exception e)
-		{
-			qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
-		}
-// 	}
-// 	catch(AGMModelException &e)
-// 	{
-// 		printf("I don't know about object %d\n", object);
-// 	}
+	QVec targetT = QVec::vec3(tx,  ty , tz);
+	QVec wristT  = QVec::vec3(txw, tyw, tzw);
+	QVec poseTr = targetT - wristT;
+	poseTr.print("poseTr");
+	float d = poseTr.norm2();
+	QVec vNormal = poseTr.normalize();
+	vNormal.print("vNormal");
+	qDebug()<<"d"<<d;
+	try
+	{
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x=vNormal.x() ;axis.y=vNormal.y();axis.z=vNormal.z();			
+		bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, d/2.0);									
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
+	}
 }
 
 /**
