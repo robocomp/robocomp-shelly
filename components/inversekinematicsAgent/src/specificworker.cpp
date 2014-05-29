@@ -518,12 +518,12 @@ void SpecificWorker::ajusteFino()
 		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
 		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
 		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-		float txw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_tx"));
-		float tyw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_ty"));
-		float tzw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_tz"));
-		float rxw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_rx"));
-		float ryw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_ry"));
-		float rzw = str2float(worldModel->getSymbol(robot)->getAttribute("wrist_rz"));
+		float txw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tx"));
+		float tyw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));
+		float tzw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tz"));
+		float rxw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_rx"));
+		float ryw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ry"));
+		float rzw = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_rz"));
 
 		QVec targetT = QVec::vec3(tx,  ty , tz);
 		QVec wristT  = QVec::vec3(txw, tyw, tzw);
