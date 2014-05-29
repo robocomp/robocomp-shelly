@@ -28,6 +28,7 @@
 #include <agm.h>
 #include <InnerModelManager.h>
 #include <AGMExecutive.h>
+#include <RGBD.h>
 #include <AGMCommonBehavior.h>
 #include <AGMExecutive.h>
 
@@ -44,6 +45,7 @@ using namespace std;
 */
 using namespace RoboCompInnerModelManager;
 using namespace RoboCompAGMExecutive;
+using namespace RoboCompRGBD;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMExecutive;
 struct BehaviorNavegacionParameters 
@@ -71,6 +73,8 @@ public:
 	RoboCompAGMWorldModel::BehaviorResultType status();
 	InnerModelManagerPrx innermodelmanager_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
+	RGBDPrx rgbd0_proxy;
+	RGBDPrx rgbd1_proxy;
 	virtual bool activateAgent(const ParameterMap& prs) = 0;
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;

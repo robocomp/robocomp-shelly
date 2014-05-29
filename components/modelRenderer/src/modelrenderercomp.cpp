@@ -83,6 +83,7 @@
 // #include <Remote.h>
 #include <InnerModelManager.h>
 #include <AGMExecutive.h>
+#include <RGBD.h>
 
 
 // User includes here
@@ -94,6 +95,7 @@ using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompInnerModelManager;
 using namespace RoboCompAGMExecutive;
+using namespace RoboCompRGBD;
 
 
 class modelRendererComp : public RoboComp::Application
@@ -114,6 +116,7 @@ void modelRendererComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int modelRendererComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
@@ -127,6 +130,8 @@ int modelRendererComp::run(int argc, char* argv[])
 	// RemoteComponentPrx remotecomponent_proxy;
 	InnerModelManagerPrx innermodelmanager_proxy;
 AGMExecutivePrx agmexecutive_proxy;
+RGBDPrx rgbd0_proxy;
+RGBDPrx rgbd1_proxy;
 
 
 	string proxy;
@@ -176,7 +181,29 @@ AGMExecutivePrx agmexecutive_proxy;
 		return EXIT_FAILURE;
 	}
 	rInfo("AGMExecutiveProxy initialized Ok!");
-	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);
+	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);//Remote server proxy creation example
+	try
+	{
+		rgbd0_proxy = RGBDPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("RGBD0Proxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("RGBD0Proxy initialized Ok!");
+	mprx["RGBD0Proxy"] = (::IceProxy::Ice::Object*)(&rgbd0_proxy);//Remote server proxy creation example
+	try
+	{
+		rgbd1_proxy = RGBDPrx::uncheckedCast( communicator()->stringToProxy( getProxyString("RGBD1Proxy") ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("RGBD1Proxy initialized Ok!");
+	mprx["RGBD1Proxy"] = (::IceProxy::Ice::Object*)(&rgbd1_proxy);
 	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 	
 	
@@ -201,15 +228,20 @@ AGMExecutivePrx agmexecutive_proxy;
     	AGMExecutiveTopicPtr agmexecutivetopicI_ = new AGMExecutiveTopicI(worker);
     	Ice::ObjectPrx agmexecutivetopic_proxy = AGMExecutiveTopic_adapter->addWithUUID(agmexecutivetopicI_)->ice_oneway();
     	IceStorm::TopicPrx agmexecutivetopic_topic;
-    	while(!agmexecutivetopic_topic){
+    	if(!agmexecutivetopic_topic){
 	    	try {
-	    		agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
-	    	 	IceStorm::QoS qos;
-	      		agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic_proxy);
+	    		agmexecutivetopic_topic = topicManager->create("AGMExecutiveTopic");
 	    	}
-	    	catch (const IceStorm::NoSuchTopic&) {
-	       		// Error! No topic found!
+	    	catch (const IceStorm::TopicExists&) {
+	    	  	//Another client created the topic
+	    	  	try{
+	       			agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
+	    	  	}catch(const IceStorm::NoSuchTopic&){
+	    	  	  	//Error. Topic does not exist
+				}
 	    	}
+	    	IceStorm::QoS qos;
+	      	agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic_proxy);
     	}
     	AGMExecutiveTopic_adapter->activate();
     	// Server adapter creation and publication

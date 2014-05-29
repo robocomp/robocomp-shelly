@@ -24,6 +24,8 @@ GenericWorker::GenericWorker(MapPrx& mprx, QObject *parent) : QObject(parent)
 {
 	innermodelmanager_proxy = (*(InnerModelManagerPrx*)mprx["InnerModelManagerProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
+	rgbd0_proxy = (*(RGBDPrx*)mprx["RGBD0Proxy"]);
+	rgbd1_proxy = (*(RGBDPrx*)mprx["RGBD1Proxy"]);
 
 	mutex = new QMutex();
 	Period = BASIC_PERIOD;

@@ -13,7 +13,7 @@ SET ( SOURCES
   ${SOURCES}
   modelrenderercomp.cpp
   agmcommonbehaviorI.cpp
-  agmexecutivetopicI.cpp
+agmexecutivetopicI.cpp
 
   genericmonitor.cpp
   commonbehaviorI.cpp
@@ -26,7 +26,7 @@ SET ( SOURCES
 SET ( HEADERS
   ${HEADERS}
   agmcommonbehaviorI.h
-  agmexecutivetopicI.h
+agmexecutivetopicI.h
 
   genericmonitor.h
   commonbehaviorI.h
@@ -34,7 +34,7 @@ SET ( HEADERS
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  AGMCommonBehavior InnerModelManager AGMExecutive AGMWorldModel  Planning AGMAgent)
+ROBOCOMP_WRAP_ICE( CommonBehavior  AGMCommonBehavior InnerModelManager AGMExecutive AGMWorldModel Planning RGBD JointMotor  DifferentialRobot)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4
