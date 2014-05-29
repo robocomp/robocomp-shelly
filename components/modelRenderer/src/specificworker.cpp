@@ -29,6 +29,20 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	worldModel = AGMModel::SPtr(new AGMModel());
 	initialized = false;
 	initial_broadcast=false;
+
+	try
+	{
+		rgbdParams =rgbd0_proxy->getRGBDParams();
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"Error talking to rgbd"<<e.what();  
+	}
+	qimage = new QImage(640,480,QImage::Format_RGB888);
+	frameRGB = new QFrame();
+	viewer = new RCDraw(640,480,qimage,frameRGB);
+	
+	
 }
 
 /**
@@ -43,6 +57,7 @@ void SpecificWorker::compute( )
 {
   if (!initial_broadcast)
 	 agmexecutive_proxy -> broadcastModel();
+  viewer->update();
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -439,4 +454,21 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 	}
 }
 
+void SpecificWorker::media()
+{
+	RoboCompRGBD::ColorSeq colorRgbd0,colorRgbd1;
+	RoboCompDifferentialRobot::TBaseState bState;
+	RoboCompJointMotor::MotorStateMap hState;
+	
+	try 
+	{
+		rgbd0_proxy->getData(img , depth, hState, bState);
+		memcpy(qimage->bits(),&img[0], 640*480*3);
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"Error talking to RGBD"<<e.what();
+	}
+}
 

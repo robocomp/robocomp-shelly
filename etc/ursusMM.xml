@@ -366,23 +366,9 @@
 		</differentialrobot> <!--base -->			
 	</transform>
 
-<<<<<<< HEAD
-	<transform id="target" tx="0" ty="900" tz="450">
-<!--		<plane id="C1_1" nx="-1"  px="-50" 	py="50"	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-0.png" />
-		<plane id="C1_2" nx="-1"  px="50" 	py="50" 	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-0.png" />
-		<plane id="C1_3" ny="-1"  px="0" 		py="100" 	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-1.png" />
-		<plane id="C1_4" ny="-1"  px="0" 		py="0" 		pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-1.png" />
-		<plane id="C1_5" nz="-1"  px="0" 		py="50" 	pz="50" 	size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-2.png" />-->
-		<plane id="C1_6" nz="-1" px="0"   py="50"  pz="50" size="-216,279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
-		
-		<plane id="axisC1x" px="50" nx="1" size="20,20,150" repeat="1" texture="#ff0000" />
-		<plane id="axisC1y" py="50" nx="1" size="20,150,20" repeat="1" texture="#00ff00" />
-		<plane id="axisC1z" pz="50" nx="1" size="150,20,20" repeat="1" texture="#0000ff" />
-		
-=======
+
 	<transform id="target" tx="0" ty="900" tz="570">
 		<plane id="C1_6" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
->>>>>>> 5a3684dbe64c1cb588507feb659fd8f67369a0bf
 	</transform>	
 	<transform id="mesaT" tx="0" ty="810"  tz="1000" >
 		<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />

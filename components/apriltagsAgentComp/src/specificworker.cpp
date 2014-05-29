@@ -460,18 +460,55 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 }
 
 
-void SpecificWorker::updateWristPose()
+bool SpecificWorker::updateWristPose()
 {
-	int32_t robotId = newModel->getIdentifierByType("robot");
+	// Make sure we have the robot in the model, otherwise there's nothing to do yet...
+	int32_t robotId = worldModel->getIdentifierByType("robot");
 	if (robotId == -1)
 	{
-		printf("didn't find the robot!!\n");
-		return;
+		return false;
 	}
-	AGMModelSymbol::SPtr robot = newModel->getSymbol(robotId);
+	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
 
-				if (itMap->second.id == str2int(itModel->attributes["id"]))
+	// Set current T and R
+	QVec T = innerModel->transform("robot", QVec::vec3(0,0,0), "arm_right_8");
+	QVec R = innerModel->getRotationMatrixTo("arm_right_8", "robot").extractAnglesR_min();
+
+	// Set back T and R
 	
+	QVec T_back, R_back;
+	bool force = false;
+	try
+	{
+		T_back = QVec::vec3(
+		  str2float(robot->attributes["rightwrist_tx"]),
+		  str2float(robot->attributes["rightwrist_ty"]),
+		  str2float(robot->attributes["rightwrist_tz"]));
+		R_back = QVec::vec3(
+		  str2float(robot->attributes["rightwrist_rx"]),
+		  str2float(robot->attributes["rightwrist_ry"]),
+		  str2float(robot->attributes["rightwrist_rz"]));
+	}
+	catch(...)
+	{
+		force = true;
+	}
+	#warning These thresholds should be set in the config file!!!
+	#warning These thresholds should be set in the config file!!!
+	#warning These thresholds should be set in the config file!!!
+	#warning These thresholds should be set in the config file!!!
+	if ( force or (T-T_back).norm2()>15 or (R-R_back).norm2()>0.05)
+	{
+		robot->attributes["rightwrist_tx"] = float2str(T(0));
+		robot->attributes["rightwrist_ty"] = float2str(T(1));
+		robot->attributes["rightwrist_tz"] = float2str(T(2));
+		robot->attributes["rightwrist_rx"] = float2str(R(0));
+		robot->attributes["rightwrist_ry"] = float2str(R(1));
+		robot->attributes["rightwrist_rz"] = float2str(R(2));
+		return true;
+	}
+	
+	return false;
 }
 
 

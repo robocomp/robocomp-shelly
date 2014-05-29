@@ -1,15 +1,20 @@
 
-SET(LIBS ${LIBS} -lagm -lboost_system)
+SET(LIBS ${LIBS} -lagm -lboost_system )
+
 # Sources set
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
+  $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.cpp
+  
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
+  $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.h
+  
 )
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
 ROBOCOMP_WRAP_ICE( AGMAgent)

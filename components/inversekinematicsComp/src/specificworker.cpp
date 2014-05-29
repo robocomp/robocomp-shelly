@@ -65,6 +65,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::init()
 {	
+	
+	convertInnerModelFromMilimetersToMeters(innerModel->getRoot());
+	
+	
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
 	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
@@ -115,6 +119,60 @@ void SpecificWorker::init()
 	qDebug() << "---------------------------------";
 	qDebug() << "BodyInverseKinematics --> Waiting for requests!";
 }
+
+
+void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* node)
+{
+
+	InnerModelTouchSensor *touch;
+	InnerModelMesh *mesh;
+	InnerModelPointCloud *pointcloud;
+	InnerModelPlane *plane;
+	InnerModelCamera *camera;
+	InnerModelRGBD *rgbd;
+	InnerModelIMU *imu;
+	InnerModelLaser *laser;
+	InnerModelTransform *transformation;
+
+	// Find out which kind of node are we dealing with
+	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+	{		
+		for(int i=0; i<node->children.size(); i++)
+		{
+			convertInnerModelFromMilimetersToMeters(node->children[i]);
+		}
+	}
+	else if ((rgbd = dynamic_cast<InnerModelRGBD *>(node)))
+	{
+	}
+	else if ((camera = dynamic_cast<InnerModelCamera *>(node)))
+	{
+	}
+	else if ((imu = dynamic_cast<InnerModelIMU *>(node)))
+	{
+	}
+	else if ((laser = dynamic_cast<InnerModelLaser *>(node)))
+	{
+	}
+	else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
+	{
+	}
+	else if ((pointcloud = dynamic_cast<InnerModelPointCloud *>(node)))
+	{
+	}
+	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
+	{
+		}
+	else if ((touch = dynamic_cast<InnerModelTouchSensor *>(node)))
+	{
+	}
+	else
+	{
+		qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
+		throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
+	}
+}		
+
 
 /**
 * \brief Default destructor
