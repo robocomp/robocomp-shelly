@@ -361,7 +361,7 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		}
 	 
 		// Add the transofrm
-		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T",  "static", "sensor_transform", pose);
+		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T",  "static", "robot", pose);
 		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T2", "static", ident.toStdString()+"_T", pose2);
 		innermodelmanager_proxy->addMesh(ident.toStdString(), ident.toStdString()+"_T2", mesh);
 		printf("ADDED: %s", ident.toStdString().c_str());
