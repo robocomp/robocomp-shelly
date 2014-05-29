@@ -45,9 +45,11 @@
 											
 											<joint id="head3" port="20000" min="-1.40" max="1.40" axis="z" home="0">			
 												<transform id="sensor_transform" tz="60" ty="-90" rx="1.5708">
-												  <transform id="sensor_transform2" rx="0.75">
-													  <plane id="sensor" nz="1" pz="-50" size="80,60" repeat="1" texture="#0000ff" />
-													  <rgbd id="rgbd" focal="400" width="640" height="480" port="10096" ifconfig="20000,10004" />
+													<transform id="sensor_transform2" rx="0.75">
+														<plane id="sensor" nz="1" pz="-50" size="80,60" repeat="1" texture="#0000ff" />
+														<transform id="rgbd_transform">
+															<rgbd id="rgbd" focal="400" width="640" height="480" port="10096" ifconfig="20000,10004" />
+														</transform>
 												  </transform>
 												</transform>
 												<transform id="tablet" ty="-30" tz="20" rx="1.5707963267948966">
@@ -175,7 +177,7 @@
 																				<transform id="arm_right_9" tx="-20" tz="95" >
 					<!-- 																Gira en Y -->
 																					<mesh id="finger_right_2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="0" tz="-22" scale="20"    />
-																					<plane id="tipPlane" py="-25" px="20" pz="-25" ny="-1" size="-42,54,2" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
+																					<plane id="aprilWrist" py="-25" px="20" pz="-40" ny="-1" size="-72,93,5" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />																					
 																					<joint id="rightFinger2" port="20000" min="-1.5707963267948966" max="1.5707963267948966" axis="y" home="0" >
 																						<mesh id="finger_right_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="-18" scale="-18,5,5"    />
 																						<transform id="finger_right_2_1_pre" tx="-30" ry="-0.70"  >
@@ -365,24 +367,10 @@
 	</transform>
 
 	<transform id="target" tx="0" ty="900" tz="570">
-<!--		<plane id="C1_1" nx="-1"  px="-50" 	py="50"	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-0.png" />
-		<plane id="C1_2" nx="-1"  px="50" 	py="50" 	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-0.png" />
-		<plane id="C1_3" ny="-1"  px="0" 		py="100" 	pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-1.png" />
-		<plane id="C1_4" ny="-1"  px="0" 		py="0" 		pz="0" 		size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-1.png" />
-		<plane id="C1_5" nz="-1"  px="0" 		py="50" 	pz="50" 	size="-100,100,1" texture="/home/robocomp/robocomp/files/InnerModel/tar36h11-2.png" />-->
-		<plane id="C1_6" ny="-1" px="0"   py="50"  pz="50" size="-216,279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
-		
-		
+		<plane id="C1_6" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
 	</transform>	
-	
-	<!--<plane id="mesa" ny="1"  px="0"   py="10000"  pz="1000000" size="-100000,100000,1000" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />-->
 	<transform id="mesaT" tx="0" ty="810"  tz="1000" >
-<!-- 		<plane id="mesa" ny="-1" size="-216,279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" /> -->
-		
-<!--		<plane id="axisxM" px="50" nx="1" size="15,15,200" repeat="1" texture="#550000" /> 
- 		<plane id="axisyM" py="50" nx="1" size="15,200,15" repeat="1" texture="#005500" /> 
- 		<plane id="axiszM" pz="50" nx="1" size="200,15,15" repeat="1" texture="#000055" /> -->
-	
+		<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
 	</transform>
 	
 </innerModel>

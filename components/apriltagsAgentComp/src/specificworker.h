@@ -29,6 +29,7 @@
 #include <map>
 
 #include <agm.h>
+#include <innermodel/innermodel.h>
 
 class AprilTagModel
 {
@@ -79,6 +80,8 @@ private:
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
+	InnerModel *innerModel;
+	InnerModelTransform *trTag;
 	TagModelMap tagMap;
 };
 

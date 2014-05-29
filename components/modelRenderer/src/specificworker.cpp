@@ -349,7 +349,7 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		{
 			printf("taza!\n");
 			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
-			pose2.z = 80; // La x va claramente a la derecha
+			pose2.z = 160; // La x va claramente a la derecha
 			mesh.scaleX = 120;
 			mesh.scaleY = 120;
 			mesh.scaleZ = 120;
@@ -361,7 +361,7 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		}
 	 
 		// Add the transofrm
-		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T",  "static", "sensor_transform", pose);
+		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T",  "static", "robot", pose);
 		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T2", "static", ident.toStdString()+"_T", pose2);
 		innermodelmanager_proxy->addMesh(ident.toStdString(), ident.toStdString()+"_T2", mesh);
 		printf("ADDED: %s", ident.toStdString().c_str());
