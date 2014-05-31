@@ -44,14 +44,16 @@ Cinematica_Inversa::~Cinematica_Inversa()
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS PÚBLICOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-/*
- * Metodo ponerTarget
- * Asigna el valor de la variable de entrada (target) al atributo puntoObjetivo.
+
+/**
+ * @brief Asigna el valor de la variable de entrada (target) al atributo puntoObjetivo.
  * Es el punto al que queremos llevar el nodo effector o nodo final.
  * Hay que llamar a este metodo cada vez que queramos llevar la mano del robot a 
  * un objetivo distinto: cada vez que llamemos al Levenberg-Marquardt.
- * FUNCIONA.
- */ 
+ * 
+ * @param target ...
+ * @return void
+ */
 void Cinematica_Inversa::resolverTarget(Target& target)
 {
 	target.setRunTime(QTime::currentTime());
@@ -150,7 +152,7 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
  * 		2) la operacion para calcular el error de rotaciones.
  * FUNCIONA
  */ 
-QVec Cinematica_Inversa::calcularVectorError(const Target &target)
+QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 {
 	QVec errorTotal = QVec::zeros(6); //Vector error final
 	
@@ -160,6 +162,10 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
 		QVec errorTraslaciones = QVec::zeros(3);
 		QVec targetInRoot = inner->getTranslationVectorTo( listaJoints[0], target.getNameInInnerModel());		
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
+		
+		inner->transform("world", QVec::zeros(3), target.getNameInInnerModel()).print("target in world");
+		inner->transform("world", QVec::zeros(3), this->endEffector).print("tip in world");
+		
 		errorTraslaciones = targetInRoot - tip;
 	
 		// ---> ROTATIONS
@@ -219,8 +225,9 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
 	return errorTotal;
 }
 
-/*
- * Metodo levenbergMarquardt.
+
+/**
+ * @brief Metodo levenbergMarquardt.
  * Realiza el algoritmo de Levenberg-Marquardt extendido para aquellos casos en
  * los que la matriz que ha de ser invertida salga singular. No para de ejecutar
  * hasta que se alcanza un umbral de aceptacion de la solucion marcado por el
@@ -228,7 +235,10 @@ QVec Cinematica_Inversa::calcularVectorError(const Target &target)
  * SI FUNCIONA
  * 			- Jt*J + nu*I*Incrementos = Jt*e
  * 				A  + nu*I*Incrementos = g*Ep
- */ 
+ * 
+ * @param target ...
+ * @return void
+ */
 void Cinematica_Inversa::levenbergMarquardt(Target &target)
 {
 	//qDebug()<<"\n--ALGORITMO DE LEVENBERG-MARQUARDT --\n";
@@ -243,12 +253,15 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
 	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
-	QVec error = We * calcularVectorError(target); //error de la posición actual con la deseada.
+	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
 	QMat J = jacobian(motores);
+	J.print("J");
+	error.print("errir");
 	QMat H = J.transpose()*(We*J);
 	QVec g = J.transpose()*(error);		
-	
+	g.print("g");
 	bool stop = (g.maxAbs(auxInt) <= e1);
+	qDebug() << "gmaxabs" << g.maxAbs(auxInt) << e1;
 	bool smallInc = false;
 	bool nanInc = false;
 	float ro = 0; 
@@ -301,18 +314,18 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				{
 					motores.set((T)0);
 					actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
-					ro = ((error).norm2() - (We*calcularVectorError(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
+					ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
 					
 					//qDebug() << __FUNCTION__ << "ro" << ro << "error anterior" << (We*error).norm2() << "error actual" << (We*calcularVectorError()).norm2();
 					
 					if(ro > 0)
 					{
 						// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo. 
-						stop = ((error).norm2() - (We*calcularVectorError(target)).norm2()) < e4*(error).norm2();
+						stop = ((error).norm2() - (We*computeErrorVector(target)).norm2()) < e4*(error).norm2();
 						//qDebug()<<"HAY MEJORA ";
 						angulos = aux;
 						// Recalculamos con nuevos datos.
-						error = calcularVectorError(target);						
+						error = computeErrorVector(target);						
 						J = jacobian(motores);
 						H = J.transpose()*(We*J);
 						g = J.transpose()*(error);
@@ -331,7 +344,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				}//fin else dentro límites
 			}//fin else incrementos no despreciables.
 		}while(ro<=0 and stop==false);
-		stop = (error).norm2() <= e3;
+		stop = error.norm2() <= e3;
 	}
 	if ( stop == true) target.setStatus(Target::LOW_ERROR);
 	else if ( k>=kMax) target.setStatus(Target::KMAX);
@@ -340,12 +353,12 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	target.setError((error).norm2());
 	target.setErrorVector(error);
 	target.setFinalAngles(angulos);
-// 	qDebug() << "---OUT-----------------------------------------------------------";
-// 	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
-// 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
-// 	
-//	angulos.print("angulos");
-//qDebug() << "-----------------------------------------------------------------";
+	qDebug() << "---OUT-----------------------------------------------------------";
+	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
+	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
+	
+	angulos.print("angulos");
+qDebug() << "-----------------------------------------------------------------";
 	
 }
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
@@ -370,7 +383,7 @@ QVec Cinematica_Inversa::calcularAngulos()
 
 /*
 * Metodo moduloFloat
-* Devuelve el m��dulo entre dos n��meros reales.
+* Devuelve el m��dulo entre dos n��meros reales.   ///HAS PROBADO FMOD?
 * FUNCIONA.
 */ 
 void Cinematica_Inversa::calcularModuloFloat(QVec &angles, float mod)

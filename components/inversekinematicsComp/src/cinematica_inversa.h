@@ -69,7 +69,7 @@ private:
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
 	QMat jacobian(QVec motores);				// devuelve la matriz jacobiana de la función.
-	QVec calcularVectorError(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
+	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
 
 	//_-----------------------------------------------------------------------------

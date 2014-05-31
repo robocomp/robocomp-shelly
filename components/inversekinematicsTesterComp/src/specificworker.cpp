@@ -632,7 +632,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 	try
 	{
 		//colocamos el target en el RCIS. HAY QUE PASAR A METROS LAS TRASLACIONES
-		poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
+		//poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
+		poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
 		moverTargetEnRCIS(poseMetros); 
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)
