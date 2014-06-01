@@ -233,11 +233,11 @@ void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const Apri
 
    //threshold to update set to 20 mm and 0.1 rad
    if ( fabs(str2float((symbol->attributes["tx"])) - T(0)) > 20  ||
-	     fabs(str2float((symbol->attributes["ty"])) - T(1)) > 20  ||
-	     fabs(str2float((symbol->attributes["tz"])) - T(2)) > 20  ||
-	     fabs(str2float((symbol->attributes["rx"])) - R(0)) > 0.1 ||
-	     fabs(str2float((symbol->attributes["ry"])) - R(1)) > 0.1 ||
-	     fabs(str2float((symbol->attributes["rz"])) - R(2)) > 0.1 )
+	    fabs(str2float((symbol->attributes["ty"])) - T(1)) > 20  ||
+	    fabs(str2float((symbol->attributes["tz"])) - T(2)) > 20  ||
+	    fabs(str2float((symbol->attributes["rx"])) - R(0)) > 0.1 ||
+	    fabs(str2float((symbol->attributes["ry"])) - R(1)) > 0.1 ||
+	    fabs(str2float((symbol->attributes["rz"])) - R(2)) > 0.1 )
 	{
 		symbol->attributes["tx"] = float2str(T(0));
 		symbol->attributes["ty"] = float2str(T(1));

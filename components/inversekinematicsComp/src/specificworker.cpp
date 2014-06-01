@@ -165,11 +165,6 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 		mesh->tx /= FACTOR; mesh->ty /= FACTOR; mesh->tz /= FACTOR;
 		mesh->scalex /= FACTOR; mesh->scaley /= FACTOR; mesh->scalez /= FACTOR;
 	}
-	else
-	{
-		qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
-		throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
-	}
 }		
 
 
@@ -462,11 +457,11 @@ void SpecificWorker::goHome(const string& part)
 void SpecificWorker::setRobot(const int t)
 {
 	mutex->lock();
-		this->typeR = t;
-		if( this->typeR == 0)
-			proxy = jointmotor0_proxy;
-		else if( this->typeR == 1)
-			proxy = jointmotor1_proxy;
+	this->typeR = t;
+	if (this->typeR == 0)
+		proxy = jointmotor0_proxy;
+	else if (this->typeR == 1)
+		proxy = jointmotor1_proxy;
 	mutex->unlock();
 }
 
