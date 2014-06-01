@@ -152,33 +152,30 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  *------------------------------------------------------------------------------------------------------*/ 
 void SpecificWorker::compute( )
 {
+	static QTime reloj = QTime::currentTime();
 	// Si estamos mirando la pestaña número 5 mostramos los límites de los motores.
 	if(pestanias->currentIndex()==5)
 		mostrarDatos();
 	
-	// TODO Si se ha pulsado una trayectoria Y se ha enviado al RCIS o a URSUS mando cada pose de la
-	// trayectoria al enviarPose6D. La trayectoria es una cola, vamos desencolando hasta que este vacia.
-	// Es una solución un poco cutre, pero funciona...
-	if(banderaTrayectoria and banderaRCIS)
+	if((trayectoria.isEmpty() == false)  and banderaRCIS)
 	{
-		
-		try{ bodyinversekinematics_proxy->ice_ping(); }
-		catch(const Ice::Exception &ex)
-		{ std::cout << ex << std::endl; };
-		
-		
-		QVec pose = trayectoria.head();
-		enviarPose6D(pose);
-		trayectoria.dequeue();
-		
-		if(trayectoria.isEmpty())
-		{
-			banderaTrayectoria = banderaRCIS = false;
-		}
+		enviarPose6D( trayectoria.dequeue() );
 	}
+	else
+		banderaRCIS = false;
+	
 	actualizarInnerModel();
 	imv->update();
 	osgView->frame();
+	
+	if ( reloj.elapsed() > 3000)
+	{
+		try{ bodyinversekinematics_proxy->ice_ping(); }
+		catch(const Ice::Exception &ex)
+		{ std::cout << "Warning! BIK not responding" << std::endl; };
+		reloj.restart();
+	}
+	
 }
 
 /*------------------------------------------------------------------------------------------------------*

@@ -84,6 +84,7 @@ private:
 	
 	// DE CONSULTA...
 	bool outLimits(QVec angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
+	QVec computeH(const QVec &angs);
 };
 
 #endif // CINEMATICA_INVERSA_H

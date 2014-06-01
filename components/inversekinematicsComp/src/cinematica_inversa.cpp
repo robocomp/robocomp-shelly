@@ -161,11 +161,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
 		QVec errorTraslaciones = QVec::zeros(3);
 		QVec targetInRoot = inner->getTranslationVectorTo( listaJoints[0], target.getNameInInnerModel());		
-		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);
-		
-		inner->transform("world", QVec::zeros(3), target.getNameInInnerModel()).print("target in world");
-		inner->transform("world", QVec::zeros(3), this->endEffector).print("tip in world");
-		
+		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
 		errorTraslaciones = targetInRoot - tip;
 	
 		// ---> ROTATIONS
@@ -250,18 +246,18 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	// VARIABLES:
 	int k=0, v=2, auxInt; //iterador, variable para descenso y un entero auxiliar
 	QVec incrementos, aux; //vector de incrementos y vector auxiliar para guardar cambios
+	QVec nullSpaceInc;
 	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
 	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
 	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
 	QMat J = jacobian(motores);
-	J.print("J");
-	error.print("errir");
-	QMat H = J.transpose()*(We*J);
+	QMat H = J.transpose()*(We*J);			
+	QMat projector0 = Identidad;
+	QMat projector = Identidad;
+	
 	QVec g = J.transpose()*(error);		
-	g.print("g");
 	bool stop = (g.maxAbs(auxInt) <= e1);
-	qDebug() << "gmaxabs" << g.maxAbs(auxInt) << e1;
 	bool smallInc = false;
 	bool nanInc = false;
 	float ro = 0; 
@@ -273,12 +269,25 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 		do{
 			try
 			{
-				incrementos = (H + (Identidad*n)).invert() * g;
+				projector = J.transpose() * ((J*J.transpose()).invert()) * J;	
+				nullSpaceInc = projector * computeH(angulos);
+				nullSpaceInc.print("nullspace");
+// 				for(int i=0; i<nullSpaceInc.size(); i++)
+// 				if( isnan(nullSpaceInc[i]))
+// 				{
+// 					nullSpaceInc.set(0);
+// 					break;
+// 				}
+			}
+			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION IN H"; }
+			try 
+			{
+				incrementos = (H + (Identidad*n)).invert() * g;   ///// -------- SVD should be used here instead of direct inversion
+//				incrementos = incrementos + nullSpaceInc;
 				//incrementos.print("incrementos");
 				for(int i=0; i<incrementos.size(); i++)
 					if(isnan(incrementos[i])) 													///NAN increments
 					{
-						k = kMax;
 						nanInc = true;
 						target.setStatus(Target::NAN_INCS);
 						break;
@@ -308,6 +317,9 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					J = jacobian(motores);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
+					for(int i=0;i<motores.size();i++)
+						if(motores[i] == 1)
+							projector0(i,i) = 0.f;
 				}
 				
 				else
@@ -353,14 +365,30 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	target.setError((error).norm2());
 	target.setErrorVector(error);
 	target.setFinalAngles(angulos);
-	qDebug() << "---OUT-----------------------------------------------------------";
-	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
-	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
-	
-	angulos.print("angulos");
-qDebug() << "-----------------------------------------------------------------";
+// 	qDebug() << "---OUT-----------------------------------------------------------";
+// 	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
+// 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
+// 	
+// 	angulos.print("angulos");
+// qDebug() << "-----------------------------------------------------------------";
 	
 }
+
+QVec Cinematica_Inversa::computeH(const QVec &angs)
+{
+	QVec alfas(angs.size());
+	InnerModelJoint *joint;
+	for(int i=0; i< angs.size(); i++)
+	{
+		joint = dynamic_cast<InnerModelJoint *>(inner->getNode(listaJoints[i]));
+		float mid = (joint->max - joint->min)/2.f;
+		alfas[i] = 0.5*(angs[i] - mid);
+	}
+	return alfas;
+	
+}
+
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE CÁLCULO													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
