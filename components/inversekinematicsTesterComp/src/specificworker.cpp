@@ -217,19 +217,13 @@ void SpecificWorker::enviar()
 {
 	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una trayectoria o una
 	// pose suelta de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
-	if(pestanias->currentIndex()==0)
+	banderaRCIS = true;
+	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
 	{
-		if(banderaTrayectoria == true)
-		{
-			banderaRCIS = true;
-		}
-		else
-		{
-			QVec p = QVec(6);
-			p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
-			p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
-			enviarPose6D(p);
-		}
+		QVec p = QVec(6);
+		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
+		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
+		enviarPose6D(p);
 	}
 
 	// Estamos en la segunda pestaña: Axis Align. Enviamos target

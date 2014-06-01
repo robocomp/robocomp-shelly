@@ -374,7 +374,7 @@ void Cinematica_Inversa::levenbergMarquardt2(Target &target)
 	// VARIABLES:
 	int k=0, v=2, auxInt; //iterador, variable para descenso y un entero auxiliar
 	QVec incrementos(this->listaJoints.size()), aux; //vector de incrementos y vector auxiliar para guardar cambios
-	QVec nullSpaceInc;
+	Eigen::Matrix<float,7,1> nsIncs;
 	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
 	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
@@ -398,34 +398,41 @@ void Cinematica_Inversa::levenbergMarquardt2(Target &target)
 		do{
 			try
 			{
-				//projector = J.transpose() * ((J*J.transpose()).invert()) * J;	
-				//nullSpaceInc = projector * computeH(angulos);
-				//nullSpaceInc.print("nullspace");
-// 				for(int i=0; i<nullSpaceInc.size(); i++)
-// 				if( isnan(nullSpaceInc[i]))
-// 				{
-// 					nullSpaceInc.set(0);
-// 					break;
-// 				}
+				Eigen::Matrix<float,6,Eigen::Dynamic> nj = Eigen::Map<Eigen::Matrix<float,6,7, Eigen::RowMajor> >(J.getWriteData());
+				Eigen::JacobiSVD<Eigen::Matrix<float,6,Eigen::Dynamic> >svdNS(nj, Eigen::ComputeThinU | Eigen::ComputeThinV);
+				cout << "Its singular values are:" << endl << svdNS.singularValues() << endl;
+				Eigen::Matrix<float,7,7> ns = Eigen::Matrix<float,7,7>::Zero();
+				
+				for(int i=0; i<svdNS.singularValues().size(); i++)
+					if(svdNS.singularValues()(i) > 1E-3)
+						ns += svdNS.matrixV().col(i) * svdNS.matrixV().col(i).transpose();
+				Eigen::Matrix<float,7,7> proy = Eigen::Matrix<float,7,7>::Identity(7,7) - ns; 
+				//Eigen::Matrix<float,7,1> alfa = Eigen::Matrix<float,7,1>::Constant(0.2);
+				
+				Eigen::Matrix<float,7,Eigen::Dynamic> alfas = Eigen::Map<Eigen::Matrix<float,7,1> >(computeH(angulos).getWriteData());
+				cout << "proy " << proy << endl;			
+				nsIncs = proy * alfas;
+				computeH(angulos).print("H");
+				cout << "NSIncs " << nsIncs << endl;
 			}
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION IN H"; }
-			try 
+			try    //Solve NORMAL equations using two-sided Jacobi R-SVD decomposition
 			{
 				Eigen::Matrix<float,7,Eigen::Dynamic> md = Eigen::Map<Eigen::Matrix<float,7,7, Eigen::RowMajor> >((H+(Identidad*n)).getWriteData());
+	
 				Eigen::JacobiSVD<Eigen::Matrix<float,7,Eigen::Dynamic> >svd(md, Eigen::ComputeThinU | Eigen::ComputeThinV);
 				cout << "Its singular values are:" << endl << svd.singularValues() << endl;
 				cout << "Its left singular vectors are the columns of the thin U matrix:" << endl << svd.matrixU() << endl;
 				cout << "Its right singular vectors are the columns of the thin V matrix:" << endl << svd.matrixV() << endl;
 				
 				Eigen::Matrix<float,7,Eigen::Dynamic> rhs = Eigen::Map<Eigen::Matrix<float,7,1> >(g.getWriteData());
+		
 				cout << "Now consider this rhs vector:" << endl << rhs << endl;
 				cout << "A least-squares solution of m*x = rhs is:" << endl << svd.solve(rhs) << endl;
-				Eigen::Map<Eigen::Matrix<float,7,1> >(incrementos.getWriteData(),7,1) = svd.solve(rhs);
-				incrementos.print("incrementos after");
-				
-//				incrementos = (H + (Identidad*n)).invert() * g;   ///// -------- SVD should be used here instead of direct inversion
-//				incrementos = incrementos + nullSpaceInc;
-				//incrementos.print("incrementos");
+				Eigen::Matrix<float,7,Eigen::Dynamic> suma = svd.solve(rhs) + nsIncs;
+				Eigen::Map<Eigen::Matrix<float,7,1> >(incrementos.getWriteData(),7,1) = suma;
+				incrementos.print("incrementos");
+// 				qFatal("fary");
 				for(int i=0; i<incrementos.size(); i++)
 					if(isnan(incrementos[i])) 													///NAN increments
 					{
