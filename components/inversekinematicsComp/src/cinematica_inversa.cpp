@@ -85,6 +85,8 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 		levenbergMarquardt(target);
+		
+	
 	
 	target.setElapsedTime(target.getRunTime().elapsed());
 }
@@ -267,23 +269,9 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	{
 		k++;
 		do{
-			try
-			{
-				projector = J.transpose() * ((J*J.transpose()).invert()) * J;	
-				nullSpaceInc = projector * computeH(angulos);
-				nullSpaceInc.print("nullspace");
-// 				for(int i=0; i<nullSpaceInc.size(); i++)
-// 				if( isnan(nullSpaceInc[i]))
-// 				{
-// 					nullSpaceInc.set(0);
-// 					break;
-// 				}
-			}
-			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION IN H"; }
 			try 
 			{
 				incrementos = (H + (Identidad*n)).invert() * g;   ///// -------- SVD should be used here instead of direct inversion
-//				incrementos = incrementos + nullSpaceInc;
 				//incrementos.print("incrementos");
 				for(int i=0; i<incrementos.size(); i++)
 					if(isnan(incrementos[i])) 													///NAN increments
@@ -374,6 +362,158 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	
 }
 
+
+void Cinematica_Inversa::levenbergMarquardt2(Target &target)
+{
+	//qDebug()<<"\n--ALGORITMO DE LEVENBERG-MARQUARDT --\n";
+	//e3 = 10
+	const float e1 = 0.0001, e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
+	const int kMax = 100;
+	const QMat Identidad = QMat::identity(this->listaJoints.size());
+	
+	// VARIABLES:
+	int k=0, v=2, auxInt; //iterador, variable para descenso y un entero auxiliar
+	QVec incrementos(this->listaJoints.size()), aux; //vector de incrementos y vector auxiliar para guardar cambios
+	QVec nullSpaceInc;
+	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
+	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
+	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
+	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
+	QMat J = jacobian(motores);
+	QMat H = J.transpose()*(We*J);			
+	QMat projector0 = Identidad;
+	QMat projector = Identidad;
+	
+	QVec g = J.transpose()*(error);		
+	bool stop = (g.maxAbs(auxInt) <= e1);
+	bool smallInc = false;
+	bool nanInc = false;
+	float ro = 0; 
+	float n = t*H.getDiagonal().max(auxInt); 
+	typedef Eigen::Matrix<float,6,Eigen::Dynamic> EJ;
+	
+	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
+	{
+		k++;
+		do{
+			try
+			{
+				//projector = J.transpose() * ((J*J.transpose()).invert()) * J;	
+				//nullSpaceInc = projector * computeH(angulos);
+				//nullSpaceInc.print("nullspace");
+// 				for(int i=0; i<nullSpaceInc.size(); i++)
+// 				if( isnan(nullSpaceInc[i]))
+// 				{
+// 					nullSpaceInc.set(0);
+// 					break;
+// 				}
+			}
+			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION IN H"; }
+			try 
+			{
+				Eigen::Matrix<float,7,Eigen::Dynamic> md = Eigen::Map<Eigen::Matrix<float,7,7, Eigen::RowMajor> >((H+(Identidad*n)).getWriteData());
+				Eigen::JacobiSVD<Eigen::Matrix<float,7,Eigen::Dynamic> >svd(md, Eigen::ComputeThinU | Eigen::ComputeThinV);
+				cout << "Its singular values are:" << endl << svd.singularValues() << endl;
+				cout << "Its left singular vectors are the columns of the thin U matrix:" << endl << svd.matrixU() << endl;
+				cout << "Its right singular vectors are the columns of the thin V matrix:" << endl << svd.matrixV() << endl;
+				
+				Eigen::Matrix<float,7,Eigen::Dynamic> rhs = Eigen::Map<Eigen::Matrix<float,7,1> >(g.getWriteData());
+				cout << "Now consider this rhs vector:" << endl << rhs << endl;
+				cout << "A least-squares solution of m*x = rhs is:" << endl << svd.solve(rhs) << endl;
+				Eigen::Map<Eigen::Matrix<float,7,1> >(incrementos.getWriteData(),7,1) = svd.solve(rhs);
+				incrementos.print("incrementos after");
+				
+//				incrementos = (H + (Identidad*n)).invert() * g;   ///// -------- SVD should be used here instead of direct inversion
+//				incrementos = incrementos + nullSpaceInc;
+				//incrementos.print("incrementos");
+				for(int i=0; i<incrementos.size(); i++)
+					if(isnan(incrementos[i])) 													///NAN increments
+					{
+						nanInc = true;
+						target.setStatus(Target::NAN_INCS);
+						break;
+					}
+				if(nanInc == true) break;
+			}
+			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
+			
+			if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))   ///Too small increments
+			{
+				stop = true;
+				smallInc = true; 
+				target.setStatus(Target::LOW_INCS);
+ 				//qDebug()<< __FUNCTION__ << "Increments too small" << incrementos << "in iter" << k;
+				break;
+			}
+			else
+			{
+				aux = angulos-incrementos; 
+				calcularModuloFloat(aux, 2*M_PI); // NORMALIZAMOS
+
+				if(outLimits(aux, motores) == true)		///COMPROBAR SI QUEDAN MOTORES LIBRES, SINO SALIR!!!!!!!!!!!
+				{
+					//qDebug()<<"FUERA DE LOS LIMITES";
+					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
+					// puesto que NO aplicamos los cambios (los ángulos nuevos).
+					J = jacobian(motores);
+					H = J.transpose()*(We*J);
+					g = J.transpose()*(error);
+					for(int i=0;i<motores.size();i++)
+						if(motores[i] == 1)
+							projector0(i,i) = 0.f;
+				}
+				
+				else
+				{
+					motores.set((T)0);
+					actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
+					ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
+					
+					//qDebug() << __FUNCTION__ << "ro" << ro << "error anterior" << (We*error).norm2() << "error actual" << (We*calcularVectorError()).norm2();
+					
+					if(ro > 0)
+					{
+						// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo. 
+						stop = ((error).norm2() - (We*computeErrorVector(target)).norm2()) < e4*(error).norm2();
+						//qDebug()<<"HAY MEJORA ";
+						angulos = aux;
+						// Recalculamos con nuevos datos.
+						error = computeErrorVector(target);						
+						J = jacobian(motores);
+						H = J.transpose()*(We*J);
+						g = J.transpose()*(error);
+		
+						stop = (stop) or (g.maxAbs(auxInt)<=e1);
+						n = n * std::max(1.f/3.f, (float)(1.f-pow(2*ro - 1,3)));		
+						v=2;
+					}
+					else
+					{
+						//qDebug() << __FUNCTION__ << __LINE__ << "NO IMPROVEMENT";
+						actualizarAngulos(angulos); //volvemos a los ángulos viejos.
+						n = n*v;
+						v= 2*v;
+					}
+				}//fin else dentro límites
+			}//fin else incrementos no despreciables.
+		}while(ro<=0 and stop==false);
+		stop = error.norm2() <= e3;
+	}
+	if ( stop == true) target.setStatus(Target::LOW_ERROR);
+	else if ( k>=kMax) target.setStatus(Target::KMAX);
+	else if ( smallInc == true) target.setStatus(Target::LOW_INCS);
+	else if ( nanInc == true) target.setStatus(Target::NAN_INCS);
+	target.setError((error).norm2());
+	target.setErrorVector(error);
+	target.setFinalAngles(angulos);
+// 	qDebug() << "---OUT-----------------------------------------------------------";
+// 	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
+// 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
+// 	
+// 	angulos.print("angulos");
+// qDebug() << "-----------------------------------------------------------------";
+	
+}
 QVec Cinematica_Inversa::computeH(const QVec &angs)
 {
 	QVec alfas(angs.size());

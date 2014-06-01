@@ -100,6 +100,7 @@ void SpecificWorker::init()
 		goHome(p.getPartName().toStdString());
 	sleep(1);
 	actualizarInnermodel(listaMotores);
+	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
 		
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
@@ -129,14 +130,8 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 {	
 	const  float FACTOR = 1000.f;
 
-	//InnerModelTouchSensor *touch;
 	InnerModelMesh *mesh;
-	//InnerModelPointCloud *pointcloud;
 	InnerModelPlane *plane;
-	//InnerModelCamera *camera;
-	//InnerModelRGBD *rgbd;
-	//InnerModelIMU *imu;
-	//InnerModelLaser *laser;
 	InnerModelTransform *transformation;
 	InnerModelJoint *joint;
 	

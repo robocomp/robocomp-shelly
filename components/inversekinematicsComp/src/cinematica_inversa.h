@@ -43,6 +43,7 @@
 #include <innermodel/innermodelviewer.h>
 #include "target.h"
 #include <osgviewer/osgview.h>
+#include <eigen3/Eigen/SVD>
 
 using namespace std;
 
@@ -71,6 +72,7 @@ private:
 	QMat jacobian(QVec motores);				// devuelve la matriz jacobiana de la función.
 	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
+	void levenbergMarquardt2(Target &target); //alternative implementaiton
 
 	//_-----------------------------------------------------------------------------
 		
