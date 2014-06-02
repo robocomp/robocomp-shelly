@@ -18,6 +18,7 @@
  */
  
 #include "specificworker.h"
+#include <qt4/QtCore/QMutexLocker>
 
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
@@ -104,7 +105,8 @@ void SpecificWorker::init()
 		
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
-		
+	
+	
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
 // 	qDebug("Planning ...");
@@ -150,13 +152,11 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 	}
 	else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
 	{
-		plane->print(true);
 		plane->point = plane->normal / FACTOR;
 		plane->width /= FACTOR; plane->height /= FACTOR; plane->depth /= FACTOR;
 	}
 	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
 	{
-		mesh->print(true);
 		mesh->tx /= FACTOR; mesh->ty /= FACTOR; mesh->tz /= FACTOR;
 		mesh->scalex /= FACTOR; mesh->scaley /= FACTOR; mesh->scalez /= FACTOR;
 	}
@@ -171,14 +171,16 @@ SpecificWorker::~SpecificWorker()
 	fichero.close();
 }
 
-void SpecificWorker::compute( )
+void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
 {
 		QMap<QString, BodyPart>::iterator iterador;
 		for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
 		{
 			if(iterador.value().getListaTargets().isEmpty() == false)
 			{
-				Target &target = iterador.value().getHeadFromListaTargets(); 		//DEBERIA PODER SER UNA REFERENCIA
+				Target &target = iterador.value().getHeadFromListaTargets(); 	
+// 				target.getSubtargets().last().print("last");
+// 				target.getPose().print("target");
 				target.print("BEFORE PROCESSING");
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
@@ -235,11 +237,8 @@ void SpecificWorker::removeInnerModelTarget(const Target& target)
  */
 void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights)
 {
-
-	QString partName;
-	if ( this->bodyParts.contains(QString::fromStdString(bodyPart)))
-		partName = QString::fromStdString(bodyPart);
-	else
+	QString partName = QString::fromStdString(bodyPart);
+	if ( this->bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		RoboCompBodyInverseKinematics::BIKException ex;
@@ -283,11 +282,9 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
  */
 void SpecificWorker::pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& axis, bool axisConstraint, float axisAngleConstraint)
 {
-	QString partName;
+	QString partName = QString::fromStdString(bodyPart);
 	BodyPart bodypart;
-	if ( bodyParts.contains(QString::fromStdString(bodyPart)))
-		partName = QString::fromStdString(bodyPart);
-	else
+	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		RoboCompBodyInverseKinematics::BIKException ex;
@@ -331,11 +328,9 @@ void SpecificWorker::pointAxisTowardsTarget(const string& bodyPart, const Pose6D
  */
 void SpecificWorker::advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist)
 {
-	QString partName;
+	QString partName = QString::fromStdString(bodyPart);
 	BodyPart bodypart;
-	if ( bodyParts.contains(QString::fromStdString(bodyPart)))
-		partName = QString::fromStdString(bodyPart);
-	else
+	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		RoboCompBodyInverseKinematics::BIKException ex;
@@ -408,11 +403,9 @@ void SpecificWorker::setFingers(float d)
  */
 void SpecificWorker::goHome(const string& part)
 {
-	QString partName;
+	QString partName = QString::fromStdString(part);
 	BodyPart bodypart;
-	if ( bodyParts.contains(QString::fromStdString(part)))
-		partName = QString::fromStdString(part);
-	else
+	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		RoboCompBodyInverseKinematics::BIKException ex;
@@ -461,9 +454,37 @@ void SpecificWorker::setRobot(const int t)
 }
 
 
-RoboCompBodyInverseKinematics::State SpecificWorker::getState()
+/**
+ * @brief 
+ * 
+ * @param part ...
+ * @return RoboCompBodyInverseKinematics::State
+ */
+TargetState SpecificWorker::getState(const std::string &part)
 {
+	TargetState state;
+	QString partName = QString::fromStdString(part);
+	BodyPart bodypart;
+	if ( bodyParts.contains(partName) == false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	else
+	{
+// 		qDebug() << "----------------------------------------";
+// 		qDebug() << "get State" << partName;
 
+		mutex->lock();
+		if( bodyParts[partName].getListaTargets().isEmpty() )
+			state.finish = true;
+		else
+			state.elapsedTime = bodyParts[partName].getHeadFromListaTargets().getElapsedTime();
+		mutex->unlock();
+	}
+	return state;	
 }
 
 
@@ -518,7 +539,7 @@ void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 			RoboCompJointMotor::MotorGoalPosition nodo;
 			nodo.name = listaJoints.at(i).toStdString();			
 			nodo.position = angles[i]; // posición en radianes
-			nodo.maxSpeed = 5; //radianes por segundo TODO Bajar velocidad.
+			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 			proxy->setPosition(nodo);	
 		} catch (const Ice::Exception &ex) {
 			cout<<"Excepción en mover Brazo: "<<ex<<endl;	

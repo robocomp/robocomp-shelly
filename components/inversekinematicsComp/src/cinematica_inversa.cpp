@@ -87,8 +87,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	else  //POSE6D
 		levenbergMarquardt(target);
 		
-	
-	
 	target.setElapsedTime(target.getRunTime().elapsed());
 }
 
@@ -216,7 +214,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		
 	}
 	
-	qDebug() << __FUNCTION__ << errorTotal;
+	//qDebug() << __FUNCTION__ << errorTotal;
 	return errorTotal;
 }
 

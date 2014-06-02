@@ -56,8 +56,8 @@ void BodyInverseKinematicsI::setRobot(Ice::Int type, const Ice::Current&){
 	worker->setRobot(type);
 }
 
-State BodyInverseKinematicsI::getState(const Ice::Current&){
-	return worker->getState();
+TargetState BodyInverseKinematicsI::getState(const string& part, const Ice::Current&){
+	return worker->getState(part);
 }
 
 

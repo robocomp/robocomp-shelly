@@ -168,6 +168,16 @@ void SpecificWorker::compute( )
 	imv->update();
 	osgView->frame();
 	
+// 	try
+// 	{ 
+// 		TargetState state = bodyinversekinematics_proxy->getState("RIGHTARM"); 
+// 		if(state.finish == false)
+// 			qDebug() << "Target elapsed time" << state.elapsedTime;
+// 	}
+// 	catch(const Ice::Exception &ex)
+// 	{ std::cout << "Warning! BIK not responding" << std::endl; };
+// 	
+// 	
 	if ( reloj.elapsed() > 3000)
 	{
 		try{ bodyinversekinematics_proxy->ice_ping(); }
