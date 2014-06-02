@@ -20,6 +20,8 @@
 #define SPECIFICWORKER_H
 
 #include <genericworker.h>
+#include <rcdraw/rcdraw.h>
+#include <qt4/Qt/qframe.h>
 
 /**
        \brief
@@ -83,6 +85,19 @@ private:
   //Specific RCIS Update
   void RCIS_update_object(RoboCompAGMWorldModel::Node &node);
   void updateRCISModel(const RoboCompAGMWorldModel::Event& modification);
+  
+  //show media image
+	RoboCompRGBD::TRGBDParams rgbdParams;
+	QFrame *frameRGB;
+	RCDraw *viewer;
+	QImage *qimage;
+	RoboCompRGBD::imgType img0, img1;
+	RoboCompRGBD::depthType depth0, depth1;
+
+	RoboCompJointMotor::MotorStateMap hState;
+	RoboCompDifferentialRobot::TBaseState bState;  
+	void media();
+	
   
 };
 

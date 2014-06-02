@@ -3,8 +3,8 @@ import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
 import "/robocomp/interfaces/IDSLs/AGMCommonBehavior.idsl";
 import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
 import "/robocomp/interfaces/IDSLs/InnerModelManager.idsl";
+import "/robocomp/interfaces/IDSLs/RGBD.idsl"
 
-import "/robocomp/interfaces/IDSLs/RGBD.idsl";
 
 Component modelRendererComp
 {
@@ -12,7 +12,7 @@ Component modelRendererComp
 	{
 		requires InnerModelManager, AGMExecutive, RGBD, RGBD;
 		implements AGMCommonBehavior;
-		subscribesTo AGMExecutiveTopic;
+		subscribesTo AGMExecutiveTopic;	
 		
 	};
 	language Cpp;
