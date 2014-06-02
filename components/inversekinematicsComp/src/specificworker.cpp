@@ -141,7 +141,7 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 		{
 			transformation->setTr(transformation->getTr() / FACTOR);
 		}
-		qDebug() << node->id << node->getTr();
+		//qDebug() << node->id << node->getTr();
 		for(int i=0; i<node->children.size(); i++)
 		{
 			convertInnerModelFromMilimetersToMeters(node->children[i]);
