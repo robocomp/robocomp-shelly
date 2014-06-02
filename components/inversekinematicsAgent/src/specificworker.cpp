@@ -563,7 +563,7 @@ void SpecificWorker::ajusteFino()
 		printf("right wrist position is not set yet... aborting\n");
 		return;
 	}
-
+	//both are in the world coordinate system
 	QVec targetT = QVec::vec3(tx,  ty , tz);
 	QVec wristT  = QVec::vec3(txw, tyw, tzw);
 	QVec poseTr = targetT - wristT;

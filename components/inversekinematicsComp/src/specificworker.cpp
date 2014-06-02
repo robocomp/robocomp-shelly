@@ -69,9 +69,9 @@ void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaBrazoDerecho /*<<"base"*/ << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
-	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
+	listaMotores  << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
 				<<"leftWrist2"<< "base" << "head1" << "head2" << "head3"; 
 	
@@ -457,6 +457,12 @@ void SpecificWorker::setRobot(const int t)
 	else if (this->typeR == 1)
 		proxy = jointmotor1_proxy;
 	mutex->unlock();
+}
+
+
+RoboCompBodyInverseKinematics::State SpecificWorker::getState()
+{
+
 }
 
 

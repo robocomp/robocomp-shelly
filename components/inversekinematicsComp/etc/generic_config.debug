@@ -5,6 +5,7 @@
 #
 BodyInverseKinematicsComp.Endpoints=tcp -p 10220
 CommonBehavior.Endpoints=tcp -p 12207
+
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 

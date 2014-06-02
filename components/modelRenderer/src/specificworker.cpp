@@ -29,6 +29,24 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	worldModel = AGMModel::SPtr(new AGMModel());
 	initialized = false;
 	initial_broadcast=false;
+
+	try
+	{
+		rgbdParams =rgbd0_proxy->getRGBDParams();
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"Error talking to rgbd"<<e.what();  		
+	}
+	qDebug()<<rgbdParams.color.height<<"ue";
+	qDebug()<<rgbdParams.color.width<<"ue";
+	qimage = new QImage(640,480,QImage::Format_RGB888);
+	frameRGB = new QFrame();
+	frameRGB->setFrameRect(QRect(0,0,640,480) );	
+	viewer = new RCDraw(640,480,qimage,frameRGB);
+	
+	frameRGB->show();
+		
 }
 
 /**
@@ -41,8 +59,11 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-  if (!initial_broadcast)
-	 agmexecutive_proxy -> broadcastModel();
+	qDebug()<<"runn";
+	media();
+//   if (!initial_broadcast)
+// 	 agmexecutive_proxy -> broadcastModel();
+
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -439,4 +460,35 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 	}
 }
 
+void SpecificWorker::media()
+{
+
+	RoboCompRGBD::DepthSeq depth;
+	try 
+	{
+		rgbd0_proxy->getData(img0, depth0, hState, bState);
+		rgbd1_proxy->getData(img1, depth1, hState, bState);
+		for(int i=0; i<640*480*3; i++)
+		{
+			 img0[i] = (img0[i] + img1[i])/2;
+		}
+// 		rgbd0_proxy->getDepth(depth,hState,bState);
+		memcpy(qimage->bits(),&img0[0], 640*480*3);
+		
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"rgd0_proxy->getDepth, Error talking to RGBD: "<<e.what();
+	}
+	
+	try
+	{
+		qDebug()<<"focal"<<rgbd0_proxy->getRGBDParams().color.focal;
+	}
+	catch(Ice::Exception e)
+	{
+		qDebug()<<"rgbd0_proxy->getRGBDParams()"<<e.what();
+	}
+	viewer->update();
+}
 

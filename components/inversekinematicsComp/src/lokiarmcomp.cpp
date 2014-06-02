@@ -111,6 +111,7 @@ void lokiArmComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int lokiArmComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
