@@ -20,6 +20,7 @@
 #define GENERICWORKER_H
 
 // #include <ipp.h>
+#include "config.h"
 #include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
@@ -67,6 +68,7 @@ public:
 	virtual void  setFingers(float d) = 0;
 	virtual void  goHome(const string& part) = 0;
 	virtual void  setRobot(int type) = 0;
+	virtual State getState() = 0;
 protected:
 	QTimer timer;
 	int Period;
