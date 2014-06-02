@@ -343,14 +343,27 @@ void SpecificWorker::stateMachine()
 ///slot
 void SpecificWorker::compute( )
 {
-	
 // 	ajusteFino();
 // 	sleep(2);
 // 	return;
-	
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
+		RoboCompBodyInverseKinematics::Pose6D target;
+		target.x = 0;
+		target.y = 820;
+		target.z = 700;
+		RoboCompBodyInverseKinematics::Axis ax;
+		ax.x = 0;
+		ax.y = -1;
+		ax.z = 0;
+		bool axisConstraint = false;
+		float axisAngleConstraint = 0;
+		printf("%d\n", __LINE__);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget("HEAD", target, ax, axisConstraint, axisAngleConstraint);
+		printf("%d\n", __LINE__);
+		bodyinversekinematics_proxy->goHome("RIGHTARM");
+		printf("%d\n", __LINE__);
 	}
 	else if (action == "graspobject" )
 	{		
@@ -364,9 +377,9 @@ void SpecificWorker::compute( )
 	}
 	else
 	{
-		printf("ignoring this action...\n");
+		printf("ignoring this action (%s)...\n", action.c_str());
 	}
-	stateMachine();
+// 	stateMachine();
 }
 
 void SpecificWorker::slotStop()
