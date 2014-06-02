@@ -467,7 +467,7 @@ void SpecificWorker::media()
 	try 
 	{
 		rgbd0_proxy->getData(img0, depth0, hState, bState);
-		rgbd1_proxy->getData(img1, depth1, hsState, bState);
+		//rgbd1_proxy->getData(img1, depth1, hState, bState);
 // 		rgbd0_proxy->getDepth(depth,hState,bState);
 		memcpy(qimage->bits(),&img0[0], 640*480*3);
 		
