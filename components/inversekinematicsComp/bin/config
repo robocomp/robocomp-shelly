@@ -1,17 +1,17 @@
 #
 # This property is used to configure the endpoints of the subscriber adapter.
 #
-CommonBehavior.Endpoints=tcp -p 12214
+BodyInverseKinematicsComp.Endpoints=tcp -p 10220
+CommonBehavior.Endpoints=tcp -p 12207
 
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 
-InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
-BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
-JointMotorProxy = jointmotor:tcp -h localhost -p 20000
+JointMotor0Proxy = jointmotor:tcp -h localhost -p 20000
+JointMotor1Proxy = jointmotor:tcp -h localhost -p 40000
 
-BIK.InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMMTray.xml
-#BIK.InnerModel=/home/robocomp/robocompOld/Components/Mercedes/lokiArm/etc/ursusM.xml
+
+BIK.InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMMTray.xml
 
 #############################
 ### Ice-related properties ##

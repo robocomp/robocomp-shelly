@@ -43,6 +43,7 @@
 #include <innermodel/innermodelviewer.h>
 #include "target.h"
 #include <osgviewer/osgview.h>
+#include <eigen3/Eigen/SVD>
 
 using namespace std;
 
@@ -69,8 +70,9 @@ private:
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
 	QMat jacobian(QVec motores);				// devuelve la matriz jacobiana de la función.
-	QVec calcularVectorError(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
+	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
+	void levenbergMarquardt2(Target &target); //alternative implementaiton
 
 	//_-----------------------------------------------------------------------------
 		
@@ -84,6 +86,7 @@ private:
 	
 	// DE CONSULTA...
 	bool outLimits(QVec angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
+	QVec computeH(const QVec &angs);
 };
 
 #endif // CINEMATICA_INVERSA_H

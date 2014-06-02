@@ -40,6 +40,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		{
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
+			convertInnerModelFromMilimetersToMeters(innerModel->getRoot());
+			
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;		
 		}
 		else
@@ -66,13 +68,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {	
 	
-	convertInnerModelFromMilimetersToMeters(innerModel->getRoot());
-	
-	
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
-	listaCabeza << "head1" << "head3";
+	listaBrazoDerecho << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaCabeza << "head1" << "head2" << "head3";
 	listaMotores <<"rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
 				<<"leftWrist2"<< "base" << "head1" << "head2" << "head3"; 
@@ -80,7 +79,7 @@ void SpecificWorker::init()
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
-	QString nose = "axesh3";  //OJO PROV
+	QString nose = "head3";  //OJO PROV
 	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
@@ -101,10 +100,10 @@ void SpecificWorker::init()
 		goHome(p.getPartName().toStdString());
 	sleep(1);
 	actualizarInnermodel(listaMotores);
+	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
 		
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
-	
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -121,55 +120,45 @@ void SpecificWorker::init()
 }
 
 
+/**
+ * @brief Transforms all InnerModel in mm to meters
+ * 
+ * @param node starting node of InnerModel
+ * @return void
+ */
 void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* node)
-{
+{	
+	const  float FACTOR = 1000.f;
 
-	InnerModelTouchSensor *touch;
 	InnerModelMesh *mesh;
-	InnerModelPointCloud *pointcloud;
 	InnerModelPlane *plane;
-	InnerModelCamera *camera;
-	InnerModelRGBD *rgbd;
-	InnerModelIMU *imu;
-	InnerModelLaser *laser;
 	InnerModelTransform *transformation;
-
+	InnerModelJoint *joint;
+	
 	// Find out which kind of node are we dealing with
-	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
-	{		
+	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))   //Aquí se incluyen Transform, Joint, PrismaticJoint, DifferentialRobot
+	{	
+		if( (joint = dynamic_cast<InnerModelJoint *>(node)) == false)
+		{
+			transformation->setTr(transformation->getTr() / FACTOR);
+		}
+		qDebug() << node->id << node->getTr();
 		for(int i=0; i<node->children.size(); i++)
 		{
 			convertInnerModelFromMilimetersToMeters(node->children[i]);
 		}
 	}
-	else if ((rgbd = dynamic_cast<InnerModelRGBD *>(node)))
-	{
-	}
-	else if ((camera = dynamic_cast<InnerModelCamera *>(node)))
-	{
-	}
-	else if ((imu = dynamic_cast<InnerModelIMU *>(node)))
-	{
-	}
-	else if ((laser = dynamic_cast<InnerModelLaser *>(node)))
-	{
-	}
 	else if ((plane = dynamic_cast<InnerModelPlane *>(node)))
 	{
-	}
-	else if ((pointcloud = dynamic_cast<InnerModelPointCloud *>(node)))
-	{
+		plane->print(true);
+		plane->point = plane->normal / FACTOR;
+		plane->width /= FACTOR; plane->height /= FACTOR; plane->depth /= FACTOR;
 	}
 	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)))
 	{
-		}
-	else if ((touch = dynamic_cast<InnerModelTouchSensor *>(node)))
-	{
-	}
-	else
-	{
-		qDebug() << "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
-		throw "InnerModelReader::InnerModelReader(): Error: Unknown type of node";
+		mesh->print(true);
+		mesh->tx /= FACTOR; mesh->ty /= FACTOR; mesh->tz /= FACTOR;
+		mesh->scalex /= FACTOR; mesh->scaley /= FACTOR; mesh->scalez /= FACTOR;
 	}
 }		
 
@@ -463,11 +452,11 @@ void SpecificWorker::goHome(const string& part)
 void SpecificWorker::setRobot(const int t)
 {
 	mutex->lock();
-		this->typeR = t;
-		if( this->typeR == 0)
-			proxy = jointmotor0_proxy;
-		else if( this->typeR == 1)
-			proxy = jointmotor1_proxy;
+	this->typeR = t;
+	if (this->typeR == 0)
+		proxy = jointmotor0_proxy;
+	else if (this->typeR == 1)
+		proxy = jointmotor1_proxy;
 	mutex->unlock();
 }
 

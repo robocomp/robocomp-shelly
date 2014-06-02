@@ -10,4 +10,4 @@ BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
 InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
 JointMotorProxy = jointmotor:tcp -h localhost -p 20000
 
-BIK.InnerModel = /home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusM.xml
+BIK.InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMMTray.xml 

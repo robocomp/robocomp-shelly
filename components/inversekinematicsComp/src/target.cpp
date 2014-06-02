@@ -250,7 +250,13 @@ void Target::print(const QString &msg)
 	qDebug() << "	Tip " << tip;
 	qDebug() << "	Activo " << activo;
 	qDebug() << "	Pose6D" << pose6D;
-	qDebug() << "	axis" << axis;
+	if(targetType == ALIGNAXIS)
+		qDebug() << "Axis of the tip to be aligned" << axis;
+	if(targetType == ADVANCEAXIS)
+	{
+		qDebug() << "Axis of the tip to move" << axis;
+		qDebug() << "Distance to advance in m." << step;
+	}
 	qDebug() << "	Weights" << weights;
 	qDebug() << "	Error vector" << errorVector;
 	qDebug() << "	Error vector norm" << error;

@@ -98,7 +98,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Error reading config params");
 	}
-	innerModel = new InnerModel("/home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusM.xml");
 
 	try
 	{
@@ -153,33 +152,30 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  *------------------------------------------------------------------------------------------------------*/ 
 void SpecificWorker::compute( )
 {
+	static QTime reloj = QTime::currentTime();
 	// Si estamos mirando la pestaña número 5 mostramos los límites de los motores.
 	if(pestanias->currentIndex()==5)
 		mostrarDatos();
 	
-	// TODO Si se ha pulsado una trayectoria Y se ha enviado al RCIS o a URSUS mando cada pose de la
-	// trayectoria al enviarPose6D. La trayectoria es una cola, vamos desencolando hasta que este vacia.
-	// Es una solución un poco cutre, pero funciona...
-	if(banderaTrayectoria and banderaRCIS)
+	if((trayectoria.isEmpty() == false)  and banderaRCIS)
 	{
-		
-		try{ bodyinversekinematics_proxy->ice_ping(); }
-		catch(const Ice::Exception &ex)
-		{ std::cout << ex << std::endl; };
-		
-		
-		QVec pose = trayectoria.head();
-		enviarPose6D(pose);
-		trayectoria.dequeue();
-		
-		if(trayectoria.isEmpty())
-		{
-			banderaTrayectoria = banderaRCIS = false;
-		}
+		enviarPose6D( trayectoria.dequeue() );
 	}
+	else
+		banderaRCIS = false;
+	
 	actualizarInnerModel();
 	imv->update();
 	osgView->frame();
+	
+	if ( reloj.elapsed() > 3000)
+	{
+		try{ bodyinversekinematics_proxy->ice_ping(); }
+		catch(const Ice::Exception &ex)
+		{ std::cout << "Warning! BIK not responding" << std::endl; };
+		reloj.restart();
+	}
+	
 }
 
 /*------------------------------------------------------------------------------------------------------*
@@ -221,19 +217,13 @@ void SpecificWorker::enviar()
 {
 	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una trayectoria o una
 	// pose suelta de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
-	if(pestanias->currentIndex()==0)
+	banderaRCIS = true;
+	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
 	{
-		if(banderaTrayectoria == true)
-		{
-			banderaRCIS = true;
-		}
-		else
-		{
-			QVec p = QVec(6);
-			p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
-			p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
-			enviarPose6D(p);
-		}
+		QVec p = QVec(6);
+		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
+		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
+		enviarPose6D(p);
 	}
 
 	// Estamos en la segunda pestaña: Axis Align. Enviamos target
@@ -633,7 +623,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 	try
 	{
 		//colocamos el target en el RCIS. HAY QUE PASAR A METROS LAS TRASLACIONES
-		poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
+		//poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
+		poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
 		moverTargetEnRCIS(poseMetros); 
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)

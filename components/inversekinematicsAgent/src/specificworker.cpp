@@ -349,7 +349,10 @@ void SpecificWorker::compute( )
 // 	return;
 	
 	printf("action: %s\n", action.c_str());
-	if (action == "graspobject" )
+	if (action == "findobjectvisually")
+	{
+	}
+	else if (action == "graspobject" )
 	{		
 // 		if (currenState==STOP )
 // 		{
