@@ -2,6 +2,7 @@
 # This property is used to configure the endpoints of the subscriber adapter.
 #
 AGMCommonBehaviorComp.Endpoints=tcp -p 10240
+
 CommonBehavior.Endpoints=tcp -p 12207
 AGMExecutiveTopicTopic.Endpoints=tcp -p 10243
 
