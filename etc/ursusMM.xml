@@ -483,7 +483,7 @@
 								</joint>
 							</transform>
 						</transform>
-						<!-- Left Arm End-->	
+						<!-- Left Arm End-->
 					
 					</joint> <!-- joint tronco -->
 				</transform> <!-- base tronco -->

@@ -139,8 +139,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en SETPARAMS al tomar datos del robot: "<<ex<<endl;}
 	
-	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
-	qDebug()<<"aki";
+	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
 	timer.start(Period);
 	return true;
 };
