@@ -166,11 +166,10 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		QVec targetInRoot = inner->transform( listaJoints[0], QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
 		
-		inner->transform("world", QVec::zeros(3),target.getNameInInnerModel()).print("target");
-		inner->transform("world", QVec::zeros(3),this->endEffector).print("tip");
+		//inner->transform("world", QVec::zeros(3),target.getNameInInnerModel()).print("target");
+		//inner->transform("world", QVec::zeros(3),this->endEffector).print("tip");
 		
 		errorTraslaciones = targetInRoot - tip;
-		errorTraslaciones.print("errorTraslaciones");
 	
 		// ---> ROTATIONS
  		QMat matriz = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel());
@@ -266,7 +265,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			try 
 			{
 				incrementos = (H + (Identidad*n)).invert() * g;   
-				incrementos.print("incrementos");
+				//incrementos.print("incrementos");
 				for(int i=0; i<incrementos.size(); i++)
 					if(isnan(incrementos[i])) 													///NAN increments
 					{
@@ -283,7 +282,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				stop = true;
 				smallInc = true; 
 				target.setStatus(Target::LOW_INCS);
- 				qDebug()<< __FUNCTION__ << "Increments too small" << incrementos << "in iter" << k;
+ 				//qDebug()<< __FUNCTION__ << "Increments too small" << incrementos << "in iter" << k;
 				break;
 			}
 			else
@@ -293,7 +292,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 
 				if(outLimits(aux, motores) == true)		///COMPROBAR SI QUEDAN MOTORES LIBRES, SINO SALIR!!!!!!!!!!!
 				{
-					qDebug()<<"FUERA DE LOS LIMITES";
+					//qDebug()<<"FUERA DE LOS LIMITES";
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
 					J = jacobian(motores);
@@ -307,13 +306,13 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
 					ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
 					
-					qDebug() << __FUNCTION__ << "ro" << ro << "error anterior" << (We*error).norm2() << "error actual" << (We*computeErrorVector(target)).norm2();
+					//qDebug() << __FUNCTION__ << "ro" << ro << "error anterior" << (We*error).norm2() << "error actual" << (We*computeErrorVector(target)).norm2();
 					
 					if(ro > 0)
 					{
 						// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo. 
 						stop = ((error).norm2() - (We*computeErrorVector(target)).norm2()) < e4*(error).norm2();
-						qDebug()<<"HAY MEJORA ";
+						//qDebug()<<"HAY MEJORA ";
 						angulos = aux;
 						// Recalculamos con nuevos datos.
 						error = We*computeErrorVector(target);						
@@ -327,7 +326,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					}
 					else
 					{
-						qDebug() << __FUNCTION__ << __LINE__ << "NO IMPROVEMENT";
+						//qDebug() << __FUNCTION__ << __LINE__ << "NO IMPROVEMENT";
 						actualizarAngulos(angulos); //volvemos a los ángulos viejos.
 						n = n*v;
 						v= 2*v;
@@ -346,7 +345,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	target.setFinalAngles(angulos);
 // 	qDebug() << "---OUT-----------------------------------------------------------";
 // 	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
- 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
+// 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
 // 	
 // 	angulos.print("angulos");
 // qDebug() << "-----------------------------------------------------------------";
@@ -609,7 +608,7 @@ bool Cinematica_Inversa::outLimits(QVec angulos, QVec &motores)
 		{
 			noSupera = false;
 			motores[i] = 1;
-			qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
+			//qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
 		}
 	}
 	
