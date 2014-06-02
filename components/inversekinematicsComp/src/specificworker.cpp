@@ -66,8 +66,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  * @return void
  */
 void SpecificWorker::init()
-{	
-	
+{
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
 	listaBrazoDerecho << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";

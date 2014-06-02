@@ -11,7 +11,7 @@ JointMotor0Proxy = jointmotor:tcp -h localhost -p 20000
 JointMotor1Proxy = jointmotor:tcp -h localhost -p 40000
 
 
-BIK.InnerModel = /home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusMMTray.xml
+BIK.InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml
 
 #############################
 ### Ice-related properties ##
