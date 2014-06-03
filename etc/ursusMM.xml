@@ -496,9 +496,10 @@
 	<transform id="target" tx="0" ty="900" tz="570">
 		<plane id="C1_6" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
 	</transform>	
+<!--
 	<transform id="mesaT" tx="0" ty="810"  tz="1000" >
 		<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
 	</transform>
-
+-->
 </innerModel>
 

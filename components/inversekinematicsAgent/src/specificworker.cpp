@@ -120,8 +120,8 @@ void SpecificWorker::approachFinger()
 		tz = poseTr(2);
 		RoboCompBodyInverseKinematics::Pose6D target;
 		target.x = tx;
-		target.y = ty-100;
-		target.z = tz;
+		target.y = ty-60;
+		target.z = tz-40;
 		
 // 		rx = ry = rz = 0;
 // 		target.rx = rx-M_PI_2;
