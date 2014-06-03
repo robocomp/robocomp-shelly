@@ -104,48 +104,27 @@ void SpecificWorker::approachFinger()
 // 	//este exec no me convence, mientras estoy haciendo la accion no llamo
 // 	if (exec == true)
 // 		return;
-// 	
+
 	try
 	{
 		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
 		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
 		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
-		float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
-		float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
-		float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-
-		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty, tz), "robot");
-		tx = poseTr(0);
-		ty = poseTr(1);
-		tz = poseTr(2);
-		RoboCompBodyInverseKinematics::Pose6D target;
-		target.x = tx;
-		target.y = ty-60;
-		target.z = tz-40;
+		// float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
+		// float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
+		// float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
+		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty-60, tz-150), "robot");
+		QVec poseWrist = innerModel->transform("world", QVec::vec3(0, 0, 0), "grabPositionHandR");
+		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
 		
-// 		rx = ry = rz = 0;
-// 		target.rx = rx-M_PI_2;
-// 		target.ry = ry;
-// 		target.rz = rz;
-		target.rx = 0;
-		target.ry = 0;
-		target.rz = 0;
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x  = weights.y  = weights.z  = 1;
-		weights.rx = 1;
-		weights.ry = 1;
-		weights.rz = 1;
-		try
-		{
-			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", target.x, target.y, target.z, target.rx, target.ry, target.rz);
-			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
-			exec =true;
-			//timerAutomataApproachFinger.start(5000);
-		}
-		catch (Ice::Exception e)
-		{
-			qDebug()<<"SpecificWorker::approachFinger(): Error talking to bodyinversekinematics_proxy"<<e.what();
-		}
+		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
+		sendRightHandPose(poseTr, QVec::vec3(0,-1,0), QVec::vec3(1,1,1), QVec::vec3(1,1,1));
+		
+		
+// 		saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
+
+		//exec =true;
+		//timerAutomataApproachFinger.start(5000);
 	}
 	catch(AGMModelException &e)
 	{
@@ -355,21 +334,7 @@ void SpecificWorker::compute( )
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
-		RoboCompBodyInverseKinematics::Pose6D target;
-		target.x = 0;
-		target.y = 820;
-		target.z = 500;
-		RoboCompBodyInverseKinematics::Axis ax;
-		ax.x = 0;
-		ax.y = -1;
-		ax.z = 0;
-		bool axisConstraint = false;
-		float axisAngleConstraint = 0;
-		printf("%d\n", __LINE__);
-		bodyinversekinematics_proxy->pointAxisTowardsTarget("HEAD", target, ax, axisConstraint, axisAngleConstraint);
-		printf("%d\n", __LINE__);
-		bodyinversekinematics_proxy->goHome("RIGHTARM");
-		printf("%d\n", __LINE__);
+		saccadic3D(0, 820, 500, 0, -1, 0);
 		return;
 	}
 	else if (action == "graspobject" )
@@ -591,4 +556,72 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
+
+void SpecificWorker::sendRightHandPose(QVec t, QVec r, QVec wt, QVec wr)
+{
+	sendRightHandPose(t, r, wt(0), wt(1), wt(2), wr(0), wr(1), wr(2));
+}
+
+void SpecificWorker::sendRightHandPose(QVec t, QVec r, float wtx, float wty, float wtz, float wrx, float wry, float wrz)
+{
+	sendRightHandPose(t(0), t(1), t(2), r(0), r(1), r(2), wtx, wty, wtz, wrx, wry, wrz);
+}
+
+void SpecificWorker::sendRightHandPose(float tx, float ty, float tz, float rx, float ry, float rz, float wtx, float wty, float wtz, float wrx, float wry, float wrz)
+{
+		RoboCompBodyInverseKinematics::Pose6D target;
+		target.x = tx;
+		target.y = ty;
+		target.z = tz;
+		target.rx = rx;
+		target.ry = ry;
+		target.rz = rx;
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = wtx;
+		weights.y = wty;
+		weights.z = wtz;
+		weights.rx = wrx;
+		weights.ry = wry;
+		weights.rz = wrz;
+		try
+		{
+			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+		}
+		catch(...)
+		{
+			printf("IK connection error\n");
+		}
+}
+
+
+void SpecificWorker::saccadic3D(QVec point, QVec axis)
+{
+	saccadic3D(point(0), point(1), point(2), axis(0), axis(1), axis(2));
+}
+
+void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float axy, float axz)
+{
+		RoboCompBodyInverseKinematics::Pose6D targetSight;
+		targetSight.x = tx;
+		targetSight.y = ty;
+		targetSight.z = tz;
+		RoboCompBodyInverseKinematics::Axis axSight;
+		axSight.x = axx;
+		axSight.y = axy;
+		axSight.z = axz;
+		bool axisConstraint = false;
+		float axisAngleConstraint = 0;
+		try
+		{
+			bodyinversekinematics_proxy->pointAxisTowardsTarget("HEAD", targetSight, axSight, axisConstraint, axisAngleConstraint);
+		}
+		catch(...)
+		{
+			printf("IK connection error\n");
+		}
+}
+
+
+		
 
