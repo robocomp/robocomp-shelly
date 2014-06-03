@@ -61,7 +61,7 @@ class SpecificWorker : public GenericWorker
 		void  setFingers(float d);
 		void  goHome(const string& part);
 		void  setRobot(const int type) ;
-		RoboCompBodyInverseKinematics::State getState();
+		TargetState getState(const string &part);
 		
 		
 	public slots:

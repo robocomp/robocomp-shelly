@@ -60,22 +60,24 @@ public:
 	~Target();
 	
 	// MÉTODOS GET:
-	QString getTipName() const							{ return this->tip; }; 				//Devuelve el nombre del TIP.
-	QVec getPose() const 										{ return this->pose6D; }; 			// Devuelve el vector pose del target
-	QTime getStartTime() const 							{ return this->start; }; 			// Devuelve el tiempo del target.
-	bool getActivo() const 									{ return this->activo; };			// Devuelve el estado del target
-	QVec getWeights() const 								{ return this->weights; };
-	TargetType getType() const 							{ return targetType;};
-	bool getAxisConstraint() const 					{ return axisConstraint;};
+	QString getTipName() const					{ return this->tip; }; 				//Devuelve el nombre del TIP.
+	QVec getPose() const 						{ return this->pose6D; }; 			// Devuelve el vector pose del target
+	QTime getStartTime() const 					{ return this->start; }; 			// Devuelve el tiempo del target.
+	bool getActivo() const 						{ return this->activo; };			// Devuelve el estado del target
+	QVec getWeights() const 					{ return this->weights; };
+	TargetType getType() const 					{ return targetType;};
+	bool getAxisConstraint() const 				{ return axisConstraint;};
 	float getAxisAngleConstraint() const		{ return axisAngleConstraint;};
 	QString getNameInInnerModel() const 		{ return nameInInnerModel;};
-	float getError() const 									{ return error;};
-	QVec getAxis() const 										{ return axis;};
-	float getStep() const 									{ return step;};
-	QTime getRunTime() const 								{ return runTime;};
-	FinishStatus getStatus() const 					{ return finish;};
-	QVec getErrorVector() const 						{ return errorVector;};
-	QVec getFinalAngles() const 						{ return finalAngles;};
+	float getError() const 						{ return error;};
+	QVec getAxis() const 						{ return axis;};
+	float getStep() const 						{ return step;};
+	QTime getRunTime() const 					{ return runTime;};
+	int getElapsedTime() const 					{ return runTime.elapsed();};
+	FinishStatus getStatus() const 				{ return finish;};
+	QVec getErrorVector() const 				{ return errorVector;};
+	QVec getFinalAngles() const 				{ return finalAngles;};
+	QQueue<QVec> getSubtargets() const 			{ return subtargets;};
 	
 	
 	// MÉTODOS SET:
@@ -95,7 +97,7 @@ public:
 	
 	
 	// OTROS MÉTODOS
-	void trocearTarget();
+	void chopPath();
 	void print(const QString &msg = QString());
 	
 private:

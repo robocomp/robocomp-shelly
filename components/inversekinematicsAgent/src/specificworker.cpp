@@ -120,15 +120,20 @@ void SpecificWorker::approachFinger()
 		tz = poseTr(2);
 		RoboCompBodyInverseKinematics::Pose6D target;
 		target.x = tx;
-		target.y = ty-50;
-		target.z = tz;
-		target.rx = rx-M_PI_2;
-		target.ry = ry;
-		target.rz = rz;
+		target.y = ty-60;
+		target.z = tz-40;
+		
+// 		rx = ry = rz = 0;
+// 		target.rx = rx-M_PI_2;
+// 		target.ry = ry;
+// 		target.rz = rz;
+		target.rx = 0;
+		target.ry = 0;
+		target.rz = 0;
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x  = weights.y  = weights.z  = 1;
 		weights.rx = 1;
-		weights.ry = 0;
+		weights.ry = 1;
 		weights.rz = 1;
 		try
 		{
@@ -144,7 +149,7 @@ void SpecificWorker::approachFinger()
 	}
 	catch(AGMModelException &e)
 	{
-		printf("I don't know about object %d\n", object);
+		printf("I don't know object %d\n", object);
 	}
 }
 
@@ -346,13 +351,14 @@ void SpecificWorker::compute( )
 // 	ajusteFino();
 // 	sleep(2);
 // 	return;
+	usleep(100000);
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
 		RoboCompBodyInverseKinematics::Pose6D target;
 		target.x = 0;
 		target.y = 820;
-		target.z = 700;
+		target.z = 500;
 		RoboCompBodyInverseKinematics::Axis ax;
 		ax.x = 0;
 		ax.y = -1;
@@ -364,6 +370,7 @@ void SpecificWorker::compute( )
 		printf("%d\n", __LINE__);
 		bodyinversekinematics_proxy->goHome("RIGHTARM");
 		printf("%d\n", __LINE__);
+		return;
 	}
 	else if (action == "graspobject" )
 	{		

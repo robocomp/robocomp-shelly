@@ -79,6 +79,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
+	chopPath();
 }
 
 /**
@@ -106,6 +107,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
+	chopPath();
 }
 
 /**
@@ -131,6 +133,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
+	chopPath();
 }
 
 /*--------------------------------------------------------------------------*
@@ -192,48 +195,48 @@ void Target::setNameInInnerModel(const QString& name)
  * Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
  * permitida. Troceamos con la ecuación  R= (1-Landa)*P + Landa*Q
  */ 
-void Target::trocearTarget()
+void Target::chopPath()
 {
 	
 	//TRASLACIÓN: 
-	QVec traslacionPose = QVec::vec3(pose6D[0], pose6D[1], pose6D[2]); //sacamos la traslación de la pose.
-	QVec traslaciones = (traslacionPose - inner->transform("world", QVec::zeros(3), this->tip));
-	
-	//ROTACIÓN:
-	// Hay que calcular las rotaciones de otra forma. No tenemos actualizado el innerModel para saber cúanto
-	// debe girar el this->tip para alcanzar la rotación del target.
-	// Sacamos las rotaciones del this->tip y restamos rotaciones. Si son iguales la resta da 0.
-	QVec tipEnMundo =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();
-	QVec angulos1 = QVec::vec3(tipEnMundo[0], tipEnMundo[1], tipEnMundo[2]);
-	QVec angulos2 = QVec::vec3(tipEnMundo[3], tipEnMundo[4], tipEnMundo[5]);
+	QVec poseTranslation = pose6D.subVector(0,2); 
+	QVec poseRotation = pose6D.subVector(3,5); 
+	QVec tipInWorld = inner->transform("world", QVec::zeros(3), this->tip);
+	QVec rotTipInWorld =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();
+	QVec angulos1 = rotTipInWorld.subVector(0,2);
+	QVec angulos2 = rotTipInWorld.subVector(3,5);
 	QVec rot;
 	if(angulos1.norm2() < angulos2.norm2())
 		rot = angulos1;
 	else
 		rot = angulos2;
+
+	QVec P(6);
+	P.inject(tipInWorld,0);
+	P.inject(rot,3);
+
+	QVec Q(6);
+	Q.inject(poseTranslation,0);
+	Q.inject(poseRotation,3);
+
+	QVec error = P - Q;		
+
+	///OJO normalizar angulos
 	
-	QVec rotacionPose = QVec::vec3(pose6D[3], pose6D[4], pose6D[5]); 
-	QVec rotaciones = rotacionPose - rot;
-		
-	QVec ambos(6);
-	for(int i=0; i<3; i++)
-	{
-		ambos[i] = traslaciones[i];
-		ambos[i+3] = rotaciones[i];
-	}
-	
-	float dist = ambos.norm2();
+	float dist = error.norm2();
 	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-	if(dist >0.01)
+	const float step = 0.05;
+	if(dist >step)
 	{
-		float Npuntos = dist / 0.01;
-		
-		for(float i=0; i<Npuntos; i++)
+		int NPuntos = floor(dist / step);
+		float interval = 1.0 / NPuntos;
+		T landa = 0.;
+		QVec R(6);
+		for(int i=0; i<=NPuntos; i++)
 		{
-			float landa = 1/(Npuntos) * i;
-			
-			QVec R = inner->transform("world", QVec::zeros(3), this->tip)*(1-landa) + pose6D*landa;
-			subtargets.append(R); //añadimos subtarget a la lista.
+			R = (P * (T)(1.f-landa)) + (Q * landa);
+			subtargets.enqueue(R); //añadimos subtarget a la lista.
+			landa += interval; 
 		}
 	}
 }

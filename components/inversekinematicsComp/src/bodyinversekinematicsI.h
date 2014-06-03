@@ -43,7 +43,8 @@ void  advanceAlongAxis(const string& bodyPart, const Axis& ax, Ice::Float dist, 
 void  setFingers(Ice::Float d, const Ice::Current& = Ice::Current());
 void  goHome(const string& part, const Ice::Current& = Ice::Current());
 void  setRobot(Ice::Int type, const Ice::Current& = Ice::Current());
-RoboCompBodyInverseKinematics::State getState(const Ice::Current& = Ice::Current());
+TargetState getState(const string& part, const Ice::Current& = Ice::Current());
+
 
 	QMutex *mutex;
 private:

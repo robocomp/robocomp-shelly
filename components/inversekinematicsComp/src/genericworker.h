@@ -68,7 +68,7 @@ public:
 	virtual void  setFingers(float d) = 0;
 	virtual void  goHome(const string& part) = 0;
 	virtual void  setRobot(int type) = 0;
-	virtual State getState() = 0;
+	virtual TargetState getState(const string& part) = 0;
 protected:
 	QTimer timer;
 	int Period;

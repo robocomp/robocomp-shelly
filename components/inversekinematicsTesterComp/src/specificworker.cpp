@@ -140,7 +140,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en SETPARAMS al tomar datos del robot: "<<ex<<endl;}
 	
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
-	qDebug()<<"aki";
 	timer.start(Period);
 	return true;
 };
@@ -168,6 +167,16 @@ void SpecificWorker::compute( )
 	imv->update();
 	osgView->frame();
 	
+// 	try
+// 	{ 
+// 		TargetState state = bodyinversekinematics_proxy->getState("RIGHTARM"); 
+// 		if(state.finish == false)
+// 			qDebug() << "Target elapsed time" << state.elapsedTime;
+// 	}
+// 	catch(const Ice::Exception &ex)
+// 	{ std::cout << "Warning! BIK not responding" << std::endl; };
+// 	
+// 	
 	if ( reloj.elapsed() > 3000)
 	{
 		try{ bodyinversekinematics_proxy->ice_ping(); }
