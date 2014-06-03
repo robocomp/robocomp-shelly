@@ -49,14 +49,15 @@ class C(QWidget):
 			pose.rx = -0.13
 			pose.ry = 0.0
 			pose.rz = 0.
+			print pose.x, pose.y, pose.z
 			self.proxy.setPoseFromParent("target", pose)
 
-			pose.x  = 0
-			pose.y  = 800.
-			pose.z  = 850.
-			pose.rx = 0
-			pose.ry = 0
-			pose.rz = 0
-			self.proxy.setPoseFromParent("mesaT", pose)
+			#pose.x  = 0
+			#pose.y  = 800.
+			#pose.z  = 850.
+			#pose.rx = 0
+			#pose.ry = 0
+			#pose.rz = 0
+			#self.proxy.setPoseFromParent("mesaT", pose)
 
 			self.a += 0.04
