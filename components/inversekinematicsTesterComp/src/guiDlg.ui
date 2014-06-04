@@ -71,7 +71,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>0</number>
+        <number>1</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -962,7 +962,17 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QDoubleSpinBox" name="axisAlignRXSB"/>
+                   <widget class="QDoubleSpinBox" name="axisAlignRXSB">
+                    <property name="minimum">
+                     <double>-4.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>4.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -976,7 +986,17 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QDoubleSpinBox" name="axisAlignRYSB"/>
+                   <widget class="QDoubleSpinBox" name="axisAlignRYSB">
+                    <property name="minimum">
+                     <double>-4.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>4.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
@@ -990,7 +1010,17 @@
                    </widget>
                   </item>
                   <item row="0" column="1">
-                   <widget class="QDoubleSpinBox" name="axisAlignRZSB"/>
+                   <widget class="QDoubleSpinBox" name="axisAlignRZSB">
+                    <property name="minimum">
+                     <double>-4.000000000000000</double>
+                    </property>
+                    <property name="maximum">
+                     <double>4.000000000000000</double>
+                    </property>
+                    <property name="singleStep">
+                     <double>0.100000000000000</double>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </item>
