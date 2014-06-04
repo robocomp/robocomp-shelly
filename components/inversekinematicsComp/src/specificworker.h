@@ -103,7 +103,8 @@ class SpecificWorker : public GenericWorker
 		void convertInnerModelFromMilimetersToMeters(InnerModelNode* node);
 		
 		// MÉTODOS AUXILIARES:
-		//QVec getRotacionMano(QString puntaMano); //SE PUEDE QUITAR
+		float standardRad(float t);
+		void chopPath(const Target &target);
 		
 		int correlativeID;
 		int typeR;

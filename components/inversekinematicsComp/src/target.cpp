@@ -79,7 +79,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	chopPath();
+	
 }
 
 /**
@@ -107,7 +107,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	chopPath();
+	
 }
 
 /**
@@ -119,7 +119,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
  * @param pose6D ...
  * @param weights ...
  */
-Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, const QVec &pose6D, const QVec& weights)
+Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, const QVec &pose6D, const QVec& weights, bool chop)
 {
 	this->activo = true;
 	this->pose6D = pose6D;
@@ -133,7 +133,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	chopPath();
+	
 }
 
 /*--------------------------------------------------------------------------*
@@ -188,58 +188,68 @@ void Target::setNameInInnerModel(const QString& name)
 	nameInInnerModel = name;
 }
 
-
-
-/*
- * Método TROCEAR TARGET
- * Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
- * permitida. Troceamos con la ecuación  R= (1-Landa)*P + Landa*Q
- */ 
-void Target::chopPath()
-{
-	
-	//TRASLACIÓN: 
-	QVec poseTranslation = pose6D.subVector(0,2); 
-	QVec poseRotation = pose6D.subVector(3,5); 
-	QVec tipInWorld = inner->transform("world", QVec::zeros(3), this->tip);
-	QVec rotTipInWorld =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();
-	QVec angulos1 = rotTipInWorld.subVector(0,2);
-	QVec angulos2 = rotTipInWorld.subVector(3,5);
-	QVec rot;
-	if(angulos1.norm2() < angulos2.norm2())
-		rot = angulos1;
-	else
-		rot = angulos2;
-
-	QVec P(6);
-	P.inject(tipInWorld,0);
-	P.inject(rot,3);
-
-	QVec Q(6);
-	Q.inject(poseTranslation,0);
-	Q.inject(poseRotation,3);
-
-	QVec error = P - Q;		
-
-	///OJO normalizar angulos
-	
-	float dist = error.norm2();
-	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-	const float step = 0.05;
-	if(dist >step)
-	{
-		int NPuntos = floor(dist / step);
-		float interval = 1.0 / NPuntos;
-		T landa = 0.;
-		QVec R(6);
-		for(int i=0; i<=NPuntos; i++)
-		{
-			R = (P * (T)(1.f-landa)) + (Q * landa);
-			subtargets.enqueue(R); //añadimos subtarget a la lista.
-			landa += interval; 
-		}
-	}
-}
+// /**
+//  * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
+//  * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
+//  * 
+//  * @return void
+//  */
+// void Target::chopPath()
+// {
+// 	
+// 	static QVec poseAnt = inner->transform("world", QVec::zeros(3), this->tip);
+// 	
+// 	QVec poseTranslation = pose6D.subVector(0,2);  																						//translation part of target pose
+// 	QVec poseRotation = pose6D.subVector(3,5); 																								//rotation part of target pose
+// 	//QVec tipInWorld = inner->transform("world", QVec::zeros(3), this->tip);										//coor of tip in world
+// 	QVec rotTipInWorld =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();		//orientation of tip in world
+// 	QVec angulos1 = rotTipInWorld.subVector(0,2);																							//shit to select minimun module solution
+// 	QVec angulos2 = rotTipInWorld.subVector(3,5);
+// 	QVec rot;
+// 	if(angulos1.norm2() < angulos2.norm2())
+// 		rot = angulos1;
+// 	else
+// 		rot = angulos2;
+// 
+// 	QVec P(6);
+// 	P.inject(poseAnt,0);
+// 	P.inject(rot,3);
+// 
+// 	QVec Q(6);
+// 	Q.inject(poseTranslation,0);
+// 	Q.inject(poseRotation,3);
+// 
+// 	QVec error = P - Q;		
+// 
+// 	error[3] = standardRad( error[3] );
+// 	error[4] = standardRad( error[4] );
+// 	error[5] = standardRad( error[5] );
+// 	
+// 	
+// 	float dist = error.norm2();
+// 	// Si la distancia es mayor que 1cm troceamos la trayectoria:
+// 	const float step = 0.05;
+// 	
+// 	if(dist >step)
+// 	{
+// 		int NPuntos = floor(dist / step);
+// 		float interval = 1.0 / NPuntos;
+// 		T landa = 0.;
+// 		QVec R(6);
+// 		for(int i=0; i<=NPuntos; i++)
+// 		{
+// 			
+// 			R = (P * (T)(1.f-landa)) + (Q * landa);
+// 			if( targetType == Target::POSE6D )
+// 			{
+// 				Target t(POSE6D, inner, tip, R, weights, false);
+// 				subtargets.enqueue(t); //añadimos subtarget a la lista.
+// 			}
+// 			landa += interval; 
+// 		}
+// 		poseAnt = R;
+// 	}
+// }
 
 void Target::print(const QString &msg)
 {
@@ -279,4 +289,20 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
 	qDebug() << "		Final angles after IK" << finalAngles;
 	qDebug() << "-----TARGET END-----------------";
+}
+
+/**
+ * @brief ...
+ * 
+ * @param t ...
+ * @return float
+ */
+float Target::standardRad(float t)
+{
+	if (t >= 0.) {
+		t = fmod(t+M_PI, M_PI/2.) - M_PI;
+	} else {
+		t = fmod(t-M_PI, -M_PI/2.) + M_PI;
+	}
+	return t;
 }
