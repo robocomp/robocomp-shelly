@@ -338,10 +338,8 @@ void SpecificWorker::stateMachine()
 ///slot
 void SpecificWorker::compute( )
 {
-// 	ajusteFino();
-// 	sleep(2);
-// 	return;
-	usleep(100000);
+	usleep(500000);
+
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{

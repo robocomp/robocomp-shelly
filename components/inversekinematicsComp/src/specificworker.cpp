@@ -59,7 +59,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	init();
 	timer.start(50);
 	return true;
-};
+}
 
 /**
  * @brief Initializing procedures to be done once params are read
@@ -172,6 +172,7 @@ SpecificWorker::~SpecificWorker()
 	fichero.close();
 }
 
+
 void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
 {
 		QMap<QString, BodyPart>::iterator iterador;
@@ -180,22 +181,22 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 			if(iterador.value().getTargets().isEmpty() == false)
 			{
 				Target &target = iterador.value().getHeadFromTargets(); 	
-				target.print("BEFORE PROCESSING");
+// 				target.print("BEFORE PROCESSING");
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
 				
-				if(target.getError()>0.03)
+				if(target.getError()>0.05)
 				{
-					throw RoboCompBodyInverseKinematics::BIKException ("Error demasiado grande");
+// 					throw RoboCompBodyInverseKinematics::BIKException ("Error demasiado grande");
 				}
-				
+				printf("Error: %f\n", target.getError());
 				moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 				usleep(50000);
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
 				removeInnerModelTarget(target);
-				target.print("AFTER PROCESSING");
+// 				target.print("AFTER PROCESSING");
 				
-				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
+// 				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
 				
 				mutex->lock();
 					iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.

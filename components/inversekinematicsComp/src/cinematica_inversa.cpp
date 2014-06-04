@@ -354,14 +354,17 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	
 	target.setError(error.norm2());
 	target.setErrorVector(error);
-	target.setFinalAngles(angulos);
 	
-	// CÓDIGO AÑADIDO: SI EL ERROR CONSEGUIDO ES MAYOR QUE 
+	// Apply new kinematic configuration iif the robot gets to, approximately, the target position
 	// TODO ESTUDIAR: HAY QUE TENER EN CUENTA LOS RADIANES!!!
-	if(error.norm2()>0.03)
+	if(error.norm2()<0.05)
 	{
-		qDebug()<<"\n VAYA MIERDA DE RESULTADO. ME QUEDO COMO ESTABA \n";
-		target.setFinalAngles(angulosOriginales); //no aplicamos cambios
+		target.setFinalAngles(angulos);
+	}
+	else
+	{
+		qDebug()<<"\nCouldn't get to target position.\n";
+		target.setFinalAngles(angulosOriginales);
 	}
 }
 

@@ -60,26 +60,26 @@ public:
 	~Target();
 	
 	// MÉTODOS GET:
-	QString getTipName() const					{ return this->tip; }; 				//Devuelve el nombre del TIP.
-	QVec getPose() const 						    { return this->pose6D; }; 			// Devuelve el vector pose del target
-	QTime getStartTime() const 					{ return this->start; }; 			// Devuelve el tiempo del target.
-	bool getActivo() const 						  { return this->activo; };			// Devuelve el estado del target
-	QVec getWeights() const 					  { return this->weights; };
-	TargetType getType() const 					{ return targetType;};
-	bool getAxisConstraint() const 			{ return axisConstraint;};
-	float getAxisAngleConstraint() const{ return axisAngleConstraint;};
-	QString getNameInInnerModel() const { return nameInInnerModel;};
-	float getError() const 						  { return error;};
-	QVec getAxis() const 						    { return axis;};
-	float getStep() const 						  { return step;};
-	QTime getRunTime() const 					  { return runTime;};
-	int getElapsedTime() const 					{ return runTime.elapsed();};
-	FinishStatus getStatus() const 			{ return finish;};
-	QVec getErrorVector() const 				{ return errorVector;};
-	QVec getFinalAngles() const 				{ return finalAngles;};
-	QQueue<Target> getSubtargets() const{ return subtargets;};
-	Target& getHeadFromSubtargets() 			{ return subtargets.head();};
-	void removeHeadFromSubtargets()			{ subtargets.dequeue();};
+	QString getTipName() const           { return this->tip; }             // Devuelve el nombre del TIP.
+	QVec getPose() const                 { return this->pose6D; }          // Devuelve el vector pose del target
+	QTime getStartTime() const           { return this->start; }           // Devuelve el tiempo del target.
+	bool getActivo() const               { return this->activo; }          // Devuelve el estado del target
+	QVec getWeights() const              { return this->weights; } 
+	TargetType getType() const           { return targetType; }
+	bool getAxisConstraint() const       { return axisConstraint; }
+	float getAxisAngleConstraint() const { return axisAngleConstraint; }
+	QString getNameInInnerModel() const  { return nameInInnerModel; }
+	float getError() const               { return error; }
+	QVec getAxis() const                 { return axis; }
+	float getStep() const                { return step; }
+	QTime getRunTime() const             { return runTime; }
+	int getElapsedTime() const           { return runTime.elapsed(); }
+	FinishStatus getStatus() const       { return finish; }
+	QVec getErrorVector() const          { return errorVector; }
+	QVec getFinalAngles() const          { return finalAngles; }
+	QQueue<Target> getSubtargets() const { return subtargets; }
+	Target& getHeadFromSubtargets()      { return subtargets.head(); }
+	void removeHeadFromSubtargets()      { subtargets.dequeue(); }
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
@@ -88,13 +88,13 @@ public:
 	void setActivo (bool newActivo);	
 	void setWeights(const QVec &weights);
 	void setNameInInnerModel(const QString &name);
-	void setError(float error)							{ this->error = error; };
-	void setStatus(FinishStatus status)			{ finish = status;};
-	void setElapsedTime(ulong e)						{ elapsedTime = e;};
-	void setRunTime(const QTime &t)					{ runTime = t;};
-	void setIter(uint it)										{ iter = it;};
-	void setErrorVector(const QVec &e)			{ errorVector = e;};
-	void setFinalAngles(const QVec &f)			{ finalAngles = f;};
+	void setError(float error)           { this->error = error; }
+	void setStatus(FinishStatus status)  { finish = status; }
+	void setElapsedTime(ulong e)         { elapsedTime = e; }
+	void setRunTime(const QTime &t)      { runTime = t; }
+	void setIter(uint it)                { iter = it; }
+	void setErrorVector(const QVec &e)   { errorVector = e; }
+	void setFinalAngles(const QVec &f)   { finalAngles = f; }
 	
 	
 	// OTROS MÉTODOS
