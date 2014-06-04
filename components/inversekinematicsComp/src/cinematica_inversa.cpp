@@ -31,6 +31,9 @@
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 								CONSTRUCTORES Y DESTRUCTORES												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
+/**
+ * @brief Default Constructor
+ */
 Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_) 
 		:	inner(inner_), listaJoints(joints_), endEffector(endEffector_)
 {
@@ -38,6 +41,9 @@ Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, 
 	
 }
 
+/**
+ * @brief Default Destructor
+ */
 Cinematica_Inversa::~Cinematica_Inversa()
 {
 }
@@ -98,12 +104,18 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE TRASLACIÓN Y ROTACIÓN									   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
-/*
- * Metodo jacobian.
+/**
+ * @brief Metodo jacobian.
  * Crea la matriz jacobiana de la función de cinematica directa con los datos que saca del innerModel. 
  * La va rellenando por columnas, siendo las columnas los motores y las filas la tx, ty, tz, rx, ry y rz.
  * Se le pasa un vector de tantos elementos como motores con los que trabaja. Si hay cero en la posición
  * del motor calcula traslaciones y rotaciones. Si hay un 1 en la posición del motor rellena la columna a 0
+ * 
+ * @param motores es un vector de 0 y 1, con tantos elementos como motores con los que esté trabajando la 
+ * 		  inversa. El 0 significa que el motor NO está bloqueado (calcula la columna del jacobiano asociado
+ * 		  al motor) y el 1 significa que el motor SI está bloqueado, rellenado la columna del jacobiano con 0.
+ * 
+ * @return QMat la matriz jacobiana
  */ 
 QMat Cinematica_Inversa::jacobian(QVec motores)
 {
@@ -142,16 +154,18 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 		}
  		j++;
  	}
-//	jacob.print("JACOBIANO TRASLACIONES y ROTACIONES");
  	return jacob;
 }
 
-/*
- * Metodo calcularVectorError.
+/**
+ * @brief Metodo calcularVectorError.
  * Calcula el vector de error resultante de dos operaciones:
  *		1) la operacion para calcular traslaciones: puntoObjetivo-endEffector.
  * 		2) la operacion para calcular el error de rotaciones.
- * FUNCIONA
+ * 
+ * @param target
+ * 
+ * @return QVec vector de error.
  */ 
 QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 {
@@ -230,12 +244,16 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
  * 				A  + nu*I*Incrementos = g*Ep
  * 
  * @param target ...
+ * 
  * @return void
  */
 void Cinematica_Inversa::levenbergMarquardt(Target &target)
 {
-	//qDebug()<<"\n--ALGORITMO DE LEVENBERG-MARQUARDT --\n";
-	//e3 = 10
+	// CÓDIGO AÑADIDO PARA QUE EL BRAZO NO SE MUEVA SI EL ERROR FINAL ES MAYOR QUE UN UMBRAL
+	// GUARDAMOS LOS ÁNGULOS ORIGINALES PARA PODER VOLVER A LA POSICIÓN ORIGINAL SI EL ERROR
+	// NO NOS CONVIENE (EVITAMOS QUE EL ROBOT HAGO COSAS RARAS):
+	QVec angulosOriginales = calcularAngulos(); 
+	
 	const float e1 = 0.0001, e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
 	const int kMax = 100;
 	const QMat Identidad = QMat::identity(this->listaJoints.size());
@@ -263,9 +281,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			try 
 			{
 				incrementos = (H + (Identidad*n)).invert() * g;   
-				//incrementos.print("incrementos");
 				for(int i=0; i<incrementos.size(); i++)
-					if(isnan(incrementos[i])) 													///NAN increments
+					if(isnan(incrementos[i])) 						///NAN increments
 					{
 						nanInc = true;
 						target.setStatus(Target::NAN_INCS);
@@ -280,7 +297,6 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				stop = true;
 				smallInc = true; 
 				target.setStatus(Target::LOW_INCS);
- 				//qDebug()<< __FUNCTION__ << "Increments too small" << incrementos << "in iter" << k;
 				break;
 			}
 			else
@@ -290,7 +306,6 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 
 				if(outLimits(aux, motores) == true)		///COMPROBAR SI QUEDAN MOTORES LIBRES, SINO SALIR!!!!!!!!!!!
 				{
-					//qDebug()<<"FUERA DE LOS LIMITES";
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
 					J = jacobian(motores);
@@ -303,14 +318,11 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					motores.set((T)0);
 					actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
 					ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
-					
-					//qDebug() << __FUNCTION__ << "ro" << ro << "error anterior" << (We*error).norm2() << "error actual" << (We*computeErrorVector(target)).norm2();
-					
+										
 					if(ro > 0)
 					{
 						// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo. 
 						stop = ((error).norm2() - (We*computeErrorVector(target)).norm2()) < e4*(error).norm2();
-						//qDebug()<<"HAY MEJORA ";
 						angulos = aux;
 						// Recalculamos con nuevos datos.
 						error = We*computeErrorVector(target);						
@@ -324,7 +336,6 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					}
 					else
 					{
-						//qDebug() << __FUNCTION__ << __LINE__ << "NO IMPROVEMENT";
 						actualizarAngulos(angulos); //volvemos a los ángulos viejos.
 						n = n*v;
 						v= 2*v;
@@ -334,20 +345,24 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 		}while(ro<=0 and stop==false);
 		stop = error.norm2() <= e3;
 	}
-	if ( stop == true) target.setStatus(Target::LOW_ERROR);
+	
+	// Metemos información de estado al target
+	if (stop == true) target.setStatus(Target::LOW_ERROR);
 	else if ( k>=kMax) target.setStatus(Target::KMAX);
 	else if ( smallInc == true) target.setStatus(Target::LOW_INCS);
 	else if ( nanInc == true) target.setStatus(Target::NAN_INCS);
-	target.setError((error).norm2());
+	
+	target.setError(error.norm2());
 	target.setErrorVector(error);
 	target.setFinalAngles(angulos);
-// 	qDebug() << "---OUT-----------------------------------------------------------";
-// 	qDebug() << "Error: "<< We*error << "E norm: " << (We*error).norm2();
-// 	qDebug() << "Stop" << stop << ". Ro" << ro << ". K" << k << ". SmallInc" << smallInc << ". NanInc" << nanInc;
-// 	
-// 	angulos.print("angulos");
-// qDebug() << "-----------------------------------------------------------------";
 	
+	// CÓDIGO AÑADIDO: SI EL ERROR CONSEGUIDO ES MAYOR QUE 
+	// TODO ESTUDIAR: HAY QUE TENER EN CUENTA LOS RADIANES!!!
+	if(error.norm2()>0.03)
+	{
+		qDebug()<<"\n VAYA MIERDA DE RESULTADO. ME QUEDO COMO ESTABA \n";
+		target.setFinalAngles(angulosOriginales); //no aplicamos cambios
+	}
 }
 
 
