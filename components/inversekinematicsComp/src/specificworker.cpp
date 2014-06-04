@@ -69,12 +69,14 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho <<"base" << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow"
+			    << "leftForeArm" << "leftWrist1" << "leftWrist2";
+	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"
+			  << "rightForeArm" << "rightWrist1" << "rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
-	listaMotores  << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
-				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
-				<<"leftWrist2"<< "base" << "head1" << "head2" << "head3"; 
+	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm"
+		     << "rightWrist1" <<"rightWrist2" << "leftShoulder1" << "leftShoulder2" << "leftShoulder3"
+		     << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"<< "base" << "head1" << "head2" << "head3";
 	
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
