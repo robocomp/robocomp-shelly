@@ -70,7 +70,7 @@ void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho /*<<"base"*/ << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaBrazoDerecho <<"base" << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
 	listaMotores  << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
@@ -175,11 +175,9 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 		QMap<QString, BodyPart>::iterator iterador;
 		for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
 		{
-			if(iterador.value().getListaTargets().isEmpty() == false)
+			if(iterador.value().getTargets().isEmpty() == false)
 			{
-				Target &target = iterador.value().getHeadFromListaTargets(); 	
-// 				target.getSubtargets().last().print("last");
-// 				target.getPose().print("target");
+				Target &target = iterador.value().getHeadFromTargets(); 	
 				target.print("BEFORE PROCESSING");
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
@@ -192,11 +190,10 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
 				
 				mutex->lock();
-					iterador.value().removeHeadFromListaTargets(); //eliminamos el target resuelto.
+					iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
 				mutex->unlock();
 			}
 	 }
-	 
 	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
 }
 
@@ -263,7 +260,7 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
 	//Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::POSE6D);
-	Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w);
+	Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
 	mutex->lock();
 		bodyParts[partName].addTargetToList(t);
 	mutex->unlock();
@@ -480,10 +477,10 @@ TargetState SpecificWorker::getState(const std::string &part)
 // 		qDebug() << "get State" << partName;
 
 		mutex->lock();
-		if( bodyParts[partName].getListaTargets().isEmpty() )
+		if( bodyParts[partName].getTargets().isEmpty() )
 			state.finish = true;
 		else
-			state.elapsedTime = bodyParts[partName].getHeadFromListaTargets().getElapsedTime();
+			state.elapsedTime = bodyParts[partName].getHeadFromTargets().getElapsedTime();
 		mutex->unlock();
 	}
 	return state;	
@@ -493,6 +490,71 @@ TargetState SpecificWorker::getState(const std::string &part)
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS    PRIVADOS                                *
  *-----------------------------------------------------------------------------*/ 
+
+/**
+ * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
+ * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
+ * 
+ * @return void
+ */
+void SpecificWorker::chopPath(const Target &target)
+{
+		
+	QVec poseTranslation = target.getPose().subVector(0,2);  																						//translation part of target pose
+	QVec poseRotation = target.getPose().subVector(3,5); 																								//rotation part of target pose
+	
+	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
+	
+	QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());										//coor of tip in world
+	QVec rotTipInWorld =  innerModel->getRotationMatrixTo("world", target.getTipName()).extractAnglesR();		//orientation of tip in world
+	QVec angulos1 = rotTipInWorld.subVector(0,2);																							//shit to select minimun module solution
+	QVec angulos2 = rotTipInWorld.subVector(3,5);
+	QVec rot;
+	if(angulos1.norm2() < angulos2.norm2())
+		rot = angulos1;
+	else
+		rot = angulos2;
+
+	QVec P(6);
+	P.inject(tipInWorld,0);
+	P.inject(rot,3);
+
+	QVec Q(6);
+	Q.inject(poseTranslation,0);
+	Q.inject(poseRotation,3);
+
+	QVec error = P - Q;		
+
+	error[3] = standardRad( error[3] );
+	error[4] = standardRad( error[4] );
+	error[5] = standardRad( error[5] );
+	
+	
+	float dist = error.norm2();
+	// Si la distancia es mayor que 1cm troceamos la trayectoria:
+	const float step = 0.05;
+	
+	if(dist >step)
+	{
+		int NPuntos = floor(dist / step);
+		float interval = 1.0 / NPuntos;
+		T landa = 0.;
+		QVec R(6);
+		for(int i=0; i<=NPuntos; i++)
+		{
+			R = (P * (T)(1.f-landa)) + (Q * landa);
+			
+			if( target.getType() == Target::POSE6D )
+			{
+				Target t(Target::POSE6D, innerModel, target.getTipName(), R, target.getWeights(), false);
+				//subtargets.enqueue(t); //añadimos subtarget a la lista.
+			}
+			landa += interval; 
+		}
+	}
+}
+
+
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS    ACTUALIZADORES                          *
  *-----------------------------------------------------------------------------*/ 
@@ -580,6 +642,23 @@ void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS    AUXILIARES                              *
  *-----------------------------------------------------------------------------*/ 
+/**
+ * @brief ...
+ * 
+ * @param t ...
+ * @return float
+ */
+float SpecificWorker::standardRad(float t)
+{
+	if (t >= 0.) {
+		t = fmod(t+M_PI, M_PI/2.) - M_PI;
+	} else {
+		t = fmod(t-M_PI, -M_PI/2.) + M_PI;
+	}
+	return t;
+}
+
+
 /*
  * Método getRotacionMano
  * Devuelve la rotación de la mano del robot

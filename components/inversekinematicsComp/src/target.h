@@ -53,7 +53,7 @@ public:
 	enum FinishStatus { LOW_ERROR, KMAX, LOW_INCS, NAN_INCS, START };
 	
 	Target();
-	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &weights);											// For Pose6D
+	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &weights, bool chop=true);											// For Pose6D
 	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &axis, const QVec &weights);		// For AlingAxis
 	Target(TargetType tt, InnerModel* inner, const QString &tip, const QVec& axis, float step);																	// For ADVANCEALONGAXIS
 
@@ -61,24 +61,25 @@ public:
 	
 	// MÉTODOS GET:
 	QString getTipName() const					{ return this->tip; }; 				//Devuelve el nombre del TIP.
-	QVec getPose() const 						{ return this->pose6D; }; 			// Devuelve el vector pose del target
+	QVec getPose() const 						    { return this->pose6D; }; 			// Devuelve el vector pose del target
 	QTime getStartTime() const 					{ return this->start; }; 			// Devuelve el tiempo del target.
-	bool getActivo() const 						{ return this->activo; };			// Devuelve el estado del target
-	QVec getWeights() const 					{ return this->weights; };
+	bool getActivo() const 						  { return this->activo; };			// Devuelve el estado del target
+	QVec getWeights() const 					  { return this->weights; };
 	TargetType getType() const 					{ return targetType;};
-	bool getAxisConstraint() const 				{ return axisConstraint;};
-	float getAxisAngleConstraint() const		{ return axisAngleConstraint;};
-	QString getNameInInnerModel() const 		{ return nameInInnerModel;};
-	float getError() const 						{ return error;};
-	QVec getAxis() const 						{ return axis;};
-	float getStep() const 						{ return step;};
-	QTime getRunTime() const 					{ return runTime;};
+	bool getAxisConstraint() const 			{ return axisConstraint;};
+	float getAxisAngleConstraint() const{ return axisAngleConstraint;};
+	QString getNameInInnerModel() const { return nameInInnerModel;};
+	float getError() const 						  { return error;};
+	QVec getAxis() const 						    { return axis;};
+	float getStep() const 						  { return step;};
+	QTime getRunTime() const 					  { return runTime;};
 	int getElapsedTime() const 					{ return runTime.elapsed();};
-	FinishStatus getStatus() const 				{ return finish;};
+	FinishStatus getStatus() const 			{ return finish;};
 	QVec getErrorVector() const 				{ return errorVector;};
 	QVec getFinalAngles() const 				{ return finalAngles;};
-	QQueue<QVec> getSubtargets() const 			{ return subtargets;};
-	
+	QQueue<Target> getSubtargets() const{ return subtargets;};
+	Target& getHeadFromSubtargets() 			{ return subtargets.head();};
+	void removeHeadFromSubtargets()			{ subtargets.dequeue();};
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
@@ -97,7 +98,7 @@ public:
 	
 	
 	// OTROS MÉTODOS
-	void chopPath();
+	//void chopPath();
 	void print(const QString &msg = QString());
 	
 private:
@@ -107,7 +108,7 @@ private:
 	bool activo;										// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
 	QVec pose6D; 										// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
 	QVec axis;											// Target axis to be aligned with
-	QQueue<QVec> subtargets;				// Cola de subtargets (trayectorias troceadas) para cada target.
+	QQueue<Target> subtargets;			// Cola de subtargets (trayectorias troceadas) para cada target.
 	InnerModel *inner;							// Innermodel para calcular cosas.
 	QVec weights;										// Pesos para restringir translaciones, rotaciones o ponderar el resultado
 	TargetType targetType;					// 
@@ -123,6 +124,8 @@ private:
 	FinishStatus finish;        		// Enumerated to show finish reason
 	uint iter;											// Number of iterations before completing
 	QVec finalAngles;								// Mercedes lo documenta luego
+	
+	float standardRad(float t);
 };
 
 

@@ -241,9 +241,9 @@
 																				</transform>-->
 
 																			<transform id="grabPositionHandR" tz="50">
-<!-- 																					<plane id="axisx" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" /> -->
-<!-- 																					<plane id="axisy" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" /> -->
-<!-- 																					<plane id="axisz" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" /> -->
+																					<plane id="axisx" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" />
+																					<plane id="axisy" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
+																					<plane id="axisz" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" />
 																			</transform>-->
 	  																			
 																			</joint>
@@ -378,7 +378,7 @@
 																					<plane id="zwl2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				</transform>
 																		-->
-																				<plane id="handleftMesh1" pz="100" ny="1" size="170,170,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
+																				<plane id="handleftMesh1" pz="100" ny="1" size="170,170,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
 																				
 																				<!--
 																				<plane id="handleftMesh1" pz="0.060" ny="1" size="0.085,0.080,0.035" repeat="1" texture="#555555" />
@@ -427,9 +427,9 @@
 																				</transform>-->
 																			
 																				<transform id="grabPositionHandL" tz="160" >
-<!-- 																					<plane id="axisxl" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" /> -->
-<!-- 																					<plane id="axisyl" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" /> -->
-<!-- 																					<plane id="axiszl" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" /> -->
+ 																					<plane id="axisxl" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" />
+																					<plane id="axisyl" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
+																					<plane id="axiszl" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" /> 
 																				</transform>
 
 																				
@@ -495,11 +495,16 @@
 	
 	<transform id="target" tx="0" ty="900" tz="570">
 		<plane id="C1_6" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
+
+			<transform id="axeslh2"  ty="10"> 
+							<plane id="xlh2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
+							<plane id="ylh2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+							<plane id="zlh2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
+					</transform>
 	</transform>	
-<!--
 	<transform id="mesaT" tx="0" ty="810"  tz="1000" >
 		<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
 	</transform>
--->
+
 </innerModel>
 

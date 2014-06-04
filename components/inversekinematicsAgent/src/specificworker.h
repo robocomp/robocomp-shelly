@@ -69,7 +69,13 @@ private:
 	void ajusteFino();
 	
 	
-	
+private:
+	inline void sendRightHandPose(QVec t, QVec r, QVec wt, QVec wr);
+	inline void sendRightHandPose(QVec t, QVec r, float wtx, float wty, float wtz, float wrx, float wry, float wrz);
+	inline void sendRightHandPose(float tx, float ty, float tz, float rx, float ry, float rz, float wtx, float wty, float wtz, float wrx, float wry, float wrz);
+	inline void saccadic3D(QVec point, QVec axis);
+	inline void saccadic3D(float tx, float ty, float tz, float axx, float axy, float axz);
+
 private:
 	InnerModel *innerModel;
 	std::string action;
@@ -80,6 +86,7 @@ private:
 	QTime elapsedTime;	
 	bool exec;
 	
+
 };
 
 #endif
