@@ -70,7 +70,7 @@ void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho <<"base" << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+    listaBrazoDerecho << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
 	listaMotores  << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
 				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
@@ -256,11 +256,11 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	QVec w(6);
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
-	//Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::POSE6D);
-	Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
-	mutex->lock();
-		bodyParts[partName].addTargetToList(t);
-	mutex->unlock();
+   Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
+   chopPath(partName, t);
+//	mutex->lock();
+//		bodyParts[partName].addTargetToList(t);
+//	mutex->unlock();
 	
 	qDebug() << "--------------------------------------------------------------------------";
 	qDebug() << __LINE__<< "New target arrived: " << partName;
@@ -494,11 +494,11 @@ TargetState SpecificWorker::getState(const std::string &part)
  * 
  * @return void
  */
-void SpecificWorker::chopPath(const Target &target)
+void SpecificWorker::chopPath(const QString &partName, const Target &target)
 {
 		
-	QVec poseTranslation = target.getPose().subVector(0,2);  																						//translation part of target pose
-	QVec poseRotation = target.getPose().subVector(3,5); 																								//rotation part of target pose
+    QVec poseTranslation = target.getPose().subVector(0,2);  					//translation part of target pose
+    QVec poseRotation = target.getPose().subVector(3,5); 						//rotation part of target pose
 	
 	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
 	
@@ -544,7 +544,10 @@ void SpecificWorker::chopPath(const Target &target)
 			if( target.getType() == Target::POSE6D )
 			{
 				Target t(Target::POSE6D, innerModel, target.getTipName(), R, target.getWeights(), false);
-				//subtargets.enqueue(t); //añadimos subtarget a la lista.
+                mutex->lock();
+                    bodyParts[partName].addTargetToList(t);
+                mutex->unlock();
+
 			}
 			landa += interval; 
 		}

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>875</width>
-    <height>915</height>
+    <height>1106</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -71,7 +71,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>5</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -481,6 +481,9 @@
                          </property>
                          <property name="singleStep">
                           <double>5.000000000000000</double>
+                         </property>
+                         <property name="value">
+                          <double>3.150000000000000</double>
                          </property>
                         </widget>
                        </item>
