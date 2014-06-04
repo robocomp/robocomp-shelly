@@ -638,7 +638,11 @@ void SpecificWorker::enviarPose6D(QVec p)
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)
 		pose6D.x = p[0];     pose6D.y = p[1];     pose6D.z = p[2];
-		pose6D.rx = p[3];    pose6D.ry = p[4];    pose6D.rz = p[5];
+		//antes de pasar las rotaciones las "normalizamos"
+		QVec aux (3); 
+		aux[0] = p[3]; 	     aux[1] = p[4];	  aux[2] = p[5];
+		//calcularModuloFloat(aux, 2*M_PI);
+		pose6D.rx = aux[0];    pose6D.ry = aux[1];    pose6D.rz = aux[2];
 		
 		//Ponemos los pesos mirando la interfaz.
 		pesos.set((T)0);
@@ -669,9 +673,11 @@ void SpecificWorker::enviarPose6D(QVec p)
 					axis.x = 0; axis.y = -1; axis.z = 0;
 					bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
 				}				
-				else 
+				else
+				{ 	
+					qDebug()<<"---> TARGET ENVIADO con traslaciones ("<<pose6D.x<<pose6D.y<<pose6D.z<<") y rotaciones ("<<pose6D.rx<<pose6D.ry<<pose6D.rz<<")";
 					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights);
-				
+				}
 				usleep(50000);
 			}
 		}
@@ -798,6 +804,28 @@ void SpecificWorker::mostrarDatos()
 			if(motorParam.name == head3->text().toStdString()){	angleCurrentH3->display(motorState.pos);	velocityNewH3->setValue(motorState.vel); }
 		}				
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en MOSTRAR DATOS: "<<ex<<endl;}
+}
+
+
+/*
+* AÑADIDO DESDE CINEMÁTICA INVERSA.
+*  Metodo moduloFloat
+* Devuelve el m��dulo entre dos n��meros reales.   ///HAS PROBADO FMOD? NO, NO TENGO TANTO CONOCIMIENTO DE C++
+* FUNCIONA.
+*/
+void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
+{
+        for(int i=0; i<angles.size(); i++)
+        {
+                int cociente = (int)(angles[i] / mod);
+                angles[i] = angles[i] -(cociente*mod);
+
+                if(angles[i] > M_PI)
+                        angles[i] = angles[i]- M_PI;
+                else
+                        if(angles[i] < -M_PI)
+                                angles[i] = angles[i] + M_PI;
+        }
 }
 
 

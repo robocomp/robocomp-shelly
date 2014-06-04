@@ -92,6 +92,8 @@ private:
 	void enviarAxisAlign();
 	void moveAlongAxis();
 	void mostrarDatos();
+	void calcularModuloFloat(QVec &angles, float mod);
+
 };
 
 #endif

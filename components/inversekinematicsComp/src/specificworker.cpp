@@ -188,6 +188,9 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
 				removeInnerModelTarget(target);
 				target.print("AFTER PROCESSING");
+				
+				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
+				
 				mutex->lock();
 					iterador.value().removeHeadFromListaTargets(); //eliminamos el target resuelto.
 				mutex->unlock();
@@ -530,7 +533,6 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
  */ 
 void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 {
-	//qDebug() << __FUNCTION__ << angles << listaJoints;
 	for(int i=0; i<angles.size(); i++)
 	{
 		try 
