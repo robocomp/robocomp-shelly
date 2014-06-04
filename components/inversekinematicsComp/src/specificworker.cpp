@@ -181,11 +181,20 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				target.print("BEFORE PROCESSING");
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
+				
+				if(target.getError()>0.03)
+				{
+					throw RoboCompBodyInverseKinematics::BIKException ("Error demasiado grande");
+				}
+				
 				moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 				usleep(50000);
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
 				removeInnerModelTarget(target);
 				target.print("AFTER PROCESSING");
+				
+				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
+				
 				mutex->lock();
 					iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
 				mutex->unlock();
@@ -595,7 +604,6 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
  */ 
 void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 {
-	//qDebug() << __FUNCTION__ << angles << listaJoints;
 	for(int i=0; i<angles.size(); i++)
 	{
 		try 
