@@ -124,13 +124,14 @@ void SpecificWorker::approachFinger()
 		printf("\n\n-------------------------------------------------------------------------\n");
 		poseTr.print("goal");
 		poseWrist.print("current");
-		const float
-		printf("error: %f\n", error);
+		QVec error = poseTr-poseWrist;
+		printf("error: %f\n", error.norm2());
 
-		if ()
-		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
-		sendRightHandPose(poseTr, QVec::vec3(M_PIl, -M_PI_2, 0.), QVec::vec3(1,1,1), QVec::vec3(1,0,1));
-
+		if (error.norm2()>30)
+		{
+			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
+			sendRightHandPose(poseTr, QVec::vec3(M_PIl, -M_PI_2, 0.), QVec::vec3(1,1,1), QVec::vec3(1,0,1));
+		}
 		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
 		//saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
 		//exec =true;
