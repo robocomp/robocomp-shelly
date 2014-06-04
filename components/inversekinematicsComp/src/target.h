@@ -80,6 +80,9 @@ public:
 	QQueue<Target> getSubtargets() const { return subtargets; }
 	Target& getHeadFromSubtargets()      { return subtargets.head(); }
 	void removeHeadFromSubtargets()      { subtargets.dequeue(); }
+    bool getExecuted() const             { return executed; }
+
+
 	
 	// MÉTODOS SET:
 	void setInnerModel (InnerModel *newInner);
@@ -95,7 +98,36 @@ public:
 	void setIter(uint it)                { iter = it; }
 	void setErrorVector(const QVec &e)   { errorVector = e; }
 	void setFinalAngles(const QVec &f)   { finalAngles = f; }
-	
+    void setExecuted(bool e)             { executed = true; }
+    void annotateInitialTipPose()
+    {
+      initialTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
+      QVec angs = inner->getRotationMatrixTo("world",getTipName()).extractAnglesR();
+      QVec low = angs.subVector(0,2);
+      QVec high = angs.subVector(3,5);
+      if(low.norm2() < high.norm2() )
+        initialTipPose.inject(low,3);
+      else
+        initialTipPose.inject(high,3);
+    };
+    void annotateFinalTipPose()
+    {
+        finalTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
+        QVec angs = inner->getRotationMatrixTo("world",getTipName()).extractAnglesR();
+        QVec low = angs.subVector(0,2);
+        QVec high = angs.subVector(3,5);
+        if(low.norm2() < high.norm2() )
+           finalTipPose.inject(low,3);
+        else
+           finalTipPose.inject(high,3);
+     };
+
+    void setInitialAngles(const QStringList &motors)
+    {
+        foreach( QString motor, motors)
+            initialAngles.append(inner->getJoint(motor)->getAngle());
+    }
+
 	
 	// OTROS MÉTODOS
 	//void chopPath();
@@ -103,27 +135,31 @@ public:
 	
 private:
 	
-	QString tip; 										// Nombre del efector final al que está asociado el target
-	QTime start;										// Tiempo en que comenzó a trabajar el robot con el target original.
-	bool activo;										// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
-	QVec pose6D; 										// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-	QVec axis;											// Target axis to be aligned with
+    QString tip;                        // Nombre del efector final al que está asociado el target
+    QTime start;						// Tiempo en que comenzó a trabajar el robot con el target original.
+    bool activo;						// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
+    QVec pose6D; 						// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
+    QVec axis;							// Target axis to be aligned with
 	QQueue<Target> subtargets;			// Cola de subtargets (trayectorias troceadas) para cada target.
-	InnerModel *inner;							// Innermodel para calcular cosas.
-	QVec weights;										// Pesos para restringir translaciones, rotaciones o ponderar el resultado
-	TargetType targetType;					// 
-	bool axisConstraint;						// True if constraint is to be applien on axis for ALINGAXIS mode
+    InnerModel *inner;					// Innermodel para calcular cosas.
+    QVec weights;						// Pesos para restringir translaciones, rotaciones o ponderar el resultado
+    TargetType targetType;				//
+    bool axisConstraint;				// True if constraint is to be applien on axis for ALINGAXIS mode
 	float axisAngleConstraint;			// constraint oto be applied to axis in case axisConstrint is TRUE
-	QString nameInInnerModel;				// generated name to create provisional targets
-	float error;										// Error after IK
-	QVec errorVector;								// Error vector
-	float step;											// step to advance along axis
-	QTime startTime;								// timestamp indicating when the target is created
-	QTime runTime;									// timestamp indicating when the target is executed
+    QString nameInInnerModel;			// generated name to create provisional targets
+    float error;						// Error after IK
+    QVec errorVector;					// Error vector
+    float step;							// step to advance along axis
+    QTime startTime;					// timestamp indicating when the target is created
+    QTime runTime;						// timestamp indicating when the target is executed
 	ulong elapsedTime;          		// timestamp indicating when the duration of the target execution in milliseconds.
 	FinishStatus finish;        		// Enumerated to show finish reason
-	uint iter;											// Number of iterations before completing
-	QVec finalAngles;								// Mercedes lo documenta luego
+    uint iter;							// Number of iterations before completing
+    QVec finalAngles;					// Mercedes lo documenta luego
+    QVec initialAngles;                  //
+    QVec initialTipPose;            // Tip position in world reference frame after processing
+    QVec finalTipPose;              // Tip position in world reference frame after processing
+    bool executed;                      // true if finally executed in real arm
 	
 	float standardRad(float t);
 };

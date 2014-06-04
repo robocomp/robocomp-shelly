@@ -79,7 +79,10 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	
+    this->executed = false;
+    this->initialTipPose = QVec(6);
+    this->finalTipPose = QVec(6);
+    this->initialAngles = QVec();
 }
 
 /**
@@ -107,7 +110,10 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	
+    this->executed = false;
+    this->initialTipPose = QVec(6);
+    this->finalTipPose = QVec(6);
+    this->initialAngles = QVec();
 }
 
 /**
@@ -133,7 +139,11 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-	
+    this->executed = false;
+    this->finalTipPose = QVec(6);
+    this->initialTipPose = QVec(6);
+    this->initialAngles = QVec();
+
 }
 
 /*--------------------------------------------------------------------------*
@@ -263,6 +273,10 @@ void Target::print(const QString &msg)
 	qDebug() << "	Tip " << tip;
 	qDebug() << "	Activo " << activo;
 	qDebug() << "	Pose6D" << pose6D;
+    qDebug() << "   Initial Tip pos." << initialTipPose;
+    qDebug() << "   Final Tip pos." << finalTipPose;
+    if( executed == true)
+        qDebug() << "    Target Executed on Robot!";
 	if(targetType == ALIGNAXIS)
 		qDebug() << "Axis of the tip to be aligned" << axis;
 	if(targetType == ADVANCEAXIS)
@@ -287,7 +301,8 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Start time" << startTime;
 	qDebug() << " 	Running time" << runTime;
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
-	qDebug() << "		Final angles after IK" << finalAngles;
+    qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
+    qDebug() << "	Final angles after IK" << finalAngles;
 	qDebug() << "-----TARGET END-----------------";
 }
 
