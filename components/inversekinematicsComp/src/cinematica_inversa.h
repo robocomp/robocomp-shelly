@@ -44,6 +44,7 @@
 #include "target.h"
 #include <osgviewer/osgview.h>
 #include <eigen3/Eigen/SVD>
+#include <BodyInverseKinematics.h>
 
 using namespace std;
 

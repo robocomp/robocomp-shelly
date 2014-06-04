@@ -811,7 +811,6 @@ void SpecificWorker::mostrarDatos()
 }
 
 
-<<<<<<< HEAD
 /*
 * AÑADIDO DESDE CINEMÁTICA INVERSA.
 *  Metodo moduloFloat
@@ -832,9 +831,7 @@ void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
                                 angles[i] = angles[i] + M_PI;
         }
 }
-=======
 
->>>>>>> 2a634e060a7f1628ae00c8c7cf3afb9763abeabf
 
 
 /////CODIGO DE LOKIARM PARA INICIALIZAR DESDE EL GENERADOR

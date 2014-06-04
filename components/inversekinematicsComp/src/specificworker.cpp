@@ -181,6 +181,12 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				target.print("BEFORE PROCESSING");
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
+				
+				if(target.getError()>0.03)
+				{
+					throw RoboCompBodyInverseKinematics::BIKException ("Error demasiado grande");
+				}
+				
 				moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 				usleep(50000);
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
