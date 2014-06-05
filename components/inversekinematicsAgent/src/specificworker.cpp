@@ -117,7 +117,7 @@ void SpecificWorker::approachFinger()
 		const float rwtx = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tx"));
 		const float rwty = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));
 		const float rwtz = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tz"));
-		QVec offset = QVec::vec3(0., -60., -150.);
+		QVec offset = QVec::vec3(0., -60., -80.);
 		QVec poseTr = innerModel->transform("world", QVec::vec3(tx,ty,tz)+offset, "robot");
 		QVec poseWrist = QVec::vec3(rwtx, rwty, rwtz)+offset;
 
@@ -125,12 +125,14 @@ void SpecificWorker::approachFinger()
 		poseTr.print("goal");
 		poseWrist.print("current");
 		QVec error = poseTr-poseWrist;
-		printf("error: %f\n", error.norm2());
+		error.print("error");
+		printf("error_norm: %f\n", error.norm2());
 
 		if (error.norm2()>30)
 		{
-			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
-			sendRightHandPose(poseTr, QVec::vec3(M_PIl, -M_PI_2, 0.), QVec::vec3(1,1,1), QVec::vec3(1,0,1));
+			QVec rot = QVec::vec3(M_PIl, -M_PI_2, 0.);
+			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), rot(0), rot(1), rot(2));
+			sendRightHandPose(poseTr, rot, QVec::vec3(1,1,1), QVec::vec3(0,0,0));
 		}
 		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
 		//saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
@@ -343,7 +345,7 @@ void SpecificWorker::compute( )
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
-		saccadic3D(0, 820, 400, 0, -1, 0);
+		saccadic3D(0, 820, 280, 0, -1, 0);
 		return;
 	}
 	else if (action == "graspobject" )

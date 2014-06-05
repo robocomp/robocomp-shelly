@@ -45,7 +45,7 @@ class C(QWidget):
 			pose = self.mods['RoboCompInnerModelManager'].Pose3D()
 			pose.x  = 100.+400.*math.sin(self.a)
 			pose.y  = 914.
-			pose.z  = 420.
+			pose.z  = 300.
 			pose.rx = -0.13
 			pose.ry = 0.0
 			pose.rz = 0.
