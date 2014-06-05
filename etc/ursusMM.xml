@@ -76,8 +76,8 @@
 -->
 													<transform id="sensor_transform2" ty="125" tz="40" > <!-- rx="0.7" -->
 														<plane id="sensor" nz="1" pz="-10" size="80,60" repeat="1" texture="#0000ff" />
-														<transform id="rgbd_transform">
-															<rgbd id="rgbd" focal="300" width="640" height="480" port="10096" ifconfig="20000,10004" />
+														<transform id="rgbd_transform" rx="1.05">
+															<rgbd id="rgbd" focal="585" width="640" height="480" port="10096" ifconfig="20000,10004" />
 														</transform>
 													</transform>
 												</transform>
@@ -493,8 +493,9 @@
 	</transform>
 
 
-	<transform id="target" tx="0" ty="900" tz="570">
+	<transform id="target" tx="0" ty="900" tz="300">
 		<plane id="C1_6" ny="-1" size="108,-139.5,5" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
+		
 
 <!--
 		<transform id="axeslh2"  ty="10">
