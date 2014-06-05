@@ -16,7 +16,7 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "specificworker.h"
 #include <agm.h>
 #include <boost/concept_check.hpp>
@@ -26,24 +26,24 @@
 * \brief Default constructor
 */
 
-SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
+SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	setlocale (LC_ALL, "C");
 
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	active = false;
-	
+
 	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
 	currenState =STOP;
-		
+
 	exec=false;
 
 }
 
 void SpecificWorker::stop()
 {
-    qDebug()<<"stop()"<<"exec"<<exec;
+	qDebug()<<"stop()"<<"exec"<<exec;
 }
 
 void SpecificWorker::closeHand()
@@ -55,13 +55,13 @@ void SpecificWorker::closeHand()
 		qDebug()<<"Hand should be closed"<<currenState<<"exec"<<exec;
 		if (currenState==CLOSEHAND)
 		{
-			exec=false;			
+			exec=false;
 			elapsedTime.restart();
 			currenState=APPROACHFINGER;
 			return;
 		}
 		else if (currenState==APPROACHHAND)
-		{			
+		{
 			exec=false;
 			elapsedTime.restart();
 			currenState=TAKE;
@@ -89,8 +89,9 @@ void SpecificWorker::approachFinger()
 {
 	qDebug()<<"approachFinger()"<<"exec"<<exec<<"currenState"<<currenState<<"elapsedTime.elapsed()"<<elapsedTime.elapsed();
 	int32_t object = atoi(params["o"].value.c_str());
+	int32_t robot = worldModel->getIdentifierByType("robot");
 	printf("go get %d\n", object);
-	
+
 // 	if (elapsedTime.elapsed()>2000)
 // 	{
 // 		qDebug()<<"Fingers should be close to target";
@@ -107,22 +108,32 @@ void SpecificWorker::approachFinger()
 
 	try
 	{
-		float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
-		float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
-		float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
+		const float tx = str2float(worldModel->getSymbol(object)->getAttribute("tx"));
+		const float ty = str2float(worldModel->getSymbol(object)->getAttribute("ty"));
+		const float tz = str2float(worldModel->getSymbol(object)->getAttribute("tz"));
 		// float rx = str2float(worldModel->getSymbol(object)->getAttribute("rx"));
 		// float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
 		// float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
-		QVec poseTr = innerModel->transform("world", QVec::vec3(tx, ty-60, tz-150), "robot");
-		QVec poseWrist = innerModel->transform("world", QVec::vec3(0, 0, 0), "grabPositionHandR");
-		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
-		
-		printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
-		sendRightHandPose(poseTr, QVec::vec3(0,-1,0), QVec::vec3(1,1,1), QVec::vec3(1,1,1));
-		
-		
-// 		saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
+		const float rwtx = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tx"));
+		const float rwty = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));
+		const float rwtz = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tz"));
+		QVec offset = QVec::vec3(0., -60., -150.);
+		QVec poseTr = innerModel->transform("world", QVec::vec3(tx,ty,tz)+offset, "robot");
+		QVec poseWrist = QVec::vec3(rwtx, rwty, rwtz)+offset;
 
+		printf("\n\n-------------------------------------------------------------------------\n");
+		poseTr.print("goal");
+		poseWrist.print("current");
+		QVec error = poseTr-poseWrist;
+		printf("error: %f\n", error.norm2());
+
+		if (error.norm2()>30)
+		{
+			printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), 0., -1., 0.);
+			sendRightHandPose(poseTr, QVec::vec3(M_PIl, -M_PI_2, 0.), QVec::vec3(1,1,1), QVec::vec3(1,0,1));
+		}
+		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
+		//saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
 		//exec =true;
 		//timerAutomataApproachFinger.start(5000);
 	}
@@ -136,7 +147,7 @@ void SpecificWorker::approachFinger()
 void SpecificWorker::touchFinger()
 {
 	qDebug()<<"touchFinger(), waiting for touchSensor"<<"exec"<<exec;
-	
+
 	if (elapsedTime.elapsed()>2000)
 	{
 		qDebug()<<"Fingers should be close to target";
@@ -148,12 +159,12 @@ void SpecificWorker::touchFinger()
 	//este exec no me convence, mientras estoy haciendo la accion no llamo
 	if (exec == true)
 		return;
-	
+
 	try
 	{
 		bodyinversekinematics_proxy->setFingers(1.0);
 		exec=true;
-		
+
 	}
 	catch (Ice::Exception e)
 	{
@@ -169,7 +180,7 @@ void SpecificWorker::touchFinger()
 void SpecificWorker::openHand()
 {
 	qDebug()<<"openHand(), waiting for OPEN"<<"exec"<<exec;
-	
+
 	if (elapsedTime.elapsed()>2000)
 	{
 		qDebug()<<"HAND should be open";
@@ -207,25 +218,25 @@ void SpecificWorker::approachHand()
 	//este exec no me convence, mientras estoy haciendo la accion no llamo
 	if (exec == true)
 		return;
-	
+
 	try
 	{
 // 		RoboCompBodyInverseKinematics::Axis axis;
 // 		axis.x=0.0;axis.y=0.;axis.z=1.0;
-		//bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, -100.0);		
+		//bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, -100.0);
 		exec=true;
-		
+
 	}
 	catch (Ice::Exception e)
 	{
 		qDebug()<<"SpecificWorker::approachHand(): Error talking to bodyinversekinematics_proxy"<<e.what();
-	}      
+	}
 }
 
 void SpecificWorker::grasp()
 {
-     qDebug()<<"take, I hang on the mug";   
-     
+	 qDebug()<<"take, I hang on the mug";
+
 	if (elapsedTime.elapsed()>2000)
 	{
 		qDebug()<<"HAND should be grasping the MUG";
@@ -237,12 +248,12 @@ void SpecificWorker::grasp()
 	//este exec no me convence, mientras estoy haciendo la accion no llamo
 	if (exec == true)
 		return;
-	
+
 	try
 	{
 		bodyinversekinematics_proxy->setFingers(0.0);
 		exec=true;
-		
+
 	}
 	catch (Ice::Exception e)
 	{
@@ -252,8 +263,8 @@ void SpecificWorker::grasp()
 
 void SpecificWorker::take()
 {
-     qDebug()<<"take, I hang on the mug";   
-     
+	 qDebug()<<"take, I hang on the mug";
+
 	if (elapsedTime.elapsed()>2000)
 	{
 		qDebug()<<"HAND should be grasping the MUG";
@@ -265,7 +276,7 @@ void SpecificWorker::take()
 	//este exec no me convence, mientras estoy haciendo la accion no llamo
 	if (exec == true)
 		return;
-	
+
 	RoboCompBodyInverseKinematics::Pose6D target;
 	target.x = 0.;
 	target.y = 1000.;
@@ -279,10 +290,10 @@ void SpecificWorker::take()
 	try
 	{
 		///pn
-					
-		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);			
+
+		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 		exec =true;
-		
+
 	}
 	catch (Ice::Exception e)
 	{
@@ -327,21 +338,19 @@ void SpecificWorker::stateMachine()
 ///slot
 void SpecificWorker::compute( )
 {
-// 	ajusteFino();
-// 	sleep(2);
-// 	return;
-	usleep(100000);
+	usleep(500000);
+
 	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisually")
 	{
-		saccadic3D(0, 820, 500, 0, -1, 0);
+		saccadic3D(0, 820, 400, 0, -1, 0);
 		return;
 	}
 	else if (action == "graspobject" )
-	{		
+	{
 // 		if (currenState==STOP )
 // 		{
-// 			currenState=CLOSEHAND;		
+// 			currenState=CLOSEHAND;
 // 			elapsedTime.start();
 // 		}
 		approachFinger();
@@ -440,7 +449,7 @@ void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modificat
 {
 	mutex->lock();
 	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
-	mutex->unlock();	
+	mutex->unlock();
 }
 
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
@@ -467,7 +476,7 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	{
 		action = params["action"].value;
 		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
-		
+
 
 		if (action == "findobjectvisually")
 		{
@@ -540,8 +549,8 @@ void SpecificWorker::ajusteFino()
 	try
 	{
 		RoboCompBodyInverseKinematics::Axis axis;
-		axis.x=vNormal.x() ;axis.y=vNormal.y();axis.z=vNormal.z();			
-		bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, d/2.0);									
+		axis.x=vNormal.x() ;axis.y=vNormal.y();axis.z=vNormal.z();
+		bodyinversekinematics_proxy->advanceAlongAxis("RIGHTARM",axis, d/2.0);
 	}
 	catch (Ice::Exception e)
 	{
@@ -576,7 +585,7 @@ void SpecificWorker::sendRightHandPose(float tx, float ty, float tz, float rx, f
 		target.z = tz;
 		target.rx = rx;
 		target.ry = ry;
-		target.rz = rx;
+		target.rz = rz;
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x = wtx;
 		weights.y = wty;
@@ -623,5 +632,5 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 }
 
 
-		
+
 

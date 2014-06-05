@@ -104,7 +104,8 @@ class SpecificWorker : public GenericWorker
 		
 		// MÉTODOS AUXILIARES:
 		float standardRad(float t);
-		void chopPath(const Target &target);
+        void calcularModuloFloat(QVec &angles, float mod);
+        void chopPath(const QString &partName, const Target &target);
 		
 		int correlativeID;
 		int typeR;

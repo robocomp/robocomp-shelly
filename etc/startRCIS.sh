@@ -73,19 +73,19 @@ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/rob
 qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'rcmonitor moveTag.rcm'
 qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'moveTag'
 
-# RCIS Cognitive
-qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
-sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
-qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'rcis /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCog.xml -p 20202'
-qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'rcis COG'
-sleep 3
-
-# Model renderer
-qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
-sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
-qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/robocomp/robocomp/components/robocomp-ursus/components/modelRenderer'
-qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cmake . && make && bin/modelrenderercomp  --Ice.Config=../../etc/modelrenderer.conf'
-qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'modelRenderer'
-
-
-
+# # RCIS Cognitive
+# qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
+# sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
+# qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'rcis /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCog.xml -p 20202'
+# qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'rcis COG'
+# sleep 3
+# 
+# # Model renderer
+# qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
+# sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
+# qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/robocomp/robocomp/components/robocomp-ursus/components/modelRenderer'
+# qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cmake . && make && bin/modelrenderercomp  --Ice.Config=../../etc/modelrenderer.conf'
+# qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'modelRenderer'
+# 
+# 
+# 

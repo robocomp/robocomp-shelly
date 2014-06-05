@@ -59,7 +59,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	init();
 	timer.start(50);
 	return true;
-};
+}
 
 /**
  * @brief Initializing procedures to be done once params are read
@@ -69,12 +69,14 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo << "leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"<<"leftWrist2";
-	listaBrazoDerecho <<"base" << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2";
+	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow"
+			    << "leftForeArm" << "leftWrist1" << "leftWrist2";
+	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"
+			  << "rightForeArm" << "rightWrist1" << "rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
-	listaMotores  << "rightShoulder1"<<"rightShoulder2"<<"rightShoulder3"<<"rightElbow"<<"rightForeArm"<<"rightWrist1"<<"rightWrist2"
-				<<"leftShoulder1"<<"leftShoulder2"<<"leftShoulder3"<<"leftElbow"<<"leftForeArm"<<"leftWrist1"
-				<<"leftWrist2"<< "base" << "head1" << "head2" << "head3"; 
+	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm"
+		     << "rightWrist1" <<"rightWrist2" << "leftShoulder1" << "leftShoulder2" << "leftShoulder3"
+		     << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"<< "base" << "head1" << "head2" << "head3";
 	
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
@@ -170,6 +172,7 @@ SpecificWorker::~SpecificWorker()
 	fichero.close();
 }
 
+
 void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
 {
 		QMap<QString, BodyPart>::iterator iterador;
@@ -178,22 +181,24 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 			if(iterador.value().getTargets().isEmpty() == false)
 			{
 				Target &target = iterador.value().getHeadFromTargets(); 	
-				target.print("BEFORE PROCESSING");
-				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
+                target.annotateInitialTipPose();
+                target.setInitialAngles(iterador.value().getMotorList());
+                target.print("BEFORE PROCESSING");
+                createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
-				
-				if(target.getError()>0.03)
-				{
-					throw RoboCompBodyInverseKinematics::BIKException ("Error demasiado grande");
-				}
-				
-				moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-				usleep(50000);
+                printf("Error: %f\n", target.getError());
+                if(target.getError() < 0.1)
+                {
+                    moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+                    usleep(100000);
+                    target.setExecuted(true);
+                }
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
+                target.annotateFinalTipPose();
 				removeInnerModelTarget(target);
-				target.print("AFTER PROCESSING");
+                target.print("AFTER PROCESSING");
 				
-				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
+// 				qDebug()<<"\n ---> La MANO ESTA EN : "<<innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
 				
 				mutex->lock();
 					iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
@@ -265,11 +270,12 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	QVec w(6);
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
-	//Target t(innerModel, tar, bodyParts[partName].getTip(), w, Target::POSE6D);
-	Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
-	mutex->lock();
-		bodyParts[partName].addTargetToList(t);
-	mutex->unlock();
+   Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
+   //chopPath(partName, t);
+
+    mutex->lock();
+        bodyParts[partName].addTargetToList(t);
+    mutex->unlock();
 	
 	qDebug() << "--------------------------------------------------------------------------";
 	qDebug() << __LINE__<< "New target arrived: " << partName;
@@ -503,16 +509,16 @@ TargetState SpecificWorker::getState(const std::string &part)
  * 
  * @return void
  */
-void SpecificWorker::chopPath(const Target &target)
+void SpecificWorker::chopPath(const QString &partName, const Target &target)
 {
 		
-	QVec poseTranslation = target.getPose().subVector(0,2);  																						//translation part of target pose
-	QVec poseRotation = target.getPose().subVector(3,5); 																								//rotation part of target pose
+    QVec poseTranslation = target.getPose().subVector(0,2);  					//translation part of target pose
+    QVec poseRotation = target.getPose().subVector(3,5); 						//rotation part of target pose
 	
 	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
 	
-	QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());										//coor of tip in world
-	QVec rotTipInWorld =  innerModel->getRotationMatrixTo("world", target.getTipName()).extractAnglesR();		//orientation of tip in world
+    QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());						//coor of tip in world
+    QVec rotTipInWorld =  innerModel->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR();		//orientation of tip in world
 	QVec angulos1 = rotTipInWorld.subVector(0,2);																							//shit to select minimun module solution
 	QVec angulos2 = rotTipInWorld.subVector(3,5);
 	QVec rot;
@@ -530,15 +536,22 @@ void SpecificWorker::chopPath(const Target &target)
 	Q.inject(poseRotation,3);
 
 	QVec error = P - Q;		
+    QVec rr = error.subVector(3,5);
+    calcularModuloFloat(rr,2*M_PI);
+    error.inject(rr,3);
 
-	error[3] = standardRad( error[3] );
-	error[4] = standardRad( error[4] );
-	error[5] = standardRad( error[5] );
+//	error[3] = standardRad( error[3] );
+//	error[4] = standardRad( error[4] );
+//	error[5] = standardRad( error[5] );
 	
-	
-	float dist = error.norm2();
+    QMat We = QMat::makeDiagonal(target.getWeights());
+    float dist = (We*error).norm2();
+    qDebug() << "Target pose" << Q;
+    qDebug() << "Currnet pose" << P;
+    qDebug() << "Error" << error;
+    qDebug() << "Initial distance to target" << dist;
 	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-	const float step = 0.05;
+    const float step = 0.1;
 	
 	if(dist >step)
 	{
@@ -553,10 +566,14 @@ void SpecificWorker::chopPath(const Target &target)
 			if( target.getType() == Target::POSE6D )
 			{
 				Target t(Target::POSE6D, innerModel, target.getTipName(), R, target.getWeights(), false);
-				//subtargets.enqueue(t); //añadimos subtarget a la lista.
+                mutex->lock();
+                    bodyParts[partName].addTargetToList(t);
+                mutex->unlock();
+
 			}
 			landa += interval; 
 		}
+        qDebug() << "Number of intermediate targets" << bodyParts[partName].getTargets().size();
 	}
 }
 
@@ -664,6 +681,21 @@ float SpecificWorker::standardRad(float t)
 	return t;
 }
 
+
+void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
+{
+    for(int i=0; i<angles.size(); i++)
+    {
+        int cociente = (int)(angles[i] / mod);
+        angles[i] = angles[i] -(cociente*mod);
+
+        if(angles[i] > M_PI)
+            angles[i] = angles[i]- M_PI;
+        else
+            if(angles[i] < -M_PI)
+                angles[i] = angles[i] + M_PI;
+    }
+}
 
 /*
  * Método getRotacionMano
