@@ -20,6 +20,7 @@
 #include "specificworker.h"
 #include <qt4/QtCore/QMutexLocker>
 
+
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
