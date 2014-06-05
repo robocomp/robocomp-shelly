@@ -427,7 +427,7 @@ void SpecificWorker::camareroDiestro()
 	for(float i=-100; i<300; i=i+salto)
 	{
 		pose[0] = i; pose[1] = 900; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		xAux = i;
 	}
@@ -435,7 +435,7 @@ void SpecificWorker::camareroDiestro()
 	for(float j=900; j<1100; j=j+salto)
 	{
 		pose[0] = xAux; pose[1] = j; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		yAux = j;
 	}
@@ -443,7 +443,7 @@ void SpecificWorker::camareroDiestro()
 	for(float i=xAux; i>=-100; i=i-salto)
 	{
 		pose[0] = i; pose[1] = yAux; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		xAux = i;
 	}
@@ -451,7 +451,7 @@ void SpecificWorker::camareroDiestro()
 	for(float j=yAux; j>=900; j=j-salto)
 	{
 		pose[0] = xAux; pose[1] = j; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		yAux = j;
 	}

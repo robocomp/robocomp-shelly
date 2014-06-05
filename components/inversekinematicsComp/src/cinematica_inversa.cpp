@@ -91,7 +91,10 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 		levenbergMarquardt(target);
 	}
 	else  //POSE6D
+	{
+		chopPath(target);
 		levenbergMarquardt(target);
+	}
 		
 	target.setElapsedTime(target.getRunTime().elapsed());
 }
@@ -101,6 +104,42 @@ void Cinematica_Inversa::resolverTarget(Target& target)
  * 										MÉTODOS PRIVADOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 
+/**
+ * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
+ * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
+ * 
+ * @return void
+ */
+void Cinematica_Inversa::chopPath(Target &target)
+{
+		
+  QVec poseTranslation = target.getPose().subVector(0,2);  					//translation part of target pose
+  QVec poseRotation = target.getPose().subVector(3,5); 						//rotation part of target pose
+	
+	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
+	
+  QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());				
+  QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
+	 
+	const float step = 0.1;
+	QMat::makeDiagonal(target.getWeights());
+	float dist = targetRInTip.norm2() + targetTInTip.norm2();
+	if( dist > step)
+	{
+		qDebug() << "entering CHOP" << dist;
+		int nPuntos = floor(dist / step);
+		T landa = 1./nPuntos;
+		QVec R(6);
+		QVec P(6);
+		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
+		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
+		R = (P * (T)(1.f-landa)) + (target.getPose() * landa);		
+		target.setChopped(true);
+		target.setChoppedPose(R);
+	}
+	target.setChopped(false);
+}
+	
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE TRASLACIÓN Y ROTACIÓN									   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 

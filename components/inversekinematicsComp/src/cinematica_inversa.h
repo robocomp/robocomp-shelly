@@ -74,9 +74,8 @@ private:
 	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
 	void levenbergMarquardt2(Target &target); //alternative implementaiton
-
+	void chopPath(Target &target);
 	//_-----------------------------------------------------------------------------
-		
 	
 	// DE CÁLCULO.....
 	QVec calcularAngulos(); //devuelve el vcetor de todos los ángulos de los motores
