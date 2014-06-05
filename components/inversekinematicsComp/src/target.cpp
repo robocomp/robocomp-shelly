@@ -231,9 +231,9 @@ void Target::print(const QString &msg)
 	qDebug() << "	Pose6D" << pose6D;
 	qDebug() << "	pose6DChopped" << pose6DChopped;
 	qDebug() << "	Chopped" << chopped;
-  qDebug() << "	Initial Tip pos." << initialTipPose;
-  qDebug() << "	Final Tip pos." << finalTipPose;
-  if( executed == true)
+	qDebug() << "	Initial Tip pos." << initialTipPose;
+	qDebug() << "	Final Tip pos." << finalTipPose;
+	if( executed == true)
         qDebug() << "	Target Executed on Robot!";
 	if(targetType == ALIGNAXIS)
 		qDebug() << "	Axis of the tip to be aligned" << axis;
@@ -259,8 +259,10 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Start time" << startTime;
 	qDebug() << " 	Running time" << runTime;
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
-  qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
-  qDebug() << "	Final angles after IK" << finalAngles;
+	qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
+	qDebug() << "	Final angles after IK" << finalAngles;
+	if( executed == true) 
+		qDebug() << "	Target Executed!";
 	qDebug() << "-----TARGET END-----------------";
 }
 

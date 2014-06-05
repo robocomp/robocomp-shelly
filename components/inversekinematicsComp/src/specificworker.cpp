@@ -192,17 +192,18 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				//printf("Error: %f\n", target.getError());
 				if(target.getError() < 0.1)
 				{
-						moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-						usleep(100000);
-						target.setExecuted(true);
+					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+					usleep(100000);
+					target.setExecuted(true);
 				}
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
-        target.annotateFinalTipPose();
+				target.annotateFinalTipPose();
 				removeInnerModelTarget(target);
-        target.print("AFTER PROCESSING");
+				target.print("AFTER PROCESSING");
 					
 				if(target.isChopped() == false)
 				{
+					qDebug() << "BORRANDO";
 						mutex->lock();
 							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
 						mutex->unlock();
@@ -521,8 +522,8 @@ void SpecificWorker::chopPath(const QString &partName, const Target &target)
 	
 	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
 	
-  QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());						//coor of tip in world
-  QVec rotTipInWorld =  innerModel->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
+	QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());						//coor of tip in world
+	QVec rotTipInWorld =  innerModel->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
 	
 	QVec P(6);
 	P.inject(tipInWorld,0);

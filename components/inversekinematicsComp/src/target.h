@@ -80,25 +80,25 @@ public:
 	QQueue<Target> getSubtargets() const { return subtargets; }
 	Target& getHeadFromSubtargets()      { return subtargets.head(); }
 	void removeHeadFromSubtargets()      { subtargets.dequeue(); }
-  bool getExecuted() const             { return executed; }
-  bool isChopped() const							 { return chopped; }
+  bool getExecuted() const          	 { return executed; }
+  bool isChopped() const				 { return chopped; }
 
 	// MÉTODOS SET:
-	void setPose(const QVec &newPose)								{ this->pose6D = newPose;};
-	void setChoppedPose(const QVec &newPose)				{ this->pose6DChopped = newPose;}
-	void setStartTime (QTime newStart)							{ this->startTime = newStart;}
-	void setActivo (bool newActivo)									{ this->activo = newActivo; };
-	void setWeights(const QVec &weights)  					{	this->weights = weights; };
-	void setNameInInnerModel(const QString &name)	  { this->nameInInnerModel = name;};
-	void setError(float error)           						{ this->error = error; };
-	void setStatus(FinishStatus status)  						{ finish = status; };
-	void setElapsedTime(ulong e)         						{ elapsedTime = e; };
-	void setRunTime(const QTime &t)      						{ runTime = t; };
-	void setIter(uint it)                						{ iter = it; }
-	void setErrorVector(const QVec &e)   						{ errorVector = e; }
-	void setFinalAngles(const QVec &f)  						{ finalAngles = f; }
-  void setExecuted(bool e)             						{ executed = true; }
-	void setChopped(bool c)							 						{ chopped = true; }
+	void setPose(const QVec &newPose)				{ this->pose6D = newPose;};
+	void setChoppedPose(const QVec &newPose)		{ this->pose6DChopped = newPose;}
+	void setStartTime (QTime newStart)				{ this->startTime = newStart;}
+	void setActivo (bool newActivo)					{ this->activo = newActivo; };
+	void setWeights(const QVec &weights)  			{ this->weights = weights; };
+	void setNameInInnerModel(const QString &name)	{ this->nameInInnerModel = name;};
+	void setError(float error)           			{ this->error = error; };
+	void setStatus(FinishStatus status)  			{ finish = status; };
+	void setElapsedTime(ulong e)         			{ elapsedTime = e; };
+	void setRunTime(const QTime &t)      			{ runTime = t; };
+	void setIter(uint it)                			{ iter = it; }
+	void setErrorVector(const QVec &e)   			{ errorVector = e; }
+	void setFinalAngles(const QVec &f)  			{ finalAngles = f; }
+  void setExecuted(bool e)             				{ executed = e; }
+	void setChopped(bool c)							{ chopped = c; }
   void annotateInitialTipPose()
   {
       initialTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);

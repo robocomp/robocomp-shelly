@@ -120,10 +120,12 @@ void Cinematica_Inversa::chopPath(Target &target)
 	
   QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());				
   QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
-	 
+  QVec targetTotal(6);
+  targetTotal.inject(targetTInTip,0);
+  targetTotal.inject(targetRInTip,3);
 	const float step = 0.1;
-	QMat::makeDiagonal(target.getWeights());
-	float dist = targetRInTip.norm2() + targetTInTip.norm2();
+	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();
+	qDebug() << "dis" << dist;
 	if( dist > step)
 	{
 		qDebug() << "entering CHOP" << dist;
@@ -216,10 +218,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		QVec errorTraslaciones = QVec::zeros(3);
 		QVec targetInRoot = inner->transform( listaJoints[0], QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
-		
-		inner->transform("world", QVec::zeros(3),target.getNameInInnerModel()).print("target");
-		inner->transform("world", QVec::zeros(3),this->endEffector).print("tip");
-		
+			
 		errorTraslaciones = targetInRoot - tip;
 	
 		// ---> ROTATIONS
