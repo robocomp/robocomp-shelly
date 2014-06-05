@@ -79,10 +79,11 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->initialTipPose = QVec(6);
-    this->finalTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->initialTipPose = QVec(6);
+	this->finalTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->chopped = false;
 }
 
 /**
@@ -110,10 +111,11 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->initialTipPose = QVec(6);
-    this->finalTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->initialTipPose = QVec(6);
+	this->finalTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->chopped = false;
 }
 
 /**
@@ -139,64 +141,18 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->finalTipPose = QVec(6);
-    this->initialTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->finalTipPose = QVec(6);
+	this->initialTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->chopped = false;
 
 }
 
 /*--------------------------------------------------------------------------*
  *		      									MÉTODOS PÚBLICOS															*
  *--------------------------------------------------------------------------*/
-/*
- * Método SET POSE
- * Asigna el valor del vector de 6 elementos de entrada (3 traslaciones y 3 rotaciones)
- * al atributo pose de la clase TARGET.
- */ 
-void Target::setPose(QVec newPose)
-{
-	this->pose6D = newPose;
-}
 
-/*
- * Método SET ACTIVO.
- * Asigna el valor del booleano de entrada newActivo, al atributo activo de la clase
- */ 
-void Target::setActivo(bool newActivo)
-{
-	this->activo = newActivo;
-}
-
-/*
- * Método SET START TIME
- * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
- */ 
-void Target::setStartTime(QTime newStart)
-{
-	this->start = newStart;
-}
-
-/*
- * Método SET WEIGHTS
- * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
- */ 
-void Target::setWeights(const QVec &weights)
-{
-	this->weights = weights;
-}
-
-
-/**
- * @brief ...
- * 
- * @param name ...
- * @return void
- */
-void Target::setNameInInnerModel(const QString& name)
-{
-	nameInInnerModel = name;
-}
 
 // /**
 //  * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
@@ -273,16 +229,18 @@ void Target::print(const QString &msg)
 	qDebug() << "	Tip " << tip;
 	qDebug() << "	Activo " << activo;
 	qDebug() << "	Pose6D" << pose6D;
-    qDebug() << "   Initial Tip pos." << initialTipPose;
-    qDebug() << "   Final Tip pos." << finalTipPose;
-    if( executed == true)
-        qDebug() << "    Target Executed on Robot!";
+	qDebug() << "	pose6DChopped" << pose6DChopped;
+	qDebug() << "	Chopped" << chopped;
+  qDebug() << "	Initial Tip pos." << initialTipPose;
+  qDebug() << "	Final Tip pos." << finalTipPose;
+  if( executed == true)
+        qDebug() << "	Target Executed on Robot!";
 	if(targetType == ALIGNAXIS)
-		qDebug() << "Axis of the tip to be aligned" << axis;
+		qDebug() << "	Axis of the tip to be aligned" << axis;
 	if(targetType == ADVANCEAXIS)
 	{
-		qDebug() << "Axis of the tip to move" << axis;
-		qDebug() << "Distance to advance in m." << step;
+		qDebug() << "	Axis of the tip to move" << axis;
+		qDebug() << "	Distance to advance in m." << step;
 	}
 	qDebug() << "	Weights" << weights;
 	qDebug() << "	Error vector" << errorVector;
@@ -301,23 +259,8 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Start time" << startTime;
 	qDebug() << " 	Running time" << runTime;
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
-    qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
-    qDebug() << "	Final angles after IK" << finalAngles;
+  qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
+  qDebug() << "	Final angles after IK" << finalAngles;
 	qDebug() << "-----TARGET END-----------------";
 }
 
-/**
- * @brief ...
- * 
- * @param t ...
- * @return float
- */
-float Target::standardRad(float t)
-{
-	if (t >= 0.) {
-		t = fmod(t+M_PI, M_PI/2.) - M_PI;
-	} else {
-		t = fmod(t-M_PI, -M_PI/2.) + M_PI;
-	}
-	return t;
-}
