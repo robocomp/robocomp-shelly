@@ -187,7 +187,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
                 createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				iterador.value().getInverseKinematics()->resolverTarget(target);
                 printf("Error: %f\n", target.getError());
-                if(target.getError() < 0.1)
+                if (target.getError() < 0.08)
                 {
                     moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
                     usleep(100000);

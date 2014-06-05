@@ -178,8 +178,8 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		QVec targetInRoot = inner->transform( listaJoints[0], QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
 		
-		//inner->transform("world", QVec::zeros(3),target.getNameInInnerModel()).print("target");
-		//inner->transform("world", QVec::zeros(3),this->endEffector).print("tip");
+		inner->transform("world", QVec::zeros(3),target.getNameInInnerModel()).print("target");
+		inner->transform("world", QVec::zeros(3),this->endEffector).print("tip");
 		
 		errorTraslaciones = targetInRoot - tip;
 	
