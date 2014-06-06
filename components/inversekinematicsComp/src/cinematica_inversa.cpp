@@ -123,8 +123,9 @@ void Cinematica_Inversa::chopPath(Target &target)
   QVec targetTotal(6);
   targetTotal.inject(targetTInTip,0);
   targetTotal.inject(targetRInTip,3);
-	const float step = 0.1;
-	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();
+	
+	const float step = 0.09;
+	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matrix
 	qDebug() << "dis" << dist;
 	if( dist > step)
 	{
@@ -138,8 +139,10 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R = (P * (T)(1.f-landa)) + (target.getPose() * landa);		
 		target.setChopped(true);
 		target.setChoppedPose(R);
+		target.setExecuted(false);
 	}
-	target.setChopped(false);
+	else
+		target.setChopped(false);
 }
 	
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*

@@ -187,7 +187,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				target.print("BEFORE PROCESSING");
 				
-				iterador.value().getInverseKinematics()->resolverTarget(target);
+				iterador.value().getInverseKinematics()->resolverTarget(target);   //Aquí está el bacalao
 
 				//printf("Error: %f\n", target.getError());
 				if(target.getError() < 0.1)
@@ -195,6 +195,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 					usleep(100000);
 					target.setExecuted(true);
+					qDebug() << "EJECUTADO";
 				}
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
 				target.annotateFinalTipPose();
@@ -203,10 +204,11 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					
 				if(target.isChopped() == false)
 				{
-					qDebug() << "BORRANDO";
 						mutex->lock();
+							qDebug() << "BORRANDO" << iterador.value().getPartName() << iterador.value().getTargets().size();
 							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
 						mutex->unlock();
+						
 				}
 			}
 	 }

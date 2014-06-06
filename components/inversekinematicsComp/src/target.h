@@ -77,9 +77,6 @@ public:
 	FinishStatus getStatus() const       { return finish; }
 	QVec getErrorVector() const          { return errorVector; }
 	QVec getFinalAngles() const          { return finalAngles; }
-	QQueue<Target> getSubtargets() const { return subtargets; }
-	Target& getHeadFromSubtargets()      { return subtargets.head(); }
-	void removeHeadFromSubtargets()      { subtargets.dequeue(); }
   bool getExecuted() const          	 { return executed; }
   bool isChopped() const				 { return chopped; }
 
@@ -102,26 +99,13 @@ public:
   void annotateInitialTipPose()
   {
       initialTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
-      QVec angs = inner->getRotationMatrixTo("world",getTipName()).extractAnglesR();
-      QVec low = angs.subVector(0,2);
-      QVec high = angs.subVector(3,5);
-      if(low.norm2() < high.norm2() )
-        initialTipPose.inject(low,3);
-      else
-        initialTipPose.inject(high,3);
+      initialTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR_min(),3);
   };
   void annotateFinalTipPose()
   {
         finalTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
-        QVec angs = inner->getRotationMatrixTo("world",getTipName()).extractAnglesR();
-        QVec low = angs.subVector(0,2);
-        QVec high = angs.subVector(3,5);
-        if(low.norm2() < high.norm2() )
-           finalTipPose.inject(low,3);
-        else
-           finalTipPose.inject(high,3);
+        finalTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR(),3);
   };
-
   void setInitialAngles(const QStringList &motors)
   {
         foreach( QString motor, motors)
@@ -139,9 +123,8 @@ private:
     QTime start;											// Tiempo en que comenzó a trabajar el robot con el target original.
     bool activo;											// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
     QVec pose6D; 											// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-    QVec pose6DChopped;
+    QVec pose6DChopped;								// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
     QVec axis;												// Target axis to be aligned with
-		QQueue<Target> subtargets;				// Cola de subtargets (trayectorias troceadas) para cada target.
     InnerModel *inner;								// Innermodel para calcular cosas.
     QVec weights;											// Pesos para restringir translaciones, rotaciones o ponderar el resultado
     TargetType targetType;						//

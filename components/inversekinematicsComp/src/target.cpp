@@ -83,6 +83,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->initialTipPose = QVec(6);
 	this->finalTipPose = QVec(6);
 	this->initialAngles = QVec();
+	this->finalAngles = QVec();
 	this->chopped = false;
 }
 
@@ -115,6 +116,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->initialTipPose = QVec(6);
 	this->finalTipPose = QVec(6);
 	this->initialAngles = QVec();
+	this->finalAngles = QVec();
 	this->chopped = false;
 }
 
@@ -138,6 +140,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->error = 0.f;
 	this->weights = weights;
 	this->startTime = QTime::currentTime();
+	this->runTime = QTime();
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
@@ -145,6 +148,7 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->finalTipPose = QVec(6);
 	this->initialTipPose = QVec(6);
 	this->initialAngles = QVec();
+	this->finalAngles = QVec();
 	this->chopped = false;
 
 }
@@ -153,69 +157,6 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
  *		      									MÉTODOS PÚBLICOS															*
  *--------------------------------------------------------------------------*/
 
-
-// /**
-//  * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
-//  * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
-//  * 
-//  * @return void
-//  */
-// void Target::chopPath()
-// {
-// 	
-// 	static QVec poseAnt = inner->transform("world", QVec::zeros(3), this->tip);
-// 	
-// 	QVec poseTranslation = pose6D.subVector(0,2);  																						//translation part of target pose
-// 	QVec poseRotation = pose6D.subVector(3,5); 																								//rotation part of target pose
-// 	//QVec tipInWorld = inner->transform("world", QVec::zeros(3), this->tip);										//coor of tip in world
-// 	QVec rotTipInWorld =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();		//orientation of tip in world
-// 	QVec angulos1 = rotTipInWorld.subVector(0,2);																							//shit to select minimun module solution
-// 	QVec angulos2 = rotTipInWorld.subVector(3,5);
-// 	QVec rot;
-// 	if(angulos1.norm2() < angulos2.norm2())
-// 		rot = angulos1;
-// 	else
-// 		rot = angulos2;
-// 
-// 	QVec P(6);
-// 	P.inject(poseAnt,0);
-// 	P.inject(rot,3);
-// 
-// 	QVec Q(6);
-// 	Q.inject(poseTranslation,0);
-// 	Q.inject(poseRotation,3);
-// 
-// 	QVec error = P - Q;		
-// 
-// 	error[3] = standardRad( error[3] );
-// 	error[4] = standardRad( error[4] );
-// 	error[5] = standardRad( error[5] );
-// 	
-// 	
-// 	float dist = error.norm2();
-// 	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-// 	const float step = 0.05;
-// 	
-// 	if(dist >step)
-// 	{
-// 		int NPuntos = floor(dist / step);
-// 		float interval = 1.0 / NPuntos;
-// 		T landa = 0.;
-// 		QVec R(6);
-// 		for(int i=0; i<=NPuntos; i++)
-// 		{
-// 			
-// 			R = (P * (T)(1.f-landa)) + (Q * landa);
-// 			if( targetType == Target::POSE6D )
-// 			{
-// 				Target t(POSE6D, inner, tip, R, weights, false);
-// 				subtargets.enqueue(t); //añadimos subtarget a la lista.
-// 			}
-// 			landa += interval; 
-// 		}
-// 		poseAnt = R;
-// 	}
-// }
 
 void Target::print(const QString &msg)
 {

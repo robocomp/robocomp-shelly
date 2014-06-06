@@ -57,11 +57,9 @@ class BodyPart
 		QQueue<Target> getTargets() const 								{ return listaTargets;}; // Devuelve toda la cola de targets de la parte del cuerpo.
 		Target& getHeadFromTargets() 				 							{ return listaTargets.head(); }; //Devuelve el primer target de la cola de targets.
 		Cinematica_Inversa* getInverseKinematics()				{ return ik;}; // Devuelve la variable de cinematica_inversa asignada a la partedel cuerpo.
-		
-		//// OTROS MÉTODOS: MODIFICADORES ////
 		void addListaTarget(const QQueue<Target> &lt) 		{ listaTargets = lt;}; //Guarda la lista de targets que se le asigna en su atributo.
 		void addTargetToList(const Target &t)							{ listaTargets.enqueue(t);};
-		void removeHeadFromTargets()											{ listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
+		void removeHeadFromTargets()											{ if (listaTargets.size() > 0) listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
 		
 	private:
 		QString part;																			// Nombre de la parte del cuerpo.
