@@ -40,7 +40,6 @@
 #include <qt4/QtCore/QTime>
 #include <qt4/QtCore/qmap.h>
 #include <qt4/QtCore/qqueue.h>
-#include <boost/graph/graph_concepts.hpp>
 
 using namespace std;
 
@@ -77,8 +76,8 @@ public:
 	FinishStatus getStatus() const       { return finish; }
 	QVec getErrorVector() const          { return errorVector; }
 	QVec getFinalAngles() const          { return finalAngles; }
-  bool getExecuted() const          	 { return executed; }
-  bool isChopped() const				 { return chopped; }
+	bool getExecuted() const          	 { return executed; }
+	bool isChopped() const				 { return chopped; }
 
 	// MÉTODOS SET:
 	void setPose(const QVec &newPose)				{ this->pose6D = newPose;};
@@ -145,7 +144,6 @@ private:
     bool executed;                    // true if finally executed in real arm
 	bool chopped;
 		
-	
 };
 
 
