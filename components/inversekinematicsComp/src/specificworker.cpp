@@ -178,8 +178,8 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 {
 		QMap<QString, BodyPart>::iterator iterador;
 		for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
-		{
-			if(iterador.value().getTargets().isEmpty() == false)
+		{	
+			if(iterador.value().noTargets() == false)
 			{
 				Target &target = iterador.value().getHeadFromTargets(); 	
 				target.annotateInitialTipPose();
@@ -187,7 +187,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				target.print("BEFORE PROCESSING");
 				
-				iterador.value().getInverseKinematics()->resolverTarget(target);   //Aquí está el bacalao
+				iterador.value().getInverseKinematics()->resolverTarget(target);
 
 				//printf("Error: %f\n", target.getError());
 				if(target.getError() < 0.1)
@@ -195,7 +195,6 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 					usleep(100000);
 					target.setExecuted(true);
-					qDebug() << "EJECUTADO";
 				}
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
 				target.annotateFinalTipPose();
@@ -204,14 +203,14 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					
 				if(target.isChopped() == false)
 				{
-						mutex->lock();
-							qDebug() << "BORRANDO" << iterador.value().getPartName() << iterador.value().getTargets().size();
-							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelto.
+						mutex->lock();	
+						qDebug() << iterador.value().noTargets();	
+ 							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelt
 						mutex->unlock();
-						
 				}
+				
 			}
-	 }
+		}
 	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
 }
 
@@ -278,8 +277,7 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
    Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
-   //chopPath(partName, t);
-
+ 
     mutex->lock();
         bodyParts[partName].addTargetToList(t);
     mutex->unlock();
@@ -301,7 +299,7 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 void SpecificWorker::pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& axis, bool axisConstraint, float axisAngleConstraint)
 {
 	QString partName = QString::fromStdString(bodyPart);
-	BodyPart bodypart;
+	
 	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
@@ -347,7 +345,7 @@ void SpecificWorker::pointAxisTowardsTarget(const string& bodyPart, const Pose6D
 void SpecificWorker::advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist)
 {
 	QString partName = QString::fromStdString(bodyPart);
-	BodyPart bodypart;
+	
 	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
@@ -422,7 +420,7 @@ void SpecificWorker::setFingers(float d)
 void SpecificWorker::goHome(const string& part)
 {
 	QString partName = QString::fromStdString(part);
-	BodyPart bodypart;
+	
 	if ( bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
@@ -482,7 +480,7 @@ TargetState SpecificWorker::getState(const std::string &part)
 {
 	TargetState state;
 	QString partName = QString::fromStdString(part);
-	BodyPart bodypart;
+	
 	if ( bodyParts.contains(partName) == false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";

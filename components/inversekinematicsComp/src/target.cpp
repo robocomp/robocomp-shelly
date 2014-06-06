@@ -52,6 +52,7 @@ Target::Target()
  */ 
 Target::~Target()
 {
+	qDebug() << "gola";
 }
 
 /**
