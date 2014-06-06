@@ -180,13 +180,13 @@
 
                                                                                                                                                                 <transform id="arm_right_7.5" tx="0" ty="-22.5" tz="60" rx="0" ry="0" rz="0">
                                                                                                                                                                         <joint id="rightWrist3" port="20000" axis="z" min="0" max ="0.000001" home="0">
-																						<!--
+																						
                                                                                                                                                                                 <transform id="axeswr3" >
 																					                <plane id="xwr3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																					                <plane id="ywr3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																					                <plane id="zwr3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				                </transform>
-																						-->
+																						
                                                                                                                                                                         </joint>
                                                                                                                                                                 </transform>
 
@@ -397,14 +397,20 @@
 																				<plane id="handleftMesh1" pz="100" ny="1" size="170,170,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
 
 																				<transform id="arm_left_7.5" tx="0" ty="2.5" tz="100" rx="0" ry="0" rz="0">
-                                                                                                                                                                        <joint id="leftWrist3" port="20000" axis="z" min="0" max ="0.000001" home="0">
-                                                                                                                                                                        <!--
-                                                                                                                                                                        <transform id="axeswl3" >
-																					        <plane id="xwl3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
-																					        <plane id="ywl3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
-																					        <plane id="zwl3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-																				        </transform>
-                                                                                                                                                                        -->
+                                                                                                                                                                        <joint id="leftWrist3" port="20000" axis="z" min="0" max ="0.001" home="0">
+                                                                                                                                                                        
+		                                                                                                                                                                <transform id="axeswl3" >
+																							<plane id="xwl3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
+																							<plane id="ywl3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+																							<plane id="zwl3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
+																						</transform>
+
+																						<transform id="grabPositionHandL" tz="160-100" ty="-2.5" >
+																							<plane id="axisxl" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" />
+																							<plane id="axisyl" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
+																							<plane id="axiszl" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" />
+																						</transform>
+		                                                                                                                                                                
                                                                                                                                                                         </joint>
                                                                                                                                                                 </transform> 
 
@@ -454,11 +460,7 @@
 																					<plane id="zlh2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				</transform>-->
 
-																				<transform id="grabPositionHandL" tz="160" >
-																					<plane id="axisxl" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" />
-																					<plane id="axisyl" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
-																					<plane id="axiszl" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" />
-																				</transform>
+																				
 
 
 																			</joint>
