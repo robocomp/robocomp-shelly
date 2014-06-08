@@ -197,18 +197,16 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					target.setExecuted(true);
 				}
 				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
-				target.annotateFinalTipPose();
+				//target.annotateFinalTipPose();
 				removeInnerModelTarget(target);
 				target.print("AFTER PROCESSING");
 					
 				if(target.isChopped() == false)
 				{
 						mutex->lock();	
-						qDebug() << iterador.value().noTargets();	
  							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelt
 						mutex->unlock();
 				}
-				
 			}
 		}
 	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.

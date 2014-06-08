@@ -92,7 +92,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-		chopPath(target);
+		//chopPath(target);
 		levenbergMarquardt(target);
 	}
 		
@@ -124,7 +124,7 @@ void Cinematica_Inversa::chopPath(Target &target)
   targetTotal.inject(targetTInTip,0);
   targetTotal.inject(targetRInTip,3);
 	
-	const float step = 0.09;
+	const float step = 0.01;
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matrix
 	qDebug() << "dis" << dist;
 	if( dist > step)
@@ -397,6 +397,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	target.setErrorVector(error);
 	
     target.setFinalAngles(angulos);
+	
 	// Apply new kinematic configuration iif the robot gets to, approximately, the target position
 	// TODO ESTUDIAR: HAY QUE TENER EN CUENTA LOS RADIANES!!!
     //	if(error.norm2()<0.05)

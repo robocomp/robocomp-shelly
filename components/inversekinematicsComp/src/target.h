@@ -93,7 +93,7 @@ public:
 	void setIter(uint it)                			{ iter = it; }
 	void setErrorVector(const QVec &e)   			{ errorVector = e; }
 	void setFinalAngles(const QVec &f)  			{ finalAngles = f; }
-	void setExecuted(bool e)             				{ executed = e; }
+	void setExecuted(bool e)             			{ executed = e; }
 	void setChopped(bool c)							{ chopped = c; }
 	void annotateInitialTipPose()
 	{
@@ -103,7 +103,7 @@ public:
 	void annotateFinalTipPose()
 	{
         finalTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
-        finalTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR(),3);
+        finalTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR_min(),3);
 	};
 	void setInitialAngles(const QStringList &motors)
 	{
