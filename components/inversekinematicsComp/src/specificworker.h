@@ -55,7 +55,7 @@ class SpecificWorker : public GenericWorker
 		SpecificWorker(MapPrx& mprx, QWidget *parent = 0);	
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
-		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights);
+		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius);
 		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis &axis, bool axisConstraint, float axisAngleConstraint);
 		void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist);
 		void  setFingers(float d);

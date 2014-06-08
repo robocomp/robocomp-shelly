@@ -78,6 +78,9 @@ public:
 	QVec getFinalAngles() const          { return finalAngles; }
 	bool getExecuted() const          	 { return executed; }
 	bool isChopped() const				 { return chopped; }
+	bool isMarkedforRemoval() const		 { return removal; }
+	float getRadius() const 			 { return radius; }
+	bool isAtTarget() const 			 { return atTarget; };
 
 	// MÉTODOS SET:
 	void setPose(const QVec &newPose)				{ this->pose6D = newPose;};
@@ -110,40 +113,44 @@ public:
         foreach( QString motor, motors)
             initialAngles.append(inner->getJoint(motor)->getAngle());
 	}
-
+	void markForRemoval( bool m) 					{ removal = m; };
+	void setRadius(float r)       					{ radius = r; };
+	void setAtTarget(bool a)  						{ atTarget = a; };
 	
 	// OTROS MÉTODOS
 	void print(const QString &msg = QString());
 	
 private:
 	
-    QString tip;                      // Nombre del efector final al que está asociado el target
-    QTime start;											// Tiempo en que comenzó a trabajar el robot con el target original.
-    bool activo;											// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
-    QVec pose6D; 											// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-    QVec pose6DChopped;								// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
-    QVec axis;												// Target axis to be aligned with
-    InnerModel *inner;								// Innermodel para calcular cosas.
-    QVec weights;											// Pesos para restringir translaciones, rotaciones o ponderar el resultado
-    TargetType targetType;						//
-    bool axisConstraint;							// True if constraint is to be applien on axis for ALINGAXIS mode
+    QString tip;                     		// Nombre del efector final al que está asociado el target
+    QTime start;							// Tiempo en que comenzó a trabajar el robot con el target original.
+    bool activo;							// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
+    QVec pose6D; 							// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
+    QVec pose6DChopped;						// Vector de 6 elementos, 3 traslaciones y 3 rotaciones: tx, ty, tz, rx, ry, rz
+    QVec axis;								// Target axis to be aligned with
+    InnerModel *inner;						// Innermodel para calcular cosas.
+    QVec weights;							// Pesos para restringir translaciones, rotaciones o ponderar el resultado
+    TargetType targetType;					//
+    bool axisConstraint;					// True if constraint is to be applien on axis for ALINGAXIS mode
 	float axisAngleConstraint;				// constraint oto be applied to axis in case axisConstrint is TRUE
-    QString nameInInnerModel;					// generated name to create provisional targets
-    float error;											// Error after IK
-    QVec errorVector;									// Error vector
-    float step;												// step to advance along axis
-    QTime startTime;									// timestamp indicating when the target is created
-    QTime runTime;										// timestamp indicating when the target is executed
+    QString nameInInnerModel;				// generated name to create provisional targets
+    float error;							// Error after IK
+    QVec errorVector;						// Error vector
+    float step;								// step to advance along axis
+    QTime startTime;						// timestamp indicating when the target is created
+    QTime runTime;							// timestamp indicating when the target is executed
 	ulong elapsedTime;          			// timestamp indicating when the duration of the target execution in milliseconds.
 	FinishStatus finish;        			// Enumerated to show finish reason
-    uint iter;												// Number of iterations before completing
-    QVec finalAngles;									// Mercedes lo documenta luego
-    QVec initialAngles;               //
-    QVec initialTipPose;            	// Tip position in world reference frame after processing
-    QVec finalTipPose;              	// Tip position in world reference frame after processing
-    bool executed;                    // true if finally executed in real arm
-	bool chopped;
-		
+    uint iter;								// Number of iterations before completing
+    QVec finalAngles;						// Mercedes lo documenta luego
+    QVec initialAngles;               		// Angles before executing this target
+    QVec initialTipPose;            		// Tip position in world reference frame after processing
+    QVec finalTipPose;              		// Tip position in world reference frame after processing
+    bool executed;                    		// true if finally executed in real arm
+	bool chopped;							// true if the target  has been chopped
+	float radius; 							// if > 0 the robot stops when reaching a ball of radius "radius" with center in Pose6D
+	bool removal;           		         // 
+	bool atTarget;
 };
 
 

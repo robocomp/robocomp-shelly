@@ -189,24 +189,29 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				
 				iterador.value().getInverseKinematics()->resolverTarget(target);
 
-				//printf("Error: %f\n", target.getError());
-				if(target.getError() < 0.1)
+				if(target.getError() <= 0.1 and target.isAtTarget() == false) //local goal achieved: execute the solution
 				{
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 					usleep(100000);
 					target.setExecuted(true);
+					actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.	
 				}
-				actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.
+				else  
+				{
+					target.markForRemoval(true);
+				}
+				
 				//target.annotateFinalTipPose();
 				removeInnerModelTarget(target);
 				target.print("AFTER PROCESSING");
 					
-				if(target.isChopped() == false)
+				if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 				{
 						mutex->lock();	
  							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelt
 						mutex->unlock();
-				}
+				}									
+	
 			}
 		}
 	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
@@ -249,7 +254,7 @@ void SpecificWorker::removeInnerModelTarget(const Target& target)
  * @param weights ...
  * @return void
  */
-void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights)
+void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius)
 {
 	QString partName = QString::fromStdString(bodyPart);
 	if ( this->bodyParts.contains(partName)==false)
@@ -275,7 +280,8 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
    Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
- 
+   t.setRadius(radius/1000.f);
+   
     mutex->lock();
         bodyParts[partName].addTargetToList(t);
     mutex->unlock();
@@ -505,73 +511,6 @@ TargetState SpecificWorker::getState(const std::string &part)
 /*-----------------------------------------------------------------------------*
  * 			                MÉTODOS    PRIVADOS                                *
  *-----------------------------------------------------------------------------*/ 
-
-/**
- * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
- * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
- * 
- * @return void
- */
-void SpecificWorker::chopPath(const QString &partName, const Target &target)
-{
-		
-    QVec poseTranslation = target.getPose().subVector(0,2);  					//translation part of target pose
-    QVec poseRotation = target.getPose().subVector(3,5); 						//rotation part of target pose
-	
-	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
-	
-	QVec tipInWorld = innerModel->transform("world", QVec::zeros(3), target.getTipName());						//coor of tip in world
-	QVec rotTipInWorld =  innerModel->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
-	
-	QVec P(6);
-	P.inject(tipInWorld,0);
-	P.inject(rotTipInWorld,3);
-
-	QVec Q(6);
-	Q.inject(poseTranslation,0);
-	Q.inject(poseRotation,3);
-
-	QVec error = P - Q;		
-    QVec rr = error.subVector(3,5);
-    calcularModuloFloat(rr,2*M_PI);
-    error.inject(rr,3);
-
-//	error[3] = standardRad( error[3] );
-//	error[4] = standardRad( error[4] );
-//	error[5] = standardRad( error[5] );
-	
-    QMat We = QMat::makeDiagonal(target.getWeights());
-    float dist = (We*error).norm2();
-    qDebug() << "Target pose" << Q;
-    qDebug() << "Currnet pose" << P;
-    qDebug() << "Error" << error;
-    qDebug() << "Initial distance to target" << dist;
-	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-    const float step = 0.1;
-	
-	if(dist >step)
-	{
-		int NPuntos = floor(dist / step);
-		float interval = 1.0 / NPuntos;
-		T landa = 0.;
-		QVec R(6);
-		for(int i=0; i<=NPuntos; i++)
-		{
-			R = (P * (T)(1.f-landa)) + (Q * landa);
-			
-			if( target.getType() == Target::POSE6D )
-			{
-				Target t(Target::POSE6D, innerModel, target.getTipName(), R, target.getWeights(), false);
-                mutex->lock();
-                    bodyParts[partName].addTargetToList(t);
-                mutex->unlock();
-
-			}
-			landa += interval; 
-		}
-        qDebug() << "Number of intermediate targets" << bodyParts[partName].getTargets().size();
-	}
-}
 
 
 /*-----------------------------------------------------------------------------*

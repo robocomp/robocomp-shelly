@@ -37,7 +37,7 @@ Q_OBJECT
 public:
 	BodyInverseKinematicsI( GenericWorker *_worker, QObject *parent = 0 );
 	~BodyInverseKinematicsI();
-	void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, const Ice::Current& = Ice::Current());
+	void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, Ice::Float radius, const Ice::Current& = Ice::Current());
 void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, Ice::Float axisAngleConstraint, const Ice::Current& = Ice::Current());
 void  advanceAlongAxis(const string& bodyPart, const Axis& ax, Ice::Float dist, const Ice::Current& = Ice::Current());
 void  setFingers(Ice::Float d, const Ice::Current& = Ice::Current());

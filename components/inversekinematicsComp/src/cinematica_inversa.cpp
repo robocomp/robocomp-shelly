@@ -92,8 +92,9 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-		//chopPath(target);
-		levenbergMarquardt(target);
+		chopPath(target);
+		if( target.isAtTarget() == false )
+			levenbergMarquardt(target);
 	}
 		
 	target.setElapsedTime(target.getRunTime().elapsed());
@@ -124,10 +125,14 @@ void Cinematica_Inversa::chopPath(Target &target)
   targetTotal.inject(targetTInTip,0);
   targetTotal.inject(targetRInTip,3);
 	
-	const float step = 0.01;
-	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matrix
-	qDebug() << "dis" << dist;
-	if( dist > step)
+	const float step = 0.1;
+	
+	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
+	qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
+	
+// 	if( targetTInTip.norm2() < target.getRadius() )
+// 		target.setAtTarget(true);
+/*	else*/ if( dist > step)  
 	{
 		qDebug() << "entering CHOP" << dist;
 		int nPuntos = floor(dist / step);
@@ -254,19 +259,8 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		float ang = atan2(si,co);	
 		QMat c = o.crossProductMatrix();
 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));  ///Rodrigues formula to compute R from <vector-angle>
-		QVec rotaciones = r.extractAnglesR();
-		QVec errorRotaciones(3);
-			
-		if(rotaciones.subVector(0,2).norm2() < rotaciones.subVector(3,5).norm2())
-			errorRotaciones = rotaciones.subVector(0,2);
-		else
-			errorRotaciones = rotaciones.subVector(3,5);
-		
-		//errorRotaciones.print("rotaciones");	
-		errorTotal[3] = errorRotaciones[0];
-		errorTotal[4] = errorRotaciones[1];
-		errorTotal[5] = errorRotaciones[2];
-		
+		QVec erroRotaciones = r.extractAnglesR_min();
+		errorTotal.inject(erroRotaciones,3);
 	}
 	
 	//qDebug() << __FUNCTION__ << errorTotal;

@@ -85,6 +85,8 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->initialAngles = QVec();
 	this->finalAngles = QVec();
 	this->chopped = false;
+	removal = false;
+	atTarget = false;
 }
 
 /**
@@ -118,6 +120,8 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->initialAngles = QVec();
 	this->finalAngles = QVec();
 	this->chopped = false;
+	removal = false;
+	atTarget = false;
 }
 
 /**
@@ -150,6 +154,8 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->initialAngles = QVec();
 	this->finalAngles = QVec();
 	this->chopped = false;
+	removal = false;
+	atTarget = false;
 
 }
 
@@ -204,6 +210,11 @@ void Target::print(const QString &msg)
 	qDebug() << "	Final angles after IK" << finalAngles;
 	if( executed == true) 
 		qDebug() << "	Target Executed!";
+	if( removal == true and atTarget==false)
+		qDebug() << " 	Attention: Marked for removal without success";
+	if( atTarget == true)
+		qDebug() << " 	Attention: Marked for removal with success";
+	
 	qDebug() << "-----TARGET END-----------------";
 }
 
