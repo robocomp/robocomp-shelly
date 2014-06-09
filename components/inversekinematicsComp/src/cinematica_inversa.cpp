@@ -92,7 +92,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-		chopPath(target);
+		chopPath(target);	
 		if( target.isAtTarget() == false )
 			levenbergMarquardt(target);
 	}
@@ -142,6 +142,9 @@ void Cinematica_Inversa::chopPath(Target &target)
 		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
 		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
 		R = (P * (T)(1.f-landa)) + (target.getPose() * landa);		
+		//Update virtual target in innermodel to chopped postion
+		inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
+		
 		target.setChopped(true);
 		target.setChoppedPose(R);
 		target.setExecuted(false);
@@ -224,11 +227,17 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 	{
 		// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
 		QVec errorTraslaciones = QVec::zeros(3);
+		
 		QVec targetInRoot = inner->transform( listaJoints[0], QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
-			
+/*			
+		targetInRoot.print("targetInRoot");
+		tip.print("tip");
+	*/	
 		errorTraslaciones = targetInRoot - tip;
 	
+//		errorTraslaciones.print("errorTraslaciones");
+		
 		// ---> ROTATIONS
  		QMat matriz = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel());
 		QVec TARGETenMANO = matriz.extractAnglesR();
@@ -263,7 +272,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		errorTotal.inject(erroRotaciones,3);
 	}
 	
-	//qDebug() << __FUNCTION__ << errorTotal;
+//	qDebug() << __FUNCTION__ << errorTotal;
 	return errorTotal;
 }
 
