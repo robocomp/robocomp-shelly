@@ -207,6 +207,7 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Running time" << runTime;
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
 	qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
+	qDebug() << "	Initial angles after IK" << initialAngles;
 	qDebug() << "	Final angles after IK" << finalAngles;
 	if( executed == true) 
 		qDebug() << "	Target Executed!";

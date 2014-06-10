@@ -38,6 +38,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	//Conectamos botones de EJECUCIÓN:
 	connect(rcisButton, SIGNAL(clicked()), this, SLOT(enviarRCIS()));
 	connect(robotButton, SIGNAL(clicked()), this, SLOT(enviarROBOT()));
+	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
 	
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 	
@@ -244,8 +245,15 @@ void SpecificWorker::enviar()
 	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
 		closeFingers();
 	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
-		goHome();
+		goHome(part_home->currentText());
 }
+
+
+void SpecificWorker::enviarHome()
+{
+	goHome("All");
+}
+
 
 /*
  * Método actualizarInnermodel
@@ -535,20 +543,18 @@ void SpecificWorker::camareroCentro()
  * 
  * @return void
  */
-void SpecificWorker::goHome()
+void SpecificWorker::goHome(QString partName)
 {
+	std::string part = partName.toStdString();
+	qDebug() << "Go gome" << partName;
 	try 
 	{	
-		std::string part = part_home->currentText().toStdString();
-		qDebug() << "Go gome" << QString::fromStdString(part);
 		
-		if(part=="All")
+		if(partName=="All")
 		{
-			QQueue<std::string> partes;
-			partes.append("LEFTARM"); 		partes.append("RIGHTARM");		partes.append("HEAD");
-			
-			for(int i=0; i<3; i++)
-				bodyinversekinematics_proxy->goHome(partes.dequeue());
+				bodyinversekinematics_proxy->goHome("HEAD");
+				bodyinversekinematics_proxy->goHome("LEFTARM");
+				bodyinversekinematics_proxy->goHome("RIGHTARM");
 		}
 		else
 			bodyinversekinematics_proxy->goHome(part);
@@ -645,8 +651,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 	{
 		//colocamos el target en el RCIS. HAY QUE PASAR A METROS LAS TRASLACIONES
 		//poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
-		poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
-		moverTargetEnRCIS(poseMetros); 
+		//poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
+		moverTargetEnRCIS(p); 
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)
 		pose6D.x = p[0];     pose6D.y = p[1];     pose6D.z = p[2];

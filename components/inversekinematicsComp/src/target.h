@@ -110,6 +110,7 @@ public:
 	};
 	void setInitialAngles(const QStringList &motors)
 	{
+				initialAngles.clear();
         foreach( QString motor, motors)
             initialAngles.append(inner->getJoint(motor)->getAngle());
 	}

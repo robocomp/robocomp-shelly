@@ -92,7 +92,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-		chopPath(target);	
+		//chopPath(target);	
 		if( target.isAtTarget() == false )
 			levenbergMarquardt(target);
 	}
@@ -117,7 +117,7 @@ void Cinematica_Inversa::chopPath(Target &target)
   QVec poseTranslation = target.getPose().subVector(0,2);  					//translation part of target pose
   QVec poseRotation = target.getPose().subVector(3,5); 						//rotation part of target pose
 	
-	//Si hay un target encolado previo, tomar el punto de partida como la pose6d de ese target
+	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese target
 	
   QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());				
   QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
@@ -127,6 +127,7 @@ void Cinematica_Inversa::chopPath(Target &target)
 	
 	const float step = 0.1;
 	
+	(QMat::makeDiagonal(target.getWeights()) * targetTotal).print("targetTotal");
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
 	qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
 	
@@ -141,9 +142,11 @@ void Cinematica_Inversa::chopPath(Target &target)
 		QVec P(6);
 		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
 		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
-		R = (P * (T)(1.f-landa)) + (target.getPose() * landa);		
+		R = (P * (T)(1.f-landa)) + (target.getPose() * landa);	
+		
 		//Update virtual target in innermodel to chopped postion
 		inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
+		
 		
 		target.setChopped(true);
 		target.setChoppedPose(R);
@@ -184,11 +187,11 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 		{
 			// TRASLACIONES: con respecto al último NO traslada
 			QVec axisTip = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
-			axisTip = this->inner->transform(this->listaJoints[0], axisTip, linkName);
-			QVec axisBase = this->inner->transform(this->listaJoints[0], zero, linkName);
+			axisTip = this->inner->transform(this->listaJoints.last(), axisTip, linkName);
+			QVec axisBase = this->inner->transform(this->listaJoints.last(), zero, linkName);
 			QVec axis = axisBase - axisTip;
-			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints[0], zero, this->endEffector) );		
-			QVec res = toEffector.crossProduct(axis);
+			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints.last(), zero, this->endEffector) );		
+			QVec res = -toEffector.crossProduct(axis);
 
 			jacob(0,j) = res.x();
 			jacob(1,j) = res.y();
@@ -228,18 +231,17 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
 		QVec errorTraslaciones = QVec::zeros(3);
 		
-		QVec targetInRoot = inner->transform( listaJoints[0], QVec::zeros(3), target.getNameInInnerModel());	
-		QVec tip = inner->transform(this->listaJoints[0], QVec::zeros(3), this->endEffector);	
-/*			
-		targetInRoot.print("targetInRoot");
-		tip.print("tip");
-	*/	
+		QVec targetInRoot = inner->transform( listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
+		QVec tip = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
 		errorTraslaciones = targetInRoot - tip;
 	
-//		errorTraslaciones.print("errorTraslaciones");
+		targetInRoot.print("targetInRoot");
+		tip.print("tip");
+		errorTraslaciones.print("errorTraslaciones");
 		
 		// ---> ROTATIONS
  		QMat matriz = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel());
+		
 		QVec TARGETenMANO = matriz.extractAnglesR();
 		QVec angulos1 = QVec::vec3(TARGETenMANO[0], TARGETenMANO[1], TARGETenMANO[2]);
 		QVec angulos2 = QVec::vec3(TARGETenMANO[3], TARGETenMANO[4], TARGETenMANO[5]);
@@ -248,10 +250,39 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 			errorRotaciones = angulos1;
 		else
 			errorRotaciones = angulos2;
-				
+							
+		
+		errorRotaciones.print("error rotaciones");
+		
+		
+ 		//errorRotaciones[1]=errorRotaciones[1]/100;
+ 		errorRotaciones[1]=0;
+		
+// 		(inner->getRotationMatrixTo("world", target.getNameInInnerModel()).extractAnglesR_min()).print("R tar in world");
+// 		(inner->getRotationMatrixTo("world", endEffector).extractAnglesR_min()).print("R tip in world");
+// 				
+// 		QVec e2_tar=inner->getRotationMatrixTo("world", target.getNameInInnerModel()).extractAnglesR_min();
+// 		QVec e2_tip=inner->getRotationMatrixTo("world", endEffector).extractAnglesR_min();
+// 		
+// 		QVec error2=e2_tip-e2_tar;
+// 		error2.print("ERROR 2");
+								
+// 		try
+// 		{
+// 			
+// 			inner->updateTransformValues("AUX",0,600,600,error2[0],error2[1],error2[2]);        ////CREO QUE SE PUEDE QUITAR
+// 		
+// 		}catch (const Ice::Exception &ex){ cout<<"Excepción en moverTarget: "<<ex<<endl; }
+// 		
+// 		inner->getRotationMatrixTo(listaJoints.last(),"AUX").extractAnglesR_min().print("\n AUX desde último joint \n");
+
+		
 		// Montamos el ERROR FINAL:
 		errorTotal.inject(errorTraslaciones,0);
 		errorTotal.inject(errorRotaciones,3);
+		
+		
+		
 	}
 	
 	if(target.getType() == Target::ALIGNAXIS)
@@ -272,7 +303,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		errorTotal.inject(erroRotaciones,3);
 	}
 	
-//	qDebug() << __FUNCTION__ << errorTotal;
+	qDebug() << __FUNCTION__ << errorTotal;
 	return errorTotal;
 }
 
@@ -292,12 +323,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
  * @return void
  */
 void Cinematica_Inversa::levenbergMarquardt(Target &target)
-{
-	// CÓDIGO AÑADIDO PARA QUE EL BRAZO NO SE MUEVA SI EL ERROR FINAL ES MAYOR QUE UN UMBRAL
-	// GUARDAMOS LOS ÁNGULOS ORIGINALES PARA PODER VOLVER A LA POSICIÓN ORIGINAL SI EL ERROR
-	// NO NOS CONVIENE (EVITAMOS QUE EL ROBOT HAGO COSAS RARAS):
-	QVec angulosOriginales = calcularAngulos(); 
-	
+{	
 	const float e1 = 0.0001, e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
 	const int kMax = 100;
 	const QMat Identidad = QMat::identity(this->listaJoints.size());
@@ -309,8 +335,14 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
 	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
 	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
+	
+	qDebug()<<"\n ----> ERROR INICIAL: "<<error<< " NORMA: "<<error.norm2();
+	
+	
 	QMat J = jacobian(motores);
-	QMat H = J.transpose()*(We*J);			
+// 	QMat H = J.transpose()*(/*We**/J);	
+		QMat H = J.transpose()*(We*J);			
+
 	QVec g = J.transpose()*(error);		
 	bool stop = (g.maxAbs(auxInt) <= e1);
 	bool smallInc = false;
@@ -345,7 +377,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			}
 			else
 			{
-				aux = angulos-incrementos; 
+				aux = angulos+incrementos; 
 				calcularModuloFloat(aux, 2*M_PI); // NORMALIZAMOS
 
 				if(outLimits(aux, motores) == true)		///COMPROBAR SI QUEDAN MOTORES LIBRES, SINO SALIR!!!!!!!!!!!
@@ -353,7 +385,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
 					J = jacobian(motores);
-					H = J.transpose()*(We*J);
+// 					H = J.transpose()*(/*We**/J);
+					H = J.transpose()*(We*J);			
 					g = J.transpose()*(error);
 				}
 				
@@ -371,7 +404,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 						// Recalculamos con nuevos datos.
 						error = We*computeErrorVector(target);						
 						J = jacobian(motores);
-						H = J.transpose()*(We*J);
+// 						H = J.transpose()*(/*We**/J);
+						H = J.transpose()*(We*J);			
 						g = J.transpose()*(error);
 		
 						stop = (stop) or (g.maxAbs(auxInt)<=e1);
@@ -398,20 +432,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	
 	target.setError(error.norm2());
 	target.setErrorVector(error);
+  target.setFinalAngles(angulos);
 	
-    target.setFinalAngles(angulos);
-	
-	// Apply new kinematic configuration iif the robot gets to, approximately, the target position
-	// TODO ESTUDIAR: HAY QUE TENER EN CUENTA LOS RADIANES!!!
-    //	if(error.norm2()<0.05)
-    //	{
-    //		target.setFinalAngles(angulos);
-    //	}
-    //	else
-    //	{
-    //		qDebug()<<"\nCouldn't get to target position.\n";
-    //		target.setFinalAngles(angulosOriginales);
-    //	}
 }
 
 
@@ -670,7 +692,7 @@ bool Cinematica_Inversa::outLimits(QVec angulos, QVec &motores)
 		{
 			noSupera = false;
 			motores[i] = 1;
-			//qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
+			qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angulos[i]<<" MOTORES: "<<listaJoints[i];
 		}
 	}
 	

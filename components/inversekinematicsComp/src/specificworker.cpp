@@ -99,8 +99,8 @@ void SpecificWorker::init()
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
 	
 	//goHomePosition(listaMotores); 
-	foreach(BodyPart p, bodyParts)
-		goHome(p.getPartName().toStdString());
+// 	foreach(BodyPart p, bodyParts)
+// 		goHome(p.getPartName().toStdString());
 	sleep(1);
 	actualizarInnermodel(listaMotores);
 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
@@ -192,16 +192,15 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				if(target.getError() <= 0.1 and target.isAtTarget() == false) //local goal achieved: execute the solution
 				{
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-					usleep(100000);
+					usleep(500000);
 					target.setExecuted(true);
-					actualizarInnermodel(listaMotores); 					//actualizamos TODOS los motores.	
 				}
 				else  
 				{
 					target.markForRemoval(true);
 				}
-				
-				//target.annotateFinalTipPose();
+				actualizarInnermodel(listaMotores); 			//actualizamos TODOS los motores.	OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza
+				target.annotateFinalTipPose();
 				removeInnerModelTarget(target);
 				target.print("AFTER PROCESSING");
 					
