@@ -192,7 +192,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				if(target.getError() <= 0.1 and target.isAtTarget() == false) //local goal achieved: execute the solution
 				{
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-					usleep(500000);
+					usleep(100000);
 					target.setExecuted(true);
 				}
 				else  
@@ -274,13 +274,14 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	tar[1] = tar[1] / (T)1000;
 	tar[2] = tar[2] / (T)1000;
 	
+	
 	//Weights vector
 	QVec w(6);
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
 
    Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
    t.setRadius(radius/1000.f);
-   
+  
     mutex->lock();
         bodyParts[partName].addTargetToList(t);
     mutex->unlock();

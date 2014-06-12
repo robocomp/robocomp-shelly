@@ -145,7 +145,7 @@ private:
     uint iter;								// Number of iterations before completing
     QVec finalAngles;						// Mercedes lo documenta luego
     QVec initialAngles;               		// Angles before executing this target
-    QVec initialTipPose;            		// Tip position in world reference frame after processing
+    QVec initialTipPose;            		// Tip position in world reference frame BEFORE processing
     QVec finalTipPose;              		// Tip position in world reference frame after processing
     bool executed;                    		// true if finally executed in real arm
 	bool chopped;							// true if the target  has been chopped

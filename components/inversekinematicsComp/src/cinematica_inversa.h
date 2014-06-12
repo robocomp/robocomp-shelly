@@ -59,7 +59,6 @@ public:
 	void resolverTarget( Target &target);			// Fija el punto objetivo.
 	float devolverError();
 	
-	
 private:
 	
 	///// VARIABLES DE CLASE /////
@@ -72,6 +71,7 @@ private:
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
 	QMat jacobian(QVec motores);				// devuelve la matriz jacobiana de la función.
+	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
 	void levenbergMarquardt2(Target &target); //alternative implementaiton
 	void chopPath(Target &target);
@@ -80,13 +80,12 @@ private:
 	// DE CÁLCULO.....
 	QVec calcularAngulos(); //devuelve el vcetor de todos los ángulos de los motores
 	void calcularModuloFloat(QVec &angles, float mod);
-	QVec computeErrorVector(const Target &target);		//devuelve el vector error de traslaciones y rotaciones
 
 	// DE ACTUALIZACIÓN...
 	void actualizarAngulos(QVec angulos_nuevos);
 	
 	// DE CONSULTA...
-	bool outLimits(QVec angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
+	bool outLimits(QVec &angulos, QVec &motores); //devuelve si los ángulos para los motores no superan los límites
 	QVec computeH(const QVec &angs);
 };
 
