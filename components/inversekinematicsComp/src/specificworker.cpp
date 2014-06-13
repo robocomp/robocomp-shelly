@@ -99,8 +99,8 @@ void SpecificWorker::init()
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
 	
 	//goHomePosition(listaMotores); 
-// 	foreach(BodyPart p, bodyParts)
-// 		goHome(p.getPartName().toStdString());
+ 	foreach(BodyPart p, bodyParts)
+ 		goHome(p.getPartName().toStdString());
 	sleep(1);
 	actualizarInnermodel(listaMotores);
 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
@@ -189,7 +189,7 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 				
 				iterador.value().getInverseKinematics()->resolverTarget(target);
 
-				if(target.getError() <= 0.1 and target.isAtTarget() == false) //local goal achieved: execute the solution
+				if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
 				{
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 					usleep(100000);
