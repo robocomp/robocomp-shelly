@@ -78,7 +78,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>6</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -350,7 +350,7 @@
          <item>
           <widget class="QTabWidget" name="tablaPose6D">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="Pagina_OnePose">
             <attribute name="title">
@@ -484,7 +484,7 @@
                           <double>-3.150000000000000</double>
                          </property>
                          <property name="maximum">
-                          <double>3.150000000000000</double>
+                          <double>40000.000000000000000</double>
                          </property>
                          <property name="singleStep">
                           <double>5.000000000000000</double>

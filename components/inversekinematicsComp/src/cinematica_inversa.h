@@ -66,7 +66,8 @@ private:
 	InnerModel *inner;				// Inermodel para sacar información del robot
 	QStringList listaJoints;		// Lista de motores que entra en liza
 	QString endEffector;			// Nombre del efector final (la mano del robot)
-	float ERROR;
+	bool lowIncrementFirst;
+	int firstTime;
 
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
