@@ -62,7 +62,7 @@ public:
 
 	JointMotorPrx jointmotor0_proxy;
 	JointMotorPrx jointmotor1_proxy;
-	virtual void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights) = 0;
+	virtual void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius) = 0;
 	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, float axisAngleConstraint) = 0;
 	virtual void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist) = 0;
 	virtual void  setFingers(float d) = 0;
