@@ -316,6 +316,14 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 	
 		errorTotal.inject(errorTInLastJoint,0);
 		errorTotal.inject(anglesRotInLastJoint, 3);
+		
+		QVec targetRInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel()).extractAnglesR_min();
+		QVec tipRInLastJoint = matTipInLastJoint.extractAnglesR_min();
+		QVec errorRInLastJoint = targetRInLastJoint - tipRInLastJoint;
+		
+		anglesRotInLastJoint.print("Rotation error 1:");
+		errorRInLastJoint.print("Rotation error 2:");
+		
 				
 // 		matTargetInTip.print("matTargetInTip");
 // 		matTargetInTip.extractAnglesR_min().print("angulos target in tip");
@@ -324,11 +332,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 // 		anglesRotInLastJoint.print("final rot");
 // 		matResulInLastJoint.print("matResulInLastJoint");
 		
-		//inner->transform(listaJoints.last(),targetTInTip,this->endEffector).print("trans1_tras");
 		
-		//targetTInTip.print("trasnl1");
-		//errorTraslaciones.print("transl2");
-			
 	}
 	
 	if(target.getType() == Target::ALIGNAXIS)
