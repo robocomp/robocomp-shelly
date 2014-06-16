@@ -32,8 +32,8 @@ BodyInverseKinematicsI::~BodyInverseKinematicsI()
 }
 
 // Component functions, implementation
-void BodyInverseKinematicsI::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, const Ice::Current&){
-	worker->setTargetPose6D(bodyPart,target,weights);
+void BodyInverseKinematicsI::setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, Ice::Float radius, const Ice::Current&){
+	worker->setTargetPose6D(bodyPart,target,weights,radius);
 }
 
 void BodyInverseKinematicsI::pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, Ice::Float axisAngleConstraint, const Ice::Current&){
