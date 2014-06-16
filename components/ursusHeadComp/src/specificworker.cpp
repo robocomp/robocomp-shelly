@@ -43,6 +43,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	timer.start(Period);
 	return true;
 };
+
+
 void SpecificWorker::sendData(const TData& data)
 {
 	QMutexLocker l (mutex);
@@ -57,9 +59,9 @@ void SpecificWorker::sendData(const TData& data)
 	{
 		qDebug()<<"pan"<<data.axes[0].value;
 		RoboCompJointMotor::MotorGoalPosition p_goal;
-		p_goal.name="pan";
+		p_goal.name="head3";
 		p_goal.maxSpeed=0.5;
-		p_goal.position=normalize(data.axes[0].value, -1., 1., -0.6,0.5);		
+		p_goal.position=normalize(data.axes[0].value, -1., 1., -0.6,0.6);		
 		list.push_back(p_goal);
 	}
 		
@@ -67,9 +69,9 @@ void SpecificWorker::sendData(const TData& data)
 	{
 		qDebug()<<"tilt"<<data.axes[1].value;
 		RoboCompJointMotor::MotorGoalPosition p_goal;
-		p_goal.name="tilt";
+		p_goal.name="head1";
 		p_goal.maxSpeed=0.5;
-		p_goal.position=normalize(data.axes[1].value, -1., 1., -0.2,0.2);		
+		p_goal.position=normalize(data.axes[1].value, -1., 1., 0.6,-0.6);		
 		list.push_back(p_goal);
 	}
 	//gatillo joystick
@@ -77,10 +79,10 @@ void SpecificWorker::sendData(const TData& data)
 	{
 		static bool open;
 		qDebug()<<"activar pinza"<<"open?";
-		RoboCompJointMotor::MotorGoalPosition p_goalLeft, p_goalRight;
-		p_goalLeft.name="pinzaLeft";
+		RoboCompJointMotor::MotorGoalPosition p_goalLeft, p_goalRight, p_goalWrist1,p_goalWrist2;
+		p_goalLeft.name="rightFinger1";
 		p_goalLeft.maxSpeed=0.5;
-		p_goalRight.name="pinzaRight";
+		p_goalRight.name="rightFinger2";
 		p_goalRight.maxSpeed=0.5;
 		
 		float maxPosL=-0.9;
@@ -105,6 +107,20 @@ void SpecificWorker::sendData(const TData& data)
 		list.push_back(p_goalLeft);
 		list.push_back(p_goalRight);
 		
+		///put to zero right wrist
+				
+		p_goalWrist1.name="rightWrist1";
+		p_goalWrist1.maxSpeed=0.5;
+		p_goalWrist1.position=0;
+		
+		p_goalWrist2.name="rightWrist2";
+		p_goalWrist2.maxSpeed=0.5;
+		p_goalWrist2.position=0;
+		
+		list.push_back(p_goalWrist1);
+		list.push_back(p_goalWrist2);
+		
+		
 	}
 	if (data.buttons[7].clicked )		
 	{
@@ -114,9 +130,9 @@ void SpecificWorker::sendData(const TData& data)
 		
 		
 		RoboCompJointMotor::MotorGoalPosition p_goalLeft, p_goalRight;
-		p_goalLeft.name="pinzaLeft";
+		p_goalLeft.name="rightFinger1";
 		p_goalLeft.maxSpeed=0.5;
-		p_goalRight.name="pinzaRight";
+		p_goalRight.name="rightFinger2";
 		p_goalRight.maxSpeed=0.5;
 		
 		p_goalLeft.position=normalize(data.axes[2].value, -1., 1., minPosLeft,maxPosL);
@@ -124,10 +140,13 @@ void SpecificWorker::sendData(const TData& data)
 		qDebug()<<"p_goalLeft.position"<<p_goalLeft.position;
 		qDebug()<<"p_goalRight.position"<<p_goalRight.position;
 		
+		
 		minPosL=p_goalLeft.position;
 		minPosR=p_goalRight.position;
 		list.push_back(p_goalLeft);
 		list.push_back(p_goalRight);
+		
+		
 	}
 	try
 	{

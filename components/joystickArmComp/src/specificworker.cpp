@@ -148,35 +148,35 @@ float SpecificWorker::Get_Valor_Motor(int ID, int valorPotenciometro){
     Limites Limites_Potenciometros[10];
     
 	///arm left, limites motores, min y max, representa la posicion del motor cuando el potenciometro esta a su valor Min o su valor Max respectivamente
-    Limites_Motores[0].Min = 3.14;
-    Limites_Motores[0].Max = 0;
+    Limites_Motores[0].Min = 0;
+    Limites_Motores[0].Max = -3.14;
     Limites_Potenciometros[0].Min = 120;
     Limites_Potenciometros[0].Max = 800;
 	
-    Limites_Motores[1].Min = 3.14;
-    Limites_Motores[1].Max = 0;	
-	Limites_Potenciometros[1].Min = 200;
-    Limites_Potenciometros[1].Max = 800;
+    Limites_Motores[1].Min = -3.14;
+    Limites_Motores[1].Max = 0.5;	
+	Limites_Potenciometros[1].Min = 150;
+    Limites_Potenciometros[1].Max = 990;
 	
     
-    Limites_Motores[2].Min = -1.57;
-    Limites_Motores[2].Max =  1.57;
+    Limites_Motores[2].Min = 1.57;
+    Limites_Motores[2].Max =  -1.57;
 	
 	Limites_Potenciometros[2].Min = 200;
     Limites_Potenciometros[2].Max = 950;
 	
     
 	///3 munieca
-    Limites_Motores[3].Min = -1.57;
-    Limites_Motores[3].Max = 1.57;
+    Limites_Motores[3].Min = 1.57;
+    Limites_Motores[3].Max = -1.57;
 	Limites_Potenciometros[3].Min = 130;
     Limites_Potenciometros[3].Max = 870;
     
 	///4 es el codo
-    Limites_Motores[4].Min = 1.57;
-    Limites_Motores[4].Max = 0;
-	Limites_Potenciometros[4].Min = 130;
-    Limites_Potenciometros[4].Max = 500;
+    Limites_Motores[4].Min = 0;
+    Limites_Motores[4].Max = 1.57;
+	Limites_Potenciometros[4].Min = 500;
+    Limites_Potenciometros[4].Max = 800;
 	
         
 	
@@ -228,15 +228,15 @@ QString SpecificWorker::translate(QString first)
 {
 	QString id ("SIN HACER");
 	if (first=="S00")		
-		id = "leftShoulder1";
+		id = "rightShoulder1";
 	if (first=="S01")
-		id= "leftShoulder2";
+		id= "rightShoulder2";
 	if (first=="S02")
-		id= "leftShoulder3";
+		id= "rightShoulder3";
 	if (first=="S03")
-		id= "leftForeArm";
+		id= "rightForeArm";
 	if (first=="S04")
-		id= "leftElbow";
+		id= "rightElbow";
 	return id;
 }
 
