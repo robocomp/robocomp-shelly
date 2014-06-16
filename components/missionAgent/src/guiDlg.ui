@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1149</width>
+    <width>1171</width>
     <height>761</height>
    </rect>
   </property>
@@ -266,7 +266,7 @@ model</string>
        </property>
        <property name="minimumSize">
         <size>
-         <width>718</width>
+         <width>740</width>
          <height>741</height>
         </size>
        </property>
@@ -276,19 +276,46 @@ model</string>
        <widget class="QWidget" name="dockWidgetContents">
         <layout class="QVBoxLayout" name="verticalLayout_3">
          <item>
-          <widget class="QWidget" name="modelWidget" native="true">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
-             <horstretch>15</horstretch>
-             <verstretch>15</verstretch>
-            </sizepolicy>
+          <widget class="QTabWidget" name="tabWidget">
+           <property name="currentIndex">
+            <number>1</number>
            </property>
-           <property name="minimumSize">
-            <size>
-             <width>700</width>
-             <height>400</height>
-            </size>
+           <property name="movable">
+            <bool>false</bool>
            </property>
+           <widget class="QWidget" name="tab">
+            <attribute name="title">
+             <string>2D</string>
+            </attribute>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <widget class="QWidget" name="modelWidget" native="true">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+                 <horstretch>15</horstretch>
+                 <verstretch>15</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>700</width>
+                 <height>400</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_2">
+            <attribute name="title">
+             <string>3D</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_4">
+             <item>
+              <widget class="QWidget" name="widget3D" native="true"/>
+             </item>
+            </layout>
+           </widget>
           </widget>
          </item>
         </layout>
