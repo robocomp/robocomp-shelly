@@ -324,10 +324,10 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 // 		anglesRotInLastJoint.print("final rot");
 // 		matResulInLastJoint.print("matResulInLastJoint");
 		
-		inner->transform(listaJoints.last(),targetTInTip,this->endEffector).print("trans1_tras");
+		//inner->transform(listaJoints.last(),targetTInTip,this->endEffector).print("trans1_tras");
 		
-		targetTInTip.print("trasnl1");
-		errorTraslaciones.print("transl2");
+		//targetTInTip.print("trasnl1");
+		//errorTraslaciones.print("transl2");
 			
 	}
 	
