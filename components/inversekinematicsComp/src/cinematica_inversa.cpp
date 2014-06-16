@@ -96,7 +96,19 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 		chopPath(target);	
 		// Si el target no ha sido resuelto llamamos Levenberg-Marquardt
 		if( target.isAtTarget() == false )
-			levenbergMarquardt(target);
+		{
+			levenbergMarquardt(target);			
+			// Si hemos salido nada más ejecutar el target por incrementos pequeños volvemos a ejecutar el target
+			// cambiando la matriz de pesos. LM devuelve lowIncrementFirst a true si hay incrementos pequeños e 
+			// incrementa en una unidad fisrtTime, que entra a cero, sale a uno y si vuelve a entrar aquí saldrá con dos.
+			if(lowIncrementFirst and firstTime==1)
+			{
+				qDebug()<<"\nENTRA POR SEGUNDA VEZ\n";
+				levenbergMarquardt(target);
+				lowIncrementFirst = false;
+			}
+			firstTime=0;
+		}
 	}
 		
 	target.setElapsedTime(target.getRunTime().elapsed());
@@ -131,7 +143,7 @@ void Cinematica_Inversa::chopPath(Target &target)
 	
 	(QMat::makeDiagonal(target.getWeights()) * targetTotal).print("targetTotal");
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
-	qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
+	//qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
 	
 // 	if( targetTInTip.norm2() < target.getRadius() )
 // 		target.setAtTarget(true);
@@ -139,7 +151,7 @@ void Cinematica_Inversa::chopPath(Target &target)
 	
 	if( dist > step)  
 	{
-		qDebug() << "entering CHOP" << dist;
+		//qDebug() << "entering CHOP" << dist;
 		int nPuntos = floor(dist / step);
 		T landa = 1./nPuntos;
 		QVec R(6);
@@ -167,8 +179,8 @@ void Cinematica_Inversa::chopPath(Target &target)
 		if(fabs(R[0]-posicion_anterior[0])<minTraslaciones and fabs(R[1]-posicion_anterior[1])<minTraslaciones and fabs(R[2]-posicion_anterior[2])<minTraslaciones and
 			fabs(R[3]-posicion_anterior[3])<minRotaciones and fabs(R[4]-posicion_anterior[4])<minRotaciones and fabs(R[5]-posicion_anterior[5])<minRotaciones	)
 		{
-			posicion_anterior.print("anterior");		R.print("actual");
-			qDebug()<<"Incrementos muy pequeños, salimos del chop";
+			//posicion_anterior.print("anterior");		R.print("actual");
+			//qDebug()<<"Incrementos muy pequeños, salimos del chop";
 			target.setChopped(false);
 			//target.setAtTarget(true);
 		}
@@ -322,27 +334,6 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 	
 		errorTotal.inject(errorTInLastJoint,0);
 		errorTotal.inject(errorRInLastJoint, 3);
-		
-		
-// 		errorTotal.print("ERROR TOTAL");
-// 		qFatal("FARY");
-		
-// 		QVec targetRInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel()).extractAnglesR_min();
-// 		QVec tipRInLastJoint = matTipInLastJoint.extractAnglesR_min();
-// 		QVec errorRInLastJoint = targetRInLastJoint - tipRInLastJoint;
-// 		
-// 		anglesRotInLastJoint.print("Rotation error 1:");
-// 		errorRInLastJoint.print("Rotation error 2:");
-// 		
-				
-// 		matTargetInTip.print("matTargetInTip");
-// 		matTargetInTip.extractAnglesR_min().print("angulos target in tip");
-// 		matTipInLastJoint.print("matTipInLastJoint");
-// 		
-// 		anglesRotInLastJoint.print("final rot");
-// 		matResulInLastJoint.print("matResulInLastJoint");
-		
-		
 	}
 	
 	if(target.getType() == Target::ALIGNAXIS)
@@ -384,7 +375,10 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
  */
 void Cinematica_Inversa::levenbergMarquardt(Target &target)
 {
-
+	//incrementamos el número d eveces que se ejecuta el Levenberg-Marquardt. firstTime solo puede valer
+	// CERO cuando entra por primera vez, uno cuando sale a primera vez y dos cuando sale por segunda vez.
+	firstTime=firstTime+1; 
+	
 	//e1 0.0001  0.000001
 	//e3 0.0004 0.000004
 	const float e1 = 0.0001 , e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
@@ -396,7 +390,15 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	QVec incrementos, aux; //vector de incrementos y vector auxiliar para guardar cambios
 	QVec motores (this->listaJoints.size()); // lista de motores para rellenar el jacobiano.
 	QVec angulos = calcularAngulos(); // ángulos iniciales de los motores.	
-	QMat We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
+	
+	// Creamos la matriz de pesos: Si antes hubo incrementos pequeños cuando se ejecutó por vez primera
+	// ponemos TODAS las restricciones. Si no fue así, toma los pesos del usuario:
+	QMat We;
+	if(lowIncrementFirst and firstTime==2)
+		We= QMat::identity(6);
+	else
+		We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
+	
 	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
 	QMat J = jacobian(motores);
 	QMat H = J.transpose()*(We*J);			
@@ -431,8 +433,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				stop = true;
 				smallInc = true; 
 				//qDebug() << " LOW_INCS" << incrementos.norm2() << e2<<"n: "<<n<<" v: "<<v;
-				//(H + (Identidad*n)).print("INVERSA");
 				target.setStatus(Target::LOW_INCS);
+				lowIncrementFirst = true;
 				break;
 			}
 			else
