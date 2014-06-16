@@ -18,6 +18,7 @@
  */
  
  #include "specificworker.h"
+#include <boost/concept_check.hpp>
 
 /**
 * \brief Default constructor
@@ -25,6 +26,23 @@
 
 SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx, parent)	
 {
+	QMutexLocker l (mutex);
+	RoboCompJointMotor::MotorGoalPositionList list;
+	RoboCompJointMotor::MotorGoalPosition p_goal;
+
+	p_goal.name="head2";
+	p_goal.maxSpeed=0.5;
+	p_goal.position=0.0;
+	
+	list.push_back(p_goal);
+	try
+	{
+		jointmotor_proxy->setSyncPosition(list);
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"error talking to jointmotor_proxy. We can't put to zero HEAD 2 motor"<<e.what();
+	}
 	
 }
 
@@ -49,11 +67,14 @@ void SpecificWorker::sendData(const TData& data)
 {
 	QMutexLocker l (mutex);
 	RoboCompJointMotor::MotorGoalPositionList list;
-	static float minPosLeft=-0.1;
-	static float minPosRight=0.1;
+
+// 	//rightFinger1 minPosL cerrao, maxPosL abierto
+	static float minPosL=-1.6;
+	static float maxPosL=0;
 	
-	static float minPosL=-0.3;
-	static float minPosR=0.3;
+	///rightFinger2 maxPosR abierto, minPosR cerrao
+	static float minPosR=1.6;
+	static float maxPosR=0;
 	
 	if (data.axes[0].name=="pan")
 	{
@@ -78,19 +99,13 @@ void SpecificWorker::sendData(const TData& data)
 	if (data.buttons[0].clicked )
 	{
 		static bool open;
-		qDebug()<<"activar pinza"<<"open?";
+		qDebug()<<"activar pinza"<<"open?"<<open;
 		RoboCompJointMotor::MotorGoalPosition p_goalLeft, p_goalRight, p_goalWrist1,p_goalWrist2;
 		p_goalLeft.name="rightFinger1";
 		p_goalLeft.maxSpeed=0.5;
 		p_goalRight.name="rightFinger2";
 		p_goalRight.maxSpeed=0.5;
-		
-		float maxPosL=-0.9;
-		//float minPosL=-0.3;
-		
-		float maxPosR=0.7;
-		
-		
+			
 		if (open)
 		{
 			p_goalLeft.position=minPosL;
@@ -106,6 +121,7 @@ void SpecificWorker::sendData(const TData& data)
 		qDebug()<<"p_goalLeft.position, p_goalRight.position"<<p_goalLeft.position<<p_goalRight.position;
 		list.push_back(p_goalLeft);
 		list.push_back(p_goalRight);
+				
 		
 		///put to zero right wrist
 				
@@ -122,11 +138,17 @@ void SpecificWorker::sendData(const TData& data)
 		
 		
 	}
+	
+	
+	///left button on the mini button
 	if (data.buttons[7].clicked )		
 	{
 		qDebug()<<"mini"<<data.axes[1].value;
-		float maxPosL=-0.9;
-		float maxPosR=0.7;
+		qDebug()<<"data.axes[2]"<<data.axes[2].value;
+		
+		///limites fisicos cuando las pinzas están cerrados
+		float minPosLeft=-1.6;
+		float minPosRight=1.6;
 		
 		
 		RoboCompJointMotor::MotorGoalPosition p_goalLeft, p_goalRight;
