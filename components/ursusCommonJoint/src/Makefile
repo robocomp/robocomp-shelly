@@ -38,22 +38,19 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint
+CMAKE_SOURCE_DIR = /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint
+CMAKE_BINARY_DIR = /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -82,6 +79,16 @@ install/local: preinstall
 install/local/fast: install/local
 .PHONY : install/local/fast
 
+# Special rule for the target install/strip
+install/strip: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
+	/usr/bin/cmake -DCMAKE_INSTALL_DO_STRIP=1 -P cmake_install.cmake
+.PHONY : install/strip
+
+# Special rule for the target install/strip
+install/strip/fast: install/strip
+.PHONY : install/strip/fast
+
 # Special rule for the target list_install_components
 list_install_components:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Available install components are: \"Unspecified\""
@@ -103,14 +110,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -E cmake_progress_start /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint/CMakeFiles /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint/src/CMakeFiles/progress.marks
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint/CMakeFiles 0
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -E cmake_progress_start /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint/CMakeFiles /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint/src/CMakeFiles/progress.marks
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/clean
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/clean
 .PHONY : clean
 
 # The main clean target
@@ -119,22 +126,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 src/CMakeFiles/ursuscommonjointcomp.dir/rule:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/ursuscommonjointcomp.dir/rule
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f CMakeFiles/Makefile2 src/CMakeFiles/ursuscommonjointcomp.dir/rule
 .PHONY : src/CMakeFiles/ursuscommonjointcomp.dir/rule
 
 # Convenience name for target.
@@ -143,7 +150,7 @@ ursuscommonjointcomp: src/CMakeFiles/ursuscommonjointcomp.dir/rule
 
 # fast build rule for target.
 ursuscommonjointcomp/fast:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/build
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/build
 .PHONY : ursuscommonjointcomp/fast
 
 CommonBehavior.o: CommonBehavior.cpp.o
@@ -151,7 +158,7 @@ CommonBehavior.o: CommonBehavior.cpp.o
 
 # target to build an object file
 CommonBehavior.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.o
 .PHONY : CommonBehavior.cpp.o
 
 CommonBehavior.i: CommonBehavior.cpp.i
@@ -159,7 +166,7 @@ CommonBehavior.i: CommonBehavior.cpp.i
 
 # target to preprocess a source file
 CommonBehavior.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.i
 .PHONY : CommonBehavior.cpp.i
 
 CommonBehavior.s: CommonBehavior.cpp.s
@@ -167,7 +174,7 @@ CommonBehavior.s: CommonBehavior.cpp.s
 
 # target to generate assembly for a file
 CommonBehavior.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/CommonBehavior.cpp.s
 .PHONY : CommonBehavior.cpp.s
 
 JointMotor.o: JointMotor.cpp.o
@@ -175,7 +182,7 @@ JointMotor.o: JointMotor.cpp.o
 
 # target to build an object file
 JointMotor.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.o
 .PHONY : JointMotor.cpp.o
 
 JointMotor.i: JointMotor.cpp.i
@@ -183,7 +190,7 @@ JointMotor.i: JointMotor.cpp.i
 
 # target to preprocess a source file
 JointMotor.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.i
 .PHONY : JointMotor.cpp.i
 
 JointMotor.s: JointMotor.cpp.s
@@ -191,7 +198,7 @@ JointMotor.s: JointMotor.cpp.s
 
 # target to generate assembly for a file
 JointMotor.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/JointMotor.cpp.s
 .PHONY : JointMotor.cpp.s
 
 commonbehaviorI.o: commonbehaviorI.cpp.o
@@ -199,7 +206,7 @@ commonbehaviorI.o: commonbehaviorI.cpp.o
 
 # target to build an object file
 commonbehaviorI.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.o
 .PHONY : commonbehaviorI.cpp.o
 
 commonbehaviorI.i: commonbehaviorI.cpp.i
@@ -207,7 +214,7 @@ commonbehaviorI.i: commonbehaviorI.cpp.i
 
 # target to preprocess a source file
 commonbehaviorI.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.i
 .PHONY : commonbehaviorI.cpp.i
 
 commonbehaviorI.s: commonbehaviorI.cpp.s
@@ -215,7 +222,7 @@ commonbehaviorI.s: commonbehaviorI.cpp.s
 
 # target to generate assembly for a file
 commonbehaviorI.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/commonbehaviorI.cpp.s
 .PHONY : commonbehaviorI.cpp.s
 
 genericmonitor.o: genericmonitor.cpp.o
@@ -223,7 +230,7 @@ genericmonitor.o: genericmonitor.cpp.o
 
 # target to build an object file
 genericmonitor.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.o
 .PHONY : genericmonitor.cpp.o
 
 genericmonitor.i: genericmonitor.cpp.i
@@ -231,7 +238,7 @@ genericmonitor.i: genericmonitor.cpp.i
 
 # target to preprocess a source file
 genericmonitor.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.i
 .PHONY : genericmonitor.cpp.i
 
 genericmonitor.s: genericmonitor.cpp.s
@@ -239,7 +246,7 @@ genericmonitor.s: genericmonitor.cpp.s
 
 # target to generate assembly for a file
 genericmonitor.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericmonitor.cpp.s
 .PHONY : genericmonitor.cpp.s
 
 genericworker.o: genericworker.cpp.o
@@ -247,7 +254,7 @@ genericworker.o: genericworker.cpp.o
 
 # target to build an object file
 genericworker.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.o
 .PHONY : genericworker.cpp.o
 
 genericworker.i: genericworker.cpp.i
@@ -255,7 +262,7 @@ genericworker.i: genericworker.cpp.i
 
 # target to preprocess a source file
 genericworker.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.i
 .PHONY : genericworker.cpp.i
 
 genericworker.s: genericworker.cpp.s
@@ -263,63 +270,63 @@ genericworker.s: genericworker.cpp.s
 
 # target to generate assembly for a file
 genericworker.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/genericworker.cpp.s
 .PHONY : genericworker.cpp.s
 
-home/pbustos/robocomp/classes/qlog/qlog.o: home/pbustos/robocomp/classes/qlog/qlog.cpp.o
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.o
+home/robocomp/robocomp/classes/qlog/qlog.o: home/robocomp/robocomp/classes/qlog/qlog.cpp.o
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.o
 
 # target to build an object file
-home/pbustos/robocomp/classes/qlog/qlog.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/qlog/qlog.cpp.o
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.cpp.o
+home/robocomp/robocomp/classes/qlog/qlog.cpp.o:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/qlog/qlog.cpp.o
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.cpp.o
 
-home/pbustos/robocomp/classes/qlog/qlog.i: home/pbustos/robocomp/classes/qlog/qlog.cpp.i
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.i
+home/robocomp/robocomp/classes/qlog/qlog.i: home/robocomp/robocomp/classes/qlog/qlog.cpp.i
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.i
 
 # target to preprocess a source file
-home/pbustos/robocomp/classes/qlog/qlog.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/qlog/qlog.cpp.i
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.cpp.i
+home/robocomp/robocomp/classes/qlog/qlog.cpp.i:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/qlog/qlog.cpp.i
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.cpp.i
 
-home/pbustos/robocomp/classes/qlog/qlog.s: home/pbustos/robocomp/classes/qlog/qlog.cpp.s
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.s
+home/robocomp/robocomp/classes/qlog/qlog.s: home/robocomp/robocomp/classes/qlog/qlog.cpp.s
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.s
 
 # target to generate assembly for a file
-home/pbustos/robocomp/classes/qlog/qlog.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/qlog/qlog.cpp.s
-.PHONY : home/pbustos/robocomp/classes/qlog/qlog.cpp.s
+home/robocomp/robocomp/classes/qlog/qlog.cpp.s:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/qlog/qlog.cpp.s
+.PHONY : home/robocomp/robocomp/classes/qlog/qlog.cpp.s
 
-home/pbustos/robocomp/classes/rapplication/rapplication.o: home/pbustos/robocomp/classes/rapplication/rapplication.cpp.o
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.o
+home/robocomp/robocomp/classes/rapplication/rapplication.o: home/robocomp/robocomp/classes/rapplication/rapplication.cpp.o
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.o
 
 # target to build an object file
-home/pbustos/robocomp/classes/rapplication/rapplication.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/rapplication/rapplication.cpp.o
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.cpp.o
+home/robocomp/robocomp/classes/rapplication/rapplication.cpp.o:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/rapplication/rapplication.cpp.o
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.cpp.o
 
-home/pbustos/robocomp/classes/rapplication/rapplication.i: home/pbustos/robocomp/classes/rapplication/rapplication.cpp.i
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.i
+home/robocomp/robocomp/classes/rapplication/rapplication.i: home/robocomp/robocomp/classes/rapplication/rapplication.cpp.i
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.i
 
 # target to preprocess a source file
-home/pbustos/robocomp/classes/rapplication/rapplication.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/rapplication/rapplication.cpp.i
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.cpp.i
+home/robocomp/robocomp/classes/rapplication/rapplication.cpp.i:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/rapplication/rapplication.cpp.i
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.cpp.i
 
-home/pbustos/robocomp/classes/rapplication/rapplication.s: home/pbustos/robocomp/classes/rapplication/rapplication.cpp.s
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.s
+home/robocomp/robocomp/classes/rapplication/rapplication.s: home/robocomp/robocomp/classes/rapplication/rapplication.cpp.s
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.s
 
 # target to generate assembly for a file
-home/pbustos/robocomp/classes/rapplication/rapplication.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/pbustos/robocomp/classes/rapplication/rapplication.cpp.s
-.PHONY : home/pbustos/robocomp/classes/rapplication/rapplication.cpp.s
+home/robocomp/robocomp/classes/rapplication/rapplication.cpp.s:
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/home/robocomp/robocomp/classes/rapplication/rapplication.cpp.s
+.PHONY : home/robocomp/robocomp/classes/rapplication/rapplication.cpp.s
 
 jointmotorI.o: jointmotorI.cpp.o
 .PHONY : jointmotorI.o
 
 # target to build an object file
 jointmotorI.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.o
 .PHONY : jointmotorI.cpp.o
 
 jointmotorI.i: jointmotorI.cpp.i
@@ -327,7 +334,7 @@ jointmotorI.i: jointmotorI.cpp.i
 
 # target to preprocess a source file
 jointmotorI.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.i
 .PHONY : jointmotorI.cpp.i
 
 jointmotorI.s: jointmotorI.cpp.s
@@ -335,7 +342,7 @@ jointmotorI.s: jointmotorI.cpp.s
 
 # target to generate assembly for a file
 jointmotorI.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/jointmotorI.cpp.s
 .PHONY : jointmotorI.cpp.s
 
 moc_commonbehaviorI.o: moc_commonbehaviorI.cxx.o
@@ -343,7 +350,7 @@ moc_commonbehaviorI.o: moc_commonbehaviorI.cxx.o
 
 # target to build an object file
 moc_commonbehaviorI.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.o
 .PHONY : moc_commonbehaviorI.cxx.o
 
 moc_commonbehaviorI.i: moc_commonbehaviorI.cxx.i
@@ -351,7 +358,7 @@ moc_commonbehaviorI.i: moc_commonbehaviorI.cxx.i
 
 # target to preprocess a source file
 moc_commonbehaviorI.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.i
 .PHONY : moc_commonbehaviorI.cxx.i
 
 moc_commonbehaviorI.s: moc_commonbehaviorI.cxx.s
@@ -359,7 +366,7 @@ moc_commonbehaviorI.s: moc_commonbehaviorI.cxx.s
 
 # target to generate assembly for a file
 moc_commonbehaviorI.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_commonbehaviorI.cxx.s
 .PHONY : moc_commonbehaviorI.cxx.s
 
 moc_genericmonitor.o: moc_genericmonitor.cxx.o
@@ -367,7 +374,7 @@ moc_genericmonitor.o: moc_genericmonitor.cxx.o
 
 # target to build an object file
 moc_genericmonitor.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.o
 .PHONY : moc_genericmonitor.cxx.o
 
 moc_genericmonitor.i: moc_genericmonitor.cxx.i
@@ -375,7 +382,7 @@ moc_genericmonitor.i: moc_genericmonitor.cxx.i
 
 # target to preprocess a source file
 moc_genericmonitor.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.i
 .PHONY : moc_genericmonitor.cxx.i
 
 moc_genericmonitor.s: moc_genericmonitor.cxx.s
@@ -383,7 +390,7 @@ moc_genericmonitor.s: moc_genericmonitor.cxx.s
 
 # target to generate assembly for a file
 moc_genericmonitor.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericmonitor.cxx.s
 .PHONY : moc_genericmonitor.cxx.s
 
 moc_genericworker.o: moc_genericworker.cxx.o
@@ -391,7 +398,7 @@ moc_genericworker.o: moc_genericworker.cxx.o
 
 # target to build an object file
 moc_genericworker.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.o
 .PHONY : moc_genericworker.cxx.o
 
 moc_genericworker.i: moc_genericworker.cxx.i
@@ -399,7 +406,7 @@ moc_genericworker.i: moc_genericworker.cxx.i
 
 # target to preprocess a source file
 moc_genericworker.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.i
 .PHONY : moc_genericworker.cxx.i
 
 moc_genericworker.s: moc_genericworker.cxx.s
@@ -407,7 +414,7 @@ moc_genericworker.s: moc_genericworker.cxx.s
 
 # target to generate assembly for a file
 moc_genericworker.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_genericworker.cxx.s
 .PHONY : moc_genericworker.cxx.s
 
 moc_jointmotorI.o: moc_jointmotorI.cxx.o
@@ -415,7 +422,7 @@ moc_jointmotorI.o: moc_jointmotorI.cxx.o
 
 # target to build an object file
 moc_jointmotorI.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.o
 .PHONY : moc_jointmotorI.cxx.o
 
 moc_jointmotorI.i: moc_jointmotorI.cxx.i
@@ -423,7 +430,7 @@ moc_jointmotorI.i: moc_jointmotorI.cxx.i
 
 # target to preprocess a source file
 moc_jointmotorI.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.i
 .PHONY : moc_jointmotorI.cxx.i
 
 moc_jointmotorI.s: moc_jointmotorI.cxx.s
@@ -431,7 +438,7 @@ moc_jointmotorI.s: moc_jointmotorI.cxx.s
 
 # target to generate assembly for a file
 moc_jointmotorI.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_jointmotorI.cxx.s
 .PHONY : moc_jointmotorI.cxx.s
 
 moc_specificmonitor.o: moc_specificmonitor.cxx.o
@@ -439,7 +446,7 @@ moc_specificmonitor.o: moc_specificmonitor.cxx.o
 
 # target to build an object file
 moc_specificmonitor.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.o
 .PHONY : moc_specificmonitor.cxx.o
 
 moc_specificmonitor.i: moc_specificmonitor.cxx.i
@@ -447,7 +454,7 @@ moc_specificmonitor.i: moc_specificmonitor.cxx.i
 
 # target to preprocess a source file
 moc_specificmonitor.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.i
 .PHONY : moc_specificmonitor.cxx.i
 
 moc_specificmonitor.s: moc_specificmonitor.cxx.s
@@ -455,7 +462,7 @@ moc_specificmonitor.s: moc_specificmonitor.cxx.s
 
 # target to generate assembly for a file
 moc_specificmonitor.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificmonitor.cxx.s
 .PHONY : moc_specificmonitor.cxx.s
 
 moc_specificworker.o: moc_specificworker.cxx.o
@@ -463,7 +470,7 @@ moc_specificworker.o: moc_specificworker.cxx.o
 
 # target to build an object file
 moc_specificworker.cxx.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.o
 .PHONY : moc_specificworker.cxx.o
 
 moc_specificworker.i: moc_specificworker.cxx.i
@@ -471,7 +478,7 @@ moc_specificworker.i: moc_specificworker.cxx.i
 
 # target to preprocess a source file
 moc_specificworker.cxx.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.i
 .PHONY : moc_specificworker.cxx.i
 
 moc_specificworker.s: moc_specificworker.cxx.s
@@ -479,7 +486,7 @@ moc_specificworker.s: moc_specificworker.cxx.s
 
 # target to generate assembly for a file
 moc_specificworker.cxx.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/moc_specificworker.cxx.s
 .PHONY : moc_specificworker.cxx.s
 
 specificmonitor.o: specificmonitor.cpp.o
@@ -487,7 +494,7 @@ specificmonitor.o: specificmonitor.cpp.o
 
 # target to build an object file
 specificmonitor.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.o
 .PHONY : specificmonitor.cpp.o
 
 specificmonitor.i: specificmonitor.cpp.i
@@ -495,7 +502,7 @@ specificmonitor.i: specificmonitor.cpp.i
 
 # target to preprocess a source file
 specificmonitor.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.i
 .PHONY : specificmonitor.cpp.i
 
 specificmonitor.s: specificmonitor.cpp.s
@@ -503,7 +510,7 @@ specificmonitor.s: specificmonitor.cpp.s
 
 # target to generate assembly for a file
 specificmonitor.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificmonitor.cpp.s
 .PHONY : specificmonitor.cpp.s
 
 specificworker.o: specificworker.cpp.o
@@ -511,7 +518,7 @@ specificworker.o: specificworker.cpp.o
 
 # target to build an object file
 specificworker.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.o
 .PHONY : specificworker.cpp.o
 
 specificworker.i: specificworker.cpp.i
@@ -519,7 +526,7 @@ specificworker.i: specificworker.cpp.i
 
 # target to preprocess a source file
 specificworker.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.i
 .PHONY : specificworker.cpp.i
 
 specificworker.s: specificworker.cpp.s
@@ -527,7 +534,7 @@ specificworker.s: specificworker.cpp.s
 
 # target to generate assembly for a file
 specificworker.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/specificworker.cpp.s
 .PHONY : specificworker.cpp.s
 
 ursuscommonjointcomp.o: ursuscommonjointcomp.cpp.o
@@ -535,7 +542,7 @@ ursuscommonjointcomp.o: ursuscommonjointcomp.cpp.o
 
 # target to build an object file
 ursuscommonjointcomp.cpp.o:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.o
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.o
 .PHONY : ursuscommonjointcomp.cpp.o
 
 ursuscommonjointcomp.i: ursuscommonjointcomp.cpp.i
@@ -543,7 +550,7 @@ ursuscommonjointcomp.i: ursuscommonjointcomp.cpp.i
 
 # target to preprocess a source file
 ursuscommonjointcomp.cpp.i:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.i
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.i
 .PHONY : ursuscommonjointcomp.cpp.i
 
 ursuscommonjointcomp.s: ursuscommonjointcomp.cpp.s
@@ -551,7 +558,7 @@ ursuscommonjointcomp.s: ursuscommonjointcomp.cpp.s
 
 # target to generate assembly for a file
 ursuscommonjointcomp.cpp.s:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.s
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(MAKE) -f src/CMakeFiles/ursuscommonjointcomp.dir/build.make src/CMakeFiles/ursuscommonjointcomp.dir/ursuscommonjointcomp.cpp.s
 .PHONY : ursuscommonjointcomp.cpp.s
 
 # Help Target
@@ -563,6 +570,7 @@ help:
 	@echo "... edit_cache"
 	@echo "... install"
 	@echo "... install/local"
+	@echo "... install/strip"
 	@echo "... list_install_components"
 	@echo "... rebuild_cache"
 	@echo "... ursuscommonjointcomp"
@@ -581,12 +589,12 @@ help:
 	@echo "... genericworker.o"
 	@echo "... genericworker.i"
 	@echo "... genericworker.s"
-	@echo "... home/pbustos/robocomp/classes/qlog/qlog.o"
-	@echo "... home/pbustos/robocomp/classes/qlog/qlog.i"
-	@echo "... home/pbustos/robocomp/classes/qlog/qlog.s"
-	@echo "... home/pbustos/robocomp/classes/rapplication/rapplication.o"
-	@echo "... home/pbustos/robocomp/classes/rapplication/rapplication.i"
-	@echo "... home/pbustos/robocomp/classes/rapplication/rapplication.s"
+	@echo "... home/robocomp/robocomp/classes/qlog/qlog.o"
+	@echo "... home/robocomp/robocomp/classes/qlog/qlog.i"
+	@echo "... home/robocomp/robocomp/classes/qlog/qlog.s"
+	@echo "... home/robocomp/robocomp/classes/rapplication/rapplication.o"
+	@echo "... home/robocomp/robocomp/classes/rapplication/rapplication.i"
+	@echo "... home/robocomp/robocomp/classes/rapplication/rapplication.s"
 	@echo "... jointmotorI.o"
 	@echo "... jointmotorI.i"
 	@echo "... jointmotorI.s"
@@ -628,6 +636,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/pbustos/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/salabeta/robocomp/components/robocomp-ursus/components/ursusCommonJoint && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

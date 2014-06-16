@@ -10,4 +10,4 @@ CommonBehavior.Endpoints=tcp -p 12215
 JointMotor0Proxy = jointmotor:tcp -h localhost -p 10068  #Dynamixel head wrist and hands bus
 JointMotor1Proxy = jointmotor:tcp -h localhost -p 10067  #Faulhaber arms bus
 
-InnerModel = /home/robocomp/robocomp/Components/Mercedes/lokiArm/etc/ursusMTray.xml
+InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml
