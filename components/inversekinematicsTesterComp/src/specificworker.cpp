@@ -68,6 +68,17 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	osgView->getCameraManipulator()->setHomePosition(osg::Vec3(0.,0.,-2.),osg::Vec3(0.,0.,4.),osg::Vec3(0.,1,0.));
 	
 // 	frameOsg->show();
+	
+	
+	// BOTONERA AÑADIDA
+	connect(test1Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
+	connect(test2Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
+	connect(test3Button, SIGNAL(clicked()), this, SLOT(posicionCoger()));
+	connect(test4Button, SIGNAL(clicked()), this, SLOT(cerrarPinza()));
+	connect(test5Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
+	connect(test6Button, SIGNAL(clicked()), this, SLOT(enviarHome()));
+
+	
 
 }
 
@@ -869,45 +880,119 @@ void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
 }
 
 
+void SpecificWorker::abrirPinza()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(1);
+	}
+	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
+	
+	try
+	{	
+		qDebug() << __FUNCTION__ << "Open fingers";
+		bodyinversekinematics_proxy->setFingers((T)abrirPinzaValor->value());
+	} 
+	catch (Ice::Exception ex) 
+	{
+		cout << ex << endl;
+	}
 
-/////CODIGO DE LOKIARM PARA INICIALIZAR DESDE EL GENERADOR
+}
 
-//CREA LA LISTA DE TARGETS PARA CADA PARTE DEL CUERPO: necesita innerModel y el bodypart
-	/*listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts.value("RIGHTARM"));
-	bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
-	
-	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts.value("LEFTARM")); //añadido
-	bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);*/
-	
-	
-	//USAMOS LA INTERFAZ DE ICE
-// 	QVec w(6);
-// 	w.set(1.f);
-	
-// 	listaTargetsBrazoDerecho = generador.generarListaTargets(innerModel, bodyParts.value("RIGHTARM"), w);
-// 	bodyParts["RIGHTARM"].addListaTarget(listaTargetsBrazoDerecho);
-// 	
-//  	listaTargetsBrazoIzquierdo = generador.generarListaTargets(innerModel, bodyParts.value("LEFTARM"), w); 
-// 	foreach(Target t, listaTargetsBrazoIzquierdo)
-// 	{
-// 		RoboCompBodyInverseKinematics::Pose6D pose;
-// 		RoboCompBodyInverseKinematics::WeightVector weights;
-// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
-// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
-// 		weights.x = t.getWeights().x();	weights.y = t.getWeights().y();	weights.z = t.getWeights().z();
-// 		weights.rx = t.getWeights().rx();	weights.ry = t.getWeights().ry(); weights.rz = t.getWeights().rz();
-// 		this->setTargetPose6D("LEFTARM", pose, weights);
-// 	}
-// 	qDebug() << "Size lista  " << bodyParts.value("LEFTARM").getListaTargets().size();
-	
-  //bodyParts["LEFTARM"].addListaTarget(listaTargetsBrazoIzquierdo);
-// 	listaTargetsCabeza = generador.generarListaTargets(innerModel, bodyParts.value("HEAD"),w); //añadido
-// 	foreach(Target t, listaTargetsCabeza)
-// 	{
-// 		RoboCompBodyInverseKinematics::Pose6D pose;
-// 		pose.x = t.getPose().x();pose.y = t.getPose().y();pose.z = t.getPose().z();
-// 		pose.rx = t.getPose().rx();pose.ry = t.getPose().ry();pose.rz = t.getPose().rz();
-// 		this->pointAxisTowardsTarget("HEAD", pose, "z", true, 0.f);		
-// 	}
-	
-	//bodyParts["HEAD"].addListaTarget(listaTargetsCabeza);
+
+void SpecificWorker::cerrarPinza()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(1);
+	}
+	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
+	try
+	{	
+		qDebug() << __FUNCTION__ << "Close fingers";
+		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
+	} 
+	catch (Ice::Exception ex) 
+	{
+		cout << ex << endl;
+	}
+
+}
+
+
+void SpecificWorker::posicionInicial()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(1);
+	}
+	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX->value();
+		pose6D.y = PY->value();
+		pose6D.z = PZ->value();
+		pose6D.rx = RX->value();
+		pose6D.ry = RY->value();
+		pose6D.rz = RZ->value();	
+		
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
+		
+		moverTargetEnRCIS(pose);
+		
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+		
+		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		part = "HEAD";
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+	}
+ 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
+
+}
+
+void SpecificWorker::posicionCoger()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(1);
+	}
+	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX_2->value();
+		pose6D.y = PY_2->value();
+		pose6D.z = PZ_2->value();
+		pose6D.rx = RX_2->value();
+		pose6D.ry = RY_2->value();
+		pose6D.rz = RZ_2->value();	
+		
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
+		
+		moverTargetEnRCIS(pose);
+		
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+		
+		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		part = "HEAD";
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+	}
+ 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
+}
+

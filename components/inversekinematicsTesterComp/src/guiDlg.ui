@@ -78,7 +78,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>0</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -2738,6 +2738,380 @@
         <attribute name="title">
          <string>Unit Tests</string>
         </attribute>
+        <widget class="QPushButton" name="test1Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>30</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>1) Abrir Pinza</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="test2Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>70</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>2) Posición Inicial</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="test3Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>110</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>3) Posición Coger</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="test4Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>150</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>4) Cerrar Pinza</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="test5Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>190</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>5) Posición Inicial</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="test6Button">
+         <property name="geometry">
+          <rect>
+           <x>30</x>
+           <y>230</y>
+           <width>166</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>6) HOME</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="abrirPinzaValor">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>30</y>
+           <width>111</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <double>50.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="cerrarPinzaValor">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>150</y>
+           <width>111</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <double>14.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PX">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>100000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>300.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PY">
+         <property name="geometry">
+          <rect>
+           <x>340</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>1100.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PZ">
+         <property name="geometry">
+          <rect>
+           <x>430</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>1000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>300.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PZ_2">
+         <property name="geometry">
+          <rect>
+           <x>430</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>1000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>300.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PY_2">
+         <property name="geometry">
+          <rect>
+           <x>340</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>1100.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="PX_2">
+         <property name="geometry">
+          <rect>
+           <x>250</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>100.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RZ">
+         <property name="geometry">
+          <rect>
+           <x>700</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-10000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>0.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RY">
+         <property name="geometry">
+          <rect>
+           <x>610</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-100000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>-2.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RX">
+         <property name="geometry">
+          <rect>
+           <x>520</x>
+           <y>70</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-10000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>3.140000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RZ_2">
+         <property name="geometry">
+          <rect>
+           <x>700</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-10000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>1000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>0.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RY_2">
+         <property name="geometry">
+          <rect>
+           <x>610</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-100000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>-2.000000000000000</double>
+         </property>
+        </widget>
+        <widget class="QDoubleSpinBox" name="RX_2">
+         <property name="geometry">
+          <rect>
+           <x>520</x>
+           <y>110</y>
+           <width>71</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="decimals">
+          <number>2</number>
+         </property>
+         <property name="minimum">
+          <double>-10000.000000000000000</double>
+         </property>
+         <property name="maximum">
+          <double>100000000.000000000000000</double>
+         </property>
+         <property name="value">
+          <double>3.140000000000000</double>
+         </property>
+        </widget>
        </widget>
       </widget>
      </item>

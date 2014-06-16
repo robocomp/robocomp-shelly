@@ -40,6 +40,8 @@
        @author authorname
 */
 
+// extern std::pair< graph_traits< G >::out_edge_iterator, graph_traits< G >::out_edge_iterator > p;
+
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
@@ -69,6 +71,12 @@ public slots:
 	
 	void closeFingers();
 	void goHome(QString partName);
+	
+	// MÉTODOS AÑADIDOS: REVISAR
+	void abrirPinza();
+	void cerrarPinza();
+	void posicionInicial();
+	void posicionCoger();
 
 	
 private:
@@ -95,6 +103,9 @@ private:
 	void moveAlongAxis();
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
+	
+	
+	
 
 };
 
