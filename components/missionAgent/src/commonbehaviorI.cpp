@@ -42,7 +42,9 @@ CommonBehaviorI::~CommonBehaviorI()
 */
 int CommonBehaviorI::getPeriod( const Ice::Current&) 
 { 
+	printf("%s: %d\n", __FILE__, __LINE__);
 	return monitor->getPeriod();
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 /**
 * \brief Change compute period
@@ -50,7 +52,9 @@ int CommonBehaviorI::getPeriod( const Ice::Current&)
 */
 void CommonBehaviorI::setPeriod(int period, const Ice::Current&) 
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	monitor->setPeriod(period);
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 /**
 * \brief Get Component time awake

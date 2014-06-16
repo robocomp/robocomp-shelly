@@ -32,12 +32,18 @@ AGMExecutiveTopicI::~AGMExecutiveTopicI()
 }
 
 // Component functions, implementation
-void AGMExecutiveTopicI::modelModified(const RoboCompAGMWorldModel::Event& modification, const Ice::Current&){
+void AGMExecutiveTopicI::modelModified(const RoboCompAGMWorldModel::Event& modification, const Ice::Current&)
+{
+	printf("%s: %d\n", __FILE__, __LINE__);
 	worker->modelModified(modification);
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
-void AGMExecutiveTopicI::modelUpdated(const RoboCompAGMWorldModel::Node& modification, const Ice::Current&){
+void AGMExecutiveTopicI::modelUpdated(const RoboCompAGMWorldModel::Node& modification, const Ice::Current&)
+{
+	printf("%s: %d\n", __FILE__, __LINE__);
 	worker->modelUpdated(modification);
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 

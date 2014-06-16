@@ -72,8 +72,11 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	printf("compute\n");
 	static QTime taim = QTime::currentTime();
 
+// 	graphViewer->animateStep();
+	
 	if (refresh)
 	{
 		refresh = false;
@@ -112,6 +115,7 @@ void SpecificWorker::compute( )
 	modelMutex.unlock();
 
 	taim = QTime::currentTime();
+	printf("compute>\n");
 }
 
 
@@ -123,47 +127,59 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	refresh = true;
 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
+	printf("%s: %d\n", __FILE__, __LINE__);
 	modelMutex.lock();
+	printf("%s: %d\n", __FILE__, __LINE__);
 	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 	AGMModelPrinter::printWorld(worldModel);
 	modelDrawer->update(worldModel);
 	modelMutex.unlock();
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	refresh = true;
 	modelMutex.lock();
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 	modelMutex.unlock();
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &pl)
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("SpecificWorker::update\n");
 	planMutex.lock();
 	plan = pl;
 	planMutex.unlock();
 	refresh = true;
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::quitButtonClicked()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("quit button\n");
 	exit(0);
 }
 
 void SpecificWorker::broadcastButtonClicked()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("broadcast button\n");
 	agmexecutive_proxy->broadcastModel();
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::setMissionFindMug()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("find mug button\n");
 	planText->clear();
 	agmexecutive_proxy->broadcastModel();
@@ -188,11 +204,13 @@ void SpecificWorker::setMissionFindMug()
 	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
 	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
 	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::setMissionGraspMug()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("grasp mug button\n");
 	planText->clear();
 	agmexecutive_proxy->broadcastModel();
@@ -220,11 +238,13 @@ void SpecificWorker::setMissionGraspMug()
 	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
 	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
 	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::activateClicked()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->activate();
@@ -233,10 +253,12 @@ void SpecificWorker::activateClicked()
 	{
 		cout << e << "agmexecutive_proxy->activate" << endl;
 	}
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::deactivateClicked()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->deactivate();
@@ -245,11 +267,13 @@ void SpecificWorker::deactivateClicked()
 	{
 		cout << e << "agmexecutive_proxy->deactivate"<< endl;
 	}
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::resetClicked()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->reset();
@@ -258,25 +282,30 @@ void SpecificWorker::resetClicked()
 	{
 		cout << e << "agmexecutive_proxy->reset"<< endl;
 	}
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::set3DViewer()
 {
-#if QT_VERSION >= 0x050000
-	// Qt5 is currently crashing and reporting "Cannot make QOpenGLContext current in a different thread" when the viewer is run multi-threaded, this is regression from Qt4
+	printf("%s: %d\n", __FILE__, __LINE__);
+// #if QT_VERSION >= 0x050000
+// 	// Qt5 is currently crashing and reporting "Cannot make QOpenGLContext current in a different thread" when the viewer is run multi-threaded, this is regression from Qt4
 	osgViewer::ViewerBase::ThreadingModel threadingModel = osgViewer::ViewerBase::SingleThreaded;
-#else
-	osgViewer::ViewerBase::ThreadingModel threadingModel = osgViewer::ViewerBase::CullDrawThreadPerContext;
-#endif
+// #else
+// 	osgViewer::ViewerBase::ThreadingModel threadingModel = osgViewer::ViewerBase::CullDrawThreadPerContext;
+// #endif
 
-	graphViewer = new GraphModelViewer(threadingModel, widget3D, true);
+	graphViewer = new GraphModelViewer(threadingModel, widget3D, false);
 
 	setGeometry();
 	graphViewer->show();
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::setGeometry()
 {
+	printf("%s: %d\n", __FILE__, __LINE__);
 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
+	printf("%s: %d\n", __FILE__, __LINE__);
 }
