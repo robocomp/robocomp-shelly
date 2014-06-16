@@ -46,6 +46,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
 	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
 	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
+	connect(camareroCentro2Button, SIGNAL(clicked()), this, SLOT(camareroCentro2()));
+
 	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
 	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
 	connect(Part3_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
@@ -518,6 +520,40 @@ void SpecificWorker::camareroCentro()
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
+
+
+
+void SpecificWorker::camareroCentro2()
+{
+	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
+	
+	//DEFINIMOS VARIABLES:
+	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
+	//				rotaciones se dejan a CERO.
+	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
+	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
+	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
+  QVec pose = QVec::zeros(6);
+	
+	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+		
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = 150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+}
 
 /*--------------------------------------------------------------------------------------------------*
  * 							SLOTS PARA LA PESTAÑA DE HOME											*
