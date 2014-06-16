@@ -79,10 +79,14 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->initialTipPose = QVec(6);
-    this->finalTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->initialTipPose = QVec(6);
+	this->finalTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->finalAngles = QVec();
+	this->chopped = false;
+	removal = false;
+	atTarget = false;
 }
 
 /**
@@ -110,10 +114,14 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->initialTipPose = QVec(6);
-    this->finalTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->initialTipPose = QVec(6);
+	this->finalTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->finalAngles = QVec();
+	this->chopped = false;
+	removal = false;
+	atTarget = false;
 }
 
 /**
@@ -136,130 +144,25 @@ Target::Target(Target::TargetType tt, InnerModel* inner, const QString &tip, con
 	this->error = 0.f;
 	this->weights = weights;
 	this->startTime = QTime::currentTime();
+	this->runTime = QTime();
 	this->iter = 0;
 	this->elapsedTime = 0;
 	this->finish = START;
-    this->executed = false;
-    this->finalTipPose = QVec(6);
-    this->initialTipPose = QVec(6);
-    this->initialAngles = QVec();
+	this->executed = false;
+	this->finalTipPose = QVec(6);
+	this->initialTipPose = QVec(6);
+	this->initialAngles = QVec();
+	this->finalAngles = QVec();
+	this->chopped = false;
+	removal = false;
+	atTarget = false;
 
 }
 
 /*--------------------------------------------------------------------------*
  *		      									MÉTODOS PÚBLICOS															*
  *--------------------------------------------------------------------------*/
-/*
- * Método SET POSE
- * Asigna el valor del vector de 6 elementos de entrada (3 traslaciones y 3 rotaciones)
- * al atributo pose de la clase TARGET.
- */ 
-void Target::setPose(QVec newPose)
-{
-	this->pose6D = newPose;
-}
 
-/*
- * Método SET ACTIVO.
- * Asigna el valor del booleano de entrada newActivo, al atributo activo de la clase
- */ 
-void Target::setActivo(bool newActivo)
-{
-	this->activo = newActivo;
-}
-
-/*
- * Método SET START TIME
- * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
- */ 
-void Target::setStartTime(QTime newStart)
-{
-	this->start = newStart;
-}
-
-/*
- * Método SET WEIGHTS
- * Asigna el valor del QTime de entrada al atributo de tiempo start de la clase.
- */ 
-void Target::setWeights(const QVec &weights)
-{
-	this->weights = weights;
-}
-
-
-/**
- * @brief ...
- * 
- * @param name ...
- * @return void
- */
-void Target::setNameInInnerModel(const QString& name)
-{
-	nameInInnerModel = name;
-}
-
-// /**
-//  * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
-//  * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
-//  * 
-//  * @return void
-//  */
-// void Target::chopPath()
-// {
-// 	
-// 	static QVec poseAnt = inner->transform("world", QVec::zeros(3), this->tip);
-// 	
-// 	QVec poseTranslation = pose6D.subVector(0,2);  																						//translation part of target pose
-// 	QVec poseRotation = pose6D.subVector(3,5); 																								//rotation part of target pose
-// 	//QVec tipInWorld = inner->transform("world", QVec::zeros(3), this->tip);										//coor of tip in world
-// 	QVec rotTipInWorld =  inner->getRotationMatrixTo("world", this->tip).extractAnglesR();		//orientation of tip in world
-// 	QVec angulos1 = rotTipInWorld.subVector(0,2);																							//shit to select minimun module solution
-// 	QVec angulos2 = rotTipInWorld.subVector(3,5);
-// 	QVec rot;
-// 	if(angulos1.norm2() < angulos2.norm2())
-// 		rot = angulos1;
-// 	else
-// 		rot = angulos2;
-// 
-// 	QVec P(6);
-// 	P.inject(poseAnt,0);
-// 	P.inject(rot,3);
-// 
-// 	QVec Q(6);
-// 	Q.inject(poseTranslation,0);
-// 	Q.inject(poseRotation,3);
-// 
-// 	QVec error = P - Q;		
-// 
-// 	error[3] = standardRad( error[3] );
-// 	error[4] = standardRad( error[4] );
-// 	error[5] = standardRad( error[5] );
-// 	
-// 	
-// 	float dist = error.norm2();
-// 	// Si la distancia es mayor que 1cm troceamos la trayectoria:
-// 	const float step = 0.05;
-// 	
-// 	if(dist >step)
-// 	{
-// 		int NPuntos = floor(dist / step);
-// 		float interval = 1.0 / NPuntos;
-// 		T landa = 0.;
-// 		QVec R(6);
-// 		for(int i=0; i<=NPuntos; i++)
-// 		{
-// 			
-// 			R = (P * (T)(1.f-landa)) + (Q * landa);
-// 			if( targetType == Target::POSE6D )
-// 			{
-// 				Target t(POSE6D, inner, tip, R, weights, false);
-// 				subtargets.enqueue(t); //añadimos subtarget a la lista.
-// 			}
-// 			landa += interval; 
-// 		}
-// 		poseAnt = R;
-// 	}
-// }
 
 void Target::print(const QString &msg)
 {
@@ -273,16 +176,18 @@ void Target::print(const QString &msg)
 	qDebug() << "	Tip " << tip;
 	qDebug() << "	Activo " << activo;
 	qDebug() << "	Pose6D" << pose6D;
-    qDebug() << "   Initial Tip pos." << initialTipPose;
-    qDebug() << "   Final Tip pos." << finalTipPose;
-    if( executed == true)
-        qDebug() << "    Target Executed on Robot!";
+	qDebug() << "	pose6DChopped" << pose6DChopped;
+	qDebug() << "	Chopped" << chopped;
+	qDebug() << "	Initial Tip pos." << initialTipPose;
+	qDebug() << "	Final Tip pos." << finalTipPose;
+	if( executed == true)
+        qDebug() << "	Target Executed on Robot!";
 	if(targetType == ALIGNAXIS)
-		qDebug() << "Axis of the tip to be aligned" << axis;
+		qDebug() << "	Axis of the tip to be aligned" << axis;
 	if(targetType == ADVANCEAXIS)
 	{
-		qDebug() << "Axis of the tip to move" << axis;
-		qDebug() << "Distance to advance in m." << step;
+		qDebug() << "	Axis of the tip to move" << axis;
+		qDebug() << "	Distance to advance in m." << step;
 	}
 	qDebug() << "	Weights" << weights;
 	qDebug() << "	Error vector" << errorVector;
@@ -301,23 +206,16 @@ void Target::print(const QString &msg)
 	qDebug() << " 	Start time" << startTime;
 	qDebug() << " 	Running time" << runTime;
 	qDebug() << " 	Elapsed time" << elapsedTime << "ms";
-    qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
-    qDebug() << "	Final angles after IK" << finalAngles;
+	qDebug() << "	Angles increment after IK" << finalAngles - initialAngles;
+	qDebug() << "	Initial angles after IK" << initialAngles;
+	qDebug() << "	Final angles after IK" << finalAngles;
+	if( executed == true) 
+		qDebug() << "	Target Executed!";
+	if( removal == true and atTarget==false)
+		qDebug() << " 	Attention: Marked for removal without success";
+	if( atTarget == true)
+		qDebug() << " 	Attention: Marked for removal with success";
+	
 	qDebug() << "-----TARGET END-----------------";
 }
 
-/**
- * @brief ...
- * 
- * @param t ...
- * @return float
- */
-float Target::standardRad(float t)
-{
-	if (t >= 0.) {
-		t = fmod(t+M_PI, M_PI/2.) - M_PI;
-	} else {
-		t = fmod(t-M_PI, -M_PI/2.) + M_PI;
-	}
-	return t;
-}

@@ -8,6 +8,13 @@
 			<plane id="zWorld" pz="250" nx="1" size="500,30,30" repeat="1" texture="#0000ff" />
 		</transform>
 
+
+		<transform id="AUX" tz="600">
+			<plane id="AUXX" px="250" nx="1" size="10,10,500" repeat="1" texture="#ff0000" />
+			<plane id="AUXY" py="250" nx="1" size="10,500,10" repeat="1" texture="#00ff00" />
+			<plane id="AUXZ" pz="250" nx="1" size="500,10,10" repeat="1" texture="#0000ff" />
+		</transform>
+
 		<!-- Floor -->
 		<transform id="floor" >
 			<plane id="flooor" ny="1" size="3000,3000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
@@ -75,13 +82,9 @@
 													</transform>
 -->
 													<transform id="sensor_transform2" ty="125" tz="40" > <!-- rx="0.7" -->
-														<transform id="head4_pre" tx="0" ty="0" tz="0" rx="1.04719755" ry="0" rz="0">
-                                                                                                                        <joint id="head4" port="20000" axis="z" min="0" max ="0.000001" home="0">
-																<plane id="sensor" nz="1" pz="-10" size="80,60" repeat="1" texture="#0000ff" />
-																<transform id="rgbd_transform" rx="1.05"  >
-																	<rgbd id="rgbd" focal="585" width="640" height="480" port="10096" ifconfig="20000,10004" />
-																</transform>
-															</joint>
+														<transform id="rgbd_transform" rx="1.05">
+															<plane id="sensor" nz="1" pz="-10" size="80,60" repeat="1" texture="#0000ff" />
+															<rgbd id="rgbd" focal="525" width="640" height="480" port="10096" ifconfig="20000,10004" />
 														</transform>
 													</transform>
 												</transform>
@@ -178,17 +181,17 @@
 
 																				<plane id="handMesh1" pz="60" py="-20" ny="1" size="85,80,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
 
-                                                                                                                                                                <transform id="arm_right_7.5" tx="0" ty="-22.5" tz="60" rx="0" ry="0" rz="0">
-                                                                                                                                                                        <joint id="rightWrist3" port="20000" axis="z" min="0" max ="0.000001" home="0">
-																						
-                                                                                                                                                                                <transform id="axeswr3" >
-																					                <plane id="xwr3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
-																					                <plane id="ywr3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
-																					                <plane id="zwr3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-																				                </transform>
-																						
-                                                                                                                                                                        </joint>
-                                                                                                                                                                </transform>
+																																								<transform id="arm_right_7.5" tx="0" ty="-22.5" tz="60" rx="0" ry="0" rz="0">
+																																										<joint id="rightWrist3" port="20000" axis="z" min="0" max ="0.000001" home="0">
+
+																																												<transform id="axeswr3" >
+																									<plane id="xwr3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
+																									<plane id="ywr3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+																									<plane id="zwr3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
+																								</transform>
+
+																																										</joint>
+																																								</transform>
 
 																				<transform id="arm_right_8" tx="20" tz="95" >
 					<!-- 																Gira en Y -->
@@ -387,19 +390,19 @@
 			<!-- 																Gira en Y -->
 																			<plane id="motolefrWrist2Mesh" px="-15" pz="-20" ny="1" size="66,40,-40" repeat="1" texture="#051105" />
 																			<joint id="leftWrist2" port="20000" min="-0.1" max="1.5707963267948966" axis="y" home="0" >
-<!--
+
 																				<transform id="axeswl2" >
 																					<plane id="xwl2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																					<plane id="ywl2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																					<plane id="zwl2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				</transform>
-																		-->
+
 																				<plane id="handleftMesh1" pz="100" ny="1" size="170,170,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
 
 																				<transform id="arm_left_7.5" tx="0" ty="2.5" tz="100" rx="0" ry="0" rz="0">
-                                                                                                                                                                        <joint id="leftWrist3" port="20000" axis="z" min="0" max ="0.001" home="0">
-                                                                                                                                                                        
-		                                                                                                                                                                <transform id="axeswl3" >
+																																										<joint id="leftWrist3" port="20000" axis="z" min="0" max ="0.001" home="0">
+
+																																										<transform id="axeswl3" >
 																							<plane id="xwl3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																							<plane id="ywl3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																							<plane id="zwl3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
@@ -410,9 +413,9 @@
 																							<plane id="axisyl" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
 																							<plane id="axiszl" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" />
 																						</transform>
-		                                                                                                                                                                
-                                                                                                                                                                        </joint>
-                                                                                                                                                                </transform> 
+
+																																										</joint>
+																																								</transform>
 
 																				<!--
 																				<plane id="handleftMesh1" pz="0.060" ny="1" size="0.085,0.080,0.035" repeat="1" texture="#555555" />
@@ -460,8 +463,9 @@
 																					<plane id="zlh2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				</transform>-->
 
-																				
-
+																			<!--<transform id="grabPositionHandL2" tz="0" rx="2.9" ry="0.15" rz="0.3" >-->
+																				<transform id="grabPositionHandL2" tz="0" rx="3.14159265359" >
+																			</transform>
 
 																			</joint>
 																		</transform>
@@ -525,18 +529,17 @@
 
 	<transform id="target" tx="0" ty="900" tz="300">
 		<plane id="C1_6" ny="-1" size="108,-139.5,5" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
-		
 
-<!--
+
 		<transform id="axeslh2"  ty="10">
 			<plane id="xlh2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 			<plane id="ylh2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 			<plane id="zlh2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 		</transform>
--->
+
 	</transform>
 	<transform id="mesaT" tx="0" ty="810"  tz="1000" >
-		<!--<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />-->
+		<plane id="mesa" ny="-1" size="216,-279,10" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
 	</transform>
 
 </innerModel>

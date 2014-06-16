@@ -38,6 +38,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	//Conectamos botones de EJECUCIÓN:
 	connect(rcisButton, SIGNAL(clicked()), this, SLOT(enviarRCIS()));
 	connect(robotButton, SIGNAL(clicked()), this, SLOT(enviarROBOT()));
+	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
 	
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 	
@@ -45,6 +46,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
 	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
 	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
+	connect(camareroCentro2Button, SIGNAL(clicked()), this, SLOT(camareroCentro2()));
+
 	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
 	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
 	connect(Part3_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
@@ -244,8 +247,15 @@ void SpecificWorker::enviar()
 	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
 		closeFingers();
 	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
-		goHome();
+		goHome(part_home->currentText());
 }
+
+
+void SpecificWorker::enviarHome()
+{
+	goHome("All");
+}
+
 
 /*
  * Método actualizarInnermodel
@@ -423,38 +433,46 @@ void SpecificWorker::camareroDiestro()
 	float salto = 10;
     float xAux, yAux;
 	
+	//guardamos la posicion de partida
+ 	QVec home(6);
+ 	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandR"),0);
+ 	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min(),3);
+ 	
 	// Trasladamos en X hacia la izquierda: 
 	for(float i=-100; i<300; i=i+salto)
 	{
-		pose[0] = i; pose[1] = 900; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[0] = i; pose[1] = 900; pose[2] = 350;
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		xAux = i;
 	}
 	// Subimos en Y:
 	for(float j=900; j<1100; j=j+salto)
 	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[0] = xAux; pose[1] = j; pose[2] = 350;
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		yAux = j;
 	}
 	// Trasladamos en X hacia la derecha:
 	for(float i=xAux; i>=-100; i=i-salto)
 	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[0] = i; pose[1] = yAux; pose[2] = 350;
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		xAux = i;
 	}
 	// Bajamos en Y:
 	for(float j=yAux; j>=900; j=j-salto)
 	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 400;
-		pose[3] = poseRX->value(); pose[4] = poseRX->value(); pose[5] = poseRX->value();
+		pose[0] = xAux; pose[1] = j; pose[2] = 350;
+		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
 		trayectoria.append(pose);
 		yAux = j;
 	}
+	
+	//go back to initial grabPositionHandR
+	trayectoria.append(home);
 	
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
 }
@@ -480,42 +498,62 @@ void SpecificWorker::camareroCentro()
 	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
 	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
 	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-    QVec pose = QVec::zeros(6);
-	float salto = 10;
-    float xAux, yAux;
+  QVec pose = QVec::zeros(6);
 	
-	// Trasladamos hacia la derecha en X:
-	for(float i=-150; i<=150; i=i+salto)
-	{
-		pose[0] = i; pose[1] = 900; pose[2] = 350;
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	// Subimos en Y:
-	for(float j=900; j<1100; j=j+salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.append(pose);
-		yAux = j;
-	}
-	// Trasladamos hacia la izquierda en X:
-	for(float i=xAux; i>=-150; i=i-salto)
-	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 350;
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	//Bajamos en Y
-	for(float j=yAux; j>=900; j=j-salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.append(pose);
-		yAux = j;
-	}
+	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+		
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = 150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
 	
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
+
+
+
+void SpecificWorker::camareroCentro2()
+{
+	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
+	
+	//DEFINIMOS VARIABLES:
+	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
+	//				rotaciones se dejan a CERO.
+	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
+	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
+	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
+  QVec pose = QVec::zeros(6);
+	
+	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+		
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = 150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+}
 
 /*--------------------------------------------------------------------------------------------------*
  * 							SLOTS PARA LA PESTAÑA DE HOME											*
@@ -527,20 +565,18 @@ void SpecificWorker::camareroCentro()
  * 
  * @return void
  */
-void SpecificWorker::goHome()
+void SpecificWorker::goHome(QString partName)
 {
+	std::string part = partName.toStdString();
+	qDebug() << "Go gome" << partName;
 	try 
 	{	
-		std::string part = part_home->currentText().toStdString();
-		qDebug() << "Go gome" << QString::fromStdString(part);
 		
-		if(part=="All")
+		if(partName=="All")
 		{
-			QQueue<std::string> partes;
-			partes.append("LEFTARM"); 		partes.append("RIGHTARM");		partes.append("HEAD");
-			
-			for(int i=0; i<3; i++)
-				bodyinversekinematics_proxy->goHome(partes.dequeue());
+				bodyinversekinematics_proxy->goHome("HEAD");
+				bodyinversekinematics_proxy->goHome("LEFTARM");
+				bodyinversekinematics_proxy->goHome("RIGHTARM");
 		}
 		else
 			bodyinversekinematics_proxy->goHome(part);
@@ -637,8 +673,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 	{
 		//colocamos el target en el RCIS. HAY QUE PASAR A METROS LAS TRASLACIONES
 		//poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
-		poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
-		moverTargetEnRCIS(poseMetros); 
+		//poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
+		moverTargetEnRCIS(p); 
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)
 		pose6D.x = p[0];     pose6D.y = p[1];     pose6D.z = p[2];
@@ -680,7 +716,7 @@ void SpecificWorker::enviarPose6D(QVec p)
 				else
 				{ 	
 					qDebug()<<"---> TARGET ENVIADO con traslaciones ("<<pose6D.x<<pose6D.y<<pose6D.z<<") y rotaciones ("<<pose6D.rx<<pose6D.ry<<pose6D.rz<<")";
-					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights);
+					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 				}
 				usleep(50000);
 			}

@@ -25,11 +25,11 @@
 #include <agm_model.h>
 #include <agm_modelPrinter.h>
 #include <agm_modelDrawer.h>
-
+#include <graphModelViewer.h>
 
 /**
-       \brief
-       @author authorname
+	   \brief
+	   @author authorname
 */
 
 class SpecificWorker : public GenericWorker
@@ -51,9 +51,11 @@ public:
 	void killAgent() {}
 	int uptimeAgent() { return 1; }
 	bool reloadConfigAgent() { return true; }
+	void set3DViewer();
 
 public slots:
- 	void compute();
+	void compute();
+	void setGeometry();
 	void quitButtonClicked();
 
 	void activateClicked();
@@ -61,7 +63,7 @@ public slots:
 	void resetClicked();
 
 	void broadcastButtonClicked();
-	
+
 	void setMissionFindMug();
 	void setMissionGraspMug();
 private:
@@ -72,7 +74,7 @@ private:
 	RoboCompPlanning::Plan plan;
 	AGMModelDrawer *modelDrawer, *targetDrawer;
 	RCDraw *rcdraw1, *rcdraw2;
-
+	GraphModelViewer *graphViewer;
 };
 
 #endif

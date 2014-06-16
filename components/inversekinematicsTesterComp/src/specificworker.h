@@ -56,6 +56,7 @@ public slots:
 	void enviarRCIS(); 		// select RCIS.
 	void enviarROBOT(); 	// select robot
 	void enviar();				// send data to robot or rcis
+	void enviarHome();
 	void actualizarInnerModel();
 	
 	
@@ -64,9 +65,10 @@ public slots:
 	void camareroZurdo();
 	void camareroDiestro();
 	void camareroCentro();
+	void camareroCentro2();
 	
 	void closeFingers();
-	void goHome();
+	void goHome(QString partName);
 
 	
 private:

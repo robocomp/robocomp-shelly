@@ -118,9 +118,9 @@ void SpecificWorker::approachFinger()
 		const float rwtx = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tx"));
 		const float rwty = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));
 		const float rwtz = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tz"));
-		
-// 		qDebug()<<"marca según aprilAgent"<<tx<<ty<<tz<<"munieca robot Tr"<<rwtx<<rwty<<rwtz; 
-// 		innerModel->transform("world", QVec::vec3(tx,ty,tz), "robot").print("Marca AR desde el mundo sin offset ");		
+
+// 		qDebug()<<"marca según aprilAgent"<<tx<<ty<<tz<<"munieca robot Tr"<<rwtx<<rwty<<rwtz;
+// 		innerModel->transform("world", QVec::vec3(tx,ty,tz), "robot").print("Marca AR desde el mundo sin offset ");
 		QVec offset = QVec::vec3(0., -60., -80.);
 		QVec poseTr = innerModel->transform("world", QVec::vec3(tx,ty,tz)+offset, "robot");
 		QVec poseWrist = QVec::vec3(rwtx, rwty, rwtz)+offset;
@@ -135,22 +135,22 @@ void SpecificWorker::approachFinger()
 // 		if (error.norm2()>30)
 		{
 			QVec rot = QVec::vec3(M_PIl, -1.5, 0.);
-			
-			
+
+
 			if (firstTime )
 			{
 				printf("gooooooo T=(%.2f, %.2f, %.2f)  R=(%.2f, %.2f, %.2f)\n", poseTr(0), poseTr(1), poseTr(2), rot(0), rot(1), rot(2));
-				sendRightHandPose(poseTr, rot, QVec::vec3(1,1,1), QVec::vec3(1,0,1));				
+				sendRightHandPose(poseTr, rot, QVec::vec3(1,1,1), QVec::vec3(1,0,1));
 				sleep(5);
 				exec =true;
 				firstTime = false;
 			}
-			
-			
+
+
 		}
 		QVec sightPoint = (poseTr+poseWrist).operator*(0.5);
 		//saccadic3D(sightPoint, QVec::vec3(0, -1, 0));
-// 		
+//
 		//timerAutomataApproachFinger.start(5000);
 	}
 	catch(AGMModelException &e)
@@ -307,7 +307,7 @@ void SpecificWorker::take()
 	{
 		///pn
 
-		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights, 100);
 		exec =true;
 
 	}
@@ -527,7 +527,7 @@ void SpecificWorker::ajusteFino()
 
 	// Make sure we have the robot in the model, otherwise there's nothing to do yet...
 	int32_t robot = worldModel->getIdentifierByType("robot");
-	
+
 
 	float tx, ty, tz;
 	float rwtx, rwty, rwtz;
@@ -541,7 +541,7 @@ void SpecificWorker::ajusteFino()
 		//float ry = str2float(worldModel->getSymbol(object)->getAttribute("ry"));
 		//float rz = str2float(worldModel->getSymbol(object)->getAttribute("rz"));
 		rwtx = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tx"));
-		rwty = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));		
+		rwty = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_ty"));
 		rwtz = str2float(worldModel->getSymbol(robot)->getAttribute("rightwrist_tz"));
 		//float rxw = str2float(robot->getAttribute("wrist_rx"));
 		//float ryw = str2float(robot->getAttribute("wrist_ry"));
@@ -558,7 +558,7 @@ void SpecificWorker::ajusteFino()
 		qDebug()<<"eeeeeeeeeeeeeeeeeeeeeeeeeeeee";
 		return;
 	}
-	firstTime++;	
+	firstTime++;
 	QVec targetT = QVec::vec3(tx,  ty , tz);
 	QVec wristT  = QVec::vec3(rwtx, rwty, rwtz);
 	QVec poseTr =  targetT - wristT;
@@ -604,29 +604,28 @@ void SpecificWorker::sendRightHandPose(QVec t, QVec r, float wtx, float wty, flo
 
 void SpecificWorker::sendRightHandPose(float tx, float ty, float tz, float rx, float ry, float rz, float wtx, float wty, float wtz, float wrx, float wry, float wrz)
 {
-	        
-		RoboCompBodyInverseKinematics::Pose6D target;
-		target.x = tx;
-		target.y = ty;
-		target.z = tz;
-		target.rx = rx;
-		target.ry = ry;
-		target.rz = rz;
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = wtx;
-		weights.y = wty;
-		weights.z = wtz;
-		weights.rx = wrx;
-		weights.ry = wry;
-		weights.rz = wrz;
-		try
-		{
-			bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
-		}
-		catch(...)
-		{
-			printf("IK connection error\n");
-		}
+	RoboCompBodyInverseKinematics::Pose6D target;
+	target.x = tx;
+	target.y = ty;
+	target.z = tz;
+	target.rx = rx;
+	target.ry = ry;
+	target.rz = rz;
+	RoboCompBodyInverseKinematics::WeightVector weights;
+	weights.x = wtx;
+	weights.y = wty;
+	weights.z = wtz;
+	weights.rx = wrx;
+	weights.ry = wry;
+	weights.rz = wrz;
+	try
+	{
+		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights, 100);
+	}
+	catch(...)
+	{
+		printf("IK connection error\n");
+	}
 }
 
 
@@ -637,24 +636,24 @@ void SpecificWorker::saccadic3D(QVec point, QVec axis)
 
 void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float axy, float axz)
 {
-		RoboCompBodyInverseKinematics::Pose6D targetSight;
-		targetSight.x = tx;
-		targetSight.y = ty;
-		targetSight.z = tz;
-		RoboCompBodyInverseKinematics::Axis axSight;
-		axSight.x = axx;
-		axSight.y = axy;
-		axSight.z = axz;
-		bool axisConstraint = false;
-		float axisAngleConstraint = 0;
-		try
-		{
-			bodyinversekinematics_proxy->pointAxisTowardsTarget("HEAD", targetSight, axSight, axisConstraint, axisAngleConstraint);
-		}
-		catch(...)
-		{
-			printf("IK connection error\n");
-		}
+	RoboCompBodyInverseKinematics::Pose6D targetSight;
+	targetSight.x = tx;
+	targetSight.y = ty;
+	targetSight.z = tz;
+	RoboCompBodyInverseKinematics::Axis axSight;
+	axSight.x = axx;
+	axSight.y = axy;
+	axSight.z = axz;
+	bool axisConstraint = false;
+	float axisAngleConstraint = 0;
+	try
+	{
+		bodyinversekinematics_proxy->pointAxisTowardsTarget("HEAD", targetSight, axSight, axisConstraint, axisAngleConstraint);
+	}
+	catch(...)
+	{
+		printf("IK connection error\n");
+	}
 }
 
 
