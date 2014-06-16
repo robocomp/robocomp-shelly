@@ -432,10 +432,10 @@ void SpecificWorker::camareroDiestro()
     float xAux, yAux;
 	
 	//guardamos la posicion de partida
-	QVec home(6);
-	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandR"),0);
-	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min(),3);
-	
+ 	QVec home(6);
+ 	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandR"),0);
+ 	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min(),3);
+ 	
 	// Trasladamos en X hacia la izquierda: 
 	for(float i=-100; i<300; i=i+salto)
 	{
@@ -496,38 +496,24 @@ void SpecificWorker::camareroCentro()
 	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
 	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
 	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-    QVec pose = QVec::zeros(6);
-	float salto = 10;
-    float xAux, yAux;
+  QVec pose = QVec::zeros(6);
 	
-	// Trasladamos hacia la derecha en X:
-	for(float i=-150; i<=150; i=i+salto)
-	{
-		pose[0] = i; pose[1] = 900; pose[2] = 350;
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	// Subimos en Y:
-	for(float j=900; j<1100; j=j+salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.append(pose);
-		yAux = j;
-	}
-	// Trasladamos hacia la izquierda en X:
-	for(float i=xAux; i>=-150; i=i-salto)
-	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 350;
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	//Bajamos en Y
-	for(float j=yAux; j>=900; j=j-salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.append(pose);
-		yAux = j;
-	}
+	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+		
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = 150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+
+	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
+	trayectoria.append(pose);
+	
+	pose[0] = -150; pose[1] = 900; pose[2] = 300;
+	trayectoria.append(pose);
 	
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
 }

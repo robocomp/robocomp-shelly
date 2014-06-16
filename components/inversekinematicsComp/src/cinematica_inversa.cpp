@@ -92,6 +92,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
+	
 		chopPath(target);	
 		
 		if( target.isAtTarget() == false )
@@ -317,13 +318,13 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		errorTotal.inject(errorTInLastJoint,0);
 		errorTotal.inject(anglesRotInLastJoint, 3);
 		
-		QVec targetRInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel()).extractAnglesR_min();
-		QVec tipRInLastJoint = matTipInLastJoint.extractAnglesR_min();
-		QVec errorRInLastJoint = targetRInLastJoint - tipRInLastJoint;
-		
-		anglesRotInLastJoint.print("Rotation error 1:");
-		errorRInLastJoint.print("Rotation error 2:");
-		
+// 		QVec targetRInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getNameInInnerModel()).extractAnglesR_min();
+// 		QVec tipRInLastJoint = matTipInLastJoint.extractAnglesR_min();
+// 		QVec errorRInLastJoint = targetRInLastJoint - tipRInLastJoint;
+// 		
+// 		anglesRotInLastJoint.print("Rotation error 1:");
+// 		errorRInLastJoint.print("Rotation error 2:");
+// 		
 				
 // 		matTargetInTip.print("matTargetInTip");
 // 		matTargetInTip.extractAnglesR_min().print("angulos target in tip");
@@ -403,7 +404,6 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 		
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
-
 		k++;
 		do{
 			try 
@@ -420,10 +420,12 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			}
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
 			
-			if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))   ///Too small increments
+		//	if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))   ///Too small increments
+			if(incrementos.norm2() <= e2)   ///Too small increments	
 			{
 				stop = true;
 				smallInc = true; 
+				qDebug() << " LOW_INCS" << incrementos.norm2() << e2;
 				target.setStatus(Target::LOW_INCS);
 				break;
 			}
@@ -443,6 +445,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				
 				//motores.set((T)0);
 				actualizarAngulos(aux); // Metemos los nuevos angulos LUEGO HAY QUE DESHACER EL CAMBIO.
+				qDebug() << "Cambiar angulos";
 				ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
 										
 				if(ro > 0)
