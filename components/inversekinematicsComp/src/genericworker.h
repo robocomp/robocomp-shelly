@@ -69,6 +69,7 @@ public:
 	virtual void  goHome(const string& part) = 0;
 	virtual void  setRobot(int type) = 0;
 	virtual TargetState getState(const string& part) = 0;
+	virtual void  stop(const string& part) = 0;
 protected:
 	QTimer timer;
 	int Period;

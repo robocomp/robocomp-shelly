@@ -478,7 +478,8 @@ void SpecificWorker::setRobot(const int t)
  * @brief 
  * 
  * @param part ...
- * @return RoboCompBodyInverseKinematics::State
+ * @return RoboCompBodyInverseKinematics::Statedesigner
+ * 
  */
 TargetState SpecificWorker::getState(const std::string &part)
 {
@@ -505,6 +506,34 @@ TargetState SpecificWorker::getState(const std::string &part)
 		mutex->unlock();
 	}
 	return state;	
+}
+
+
+/**
+ * @brief Stops robot part and cleans it queue
+ * 
+ * @param part ...
+ * @return void
+ */
+void SpecificWorker::stop(const std::string& part)
+{
+	QString partName = QString::fromStdString(part);
+	
+	if ( bodyParts.contains(partName)==false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	else
+	{
+		qDebug() << "----------------------------------------";
+		qDebug() << __FUNCTION__ << QString::fromStdString(part);
+		mutex->lock();
+			bodyParts[partName].clearTargetList();
+		mutex->lock();
+	}	
 }
 
 

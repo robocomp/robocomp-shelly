@@ -51,16 +51,17 @@ class BodyPart
 		~BodyPart(){};	// destructor por defecto.
 		
 		//// MÉTODOS GET ////
-		QString getPartName() const 						{ return part;}; // Devuelve el nombre de la parte del cuerpo. 
-		QString getTip() const 								{ return tip; };	// Devuelve el nombre del efector final de la parte del cuerpo.
-		QStringList getMotorList() const 					{ return motorList;}; // Devuelve la lista de motores de la parte del cuerpo.
-		QQueue<Target> getTargets() const 					{ return listaTargets;}; // Devuelve toda la cola de targets de la parte del cuerpo.
-		Target& getHeadFromTargets() 				 		{ return listaTargets.head(); }; //Devuelve el primer target de la cola de targets.
-		Cinematica_Inversa* getInverseKinematics()			{ return ik;}; // Devuelve la variable de cinematica_inversa asignada a la partedel cuerpo.
-		void addListaTarget(const QQueue<Target> &lt) 		{ listaTargets = lt;}; //Guarda la lista de targets que se le asigna en su atributo.
-		void addTargetToList(const Target &t)				{ listaTargets.enqueue(t);};
-		void removeHeadFromTargets()						{ if (listaTargets.size() > 0) listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
-		bool noTargets() const								{ return listaTargets.isEmpty();};
+		QString getPartName() const 									{ return part;}; // Devuelve el nombre de la parte del cuerpo. 
+		QString getTip() const 												{ return tip; };	// Devuelve el nombre del efector final de la parte del cuerpo.
+		QStringList getMotorList() const 							{ return motorList;}; // Devuelve la lista de motores de la parte del cuerpo.
+		QQueue<Target> getTargets() const 						{ return listaTargets;}; // Devuelve toda la cola de targets de la parte del cuerpo.
+		Target& getHeadFromTargets() 					 				{ return listaTargets.head(); }; //Devuelve el primer target de la cola de targets.
+		Cinematica_Inversa* getInverseKinematics()		{ return ik;}; // Devuelve la variable de cinematica_inversa asignada a la partedel cuerpo.
+		void addListaTarget(const QQueue<Target> &lt)	{ listaTargets = lt;}; //Guarda la lista de targets que se le asigna en su atributo.
+		void addTargetToList(const Target &t)					{ listaTargets.enqueue(t);};
+		void removeHeadFromTargets()									{ if (listaTargets.size() > 0) listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
+		bool noTargets() const												{ return listaTargets.isEmpty();};
+		void clearTargetList()												{ listaTargets.clear();};
 		
 		QQueue<Target> listaTargets;											// Lista de targets para esa parte del cuerpo.
 		

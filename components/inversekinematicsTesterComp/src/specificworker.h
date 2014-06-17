@@ -66,10 +66,10 @@ public slots:
 	void camareroDiestro();
 	void camareroCentro();
 	void camareroCentro2();
-	
+	void clearTargets();
 	void closeFingers();
 	void goHome(QString partName);
-
+	
 	
 private:
 	
@@ -95,6 +95,7 @@ private:
 	void moveAlongAxis();
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
+	
 
 };
 
