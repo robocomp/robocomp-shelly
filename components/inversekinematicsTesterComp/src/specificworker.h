@@ -77,6 +77,11 @@ public slots:
 	void cerrarPinza();
 	void posicionInicial();
 	void posicionCoger();
+	void posicionSoltar();
+	void retroceder();
+	void goHomeR();
+	void izquierdoRecoger();
+	void izquierdoOfrecer();
 
 	
 private:
