@@ -81,7 +81,7 @@
 														<plane id="zh4" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 													</transform>
 -->
-													<transform id="sensor_transform2" ty="125" tz="14" > <!-- rx="0.7" -->
+													<transform id="sensor_transform2" ty="125" tz="27" > <!-- rx="0.7" -->
 														<transform id="rgbd_transform" rx="1.05">
 															<plane id="sensor" nz="1" pz="-10" size="80,60" repeat="1" texture="#0000ff" />
 															<rgbd id="rgbd" focal="525" width="640" height="480" port="10096" ifconfig="20000,10004" />
