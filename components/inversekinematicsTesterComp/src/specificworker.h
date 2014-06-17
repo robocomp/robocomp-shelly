@@ -66,7 +66,7 @@ public slots:
 	void camareroDiestro();
 	void camareroCentro();
 	void camareroCentro2();
-	void clearTargets();
+	void stop();
 	void closeFingers();
 	void goHome(QString partName);
 	

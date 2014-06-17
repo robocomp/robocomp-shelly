@@ -39,7 +39,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(rcisButton, SIGNAL(clicked()), this, SLOT(enviarRCIS()));
 	connect(robotButton, SIGNAL(clicked()), this, SLOT(enviarROBOT()));
 	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
-	connect(stopButton, SIGNAL(clicked()), this, SLOT(clearTargets()));
+	connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 	
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 	
@@ -277,7 +277,7 @@ void SpecificWorker::actualizarInnerModel()
 	}
 }
 
-void SpecificWorker::clearTargets()
+void SpecificWorker::stop()
 {
 	try 
 	{

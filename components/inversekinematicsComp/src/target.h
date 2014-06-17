@@ -62,7 +62,7 @@ public:
 	QString getTipName() const           { return this->tip; }             // Devuelve el nombre del TIP.
 	QVec getPose() const                 { return this->pose6D; }          // Devuelve el vector pose del target
 	QTime getStartTime() const           { return this->start; }           // Devuelve el tiempo del target.
-	bool getActivo() const               { return this->activo; }          // Devuelve el estado del target
+	bool isActive() const          	     { return this->activo; }          // Devuelve el estado del target
 	QVec getWeights() const              { return this->weights; } 
 	TargetType getType() const           { return targetType; }
 	bool getAxisConstraint() const       { return axisConstraint; }

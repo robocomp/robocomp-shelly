@@ -125,7 +125,7 @@ void SpecificWorker::init()
 
 
 /**
- * @brief Transforms all InnerModel in mm to meters
+ * @brief Transforms all InnerModel in mm to meters until BIK can operate in meters directly
  * 
  * @param node starting node of InnerModel
  * @return void
@@ -182,28 +182,30 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 			if(iterador.value().noTargets() == false)
 			{
 				Target &target = iterador.value().getHeadFromTargets(); 	
-				target.annotateInitialTipPose();
-				target.setInitialAngles(iterador.value().getMotorList());
-				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
-				target.print("BEFORE PROCESSING");
-				
-				iterador.value().getInverseKinematics()->resolverTarget(target);
-
-				if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
+				if (target.isMarkedforRemoval() == false)
 				{
-					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-					usleep(100000);
-					target.setExecuted(true);
-				}
-				else  
-				{
-					target.markForRemoval(true);
-				}
-				actualizarInnermodel(listaMotores); 			//actualizamos TODOS los motores.	OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza
-				target.annotateFinalTipPose();
-				removeInnerModelTarget(target);
-				target.print("AFTER PROCESSING");
+					target.annotateInitialTipPose();
+					target.setInitialAngles(iterador.value().getMotorList());
+					createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
+					target.print("BEFORE PROCESSING");
 					
+					iterador.value().getInverseKinematics()->resolverTarget(target);
+
+					if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
+					{
+						moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+						usleep(100000);
+						target.setExecuted(true);
+					}
+					else  
+					{
+						target.markForRemoval(true);
+					}
+					actualizarInnermodel(listaMotores); 			//actualizamos TODOS los motores.	OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza
+					target.annotateFinalTipPose();
+					removeInnerModelTarget(target);
+					target.print("AFTER PROCESSING");
+				}
 				if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 				{
 						mutex->lock();	
@@ -495,8 +497,8 @@ TargetState SpecificWorker::getState(const std::string &part)
 	}
 	else
 	{
-// 		qDebug() << "----------------------------------------";
-// 		qDebug() << "get State" << partName;
+ 		qDebug() << "----------------------------------------";
+ 		qDebug() << "New COMMAND arrived "<< __FUNCTION__ << partName;
 
 		mutex->lock();
 		if( bodyParts[partName].getTargets().isEmpty() )
@@ -528,11 +530,11 @@ void SpecificWorker::stop(const std::string& part)
 	}
 	else
 	{
-		qDebug() << "----------------------------------------";
-		qDebug() << __FUNCTION__ << QString::fromStdString(part);
+		qDebug() << "-------------------------------------------------------------------";
+		qDebug() << "New COMMAND arrived " << __FUNCTION__ << QString::fromStdString(part);
 		mutex->lock();
-			bodyParts[partName].clearTargetList();
-		mutex->lock();
+			bodyParts[partName].markForRemoval();
+		mutex->unlock();
 	}	
 }
 
