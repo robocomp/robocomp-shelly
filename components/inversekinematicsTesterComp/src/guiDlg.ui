@@ -2734,1349 +2734,40 @@
         <widget class="QWidget" name="">
          <property name="geometry">
           <rect>
-           <x>40</x>
-           <y>22</y>
-           <width>927</width>
-           <height>571</height>
+           <x>42</x>
+           <y>24</y>
+           <width>781</width>
+           <height>735</height>
           </rect>
          </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_13">
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_49">
-            <item>
-             <spacer name="verticalSpacer_17">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test1Button">
-              <property name="text">
-               <string>1) Abrir Pinza (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_6">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test2Button">
-              <property name="text">
-               <string>2) Posición Inicial (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_8">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test3Button">
-              <property name="text">
-               <string>3) Posición Coger (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_9">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test4Button">
-              <property name="text">
-               <string>4) Cerrar Pinza (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_10">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test5Button">
-              <property name="text">
-               <string>5) Posición Soltar (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_11">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test6Button">
-              <property name="text">
-               <string>6) Recoger (L)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_12">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test7Button">
-              <property name="text">
-               <string>7) Abrir Pinza (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_13">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test8Button">
-              <property name="text">
-               <string>8) Retroceder (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_14">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test9Button">
-              <property name="text">
-               <string>9) HOME (R)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_15">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test10Button">
-              <property name="text">
-               <string>10) Ofrecer (L)</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_16">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item>
-             <widget class="QPushButton" name="test11Button">
-              <property name="text">
-               <string>11) HOME ALL</string>
-              </property>
-              <property name="checkable">
-               <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <spacer name="verticalSpacer_18">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-           </layout>
+         <layout class="QFormLayout" name="formLayout_9">
+          <property name="fieldGrowthPolicy">
+           <enum>QFormLayout::AllNonFixedFieldsGrow</enum>
+          </property>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="test1Button">
+            <property name="text">
+             <string>1) Abrir Pinza (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
           </item>
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_50">
+          <item row="0" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_10">
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_10">
-              <item>
-               <widget class="QDoubleSpinBox" name="abrirPinzaValor">
-                <property name="decimals">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <double>50.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_4">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
+             <widget class="QDoubleSpinBox" name="abrirPinzaValor">
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="value">
+               <double>50.000000000000000</double>
+              </property>
+             </widget>
             </item>
             <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_3">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_21">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>300.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_10">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_20">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_11">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_18">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>300.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_12">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_17">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_13">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_16">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-2.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_14">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_19">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_15">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_4">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_26">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX_2">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_16">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_27">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY_2">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_17">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_24">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ_2">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>300.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_18">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_25">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX_2">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_19">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_23">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY_2">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-2.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_20">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_22">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ_2">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_21">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_9">
-              <item>
-               <widget class="QDoubleSpinBox" name="cerrarPinzaValor">
-                <property name="decimals">
-                 <number>0</number>
-                </property>
-                <property name="value">
-                 <double>14.000000000000000</double>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_3">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_33">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX_3">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_22">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_32">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY_3">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1120.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_23">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_30">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ_3">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_24">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_31">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX_3">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_25">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_29">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY_3">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-1.570000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_26">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_28">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ_3">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_27">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_6">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_14">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX_4">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-165.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_28">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_15">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY_4">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1000.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_29">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_37">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ_4">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_30">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_38">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX_4">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_31">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_36">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY_4">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-1.570000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_32">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_35">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ_4">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_33">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_11">
-              <item>
-               <widget class="QLabel" name="label_46">
-                <property name="text">
-                 <string>(Mismo valor que el paso 1)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_28">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_7">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_43">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX_5">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>100.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_34">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_44">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY_5">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1120.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_35">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_42">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ_5">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>200.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_36">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_40">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX_5">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_37">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_34">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY_5">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-1.570000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_38">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_41">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ_5">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_39">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_12">
-              <item>
-               <widget class="QLabel" name="label_47">
-                <property name="text">
-                 <string>(Sólo envia al home el brazo derecho)</string>
-                </property>
-               </widget>
-              </item>
-              <item>
-               <spacer name="horizontalSpacer_29">
-                <property name="orientation">
-                 <enum>Qt::Horizontal</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>40</width>
-                  <height>20</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_8">
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_49">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PX_6">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-165.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_40">
-                  <property name="text">
-                   <string>Tx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_39">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PY_6">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>1000.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_41">
-                  <property name="text">
-                   <string>Ty</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_47">
-                <item>
-                 <widget class="QDoubleSpinBox" name="PZ_6">
-                  <property name="decimals">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>400.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_42">
-                  <property name="text">
-                   <string>Tz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_48">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RX_6">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>3.140000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_43">
-                  <property name="text">
-                   <string>Rx</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_46">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RY_6">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-100000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>100000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>-1.570000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_44">
-                  <property name="text">
-                   <string>Ry</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_45">
-                <item>
-                 <widget class="QDoubleSpinBox" name="RZ_6">
-                  <property name="decimals">
-                   <number>2</number>
-                  </property>
-                  <property name="minimum">
-                   <double>-10000.000000000000000</double>
-                  </property>
-                  <property name="maximum">
-                   <double>1000000.000000000000000</double>
-                  </property>
-                  <property name="value">
-                   <double>0.000000000000000</double>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLabel" name="label_45">
-                  <property name="text">
-                   <string>Rz</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <spacer name="horizontalSpacer_5">
+             <spacer name="horizontalSpacer_4">
               <property name="orientation">
                <enum>Qt::Horizontal</enum>
               </property>
@@ -4090,99 +2781,1419 @@
             </item>
            </layout>
           </item>
+          <item row="1" column="0">
+           <widget class="Line" name="line_4">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <spacer name="verticalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="1">
+           <widget class="Line" name="line_15">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QPushButton" name="test2Button">
+            <property name="text">
+             <string>2) Posición Inicial (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_3">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_13">
+              <item>
+               <widget class="QLabel" name="label_10">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>300.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_14">
+              <item>
+               <widget class="QLabel" name="label_11">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1100.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_15">
+              <item>
+               <widget class="QLabel" name="label_12">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>300.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_16">
+              <item>
+               <widget class="QLabel" name="label_13">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_17">
+              <item>
+               <widget class="QLabel" name="label_14">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-2.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <item>
+               <widget class="QLabel" name="label_15">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="0">
+           <widget class="Line" name="line_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="5" column="0">
+           <spacer name="verticalSpacer_8">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="6" column="0">
+           <widget class="QPushButton" name="test3Button">
+            <property name="text">
+             <string>3) Posición Coger (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_22">
+              <item>
+               <widget class="QLabel" name="label_16">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX_2">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>100.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_24">
+              <item>
+               <widget class="QLabel" name="label_17">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY_2">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1100.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_21">
+              <item>
+               <widget class="QLabel" name="label_18">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ_2">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>300.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_23">
+              <item>
+               <widget class="QLabel" name="label_19">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX_2">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_20">
+              <item>
+               <widget class="QLabel" name="label_20">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY_2">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-2.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_19">
+              <item>
+               <widget class="QLabel" name="label_21">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ_2">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="8" column="0">
+           <widget class="Line" name="line_7">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="0">
+           <spacer name="verticalSpacer_9">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="10" column="0">
+           <widget class="QPushButton" name="test4Button">
+            <property name="text">
+             <string>4) Cerrar Pinza (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="10" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_9">
+            <item>
+             <widget class="QDoubleSpinBox" name="cerrarPinzaValor">
+              <property name="decimals">
+               <number>0</number>
+              </property>
+              <property name="value">
+               <double>20.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="12" column="0">
+           <widget class="Line" name="line_8">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="0">
+           <spacer name="verticalSpacer_10">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="14" column="0">
+           <widget class="QPushButton" name="test5Button">
+            <property name="text">
+             <string>5) Posición Soltar (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="14" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_28">
+              <item>
+               <widget class="QLabel" name="label_22">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX_3">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_30">
+              <item>
+               <widget class="QLabel" name="label_23">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY_3">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1120.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_29">
+              <item>
+               <widget class="QLabel" name="label_24">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ_3">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_27">
+              <item>
+               <widget class="QLabel" name="label_25">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX_3">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_26">
+              <item>
+               <widget class="QLabel" name="label_26">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY_3">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-1.570000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_25">
+              <item>
+               <widget class="QLabel" name="label_27">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ_3">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="16" column="0">
+           <widget class="Line" name="line_9">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="0">
+           <spacer name="verticalSpacer_11">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="18" column="0">
+           <widget class="QPushButton" name="test6Button">
+            <property name="text">
+             <string>6) Recoger (L)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="18" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_34">
+              <item>
+               <widget class="QLabel" name="label_28">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX_4">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-165.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_36">
+              <item>
+               <widget class="QLabel" name="label_29">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY_4">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_33">
+              <item>
+               <widget class="QLabel" name="label_30">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ_4">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_32">
+              <item>
+               <widget class="QLabel" name="label_31">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX_4">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_31">
+              <item>
+               <widget class="QLabel" name="label_32">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY_4">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-1.570000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_35">
+              <item>
+               <widget class="QLabel" name="label_33">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ_4">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="19" column="0">
+           <widget class="Line" name="line_10">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="0">
+           <spacer name="verticalSpacer_12">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="21" column="0">
+           <widget class="QPushButton" name="test7Button">
+            <property name="text">
+             <string>7) Abrir Pinza (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="21" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_11">
+            <item>
+             <widget class="QLabel" name="label_46">
+              <property name="text">
+               <string>(Mismo valor que el paso 1)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_28">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="22" column="0">
+           <widget class="Line" name="line_11">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="23" column="0">
+           <spacer name="verticalSpacer_13">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="24" column="0">
+           <widget class="QPushButton" name="test8Button">
+            <property name="text">
+             <string>8) Retroceder (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="24" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_7">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_40">
+              <item>
+               <widget class="QLabel" name="label_34">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX_5">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>100.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_42">
+              <item>
+               <widget class="QLabel" name="label_35">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY_5">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1120.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_39">
+              <item>
+               <widget class="QLabel" name="label_36">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ_5">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>200.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_38">
+              <item>
+               <widget class="QLabel" name="label_37">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX_5">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_37">
+              <item>
+               <widget class="QLabel" name="label_38">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY_5">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-1.570000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_41">
+              <item>
+               <widget class="QLabel" name="label_39">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ_5">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="25" column="0">
+           <widget class="Line" name="line_12">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="26" column="0">
+           <spacer name="verticalSpacer_14">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="27" column="0">
+           <widget class="QPushButton" name="test9Button">
+            <property name="text">
+             <string>9) HOME (R)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="27" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_12">
+            <item>
+             <widget class="QLabel" name="label_47">
+              <property name="text">
+               <string>(Sólo envia al home el brazo derecho)</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="horizontalSpacer_29">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </item>
+          <item row="28" column="0">
+           <widget class="Line" name="line_13">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="29" column="0">
+           <spacer name="verticalSpacer_15">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="30" column="0">
+           <widget class="QPushButton" name="test10Button">
+            <property name="text">
+             <string>10) Ofrecer (L)</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="30" column="1">
+           <layout class="QHBoxLayout" name="horizontalLayout_8">
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_47">
+              <item>
+               <widget class="QLabel" name="label_40">
+                <property name="text">
+                 <string>Tx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PX_6">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-165.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_48">
+              <item>
+               <widget class="QLabel" name="label_41">
+                <property name="text">
+                 <string>Ty</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PY_6">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>1000.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_45">
+              <item>
+               <widget class="QLabel" name="label_42">
+                <property name="text">
+                 <string>Tz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="PZ_6">
+                <property name="decimals">
+                 <number>0</number>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>400.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_46">
+              <item>
+               <widget class="QLabel" name="label_43">
+                <property name="text">
+                 <string>Rx</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RX_6">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>3.140000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_44">
+              <item>
+               <widget class="QLabel" name="label_44">
+                <property name="text">
+                 <string>Ry</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RY_6">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-100000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>100000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>-1.570000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QVBoxLayout" name="verticalLayout_43">
+              <item>
+               <widget class="QLabel" name="label_45">
+                <property name="text">
+                 <string>Rz</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QDoubleSpinBox" name="RZ_6">
+                <property name="decimals">
+                 <number>2</number>
+                </property>
+                <property name="minimum">
+                 <double>-10000.000000000000000</double>
+                </property>
+                <property name="maximum">
+                 <double>1000000.000000000000000</double>
+                </property>
+                <property name="value">
+                 <double>0.000000000000000</double>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item row="32" column="0">
+           <widget class="Line" name="line_14">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="33" column="0">
+           <spacer name="verticalSpacer_16">
+            <property name="orientation">
+             <enum>Qt::Vertical</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>40</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="34" column="0">
+           <widget class="QPushButton" name="test11Button">
+            <property name="text">
+             <string>11) HOME ALL</string>
+            </property>
+            <property name="checkable">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="34" column="1">
+           <spacer name="horizontalSpacer_5">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="5" column="1">
+           <widget class="Line" name="line_16">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="9" column="1">
+           <widget class="Line" name="line_17">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="13" column="1">
+           <widget class="Line" name="line_18">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="17" column="1">
+           <widget class="Line" name="line_19">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="20" column="1">
+           <widget class="Line" name="line_20">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="23" column="1">
+           <widget class="Line" name="line_21">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="26" column="1">
+           <widget class="Line" name="line_22">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="29" column="1">
+           <widget class="Line" name="line_23">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
-        <zorder>test1Button</zorder>
-        <zorder>test2Button</zorder>
-        <zorder>test3Button</zorder>
-        <zorder>test4Button</zorder>
-        <zorder>test5Button</zorder>
-        <zorder>test11Button</zorder>
-        <zorder>abrirPinzaValor</zorder>
-        <zorder>cerrarPinzaValor</zorder>
-        <zorder>PX</zorder>
-        <zorder>PY</zorder>
-        <zorder>PZ</zorder>
-        <zorder>PZ_2</zorder>
-        <zorder>PY_2</zorder>
-        <zorder>PX_2</zorder>
-        <zorder>RZ</zorder>
-        <zorder>RY</zorder>
-        <zorder>RX</zorder>
-        <zorder>RZ_2</zorder>
-        <zorder>RY_2</zorder>
-        <zorder>RX_2</zorder>
-        <zorder>PX_3</zorder>
-        <zorder>RZ_3</zorder>
-        <zorder>PZ_3</zorder>
-        <zorder>RX_3</zorder>
-        <zorder>PY_3</zorder>
-        <zorder>RY_3</zorder>
-        <zorder>PX_4</zorder>
-        <zorder>RZ_4</zorder>
-        <zorder>PZ_4</zorder>
-        <zorder>RX_4</zorder>
-        <zorder>PY_4</zorder>
-        <zorder>RY_4</zorder>
-        <zorder>PX_5</zorder>
-        <zorder>RZ_5</zorder>
-        <zorder>PZ_5</zorder>
-        <zorder>RX_5</zorder>
-        <zorder>PY_5</zorder>
-        <zorder>RY_5</zorder>
-        <zorder>test6Button</zorder>
-        <zorder>test7Button</zorder>
-        <zorder>test10Button</zorder>
-        <zorder>test8Button</zorder>
-        <zorder>test9Button</zorder>
-        <zorder>PY_6</zorder>
-        <zorder>RY_6</zorder>
-        <zorder>PZ_6</zorder>
-        <zorder>PX_6</zorder>
-        <zorder>RX_6</zorder>
-        <zorder>RZ_6</zorder>
-        <zorder>label_10</zorder>
-        <zorder>label_11</zorder>
-        <zorder>label_12</zorder>
-        <zorder>label_13</zorder>
-        <zorder>label_14</zorder>
-        <zorder>label_15</zorder>
-        <zorder>label_16</zorder>
-        <zorder>label_17</zorder>
-        <zorder>label_18</zorder>
-        <zorder>label_19</zorder>
-        <zorder>label_20</zorder>
-        <zorder>label_21</zorder>
-        <zorder>label_22</zorder>
-        <zorder>label_23</zorder>
-        <zorder>label_24</zorder>
-        <zorder>label_25</zorder>
-        <zorder>label_26</zorder>
-        <zorder>label_27</zorder>
-        <zorder>label_28</zorder>
-        <zorder>label_29</zorder>
-        <zorder>label_30</zorder>
-        <zorder>label_31</zorder>
-        <zorder>label_32</zorder>
-        <zorder>label_33</zorder>
-        <zorder>label_34</zorder>
-        <zorder>label_35</zorder>
-        <zorder>label_36</zorder>
-        <zorder>label_37</zorder>
-        <zorder>label_38</zorder>
-        <zorder>label_39</zorder>
-        <zorder>label_40</zorder>
-        <zorder>label_41</zorder>
-        <zorder>label_42</zorder>
-        <zorder>label_43</zorder>
-        <zorder>label_44</zorder>
-        <zorder>label_45</zorder>
-        <zorder>label_46</zorder>
-        <zorder>label_47</zorder>
-        <zorder>horizontalSpacer_3</zorder>
-        <zorder>horizontalSpacer_4</zorder>
-        <zorder>horizontalSpacer_5</zorder>
-        <zorder></zorder>
        </widget>
       </widget>
      </item>
