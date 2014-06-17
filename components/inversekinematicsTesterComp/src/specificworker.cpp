@@ -885,16 +885,14 @@ void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
 
 
 void SpecificWorker::abrirPinza()
-{
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
-	
+{	
 	try
 	{	
 		qDebug() << __FUNCTION__ << "Open fingers";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setFingers((T)abrirPinzaValor->value());
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setFingers((T)abrirPinzaValor->value());
 	} 
 	catch (Ice::Exception ex) 
@@ -908,13 +906,12 @@ void SpecificWorker::abrirPinza()
 void SpecificWorker::cerrarPinza()
 {
 	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
-	try
 	{	
 		qDebug() << __FUNCTION__ << "Close fingers";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
 	} 
 	catch (Ice::Exception ex) 
@@ -927,11 +924,6 @@ void SpecificWorker::cerrarPinza()
 
 void SpecificWorker::posicionInicial()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -952,11 +944,19 @@ void SpecificWorker::posicionInicial()
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
 		
 		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setRobot(1);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 		
+		bodyinversekinematics_proxy->setRobot(0);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
 		part = "HEAD";
 		RoboCompBodyInverseKinematics::Axis axis;
 		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
@@ -965,11 +965,6 @@ void SpecificWorker::posicionInicial()
 
 void SpecificWorker::posicionCoger()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -988,14 +983,22 @@ void SpecificWorker::posicionCoger()
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-		
+				
 		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 		
 		part = "HEAD";
 		RoboCompBodyInverseKinematics::Axis axis;
 		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->setRobot(1);
 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+		
+		bodyinversekinematics_proxy->setRobot(0);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
 }
@@ -1003,11 +1006,7 @@ void SpecificWorker::posicionCoger()
 
 void SpecificWorker::posicionSoltar()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
+
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -1026,13 +1025,19 @@ void SpecificWorker::posicionSoltar()
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-		
+
 		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 		
 		part = "HEAD";
 		RoboCompBodyInverseKinematics::Axis axis;
 		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
@@ -1043,11 +1048,6 @@ void SpecificWorker::posicionSoltar()
 
 void SpecificWorker::izquierdoRecoger()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -1067,7 +1067,15 @@ void SpecificWorker::izquierdoRecoger()
 		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
 		
+	
 		std::string part = "LEFTARM";
+		
+		/* AL ROBOT :*/
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		/* AL RCIS*/
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
@@ -1077,11 +1085,6 @@ void SpecificWorker::izquierdoRecoger()
 
 void SpecificWorker::retroceder()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -1102,6 +1105,13 @@ void SpecificWorker::retroceder()
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
 		
 		std::string part = "RIGHTARM";
+
+		/* AL ROBOT :*/
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		/* AL RCIS */
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
@@ -1116,11 +1126,6 @@ void SpecificWorker::goHomeR()
 
 void SpecificWorker::izquierdoOfrecer()
 {
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
@@ -1141,11 +1146,19 @@ void SpecificWorker::izquierdoOfrecer()
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
 		
 		std::string part = "LEFTARM";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 		
 		part = "HEAD";
 		RoboCompBodyInverseKinematics::Axis axis;
 		axis.x = 0; axis.y = -1; axis.z = 0;
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+		
+		bodyinversekinematics_proxy->setRobot(0);
 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
