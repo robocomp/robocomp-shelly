@@ -2731,12 +2731,12 @@
         <attribute name="title">
          <string>Unit Tests</string>
         </attribute>
-        <widget class="QWidget" name="">
+        <widget class="QWidget" name="layoutWidget">
          <property name="geometry">
           <rect>
            <x>42</x>
            <y>24</y>
-           <width>781</width>
+           <width>818</width>
            <height>735</height>
           </rect>
          </property>
@@ -3468,7 +3468,7 @@
                  <double>100000000.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>-165.000000000000000</double>
+                 <double>-140.000000000000000</double>
                 </property>
                </widget>
               </item>
@@ -3712,7 +3712,7 @@
                  <double>100000000.000000000000000</double>
                 </property>
                 <property name="value">
-                 <double>100.000000000000000</double>
+                 <double>130.000000000000000</double>
                 </property>
                </widget>
               </item>
