@@ -28,20 +28,54 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 {
 	QMutexLocker l (mutex);
 	RoboCompJointMotor::MotorGoalPositionList list;
-	RoboCompJointMotor::MotorGoalPosition p_goal;
+	list.clear();
+	RoboCompJointMotor::MotorGoalPosition p_goal1, p_goal2, p_goal3, p_goal4, p_goal5, p_goal6, p_goal7;
 
-	p_goal.name="head2";
-	p_goal.maxSpeed=0.5;
-	p_goal.position=0.0;
+	p_goal1.name="head1";
+	p_goal1.maxSpeed=0.5;
+	p_goal1.position=0.0;
+
+	p_goal2.name="head2";
+	p_goal2.maxSpeed=0.5;
+	p_goal2.position=0.0;
 	
-	list.push_back(p_goal);
+	p_goal3.name="head3";
+	p_goal3.maxSpeed=0.5;
+	p_goal3.position=0.0;
+	
+	p_goal4.name="rightWrist1";
+	p_goal4.maxSpeed=0.5;
+	p_goal4.position=0.0;
+	
+	p_goal5.name="rightWrist2";
+	p_goal5.maxSpeed=0.5;
+	p_goal5.position=0.0;
+	
+	p_goal6.name="leftWrist1";
+	p_goal6.maxSpeed=0.5;
+	p_goal6.position=0.0;
+	
+	p_goal7.name="leftWrist2";
+	p_goal7.maxSpeed=0.5;
+	p_goal7.position=0.0;
+	
+	
+	list.push_back(p_goal1);
+	list.push_back(p_goal2);
+	list.push_back(p_goal3);
+	list.push_back(p_goal4);
+	list.push_back(p_goal5);
+	list.push_back(p_goal6);
+	list.push_back(p_goal7);
+	
+	
 	try
 	{
 		jointmotor_proxy->setSyncPosition(list);
 	}
 	catch (Ice::Exception e)
 	{
-		qDebug()<<"error talking to jointmotor_proxy. We can't put to zero HEAD 2 motor"<<e.what();
+		qDebug()<<"error talking to jointmotor_proxy. We can't put to any motor"<<e.what();
 	}
 	
 }
@@ -65,15 +99,16 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::sendData(const TData& data)
 {
+	qDebug()<<"---";
 	QMutexLocker l (mutex);
 	RoboCompJointMotor::MotorGoalPositionList list;
 
-// 	//rightFinger1 minPosL cerrao, maxPosL abierto
-	static float minPosL=-1.6;
+// 	//rightFinger1 minPosL cerrao (sin cerrar del to), maxPosL abierto
+	static float minPosL=-0.8;
 	static float maxPosL=0;
 	
-	///rightFinger2 maxPosR abierto, minPosR cerrao
-	static float minPosR=1.6;
+	///rightFinger2 maxPosR abierto, minPosR cerrao (sin cerrar del to)
+	static float minPosR=0.8;
 	static float maxPosR=0;
 	
 	if (data.axes[0].name=="pan")
@@ -83,6 +118,7 @@ void SpecificWorker::sendData(const TData& data)
 		p_goal.name="head3";
 		p_goal.maxSpeed=0.5;
 		p_goal.position=normalize(data.axes[0].value, -1., 1., -0.6,0.6);		
+		
 		list.push_back(p_goal);
 	}
 		
@@ -93,6 +129,7 @@ void SpecificWorker::sendData(const TData& data)
 		p_goal.name="head1";
 		p_goal.maxSpeed=0.5;
 		p_goal.position=normalize(data.axes[1].value, -1., 1., 0.6,-0.6);		
+		
 		list.push_back(p_goal);
 	}
 	//gatillo joystick
@@ -178,6 +215,65 @@ void SpecificWorker::sendData(const TData& data)
 	{
 		qDebug()<<"error talking to jointmotor_proxy"<<e.what();
 	}
+	
+      
+      
+      if (data.buttons[10].clicked )		
+      {
+	qDebug()<<"boton 10";
+	RoboCompJointMotor::MotorGoalPositionList list;
+	list.clear();
+	RoboCompJointMotor::MotorGoalPosition p_goal1, p_goal2, p_goal3, p_goal4, p_goal5, p_goal6, p_goal7;
+
+	p_goal1.name="head1";
+	p_goal1.maxSpeed=0.5;
+	p_goal1.position=0.0;
+
+	p_goal2.name="head2";
+	p_goal2.maxSpeed=0.5;
+	p_goal2.position=0.0;
+	
+	p_goal3.name="head3";
+	p_goal3.maxSpeed=0.5;
+	p_goal3.position=0.0;
+	
+	p_goal4.name="rightWrist1";
+	p_goal4.maxSpeed=0.5;
+
+	p_goal4.position=0.0;
+	
+	p_goal5.name="rightWrist2";
+	p_goal5.maxSpeed=0.5;
+	p_goal5.position=0.0;
+	
+	p_goal6.name="leftWrist1";
+	p_goal6.maxSpeed=0.5;
+	p_goal6.position=0.0;
+	
+	p_goal7.name="leftWrist2";
+	p_goal7.maxSpeed=0.5;
+	p_goal7.position=0.0;
+	
+	
+	list.push_back(p_goal1);
+	list.push_back(p_goal2);
+	list.push_back(p_goal3);
+	list.push_back(p_goal4);
+	list.push_back(p_goal5);
+	list.push_back(p_goal6);
+	list.push_back(p_goal7);
+	
+	
+	try
+	{
+		jointmotor_proxy->setSyncPosition(list);
+	}
+	catch (Ice::Exception e)
+	{
+		qDebug()<<"error talking to jointmotor_proxy. We can't put to zero any motor"<<e.what();
+		
+	}
+    }
 	
 	///for debug
 // 	qDebug()<<QString::fromStdString(data.id);
