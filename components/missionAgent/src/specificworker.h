@@ -64,10 +64,17 @@ public slots:
 
 	void broadcastButtonClicked();
 
-	void setMissionFindMug();
-	void setMissionGraspMug();
+	void setMission();
+
+	void addMission(std::string name, std::string path)
+	{
+		missions->addItem(QString::fromStdString(name));
+		missionPaths[missions->count()-1] = path;
+	}
+
 private:
 	bool refresh;
+	std::map<int, std::string> missionPaths;
 	QMutex modelMutex, planMutex;
 	AGMModel::SPtr worldModel, targetModel;
 	RoboCompAGMWorldModel::World worldModelICE, targetModelICE;

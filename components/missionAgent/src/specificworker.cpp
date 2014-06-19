@@ -56,8 +56,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(deactivateButton,       SIGNAL(clicked()), this, SLOT(deactivateClicked()));
 	connect(resetButton,            SIGNAL(clicked()), this, SLOT(resetClicked()));
 
-	connect( findMugButton,         SIGNAL(clicked()), this, SLOT(setMissionFindMug()));
-	connect(graspMugButton,         SIGNAL(clicked()), this, SLOT(setMissionGraspMug()));
+	connect(setMissionButton,         SIGNAL(clicked()), this, SLOT(setMission()));
 
 	timer.start(90);
 }
@@ -72,7 +71,7 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-	printf("compute\n");
+// 	printf("compute\n");
 	static QTime taim = QTime::currentTime();
 
 // 	graphViewer->animateStep();
@@ -116,7 +115,7 @@ void SpecificWorker::compute( )
 	modelMutex.unlock();
 
 	taim = QTime::currentTime();
-	printf("compute>\n");
+// 	printf("compute>\n");
 }
 
 
@@ -178,70 +177,21 @@ void SpecificWorker::broadcastButtonClicked()
 }
 
 
-void SpecificWorker::setMissionFindMug()
+void SpecificWorker::setMission()
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
-	printf("find mug button\n");
-	planText->clear();
+	printf("mission #%d\n", missions->currentIndex());
 	agmexecutive_proxy->broadcastModel();
-	targetModel->clear();
-
-	AGMModelSymbol::SPtr robot   = targetModel->newSymbol("robot");
-	AGMModelSymbol::SPtr object  = targetModel->newSymbol("object");
-	AGMModelSymbol::SPtr classS  = targetModel->newSymbol("class");
-	AGMModelSymbol::SPtr mugType = targetModel->newSymbol("mug");
-
-	robot->identifier   = 1000;
-	object->identifier  = 1001;
-	classS->identifier  = 1002;
-	mugType->identifier = 1003;
-
-	targetModel->addEdgeByIdentifiers( robot->identifier,  object->identifier, "know");
-	targetModel->addEdgeByIdentifiers(object->identifier,  classS->identifier, "prop");
-	targetModel->addEdgeByIdentifiers(classS->identifier, mugType->identifier, "prop");
-
-
+	planText->clear();
+	AGMModelConverter::fromXMLToInternal(missionPaths[missions->currentIndex()], targetModel);
 	AGMModelConverter::fromInternalToIce(targetModel, targetModelICE);
+
+	printf("%s: %d\n", __FILE__, __LINE__);
 	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
 	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
 	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
-
-
-void SpecificWorker::setMissionGraspMug()
-{
-	printf("%s: %d\n", __FILE__, __LINE__);
-	printf("grasp mug button\n");
-	planText->clear();
-	agmexecutive_proxy->broadcastModel();
-	targetModel->clear();
-
-	AGMModelSymbol::SPtr robot   = targetModel->newSymbol("robot");
-	AGMModelSymbol::SPtr object  = targetModel->newSymbol("object");
-	AGMModelSymbol::SPtr grasp   = targetModel->newSymbol("grasp");
-	AGMModelSymbol::SPtr classS  = targetModel->newSymbol("class");
-	AGMModelSymbol::SPtr mugType = targetModel->newSymbol("mug");
-
-	robot->identifier   = 1000;
-	object->identifier  = 1001;
-	classS->identifier  = 1002;
-	mugType->identifier = 1003;
-	grasp->identifier   = 1004;
-
-	targetModel->addEdgeByIdentifiers( robot->identifier,  object->identifier, "know");
-	targetModel->addEdgeByIdentifiers(object->identifier,   grasp->identifier, "prop");
-	targetModel->addEdgeByIdentifiers(object->identifier,  classS->identifier, "prop");
-	targetModel->addEdgeByIdentifiers(classS->identifier, mugType->identifier, "prop");
-
-
-	AGMModelConverter::fromInternalToIce(targetModel, targetModelICE);
-	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
-	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
-	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
-	printf("%s: %d\n", __FILE__, __LINE__);
-}
-
 
 void SpecificWorker::activateClicked()
 {
@@ -306,7 +256,7 @@ void SpecificWorker::set3DViewer()
 
 void SpecificWorker::setGeometry()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }

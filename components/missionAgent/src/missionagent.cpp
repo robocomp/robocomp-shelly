@@ -97,6 +97,35 @@ using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMAgent;
 
+vector<std::string> commaSplit(const std::string &s)
+{
+	stringstream ss(s);
+	vector<string> result;
+
+	while (ss.good())
+	{
+		string substr;
+		getline( ss, substr, ',' );
+		result.push_back( substr );
+	}
+	return result;
+}
+
+int32_t strToNumber(const std::string &s)
+{
+	if (s.size()<=0)
+	{
+		throw 1;
+	}
+
+	int32_t ret;
+	std::string str = s;
+	//replace(str.begin(), str.end(), ',', '.');
+	std::istringstream istr(str);
+	istr.imbue(std::locale("C"));
+	istr >> ret;
+	return ret;
+}
 
 class missionAgent : public RoboComp::Application
 {
@@ -138,24 +167,32 @@ AGMAgentTopicPrx agmagenttopic_proxy;
 
 	initialize();
 
-	// Remote server proxy creation example
-	// try
-	// {
-	// 	// Load the remote server proxy
-	//	proxy = getProxyString("RemoteProxy");
-	//	remotecomponent_proxy = RemotePrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	//	if( !remotecomponent_proxy )
-	//	{
-	//		rInfo(QString("Error loading proxy!"));
-	//		return EXIT_FAILURE;
-	//	}
-	//catch(const Ice::Exception& ex)
-	//{
-	//	cout << "[" << PROGRAM_NAME << "]: Exception: " << ex << endl;
-	//	return EXIT_FAILURE;
-	//}
-	//rInfo("RemoteProxy initialized Ok!");
-	// 	// Now you can use remote server proxy (remotecomponent_proxy) as local object
+
+	int32_t goals;
+	vector<std::pair<std::string, std::string> > missions;
+	try
+	{
+		goals = strToNumber(getProxyString("Goals"));
+		printf("Goals: %d\n", goals);
+		for (int32_t i=0; i<goals; i++)
+		{
+			std::ostringstream ostr;
+			ostr.imbue(std::locale("C"));
+			ostr << "Goal";
+			ostr << i + 1;
+			std::string goalDescriptor = getProxyString(ostr.str());
+			vector<std::string> result = commaSplit(goalDescriptor);
+			missions.push_back(std::pair<std::string, std::string>(result[0], result[1]));
+			printf("%s: <%s> <%s>\n", ostr.str().c_str(), result[0].c_str(), result[1].c_str());
+		}
+	}
+	catch(...)
+	{
+		fprintf(stderr, "Can't read 'Goals' configuration variable (needed to set the goals of the mission controller.\n");
+		exit(42);
+	}
+	
+
 	//Remote server proxy creation example
 	try
 	{
@@ -188,6 +225,12 @@ AGMAgentTopicPrx agmagenttopic_proxy;
 	
 	
 	GenericWorker *worker = new SpecificWorker(mprx);
+	
+	for (uint32_t i=0; i<missions.size(); i++)
+	{
+		((SpecificWorker*)worker)->addMission(missions[i].first, missions[i].second);
+	}
+	
 	//Monitor thread
 	GenericMonitor *monitor = new SpecificMonitor(worker,communicator());
 	QObject::connect(monitor,SIGNAL(kill()),&a,SLOT(quit()));

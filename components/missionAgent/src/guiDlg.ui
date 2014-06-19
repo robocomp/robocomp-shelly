@@ -29,18 +29,12 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="findMugButton">
-         <property name="text">
-          <string>find
-mug</string>
-         </property>
-        </widget>
+        <widget class="QComboBox" name="missions"/>
        </item>
        <item>
-        <widget class="QPushButton" name="graspMugButton">
+        <widget class="QPushButton" name="setMissionButton">
          <property name="text">
-          <string>grasp
-mug</string>
+          <string>set mission</string>
          </property>
         </widget>
        </item>
@@ -278,7 +272,7 @@ model</string>
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="movable">
             <bool>false</bool>

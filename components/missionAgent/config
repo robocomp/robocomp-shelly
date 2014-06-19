@@ -1,6 +1,7 @@
-#
-# This property is used to configure the endpoints of the subscriber adapter.
-#
+Goals=1
+Goal1=TouchBall,/home/robocomp/robocomp/components/robocomp-ursus/etc/targetModel.xml
+
+
 AGMCommonBehaviorComp.Endpoints=tcp -p 10349
 CommonBehavior.Endpoints=tcp -p 11247
 AGMExecutiveTopicTopic.Endpoints=tcp -p 10549
