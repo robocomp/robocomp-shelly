@@ -111,6 +111,7 @@ void SpecificWorker::compute( )
 	else
 	{
 		graphViewer->update(worldModel);
+		graphViewer->animateStep();
 	}
 	modelMutex.unlock();
 
