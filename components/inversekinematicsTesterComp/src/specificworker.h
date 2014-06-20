@@ -109,11 +109,6 @@ private:
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
 	
-<<<<<<< HEAD
-	
-	
-=======
->>>>>>> chop
 
 };
 
