@@ -128,14 +128,11 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
-	refresh = true;
 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
-	printf("%s: %d\n", __FILE__, __LINE__);
 	modelMutex.lock();
-	printf("%s: %d\n", __FILE__, __LINE__);
 	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 	AGMModelPrinter::printWorld(worldModel);
-	modelDrawer->update(worldModel);
+	refresh = true;
 	modelMutex.unlock();
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
@@ -143,9 +140,9 @@ void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modificat
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
-	refresh = true;
 	modelMutex.lock();
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+	refresh = true;
 	modelMutex.unlock();
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
@@ -156,8 +153,8 @@ void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCom
 	printf("SpecificWorker::update\n");
 	planMutex.lock();
 	plan = pl;
-	planMutex.unlock();
 	refresh = true;
+	planMutex.unlock();
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
