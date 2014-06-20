@@ -172,7 +172,14 @@ void SpecificWorker::broadcastButtonClicked()
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("broadcast button\n");
-	agmexecutive_proxy->broadcastModel();
+	try
+	{
+		agmexecutive_proxy->broadcastModel();
+	}
+	catch(const Ice::Exception &e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
@@ -181,15 +188,29 @@ void SpecificWorker::setMission()
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("mission #%d\n", missions->currentIndex());
-	agmexecutive_proxy->broadcastModel();
+	try
+	{
+		agmexecutive_proxy->broadcastModel();
+	}
+	catch(const Ice::Exception & e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
 	planText->clear();
 	AGMModelConverter::fromXMLToInternal(missionPaths[missions->currentIndex()], targetModel);
 	AGMModelConverter::fromInternalToIce(targetModel, targetModelICE);
 
 	printf("%s: %d\n", __FILE__, __LINE__);
-	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
-	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
-	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
+	try
+	{
+		agmexecutive_proxy->deactivate();
+		agmexecutive_proxy->setMission(targetModelICE);
+		agmexecutive_proxy->activate(); 
+	}
+	catch(const Ice::Exception & e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
@@ -202,7 +223,7 @@ void SpecificWorker::activateClicked()
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->activate" << endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
@@ -216,7 +237,7 @@ void SpecificWorker::deactivateClicked()
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->deactivate"<< endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
@@ -231,7 +252,7 @@ void SpecificWorker::resetClicked()
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->reset"<< endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
 	printf("%s: %d\n", __FILE__, __LINE__);
 }
