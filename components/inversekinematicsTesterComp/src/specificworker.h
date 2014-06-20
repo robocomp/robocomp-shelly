@@ -68,7 +68,7 @@ public slots:
 	void camareroDiestro();
 	void camareroCentro();
 	void camareroCentro2();
-	
+	void stop();
 	void closeFingers();
 	void goHome(QString partName);
 	
@@ -109,8 +109,11 @@ private:
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
 	
+<<<<<<< HEAD
 	
 	
+=======
+>>>>>>> chop
 
 };
 

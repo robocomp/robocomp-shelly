@@ -44,6 +44,7 @@ void  setFingers(Ice::Float d, const Ice::Current& = Ice::Current());
 void  goHome(const string& part, const Ice::Current& = Ice::Current());
 void  setRobot(Ice::Int type, const Ice::Current& = Ice::Current());
 TargetState getState(const string& part, const Ice::Current& = Ice::Current());
+void  stop(const string& part, const Ice::Current& = Ice::Current());
 
 
 	QMutex *mutex;

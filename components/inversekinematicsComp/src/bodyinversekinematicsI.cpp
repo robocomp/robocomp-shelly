@@ -60,4 +60,8 @@ TargetState BodyInverseKinematicsI::getState(const string& part, const Ice::Curr
 	return worker->getState(part);
 }
 
+void BodyInverseKinematicsI::stop(const string& part, const Ice::Current&){
+	worker->stop(part);
+}
+
 

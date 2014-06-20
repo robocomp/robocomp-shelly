@@ -62,6 +62,7 @@ class SpecificWorker : public GenericWorker
 		void  goHome(const string& part);
 		void  setRobot(const int type) ;
 		TargetState getState(const string &part);
+		void  stop(const string& part);
 		
 		
 	public slots:

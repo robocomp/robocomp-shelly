@@ -39,6 +39,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(rcisButton, SIGNAL(clicked()), this, SLOT(enviarRCIS()));
 	connect(robotButton, SIGNAL(clicked()), this, SLOT(enviarROBOT()));
 	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
+	connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 	
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 	
@@ -290,6 +291,27 @@ void SpecificWorker::actualizarInnerModel()
 		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
 	}
 }
+
+void SpecificWorker::stop()
+{
+	try 
+	{
+		std::string part;
+		if(partesActivadas[0] == 1)	
+			bodyinversekinematics_proxy->stop( partBox1_pose6D->currentText().toStdString() );
+			
+		if(partesActivadas[1] == 1)
+			bodyinversekinematics_proxy->stop( partBox2_pose6D->currentText().toStdString() );
+		
+		if(partesActivadas[2] == 1) 
+			bodyinversekinematics_proxy->stop( partBox3_pose6D->currentText().toStdString() );		
+	} 
+	catch (const Ice::Exception &ex) 
+	{
+		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
+	}
+}
+
 
 /*------------------------------------------------------------------------------------------------------*
  * 									SLOTS PARA LA PESTAÑA POSE6D										*
