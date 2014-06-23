@@ -25,14 +25,16 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {	
 	// Inicializamos las banderas de los targets a FALSE:
+	//	- NO hay trayectoria asignada
+	//	- NO hay target para RCIS
 	banderaTrayectoria = banderaRCIS= false;
 	
 	// ÑAPA PARA PODER ENVIAR UN MISMO TARGET A DOS O TRES PARTES DEL CUERPO A LA VEZ
 	// Por defecto siempre empezamos con una única parte del cuerpo.
+	//	- 1: está activada.
+	//	- 0: está desactivada.
 	partesActivadas = QVec(3); //vector de partes
-	partesActivadas[0] = 1; //activada
-	partesActivadas[1] = 0; //desactivada
-	partesActivadas[2] = 0; //desactivada.
+	partesActivadas[0] = 1;		partesActivadas[1] = 0;		partesActivadas[2] = 0; 
 	
 	///////////// HACEMOS LAS CONEXIONES /////////////////
 	//Conectamos botones de EJECUCIÓN:
@@ -47,6 +49,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
 	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
 	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
+	connect(matlab, SIGNAL(clicked()), this, SLOT(pruebaMatlab()));	
 
 	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
 	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
@@ -69,7 +72,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 // 	frameOsg->show();
 	
-	
 	// BOTONERA AÑADIDA
 	connect(test1Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
 	connect(test2Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
@@ -83,8 +85,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(test10Button, SIGNAL(clicked()), this, SLOT(izquierdoOfrecer()));
 	connect(test11Button, SIGNAL(clicked()), this, SLOT(enviarHome()));
 
-	
-
 }
 
 /**
@@ -95,9 +95,15 @@ SpecificWorker::~SpecificWorker()
 
 }
 
-
+/**
+ * @brief Method SET PARAMS. It's called for the MONITOR thread, which initialize the component with the parameters
+ * of the correspondig config file.
+ * 
+ * @return bool
+ */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	// Guardamos el innerModel que se nos pasa como parámetro de inicialización.
 	// ¡CUIDADO CON EL INNERMODEL! Debe ser el mismo que LOKIARM!!!
 	try
 	{
@@ -113,20 +119,18 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			qFatal("Exiting now.");
 		}
 	}
-	catch(std::exception e)
-	{
-		qFatal("Error reading config params");
-	}
+	catch(std::exception e)	{ qFatal("Error reading config params"); }
 
 	try
 	{
+		// Sacamos todos los parámetros de los motores del robot. Esto nos servirá para inicializar la pestaña de direct Kinematics
+		// de la interfaz de usuario.
 		motorparamList = jointmotor_proxy->getAllMotorParams();
-		
-		// Ponemos los datos de los límites min y max a TODOS los motores. (por eso lo apiñurgo un poco, porque quedaría
-		// un tochaco de código insufrible --y aún así lo es--)
+
 		foreach(RoboCompJointMotor::MotorParams motorParam, motorparamList)
 		{
-			
+			// Ponemos los datos de los límites min y max a TODOS los motores. (por eso lo apiñurgo un poco, porque quedaría
+			// un tochaco de código insufrible --y aún así lo es--)
 			motorList.push_back(motorParam.name);
 			
 			// BRAZO IZQUIERDO:
@@ -158,6 +162,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en SETPARAMS al tomar datos del robot: "<<ex<<endl;}
 	
+	// Ponemos también una ventana del innerModel en esta pestaña:
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
 	timer.start(Period);
 	return true;
@@ -168,13 +173,25 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 /*------------------------------------------------------------------------------------------------------*
  * 												SLOTS													*
  *------------------------------------------------------------------------------------------------------*/ 
+/**
+ * @brief Compute Method.
+ * 
+ * @return void
+ */
 void SpecificWorker::compute( )
 {
 	static QTime reloj = QTime::currentTime();
-	// Si estamos mirando la pestaña número 5 mostramos los límites de los motores.
+	
+	// ÑAPA: Si estamos mirando la pestaña número 5 mostramos los límites de los motores
+	// para que no se nos quede colgada la interfaz.
 	if(pestanias->currentIndex()==5)
 		mostrarDatos();
 	
+	// Desde el compute sólo se envían trayectorias. Para targets sueltos, se usan los demás
+	// métodos.
+	// ÑAPA: Si la trayectoriano está vacía y la bandera RCIS está levantada, enviamos la
+	// trayectoria de targetes al RCIS. De esta forma evitamos que el tester se quede
+	// colgado hasta que termine de enviar todos los targets de la trayectoria.
 	if((trayectoria.isEmpty() == false)  and banderaRCIS)
 	{
 		enviarPose6D( trayectoria.dequeue() );
@@ -182,6 +199,7 @@ void SpecificWorker::compute( )
 	else
 		banderaRCIS = false;
 	
+	// Actualizamos el innerModel y la ventada del viewer
 	actualizarInnerModel();
 	imv->update();
 	osgView->frame();
@@ -196,11 +214,14 @@ void SpecificWorker::compute( )
 // 	{ std::cout << "Warning! BIK not responding" << std::endl; };
 // 	
 // 	
+	// Hacemos un ping al inverseKinematicsComp cada cierto tiempo. Si no responde
+	// es que el inverseKinematicsComp no está levantado.
 	if ( reloj.elapsed() > 3000)
 	{
-		try{ bodyinversekinematics_proxy->ice_ping(); }
-		catch(const Ice::Exception &ex)
-		{ std::cout << "Warning! BIK not responding" << std::endl; };
+		try{ 
+			bodyinversekinematics_proxy->ice_ping(); 
+			
+		}catch(const Ice::Exception &ex){ std::cout << "Warning! BIK not responding" << std::endl; };
 		reloj.restart();
 	}
 	
@@ -210,88 +231,11 @@ void SpecificWorker::compute( )
  * 									SLOTS DE LOS BOTONES DE ENVÍO										*
  *------------------------------------------------------------------------------------------------------*/
 /**
- * @brief SLOT ENVIAR RCIS. Envía una pose suelta o una trayectoria completa, dependiendo de si
- * está levantada la banderaTrayectoria, al componente inverseKinematicsComp. El tipo del target
- * dependerá de la pestaña que esté abierta en ese momento.
+ * @brief SLOT STOP. Para la ejecución del componente inverseKinematicsComp. Aborta el target o la
+ * trayectoria de targets enviada al componente inverseKinematicsComp.
  * 
  * @return void
  */ 
-void SpecificWorker::enviarRCIS()
-{
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(0);
-		enviar();
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
-}
-
-/**
- * @brief SLOT ENVIAR ROBOT. TODO Por hacer
- * @return void
- */ 
-void SpecificWorker::enviarROBOT()
-{
-	try
-	{
-		bodyinversekinematics_proxy->setRobot(1);
-		enviar();
-	}
-	catch(const Ice::Exception &ex){std::cout << ex << std::endl;};
-}
-
-
-void SpecificWorker::enviar()
-{
-	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una trayectoria o una
-	// pose suelta de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
-	banderaRCIS = true;
-	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
-	{
-		QVec p = QVec(6);
-		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
-		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
-		enviarPose6D(p);
-	}
-
-	// Estamos en la segunda pestaña: Axis Align. Enviamos target
-	// del tipo AXISALIGN.
-	if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
-		enviarAxisAlign();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
-		moveAlongAxis();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
-		closeFingers();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
-		goHome(part_home->currentText());
-}
-
-
-void SpecificWorker::enviarHome()
-{
-	goHome("All");
-}
-
-
-/*
- * Método actualizarInnermodel
- * Actualiza el InnerModel con las nuevas posiciones de los motores del robot.  
- * FUNCIONA.
- */ 
-void SpecificWorker::actualizarInnerModel()
-{
-	try 
-	{
-			RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap( this->motorList);
-		
-			for(uint j=0; j<motorList.size(); j++)
-				innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
-
-	} catch (const Ice::Exception &ex) {
-		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
-	}
-}
-
 void SpecificWorker::stop()
 {
 	try 
@@ -306,15 +250,57 @@ void SpecificWorker::stop()
 		if(partesActivadas[2] == 1) 
 			bodyinversekinematics_proxy->stop( partBox3_pose6D->currentText().toStdString() );		
 	} 
-	catch (const Ice::Exception &ex) 
-	{
-		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
-	}
+	catch (const Ice::Exception &ex) {	cout<<"Excepción en STOP: "<<ex<<endl;	}
 }
 
+/**
+ * @brief SLOT ENVIAR HOME. Se invoca al pulsar el botón HOME de los botones de control.
+ * Es un envoltorio que llama al método goHome indicando que vayan a la posición de home
+ * TODAS las partes del robot.
+ */
+void SpecificWorker::enviarHome()
+{
+	goHome("All");
+}
+
+/**
+ * @brief SLOT ENVIAR RCIS. Marca como proxy objetivo el del RCIS y llama a la función enviar, que se 
+ * encarga de ver en qué pestaña está el usuario de la GUI y enviar el target del tipo que sea, al proxy 
+ * indicado.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::enviarRCIS()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(0);
+		banderaRCIS = true;
+		enviar();
+	}
+	catch(const Ice::Exception &ex){std::cout <<"Enviar RCIS:"<< ex << std::endl;};
+}
+
+/**
+ * @brief SLOT ENVIAR ROBOT. Marca como proxy objetivo el del ROBOT REAL  y llama a la función enviar, 
+ * que se encarga de ver en qué pestaña está el usuario de la GUI y enviar el target del tipo que sea, 
+ * al proxy indicado.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::enviarROBOT()
+{
+	try
+	{
+		bodyinversekinematics_proxy->setRobot(1);
+		banderaRCIS = false;
+		enviar();
+	}
+	catch(const Ice::Exception &ex){std::cout <<"Enviar ROBOT: "<< ex << std::endl;};
+}
 
 /*------------------------------------------------------------------------------------------------------*
- * 									SLOTS PARA LA PESTAÑA POSE6D										*
+ * 									SLOTS COMUNES A TODAS LAS PESTAÑAS									*
  *------------------------------------------------------------------------------------------------------*/
 /**
  * @brief SLOT ACTIVAR DESACTIVAR. Activa o desactiva en todas las pestañas de la interfaz las cajas 
@@ -388,6 +374,9 @@ void SpecificWorker::activarDesactivar()
 }
 
 
+/*------------------------------------------------------------------------------------------------------*
+ * 									SLOTS PARA LA PESTAÑA POSE6D										*
+ *------------------------------------------------------------------------------------------------------*/
 /**
  * @brief Metodo CAMARERO ZURDO. Crea una trayectoria de poses para un camarero con una bandeja en
  * la mano izquierda. Guarda esa trayectoria en un atributo de la clase, trayectoria, para luego 
@@ -557,39 +546,76 @@ void SpecificWorker::camareroCentro()
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
-
-
-
-void SpecificWorker::camareroCentro2()
+/**
+ * @brief Método PRUEBA MATLAB. Crea una trayectoria, formando una esfera cerca del efector final
+ * del robot.Está pensada para que la parte del robot a la que se le envíe llegue sin problemas, 
+ * relativamente, se guarden los errores y el tiempo de ejecución de cada target resuleto y se pinte
+ * una gráfica del error y del tiempo de ejecución en MATLAB.
+ *  -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
+ * Calcula la esfera de radio 100mm para el efector seleccionado en el primer recuadro!!!
+ * 
+ * @return void
+ */
+void SpecificWorker::pruebaMatlab()
 {
 	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
 	
 	//DEFINIMOS VARIABLES:
-	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
-	//				rotaciones se dejan a CERO.
-	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
+	//		- LISTAPUNTOS: lista auxiliar donde se guardan las traslaciones de los puntos calculados. 
+	//		  Se utiliza para no repetir puntos con las mismas traslaciones.
+	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Le guardamos 
+	//		  las rotaciones como la interfaz indica
+	//		- PAUX: vector auxiliar para calcular traslaciones alrededor de la esfera.
 	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
-	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-  QVec pose = QVec::zeros(6);
+	//		- TOTAL: entero auxiliar para calcular una pose de la esfera.
+	//		- RADIO: float que indica el radio de la esfera.
+	//		- PART: parte del robot seleccionada.
+	//		- EFECTOR:	nombre del efector final de la parte del robot. Sirve como centro de la esfera
+	QList<QVec> listaPuntos;
+	QVec pose = QVec::zeros(6);	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+	QVec paux = QVec::zeros(3);
+	int total = 0;
+	float radio = 100.0; //10cm
 	
-	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
+	// Sacamos la parte del robot de la primera caja y obtenemos su efector final para situar
+	// el centro de la esfera
+	std::string part = partBox1_pose6D->currentText().toStdString();
+    QString efector;
+	if(part=="LEFTARM") 	efector="grabPositionHandL";
+	if(part=="RIGHTARM")	efector="grabPositionHandR";
+	if(part=="HEAD")	 	efector="head3";
+	
+	// Mientras que no rellenemos la lista con todos los targets que queremos calcular:
+	// 	- Por una parte calculamos las traslaciones, que serán alrededor de una esfera.
+	// 	- Por otra parte calculamos las rotaciones con ángulos relativamente buenos.
+	while(trayectoria.size()<100)
+	{
+		// Preparamos las traslaciones:
+		while(total < 1)
+		{
+			QVec d1 = QVec::uniformVector(1, -1, 1);
+			QVec d2 = QVec::uniformVector(1, -1, 1);
+
+			if (QVec::vec2(d1[0],d2[0]).norm2() < 1.f)
+			{
+				paux[0]	=	2*d1[0] - sqrt(1.f-d1[0]*d1[0] - d2[0]*d2[0]);	
+				paux[1]	=	2*d2[0] - sqrt(1.f-d1[0]*d1[0] - d2[0]*d2[0]);	
+				paux[2]	=	1.f -2.f*(d1[0]*d1[0] + d2[0]*d2[0]);
+				paux = (paux * (T)radio) + innerModel->transform("world", QVec::zeros(3),efector);
+				total++;
+			}
+		}
+		total = 0;
 		
-	pose[0] = -150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-	
-	pose[0] = 150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
-	trayectoria.append(pose);
-	
-	pose[0] = -150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-	
+		if(!listaPuntos.contains(paux))
+		{
+			listaPuntos.append(paux);
+			pose[0] = paux[0];	pose[1] = paux[1];	pose[2] = paux[2];
+			trayectoria.enqueue(pose);
+		}
+	}
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	
 }
 
 /*--------------------------------------------------------------------------------------------------*
@@ -653,6 +679,63 @@ void SpecificWorker::closeFingers()
 /*----------------------------------------------------------------------------------------------*
  * 								MÉTODOS PRIVADOS DE LA CLASE									*
  *----------------------------------------------------------------------------------------------*/
+/**
+ * @brief MÉTODO ENVIAR. Mira la pestaña en la que se encuentra el usuario de la GUI:
+ * 	- Si está en la primera pestaña envía targets de tipo POSE6D sueltos, leyendo los 
+ *    parámetros de traslación y rotación de la GUI. Las trayectorias las envía 
+ * 	  directamente el compute para que el tester no se quede bloqueado.
+ * 	- Si está en la segunda pestaña envía targets de tipo AXISALIGN.
+ * 	- Si está en la tercera pestaña envía targets de tipo ALONGAXIS.
+ * 	- Si está en la cuarta pestaña envía al robot a la posición de HOME.
+ * 	- Si está en la quinta pestaña envía al robot la apertura de los dedos del robot.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::enviar()
+{
+	// Levnatamos bandera para enviar también al RCIS:
+	banderaRCIS = true;
+	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una pose suelta 
+	// de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
+	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
+	{
+		QVec p = QVec(6);
+		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
+		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
+		enviarPose6D(p);
+	}
+
+	// Estamos en la segunda pestaña: Axis Align. Enviamos target del tipo AXISALIGN.
+	if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
+		enviarAxisAlign();
+	if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
+		moveAlongAxis();
+	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
+		goHome(part_home->currentText());
+	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
+		closeFingers();
+}
+
+
+
+/**
+ * @brief Método ACTUALIZAR INNERMODEL. Actualiza el InnerModel con las nuevas posiciones 
+ * de los motores del robot.  
+ * 
+ * @return void
+ */ 
+void SpecificWorker::actualizarInnerModel()
+{
+	try 
+	{
+		RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap( this->motorList);
+		
+		for(uint j=0; j<motorList.size(); j++)
+			innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
+
+	} catch (const Ice::Exception &ex) {cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;	}
+}
+
 /**
  * @brief Metodo MOVER TARGET. Mueve el target dentro del innerModel a una posicion que se le pasa 
  * como parametro de entrada. Crea una pose3D a cero y actualiza sus traslaciones tx, ty y tz y sus 

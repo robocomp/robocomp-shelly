@@ -73,24 +73,24 @@ class SpecificWorker : public GenericWorker
 		void init();							// Things to do after params are set
 		
 		//// VARIABLES DE CLASE ////
-		InnerModel *innerModel;											// Para trabajar con el innerModel
+		InnerModel *innerModel;							// Para trabajar con el innerModel
 		
-		QMap<QString, BodyPart>  bodyParts;					// Mapa con identificadorde la parte del robot,lista de motores y tip
+		QMap<QString, BodyPart>  bodyParts;				// Mapa con identificadorde la parte del robot,lista de motores y tip
 		
 		QQueue<Target> listaTargetsBrazoDerecho;		// Lista de targets para el brazo derecho
-		QQueue<Target> listaTargetsBrazoIzquierdo;	// Lista de targets para el brazo izquierdo
-		QQueue<Target> listaTargetsCabeza;					// Lista de targets para la cabeza
+		QQueue<Target> listaTargetsBrazoIzquierdo;		// Lista de targets para el brazo izquierdo
+		QQueue<Target> listaTargetsCabeza;				// Lista de targets para la cabeza
 
-		QStringList listaMotores; 									// Tiene TODOS los motores del robot. Para poder actualizar correctamente
-		QStringList listaBrazoDerecho;							// Tiene los motores del brazo derecho con los que trabajara cinematica_inversa
-		QStringList listaBrazoIzquierdo;						// Tiene los motores del brazo izquierdo con los que trabajara cinematica_inversa
-		QStringList listaCabeza;										// Tiene los motores de la cabeza con los que trabajara cinemática_inersa.
+		QStringList listaMotores; 						// Tiene TODOS los motores del robot. Para poder actualizar correctamente
+		QStringList listaBrazoDerecho;					// Tiene los motores del brazo derecho con los que trabajara cinematica_inversa
+		QStringList listaBrazoIzquierdo;				// Tiene los motores del brazo izquierdo con los que trabajara cinematica_inversa
+		QStringList listaCabeza;						// Tiene los motores de la cabeza con los que trabajara cinemática_inersa.
 		
-		Cinematica_Inversa *IK_BrazoDerecho;				// Para realizar las operaciones de cinemática inversa para el brazo derecho
+		Cinematica_Inversa *IK_BrazoDerecho;			// Para realizar las operaciones de cinemática inversa para el brazo derecho
 		Cinematica_Inversa *IK_BrazoIzquierdo;			// Para realizar las operaciones de cinemática inversa para el brazo izquierdo
-		Cinematica_Inversa *IK_Cabeza;							// Para realizar las operaciones de cinemática inversa para la cabeza
+		Cinematica_Inversa *IK_Cabeza;					// Para realizar las operaciones de cinemática inversa para la cabeza
 			
-		ofstream fichero;														// fichero de salida.
+		ofstream ficheroErrores;						// fichero de salida con errores 
 			
 		Planner *planner;
 		
