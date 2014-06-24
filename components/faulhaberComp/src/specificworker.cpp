@@ -481,11 +481,13 @@ BusParams SpecificWorker::getBusParams()
 	return busParams;
 }
 
-MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& motorList){
+MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& motorList)
+{
 	RoboCompJointMotor::MotorStateMap stateMap;
 	RoboCompJointMotor::MotorState state;
 	foreach(std::string motor, motorList)
 	{
+		printf("<< %s\n", motor.c_str());
 		QString name = QString::fromStdString(motor);
 		if ( mParams.contains( name ) )
 		{
@@ -496,11 +498,14 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& motorList){
 //			state.temperature = motorsName[name]->data.temperature;
 			state.isMoving = motorsName[name]->data.isMoving;
 //			state.vel = motorsName[name]->data.currentVelocityRads;
+			stateMap[motor] = state;
 			memory_mutex->unlock();
+		printf(">> %s\n", motor.c_str());
 		}
 		else
 		{
 			uFailed.what = std::string("Exception: FaulhaberComp::getMotorParams:: Unknown motor name") + motor;
+			printf("##### %s\n", uFailed.what.c_str());
 			throw uFailed;
 		}
 	}

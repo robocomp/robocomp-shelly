@@ -131,7 +131,7 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 			else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
 				l1.push_back(listGoals[i]);
 			else 
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list";
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
 	}
 	try
 	{		jointmotor0_proxy->setSyncPosition(l0);	}
@@ -153,7 +153,7 @@ void SpecificWorker::setSyncVelocity(const MotorGoalVelocityList& listGoals)
 			else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
 				l1.push_back(listGoals[i]);
 			else 
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list";
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
 	}
 	try
 	{		jointmotor0_proxy->setSyncVelocity(l0);	}
@@ -191,45 +191,80 @@ MotorState SpecificWorker::getMotorState(const string& motor)
 
 MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 {
+	printf("###### %d\n", (int)mList.size());
+	std::cout << "<<<" << __FILE__ << __FUNCTION__ << __LINE__ << "\n";
 	MotorList l0,l1;
 	MotorStateMap m0, m1;
 	
-	for(uint i=0;i<mList.size();i++)
+	for (uint i=0; i<mList.size(); i++)
 	{
+		std::cout << "(" << mList[i] << "\n";
 		if (prxMap.at( mList[i]) == jointmotor0_proxy )
+		{
 			l0.push_back(mList[i]);
+		}
 		else if (prxMap.at( mList[i]) == jointmotor1_proxy )
+		{
 			l1.push_back(mList[i]);
+		}
 		else 
-			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << mList[i] << " not found in initial proxy list";
+		{
+			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << mList[i] << " not found in initial proxy list\n";
+		}
+		std::cout << mList[i] << ")\n";
 	}
 	
-	try
-	{		m0 = jointmotor0_proxy->getMotorStateMap(l0);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in getMotorStateMap to Dynamixel" << std::endl;	};
-	try
-	{		m1 = jointmotor1_proxy->getMotorStateMap(l1);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Faulhaber" << std::endl;	};
+	printf("l0 ,,, %d\n", (int)l0.size());
+	printf("l1 ,,, %d\n", (int)l1.size());
 
+	try
+	{
+		m0 = jointmotor0_proxy->getMotorStateMap(l0);
+	}
+	catch(std::exception &ex)
+	{
+		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in getMotorStateMap to Dynamixel" << std::endl;
+	}
+	try
+	{
+		m1 = jointmotor1_proxy->getMotorStateMap(l1);
+	}
+	catch(std::exception &ex)
+	{
+		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Faulhaber" << std::endl;
+	}
 	m0.insert(m1.begin(), m1.end());
+
+	printf("m0 ### %d\n", (int)m0.size());
+	printf("m1 ### %d\n", (int)m1.size());
 	return m0;
 }
 
 void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 {
+	std::cout << "<<<" << __FILE__ << __FUNCTION__ << __LINE__ << "\n";
+
 	MotorStateMap map1;
 	try
-	{		jointmotor0_proxy->getAllMotorState(mstateMap);	}
+	{
+		jointmotor0_proxy->getAllMotorState(mstateMap);
+		try
+		{
+			jointmotor1_proxy->getAllMotorState(map1);
+			mstateMap.insert(map1.begin(), map1.end());
+		}
+		catch(std::exception &ex)
+		{
+			std::cout << "Error reading motor bus 1\n";
+			std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Faulhaber bus" << std::endl;
+		}
+	}
 	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Dynamixel bus" << std::endl;	};
-	try
-	{		jointmotor1_proxy->getAllMotorState(map1);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Faulhaber bus" << std::endl;	};
-
-	mstateMap.insert(map1.begin(), map1.end());
+	{
+		std::cout << "Error reading motor bus 0\n";
+		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Dynamixel bus" << std::endl;
+	}
+	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << ">>>\n";
 
 }
 MotorParamsList SpecificWorker::getAllMotorParams()

@@ -728,11 +728,16 @@ void SpecificWorker::actualizarInnerModel()
 {
 	try 
 	{
+		printf("%s %d\n", __FILE__, __LINE__);
 		RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap( this->motorList);
+		printf("%s %d\n", __FILE__, __LINE__);
 		
 		for(uint j=0; j<motorList.size(); j++)
+		{
+			printf("%s\n", motorList[j].c_str());
 			innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
-
+		}
+		printf("%s %d\n", __FILE__, __LINE__);
 	} catch (const Ice::Exception &ex) {cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;	}
 }
 
@@ -754,8 +759,11 @@ void SpecificWorker::moverTargetEnRCIS(const QVec &pose)
 
 		p.x = pose[0]; p.y = pose[1]; p.z = pose[2];
 		p.rx = pose[3]; p.ry = pose[4]; p.rz = pose[5];
-			
-		innermodelmanager_proxy->setPoseFromParent("target",p);
+		try
+		{
+			innermodelmanager_proxy->setPoseFromParent("target",p);
+		}
+		catch (const Ice::Exception &ex){ cout<<"RCIS connection problem "<<ex<<endl; }
 		innerModel->updateTransformValues("target",p.x,p.y,p.z,p.rx,p.ry,p.rz);        ////CREO QUE SE PUEDE QUITAR
 		
 	}catch (const Ice::Exception &ex){ cout<<"Excepción en moverTarget: "<<ex<<endl; }
