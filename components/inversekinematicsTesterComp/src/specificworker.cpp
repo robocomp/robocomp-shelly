@@ -27,7 +27,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	// Inicializamos las banderas de los targets a FALSE:
 	//	- NO hay trayectoria asignada
 	//	- NO hay target para RCIS
-	banderaTrayectoria = banderaRCIS= false;
+	banderaTrayectoria = banderaNiapa = banderaRCIS= false;
 	
 	// ÑAPA PARA PODER ENVIAR UN MISMO TARGET A DOS O TRES PARTES DEL CUERPO A LA VEZ
 	// Por defecto siempre empezamos con una única parte del cuerpo.
@@ -193,27 +193,18 @@ void SpecificWorker::compute( )
 	// trayectoria de targetes al RCIS. De esta forma evitamos que el tester se quede
 	// colgado hasta que termine de enviar todos los targets de la trayectoria.
 	if((trayectoria.isEmpty() == false)  and banderaRCIS)
-	{
 		enviarPose6D( trayectoria.dequeue() );
-	}
 	else
+	{
 		banderaRCIS = false;
+// 		if(trayectoria.isEmpty()==true)	banderaNiapa = false;
+	}
 	
 	// Actualizamos el innerModel y la ventada del viewer
 	actualizarInnerModel();
 	imv->update();
 	osgView->frame();
 	
-// 	try
-// 	{ 
-// 		TargetState state = bodyinversekinematics_proxy->getState("RIGHTARM"); 
-// 		if(state.finish == false)
-// 			qDebug() << "Target elapsed time" << state.elapsedTime;
-// 	}
-// 	catch(const Ice::Exception &ex)
-// 	{ std::cout << "Warning! BIK not responding" << std::endl; };
-// 	
-// 	
 	// Hacemos un ping al inverseKinematicsComp cada cierto tiempo. Si no responde
 	// es que el inverseKinematicsComp no está levantado.
 	if ( reloj.elapsed() > 3000)
@@ -615,7 +606,7 @@ void SpecificWorker::pruebaMatlab()
 		}
 	}
 	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
-	
+// 	banderaNiapa = true;
 }
 
 /*--------------------------------------------------------------------------------------------------*
@@ -839,6 +830,15 @@ void SpecificWorker::enviarPose6D(QVec p)
 					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 				}
 				usleep(50000);
+				
+// 				// ÑAPA: Cuando se le envía una trayectoria pruebaMatlab después de cada target se le lleva al home.
+// 				if(banderaNiapa==true)
+// 				{
+// 					sleep(1);
+// 					qDebug()<<"banderaNiapa"<<banderaNiapa;
+// 					goHome(QString::fromStdString(part));
+// 					sleep(1);
+// 				}
 			}
 		}
 	}catch(Ice::Exception ex){ std::cout<<"Error al pasar TARGET POSE6D: "<<ex<<endl;}

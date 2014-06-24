@@ -63,7 +63,6 @@ Cinematica_Inversa::~Cinematica_Inversa()
  */
 void Cinematica_Inversa::resolverTarget(Target& target)
 {
-	target.setRunTime(QTime::currentTime());
 	
 	if(target.getType() == Target::ALIGNAXIS)  
 	{
@@ -73,10 +72,7 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	{
 		//Scale the unitary vector along direction by distance
 		QVec axis = target.getAxis() * target.getStep();
-		//axis.print("axis scaled");
-		
 		QVec p = inner->transform("world", axis, this->endEffector);
-		//p.print("target to reach in world");
 		inner->transform("world", QVec::zeros(3), this->endEffector).print("position of tip");
 		
 		QMat mat = inner->getRotationMatrixTo("world", this->endEffector);
@@ -92,7 +88,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-	
 		chopPath(target);	
 		// Si el target no ha sido resuelto llamamos Levenberg-Marquardt
 		if( target.isAtTarget() == false )
@@ -110,8 +105,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 			firstTime=0;
 		}
 	}
-		
-	target.setElapsedTime(target.getRunTime().elapsed());
 }
 
 
@@ -492,7 +485,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	
 	target.setError(error.norm2());
 	target.setErrorVector(error);
-  target.setFinalAngles(angulos);
+	target.setFinalAngles(angulos);
 	
 }
 

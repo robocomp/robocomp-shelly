@@ -200,8 +200,10 @@ void SpecificWorker::compute()
 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 				target.print("BEFORE PROCESSING");
 					
-				// Resolvemos el target mediante la cinemática inversa.
+				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
+				target.setRunTime(QTime::currentTime());
 				iterador.value().getInverseKinematics()->resolverTarget(target);
+				target.setElapsedTime(target.getRunTime().elapsed());
 
 				// local goal achieved: execute the solution
 				if(target.getError() <= 0.9 and target.isAtTarget() == false) 
@@ -227,7 +229,9 @@ void SpecificWorker::compute()
 			// Guardamos errores del target y tiempo de ejecución. FORMATO:
 			// Error # Tiempo de ejecución
 			// TODO ÁRBOL KD.
-			ficheroErrores<<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
+			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
+			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
+						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
 			
 			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 			{
@@ -481,7 +485,6 @@ void SpecificWorker::goHome(const string& part)
 	}
 	//goHomePosition( bodyParts[partName].getMotorList());
 	//sleep(1);
-	
 }
 
 /**

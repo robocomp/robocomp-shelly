@@ -97,6 +97,7 @@ private:
 	RoboCompJointMotor::MotorList motorList;
 
 	bool banderaTrayectoria;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
+	bool banderaNiapa;                                  // Se pone a true cuando se envía trayectoria pruebaMatlab
 	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
 	QString tabName;									//Name of current tab
 	int tabIndex;										//Index of current tabIndex	
