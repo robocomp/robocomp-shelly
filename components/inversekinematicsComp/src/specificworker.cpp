@@ -602,24 +602,12 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 		{		
 			mList.push_back(listaJoints[i].toStdString());		
 		}
-		
-		
-		
+
 		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
-		
-		for (RoboCompJointMotor::MotorStateMap::iterator it=mMap.begin(); it!=mMap.end(); it++)
-		{
-			printf("\"%s\"\n", it->first.c_str());
-		}
-		
-		
 		for(int j=0; j<listaJoints.size(); j++)
 		{
-
 			const float pos = mMap.at(listaJoints[j].toStdString()).pos;
-
 			innerModel->updateJointValue(listaJoints[j], pos);
-
 		}
 
 	}
