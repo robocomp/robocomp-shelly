@@ -487,7 +487,7 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& motorList)
 	RoboCompJointMotor::MotorState state;
 	foreach(std::string motor, motorList)
 	{
-		printf("<< %s\n", motor.c_str());
+		
 		QString name = QString::fromStdString(motor);
 		if ( mParams.contains( name ) )
 		{
@@ -500,7 +500,7 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& motorList)
 //			state.vel = motorsName[name]->data.currentVelocityRads;
 			stateMap[motor] = state;
 			memory_mutex->unlock();
-		printf(">> %s\n", motor.c_str());
+
 		}
 		else
 		{
