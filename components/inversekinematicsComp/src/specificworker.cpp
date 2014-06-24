@@ -71,41 +71,55 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::init()
 {
+printf("<<< init()\n");
+
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
 	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2";
 	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"  << "rightForeArm" << "rightWrist1" << "rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
 	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm" << "rightWrist1" <<"rightWrist2" 
 	             << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"
-				 << "base" << "head1" << "head2" << "head3";
-	
+				 << "head1" << "head2" << "head3";
+
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
 	QString nose = "head3"; 
+
 	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
 	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza, nose);
+
 							 
 	// CREA EL MAPA DE PARTES DEL CUERPO: por ahora los brazos.
 	bodyParts.insert("LEFTARM", BodyPart(innerModel, IK_BrazoIzquierdo, "LEFTARM", tipLeft, listaBrazoIzquierdo));
 	bodyParts.insert("RIGHTARM", BodyPart(innerModel, IK_BrazoDerecho, "RIGHTARM", tipRight, listaBrazoDerecho)); 
 	bodyParts.insert("HEAD", BodyPart(innerModel, IK_Cabeza, "HEAD", nose, listaCabeza)); 
 
+
 	//Initialize proxy to RCIS
 	proxy = jointmotor0_proxy;
+
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
+
 	
  	foreach(BodyPart p, bodyParts)
- 		goHome(p.getPartName().toStdString());
+ 	{
+
+		goHome(p.getPartName().toStdString());
+	}
 	
 	sleep(1);
+
 	actualizarInnermodel(listaMotores);
+
 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
+
 		
 	//Open file to write errors and times of executions
 	ficheroErrores.open("errores.txt", ios::out);
+
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -119,6 +133,7 @@ void SpecificWorker::init()
 	qDebug();
 	qDebug() << "---------------------------------";
 	qDebug() << "BodyInverseKinematics --> Waiting for requests!";
+printf(">>> init()\n");
 }
 
 
@@ -587,14 +602,20 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 	{
 		MotorList mList;
 		for(int i=0; i<listaJoints.size(); i++)
-			mList.push_back(listaJoints[i].toStdString());
-		
-		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
-		
-		for(int j=0; j<listaJoints.size(); j++)
-			innerModel->updateJointValue(listaJoints[j], mMap.at(listaJoints[j].toStdString()).pos);
+		{		
+			mList.push_back(listaJoints[i].toStdString());		
+		}
 
-	} catch (const Ice::Exception &ex) {
+		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
+		for(int j=0; j<listaJoints.size(); j++)
+		{
+			const float pos = mMap.at(listaJoints[j].toStdString()).pos;
+			innerModel->updateJointValue(listaJoints[j], pos);
+		}
+
+	}
+	catch (const Ice::Exception &ex)
+	{
 		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
 	}
 }
