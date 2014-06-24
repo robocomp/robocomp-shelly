@@ -80,46 +80,46 @@ printf("<<< init()\n");
 	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm" << "rightWrist1" <<"rightWrist2" 
 	             << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"
 				 << "head1" << "head2" << "head3";
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
 	QString nose = "head3"; 
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	
 	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
 	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
 	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza, nose);
-printf("%s %d\n", __FILE__, __LINE__);	
+
 							 
 	// CREA EL MAPA DE PARTES DEL CUERPO: por ahora los brazos.
 	bodyParts.insert("LEFTARM", BodyPart(innerModel, IK_BrazoIzquierdo, "LEFTARM", tipLeft, listaBrazoIzquierdo));
 	bodyParts.insert("RIGHTARM", BodyPart(innerModel, IK_BrazoDerecho, "RIGHTARM", tipRight, listaBrazoDerecho)); 
 	bodyParts.insert("HEAD", BodyPart(innerModel, IK_Cabeza, "HEAD", nose, listaCabeza)); 
-printf("%s %d\n", __FILE__, __LINE__);	
+
 
 	//Initialize proxy to RCIS
 	proxy = jointmotor0_proxy;
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	
  	foreach(BodyPart p, bodyParts)
  	{
-printf("%s %d %s\n", __FILE__, __LINE__, p.getPartName().toStdString().c_str());	
+
 		goHome(p.getPartName().toStdString());
 	}
 	
 	sleep(1);
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	actualizarInnermodel(listaMotores);
-printf("%s %d\n", __FILE__, __LINE__);	
+
 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
-printf("%s %d\n", __FILE__, __LINE__);	
+
 		
 	//Open file to write errors and times of executions
 	ficheroErrores.open("errores.txt", ios::out);
-printf("%s %d\n", __FILE__, __LINE__);	
+
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -599,29 +599,27 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 	{
 		MotorList mList;
 		for(int i=0; i<listaJoints.size(); i++)
-		{
-			printf("actualizarinnermodel1: <%s>\n", listaJoints[i].toStdString().c_str());
-			mList.push_back(listaJoints[i].toStdString());
-			printf("actualizarinnermodel1: <%s>\n", listaJoints[i].toStdString().c_str());
+		{		
+			mList.push_back(listaJoints[i].toStdString());		
 		}
 		
-		printf("<<actualizarinnermodel\n");
-		printf("len mList: %d\n", (int)mList.size());
+		
+		
 		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
-		printf("len mMap: %d\n", (int)mMap.size());
+		
 		for (RoboCompJointMotor::MotorStateMap::iterator it=mMap.begin(); it!=mMap.end(); it++)
 		{
 			printf("\"%s\"\n", it->first.c_str());
 		}
-		printf("actualizarinnermodel>>\n");
+		
 		
 		for(int j=0; j<listaJoints.size(); j++)
 		{
-			printf("actualizarinnermodel2: <%s>\n", listaJoints[j].toStdString().c_str());
+
 			const float pos = mMap.at(listaJoints[j].toStdString()).pos;
-			printf("actualizarinnermodel2: <%s>\n", listaJoints[j].toStdString().c_str());
+
 			innerModel->updateJointValue(listaJoints[j], pos);
-			printf("actualizarinnermodel2: <%s>\n", listaJoints[j].toStdString().c_str());
+
 		}
 
 	}
