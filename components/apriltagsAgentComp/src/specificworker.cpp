@@ -291,7 +291,7 @@ void SpecificWorker::includeObjectInModel(AGMModel::SPtr &newModel, const AprilT
 		type_p = newModel->newSymbol("table");
 		newModel->addEdgeByIdentifiers(class_p->identifier, type_p->identifier, "prop");
 		break;
-	case 2:
+	case 14:
 		class_p = newModel->newSymbol("class");
 		newModel->addEdgeByIdentifiers(newTag->identifier, class_p->identifier, "prop");
 		type_p = newModel->newSymbol("mug");

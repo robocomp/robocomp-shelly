@@ -361,16 +361,16 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		if (id == 0)
 		{
 			printf("mesa!\n");
-			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds";
+			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
 // 			pose2.z = 800;
 			mesh.scaleX = 100;
 			mesh.scaleY = 100; // <--- A 674mm radius table has a scale of "100"
 			mesh.scaleZ = 100; // <--- A 800mm height table has a scale of "100"
 		}
-		else if (id == 2)
+		else if (id == 14)
 		{
 			printf("taza!\n");
-			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
+			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
 // 			pose2.z = 160; // La x va claramente a la derecha
 			mesh.scaleX = 120;
 			mesh.scaleY = 120;
@@ -381,7 +381,9 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 			printf("unknown!\n");
 			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/basics/sphere.ive";
 		}
-	 
+	  		pose2.rx = pose.rx = 0;
+  		pose2.ry = pose.ry = 0;
+ 		pose2.rz = pose.rz = 0;
 		// Add the transofrm
 		innermodelmanager_proxy->addTransform(ident.toStdString() + "_T",  "static", "robot", pose);
 		innermodelmanager_proxy->addTransform(ident.toStdString() + "_T2", "static", ident.toStdString()+"_T", pose2);
@@ -425,9 +427,12 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 	{
 	   RoboCompInnerModelManager::Pose3D pose, pose2;
 
- 		pose2.rx = pose.rx = str2float(node.attributes["rx"]);
- 		pose2.ry = pose.ry = str2float(node.attributes["ry"]);
-		pose2.rz = pose.rz = str2float(node.attributes["rz"]);
+//  		pose2.rx = pose.rx = str2float(node.attributes["rx"]);
+//  		pose2.ry = pose.ry = str2float(node.attributes["ry"]);
+// 		pose2.rz = pose.rz = str2float(node.attributes["rz"]);
+  		pose2.rx = pose.rx = 0;
+  		pose2.ry = pose.ry = 0;
+ 		pose2.rz = pose.rz = 0;
  		pose2.x = pose.x = str2float(node.attributes[std::string("tx") ]);
  		pose2.y = pose.y = str2float(node.attributes[std::string("ty") ]);
  		pose2.z = pose.z = str2float(node.attributes[std::string("tz") ]);

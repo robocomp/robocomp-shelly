@@ -507,7 +507,7 @@
 
 
 	<transform id="target" tx="0" ty="900" tz="300">
-		<plane id="C1_6" ny="-1" size="108,-139.5,5" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-2.png" />
+		<plane id="C1_6" ny="-1" size="108,-139.5,5" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-14.png" />
 
 <!--
 		<transform id="axeslh2"  ty="10">
