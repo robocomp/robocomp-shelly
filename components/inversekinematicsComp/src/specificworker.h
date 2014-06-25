@@ -94,6 +94,7 @@ class SpecificWorker : public GenericWorker
 			
 		Planner *planner;
 		
+		
 		// MÉTODOS PARA ACTUALIZAR //
 		void actualizarInnermodel(const QStringList &listaJoints);
 		

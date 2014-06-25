@@ -34,11 +34,9 @@
 /**
  * @brief Default Constructor
  */
-Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_) 
-		:	inner(inner_), listaJoints(joints_), endEffector(endEffector_)
+Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_) 
+		:	inner(inner_), listaJoints(joints_)
 {
-	// Inicializa los atributos de la clase a partir de los : //
-	
 }
 
 /**
@@ -72,10 +70,10 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	{
 		//Scale the unitary vector along direction by distance
 		QVec axis = target.getAxis() * target.getStep();
-		QVec p = inner->transform("world", axis, this->endEffector);
-		inner->transform("world", QVec::zeros(3), this->endEffector).print("position of tip");
+		QVec p = inner->transform("world", axis, target.getTipName());
+		inner->transform("world", QVec::zeros(3), target.getTipName()).print("position of tip");
 		
-		QMat mat = inner->getRotationMatrixTo("world", this->endEffector);
+		QMat mat = inner->getRotationMatrixTo("world", target.getTipName());
 		QVec rot = mat.extractAnglesR();
 		QVec r(3);
 		if(rot.subVector(0,2).norm2() < rot.subVector(3,5).norm2())
@@ -126,8 +124,8 @@ void Cinematica_Inversa::chopPath(Target &target)
 	const float minRotaciones = 0.001;
 	
 	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese target	
-  QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
-  QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
+  QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());				
+  QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
   QVec targetTotal(6);
   targetTotal.inject(targetTInTip,0);
   targetTotal.inject(targetRInTip,3);
@@ -149,8 +147,8 @@ void Cinematica_Inversa::chopPath(Target &target)
 		T landa = 1./nPuntos;
 		QVec R(6);
 		QVec P(6);
-		P.inject(inner->transform("world", QVec::zeros(3), this->endEffector),0);
-		P.inject(inner->getRotationMatrixTo("world", this->endEffector).extractAnglesR_min(),3);
+		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
+		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
 		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);	
 		
 		
@@ -161,11 +159,11 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R2 = (targetTotal * (T)(landa));	
 		//qDebug() << "Error total visto desde end effector" << targetTotal << " R2" << R2;
 				
-		QMat matTipInWorld = inner->getRotationMatrixTo("world", this->endEffector);
+		QMat matTipInWorld = inner->getRotationMatrixTo("world", target.getTipName());
 		Rot3D matErrorInTip(R2[3], R2[4], R2[5]);
 		QMat matResul = matTipInWorld * matErrorInTip;
 		
-		R.inject(inner->transform("world", R2.subVector(0,2), this->endEffector),0) ;
+		R.inject(inner->transform("world", R2.subVector(0,2), target.getTipName()),0) ;
 		R.inject(matResul.extractAnglesR_min(),3);
 		qDebug() << "P" << P << " Rnueva" << R;
 		
@@ -212,7 +210,7 @@ void Cinematica_Inversa::chopPath(Target &target)
  * 
  * @return QMat la matriz jacobiana
  */ 
-QMat Cinematica_Inversa::jacobian(QVec motores)
+QMat Cinematica_Inversa::jacobian(QVec motores, Target target)
 {
 	// Inicializamos la matriz jacobiana de tamaño el del punto objetivo que tiene 6 ELEMENTOS [tx, ty, tz, rx, ry, rz]
 	// por el número de motores de la lista de articulaciones: 6 filas por n columnas. También inicializamos un vector de ceros
@@ -230,7 +228,7 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			axisTip = this->inner->transform(this->listaJoints.last(), axisTip, linkName);
 			QVec axisBase = this->inner->transform(this->listaJoints.last(), zero, linkName);
 			QVec axis = axisBase - axisTip;
-			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints.last(), zero, this->endEffector) );		
+			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints.last(), zero, target.getTipName()) );		
 			QVec res = toEffector.crossProduct(axis);
 
 			jacob(0,j) = res.x();
@@ -300,14 +298,14 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		//---> PRUEBAS
 		
 		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
-		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
+		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), target.getTipName());			
 		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
 		
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
-		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
+		QMat matTargetInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()); 
 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
-		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getTipName());
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
 		// 4) Pasamos los errores de rotación al last joint.
@@ -393,7 +391,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 		We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
 	
 	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
-	QMat J = jacobian(motores);
+	QMat J = jacobian(motores, target);
 	QMat H = J.transpose()*(We*J);			
 	QVec g = J.transpose()*(error);		
 	bool stop = (g.maxAbs(auxInt) <= e1);
@@ -439,7 +437,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				{
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
-					J = jacobian(motores);
+					J = jacobian(motores, target);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
 				}
@@ -457,7 +455,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					angulos = aux;
 					// Recalculamos con nuevos datos.
 					error = We*computeErrorVector(target);						
-					J = jacobian(motores);
+					J = jacobian(motores, target);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
 		
@@ -483,7 +481,6 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	else if ( smallInc == true) target.setStatus(Target::LOW_INCS);
 	else if ( nanInc == true) target.setStatus(Target::NAN_INCS);
 	
-	target.setError(error.norm2());
 	target.setErrorVector(error);
 	target.setFinalAngles(angulos);
 	

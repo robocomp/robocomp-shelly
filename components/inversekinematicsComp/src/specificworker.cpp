@@ -87,9 +87,9 @@ printf("<<< init()\n");
 	QString nose = "head3"; 
 
 	
-	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
-	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
-	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza, nose);
+	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho);
+	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo);
+	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza);
 
 							 
 	// CREA EL MAPA DE PARTES DEL CUERPO: por ahora los brazos.
@@ -223,8 +223,8 @@ void SpecificWorker::compute()
 				// local goal achieved: execute the solution
 				if(target.getError() <= 0.9 and target.isAtTarget() == false) 
 				{
-					// Si ha sido resuelto con un error menor al umbral y no se ha alcanzado, movemos la parte del robot
-					// con los ángulos calculados y ponemos bandera de ejecutado al target.
+					// Si ha sido resuelto con un error menor al umbral, no se ha alcanzado el objetivo y no es un subtarget,
+					// movemos la parte del robot con los ángulos calculados y ponemos bandera de ejecutado al target.
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
 					usleep(100000);
 					target.setExecuted(true);
@@ -459,7 +459,6 @@ void SpecificWorker::setFingers(float d)
 	// Ahora cinemática inversa: ang = asin(D/l)
 	// ang1  = ang - 1;
 	// ang2 = -ang + 1;
-	
 }
 
 /**

@@ -57,8 +57,12 @@ class BodyPart
 		QQueue<Target> getTargets() const 						{ return listaTargets;}; // Devuelve toda la cola de targets de la parte del cuerpo.
 		Target& getHeadFromTargets() 					 		{ return listaTargets.head(); }; //Devuelve el primer target de la cola de targets.
 		Cinematica_Inversa* getInverseKinematics()				{ return ik;}; // Devuelve la variable de cinematica_inversa asignada a la partedel cuerpo.
+		QQueue<QVec> getListaSubAngulos()						{ return listaSubAngulos;}; //Devuelve la lista de subángulos de los subtargets.
+		
+		/// MÉTODOS ADD Y MODIFICADORES///
 		void addListaTarget(const QQueue<Target> &lt)			{ listaTargets = lt;}; //Guarda la lista de targets que se le asigna en su atributo.
 		void addTargetToList(const Target &t)					{ listaTargets.enqueue(t);};
+		void addSubAngulo(const QVec subAngulo)					{ listaSubAngulos.enqueue(subAngulo);}; //Guarda una nueva configuracón de subángulos en la lista
 		void removeHeadFromTargets()							{ if (listaTargets.size() > 0) listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
 		bool noTargets() const									{ return listaTargets.isEmpty();};
 		void markForRemoval()									{ for( int i=0; i<listaTargets.size(); i++) listaTargets[i].markForRemoval(true);};
@@ -71,6 +75,11 @@ class BodyPart
 		Cinematica_Inversa *ik;											// Puntero a la cinemática inversa de esa parte del cuerpo
 		InnerModel *inner;												// POR AHORA INÚTIL.
 		QQueue<Target> listaTargets;									// Lista de targets para esa parte del cuerpo.
+		
+		// AÑADIDO POR MERCEDES //
+		// Lista de ángulos a aplicar cuando está trabajando el chop. Así evitamos que el brazo se mueva aposiciones a las que no llega
+		// cuando está trabajando el chop.
+		QQueue<QVec> listaSubAngulos;									
 };
 
 
