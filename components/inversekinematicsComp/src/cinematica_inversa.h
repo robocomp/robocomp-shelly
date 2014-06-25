@@ -53,7 +53,7 @@ class Cinematica_Inversa
 public:
 	
 	///// COSNTRUCTORES Y DESTRUCTORES /////
-	Cinematica_Inversa(InnerModel *inner_, QStringList joints_);  ///TODO QUITAR ENDEFFECTOR DE AQUI. YA VA EN EL TARGET
+	Cinematica_Inversa(InnerModel *inner_, QStringList joints_);
 	~Cinematica_Inversa();
 	
 	
@@ -70,23 +70,27 @@ private:
 
 	///// MÉTODOS PRIVADOS /////
 	// ----------------- PARA TRASLACIÓN Y ROTACIÓN ---------------//
-	QMat jacobian(QVec motores, Target target);			// devuelve la matriz jacobiana de la función.
-	QVec computeErrorVector(const Target &target);		// devuelve el vector error de traslaciones y rotaciones
-	void levenbergMarquardt(Target &target);			// algoritmo de Levenberg-Marquart completo.
-	void levenbergMarquardt2(Target &target); 			// alternative implementaiton
-	void chopPath(Target &target);						// trocea el target
+	QMat jacobian				(QVec motores, Target target);			// devuelve la matriz jacobiana de la función.
+	QVec computeErrorVector		(const Target &target);					// devuelve el vector error de traslaciones y rotaciones
+	void levenbergMarquardt		(Target &target);						// algoritmo de Levenberg-Marquart completo.
+	void levenbergMarquardt2	(Target &target); 						// alternative implementaiton
+	void chopPath				(Target &target);						// trocea el target
 	//_-----------------------------------------------------------------------------
 	
 	// DE CÁLCULO.....
-	QVec calcularAngulos(); 								// devuelve el vector de todos los ángulos de los motores
-	void calcularModuloFloat(QVec &angles, float mod);		// calcula ángulos entre -Pi y Pi.
+	QVec calcularAngulos		(); 									// devuelve el vector de todos los ángulos de los motores
+	void calcularModuloFloat	(QVec &angles, float mod);				// calcula ángulos entre -Pi y Pi.
 
 	// DE ACTUALIZACIÓN...
-	void actualizarAngulos(QVec angulos_nuevos);			// actualiza los valores angulares de los joints.
+	void actualizarAngulos		(QVec angulos_nuevos);					// actualiza los valores angulares de los joints.
 	
 	// DE CONSULTA...
-	bool outLimits(QVec &angulos, QVec &motores); 			// devuelve si los ángulos para los motores no superan los límites
-	QVec computeH(const QVec &angs);						// ¿Qué leches es esto?
+	bool outLimits				(QVec &angulos, QVec &motores); 		// devuelve si los ángulos para los motores no superan los límites
+	QVec computeH				(const QVec &angs);						// ¿Qué leches es esto?
+	
+	
+	// AÑADIDO: para evitar bucles en el chop:
+	bool comprobarBucleChop(QList<QVec> listaSubtargets, QVec subtarget);
 };
 
 #endif // CINEMATICA_INVERSA_H
