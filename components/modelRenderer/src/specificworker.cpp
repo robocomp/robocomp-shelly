@@ -61,8 +61,8 @@ void SpecificWorker::compute( )
 {
 	qDebug()<<"runn";
 	media();
-//   if (!initial_broadcast)
-// 	 agmexecutive_proxy -> broadcastModel();
+  if (!initial_broadcast)
+ 	 agmexecutive_proxy -> broadcastModel();
 
 }
 
@@ -140,7 +140,7 @@ void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modificat
 	 initial_broadcast=true;
 	 mutex->lock();
 	 AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
-	 //updateRCISModel(modification);
+	 updateRCISModel(modification);
 	 buildModificationLists(modification);
 	 if (initialized)
 	 {
@@ -357,11 +357,12 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		mesh.render = 0;
 		
 		int32_t id = str2int(node.attributes["id"]);
+		cout<<"ID: "<<id<<endl;
 		if (id == 0)
 		{
 			printf("mesa!\n");
-			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
-			mesh.pose.z = 800;
+			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds";
+// 			pose2.z = 800;
 			mesh.scaleX = 100;
 			mesh.scaleY = 100; // <--- A 674mm radius table has a scale of "100"
 			mesh.scaleZ = 100; // <--- A 800mm height table has a scale of "100"
@@ -369,8 +370,8 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		else if (id == 2)
 		{
 			printf("taza!\n");
-			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
-			pose2.z = 160; // La x va claramente a la derecha
+			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
+// 			pose2.z = 160; // La x va claramente a la derecha
 			mesh.scaleX = 120;
 			mesh.scaleY = 120;
 			mesh.scaleZ = 120;
@@ -382,8 +383,8 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		}
 	 
 		// Add the transofrm
-		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T",  "static", "robot", pose);
-		innermodelmanager_proxy->addTransform(ident.toStdString()+"_T2", "static", ident.toStdString()+"_T", pose2);
+		innermodelmanager_proxy->addTransform(ident.toStdString() + "_T",  "static", "robot", pose);
+		innermodelmanager_proxy->addTransform(ident.toStdString() + "_T2", "static", ident.toStdString()+"_T", pose2);
 		innermodelmanager_proxy->addMesh(ident.toStdString(), ident.toStdString()+"_T2", mesh);
 		printf("ADDED: %s", ident.toStdString().c_str());
 	}
@@ -422,14 +423,14 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 {
 	try
 	{
-	   RoboCompInnerModelManager::Pose3D pose;
+	   RoboCompInnerModelManager::Pose3D pose, pose2;
 
- 		pose.rx = str2float(node.attributes["rx"]);
- 		pose.ry = str2float(node.attributes["ry"]);
-		pose.rz = str2float(node.attributes["rz"]);
- 		pose.x = str2float(node.attributes[std::string("tx") ]);
- 		pose.y = str2float(node.attributes[std::string("ty") ]);
- 		pose.z = str2float(node.attributes[std::string("tz") ]);
+ 		pose2.rx = pose.rx = str2float(node.attributes["rx"]);
+ 		pose2.ry = pose.ry = str2float(node.attributes["ry"]);
+		pose2.rz = pose.rz = str2float(node.attributes["rz"]);
+ 		pose2.x = pose.x = str2float(node.attributes[std::string("tx") ]);
+ 		pose2.y = pose.y = str2float(node.attributes[std::string("ty") ]);
+ 		pose2.z = pose.z = str2float(node.attributes[std::string("tz") ]);
 		
 		
 		printf("Rx: %s\n",std::string(node.attributes[std::string("rx")]).c_str() );
@@ -446,7 +447,8 @@ void SpecificWorker::RCIS_update_object(RoboCompAGMWorldModel::Node &node)
 		printf("UPDATED: %s", ident.toStdString().c_str());
 		
 		innermodelmanager_proxy->setPoseFromParent(ident.toStdString()+"_T", pose);
-		//innermodelmanager_proxy->setPoseFromParent("test_T", pose);
+		
+		innermodelmanager_proxy->setPoseFromParent(ident.toStdString()+"_T2", pose2);
 		printf("UPDATED: %s", ident.toStdString().c_str());
 	}
 	catch (RoboCompInnerModelManager::InnerModelManagerError e)
