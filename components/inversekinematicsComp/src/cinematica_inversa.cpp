@@ -147,8 +147,6 @@ void Cinematica_Inversa::chopPath(Target &target)
 		
 		
 		// Añadido por Mercedes y Agustín 		
-		
-		// Target visto desde end effector
 		QVec R2(6);
 		R2 = (targetTotal * (T)(landa));	
 				
@@ -170,7 +168,6 @@ void Cinematica_Inversa::chopPath(Target &target)
 		{
 			listaSubtargets.append(R);
 			//Fin añadido
-
 			//Update virtual target in innermodel to chopped postion
 			inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
 			target.setChopped(true);
@@ -288,13 +285,8 @@ bool Cinematica_Inversa::comprobarBucleChop(QList<QVec> listaSubtargets, QVec su
 			int index = listaSubtargets.indexOf(subtarget);
 
 			if(index>0)
-			{
-				// Si su índice es el 0 no podemos comprobar si forma patrón hacia atrás.
-				//Sacamos el elemento anterior al subtarget repetido y el último elemento y los comparamos:
-				QVec anterior=listaSubtargets.at(index-1);
-				QVec ultimo=listaSubtargets.last();
-				
-				if(anterior==ultimo)
+			{	
+				if(listaSubtargets.at(index-1)==listaSubtargets.last())
 					patronRepetido=true;
 			}
 		}
@@ -417,8 +409,6 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getTipName());
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
-		// 4) Pasamos los errores de rotación al last joint.
-		QVec anglesRot = matTipInLastJoint * targetRInTip;
 		
 		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
