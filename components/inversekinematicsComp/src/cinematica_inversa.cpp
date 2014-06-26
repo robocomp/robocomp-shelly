@@ -127,31 +127,20 @@ void Cinematica_Inversa::resolverTarget(Target& target)
  */
 void Cinematica_Inversa::chopPath(Target &target)
 {	
-	static QVec posicion_anterior (6);
-	posicion_anterior.print("Posicion anterior");
-	const float minTraslaciones = 0.0001;
-	const float minRotaciones = 0.001;
+	const float step = 0.1;
+	static QList<QVec> listaSubtargets;
+	QVec targetTotal(6);
 	
 	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese target	
-  QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
-  QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
-  QVec targetTotal(6);
-  targetTotal.inject(targetTInTip,0);
-  targetTotal.inject(targetRInTip,3);
+	QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
+	QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
+	targetTotal.inject(targetTInTip,0);
+	targetTotal.inject(targetRInTip,3);
 	
-	const float step = 0.1;
-	
-	(QMat::makeDiagonal(target.getWeights()) * targetTotal).print("targetTotal");
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
-	//qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
-	
-// 	if( targetTInTip.norm2() < target.getRadius() )
-// 		target.setAtTarget(true);
-/*	else*/ 
 	
 	if( dist > step)  
 	{
-		//qDebug() << "entering CHOP" << dist;
 		int nPuntos = floor(dist / step);
 		T landa = 1./nPuntos;
 		QVec R(6);
@@ -162,7 +151,6 @@ void Cinematica_Inversa::chopPath(Target &target)
 		
 		
 		// Añadido por Mercedes y Agustín 		
-		
 		// Target visto desde end effector
 		QVec R2(6);
 		R2 = (targetTotal * (T)(landa));	
@@ -176,33 +164,74 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R.inject(matResul.extractAnglesR_min(),3);
 		qDebug() << "P" << P << " Rnueva" << R;
 		
-		if(fabs(R[0]-posicion_anterior[0])<minTraslaciones and fabs(R[1]-posicion_anterior[1])<minTraslaciones and fabs(R[2]-posicion_anterior[2])<minTraslaciones and
-			fabs(R[3]-posicion_anterior[3])<minRotaciones and fabs(R[4]-posicion_anterior[4])<minRotaciones and fabs(R[5]-posicion_anterior[5])<minRotaciones	)
+		if(comprobarBucleChop(listaSubtargets, R)==true)
 		{
-			//posicion_anterior.print("anterior");		R.print("actual");
 			//qDebug()<<"Incrementos muy pequeños, salimos del chop";
 			target.setChopped(false);
-			//target.setAtTarget(true);
+			listaSubtargets.clear();
 		}
 		else
 		{
-			posicion_anterior=R;
-			//Fin añadido
-			
-
+			listaSubtargets.append(R);
 			//Update virtual target in innermodel to chopped postion
 			inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
-		
-			
 			target.setChopped(true);
 			target.setChoppedPose(R);
 			target.setExecuted(false);
 		}
 	}
 	else
+	{
 		target.setChopped(false);
+		listaSubtargets.clear();
+	}
 }
 	
+/**
+ * @brief Método COMPROBAR BUCLE CHOP
+ * Mira si en la lista existe algún target idéntico al nuevo subtarget calculado por el chopPath
+ * o muy parecido a alguno recorriendo la lista y restando elementos hasta que alguno no supere el
+ * umbral de traslaciones y de rotaciones.
+ * @param listaSubtargets lista con todos los subtargets calculados por el chopPath
+ * @param subTarget subtarget nuevo calculado por el chopPath.
+ * 
+ * @return bool
+ */ 
+bool Cinematica_Inversa::comprobarBucleChop(QList< QVec > listaSubtargets, QVec subTarget)
+{
+	//Booleano para detectar patrones y bucles
+	bool subtargetRepetido=false;
+	const float minTraslaciones = 0.0001;
+	const float minRotaciones = 0.001;
+	
+	//Si la lista de subtargets no está vacía hace las comprobaciones
+	if(listaSubtargets.isEmpty()==false)
+	{
+		// Si el nuevo subtarget calculado por el chopPath ya está dentro de la lista, 
+		// levanta la bandera del subtargetRepetido.
+		if(listaSubtargets.contains(subTarget))
+			subtargetRepetido=true;
+		else
+		{
+			// Si no está idéntico, recorremos la lista y vamos comparando con los elementos almacenados. 
+			// Si encuantra alguno parecido al subtarget recién calculado levanta bandera y rompe el bucle.
+			for(int i=0; i<listaSubtargets.size(); i++)
+			{
+				QVec anterior=listaSubtargets.at(i);
+				
+				if(fabs(subTarget[0]-anterior[0])<minTraslaciones and fabs(subTarget[1]-anterior[1])<minTraslaciones and fabs(subTarget[2]-anterior[2])<minTraslaciones and
+				   fabs(subTarget[3]-anterior[3])<minRotaciones   and fabs(subTarget[4]-anterior[4])<minRotaciones   and fabs(subTarget[5]-anterior[5])<minRotaciones)
+				{
+					subtargetRepetido=true; 
+					break;
+				}
+			}
+		}
+	}
+
+	return subtargetRepetido;
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE TRASLACIÓN Y ROTACIÓN									   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 

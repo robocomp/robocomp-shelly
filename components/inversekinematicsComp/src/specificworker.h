@@ -42,36 +42,36 @@
 using namespace std;
 
 /**
-       \brief
+       \brief SpecificWorker. Implementa TODA la funcionalidad del componente.
        @author Un batiburrillo de personas...
+       
 */
-
 
 class SpecificWorker : public GenericWorker
 {
 	Q_OBJECT
 	
 	public:
-		SpecificWorker(MapPrx& mprx, QWidget *parent = 0);	
-		~SpecificWorker();
-		bool setParams(RoboCompCommonBehavior::ParameterList params);
-		void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius);
-		void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis &axis, bool axisConstraint, float axisAngleConstraint);
-		void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist);
-		void  setFingers(float d);
-		void  goHome(const string& part);
-		void  setRobot(const int type) ;
-		TargetState getState(const string &part);
-		void  stop(const string& part);
+		////// CONSTRUCTORES Y DESTRUCTORES ///////
+		SpecificWorker	(MapPrx& mprx, QWidget *parent = 0);	
+		~SpecificWorker	();
+		
+		bool		setParams					(RoboCompCommonBehavior::ParameterList params);
+		void  		setTargetPose6D				(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius);
+		void  		pointAxisTowardsTarget		(const string& bodyPart, const Pose6D& target, const Axis &axis, bool axisConstraint, float axisAngleConstraint);
+		void  		advanceAlongAxis			(const string& bodyPart, const Axis& ax, float dist);
+		void  		setFingers					(float d);
+		void  		goHome						(const string& part);
+		void  		setRobot					(const int type) ;
+		void  		stop						(const string& part);
+		TargetState	getState					(const string &part);
 		
 		
 	public slots:
 		void compute(); 
 
 	private:
-		
-		void init();							// Things to do after params are set
-		
+				
 		//// VARIABLES DE CLASE ////
 		InnerModel *innerModel;								// Para trabajar con el innerModel
 		
@@ -91,6 +91,9 @@ class SpecificWorker : public GenericWorker
 		Cinematica_Inversa *IK_Cabeza;						// Para realizar las operaciones de cinemática inversa para la cabeza
 			
 		ofstream fichero;									// fichero de salida.
+		int	 correlativeID;
+		int	 typeR;
+		RoboCompJointMotor::JointMotorPrx proxy;
 			
 		//Online trajectory generation wit Reflexx
 		//Reflexx *reflexx;
@@ -98,24 +101,25 @@ class SpecificWorker : public GenericWorker
 		//Planner stuff
 		Planner *planner;
 		
+		void init();							// Things to do after params are set
+
+		
 		// MÉTODOS PARA ACTUALIZAR //
-		void actualizarInnermodel(const QStringList &listaJoints);
+		void	 actualizarInnermodel					(const QStringList &listaJoints);
 		
 		// MÉTODOS PARA MOVER COSAS DE LUGAR //
-		void moveRobotPart(QVec angles, const QStringList &listaJoints);
-		void createInnerModelTarget(Target &target);
-		void removeInnerModelTarget(const Target &target);
-		void convertInnerModelFromMilimetersToMeters(InnerModelNode* node);
+		void 	moveRobotPart							(QVec angles, const QStringList &listaJoints);
+		void 	createInnerModelTarget					(Target &target);
+		void 	removeInnerModelTarget					(const Target &target);
+		void 	convertInnerModelFromMilimetersToMeters	(InnerModelNode* node);
 		
 		// MÉTODOS AUXILIARES:
-		float standardRad(float t);
-        void calcularModuloFloat(QVec &angles, float mod);
-        void chopPath(const QString &partName, const Target &target);
-		void doReflexxes(const QList<QVec> &jointValues, const QStringList &motors);
+		float 	standardRad								(float t);
+        void 	calcularModuloFloat						(QVec &angles, float mod);
+        void 	chopPath								(const QString &partName, const Target &target);
+		void 	doReflexxes								(const QList<QVec> &jointValues, const QStringList &motors);
 		
-		int correlativeID;
-		int typeR;
-		RoboCompJointMotor::JointMotorPrx proxy;
+	
 	
 };
 

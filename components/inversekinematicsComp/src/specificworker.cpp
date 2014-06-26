@@ -21,6 +21,13 @@
 #include <qt4/QtCore/QMutexLocker>
 
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+ * 							CONSTRUCTORES Y DESTRUCTORES DE LA CLASE 								*
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+
+/**
+ * @brief Default Constructor
+ */
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
@@ -28,34 +35,57 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mp
 }
 
 /**
- * @brief Method called by the thread Monitor to pass the configuration parmaeters read from the config file
+* \brief Default destructor
+*/
+SpecificWorker::~SpecificWorker()
+{
+	fichero.close();
+}
+
+
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+ * 							MÉTODOS DE INICIALIZACIÓN DE LA CLASE 									*
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
+/**
+ * @brief SET PARAMS
+ * Method called by the thread Monitor to pass the configuration parmaeters read from the config file
+ * TODO Config con la lista de joints de las distintas partes del robot y crear el mapa de las partes
+ * del cuerpo del robot AQUÍ.
  * 
  * @param params ...
  * @return bool
  */
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+// 	try
+// 	{
+// 		RoboCompCommonBehavior::Parameter par = params.at("LEFTARM") ;
+// 		
+// 		qFatal("FARY");
+// 		
+// 	}catch(std::exception e) {qFatal("Error al leer la cadena de motores");	}
+// 	
+	
 	try
 	{
+		// Leemos donde está el InnerModel. Si existe cargamos el InnerModel en nuestra variable de clase
+		// y convertimos los milímitros en metros. Si no existe lanzamos mensage de error y salimos.
 		RoboCompCommonBehavior::Parameter par = params.at("BIK.InnerModel") ;
 		if( QFile(QString::fromStdString(par.value)).exists() == true)
 		{
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
 			convertInnerModelFromMilimetersToMeters(innerModel->getRoot());
-			
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;		
 		}
 		else
-		{	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
+		{	
+			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
 			qFatal("Exiting now.");
 		}
-	}
-	catch(std::exception e)
-	{
-		qFatal("Error reading config params");
-	}
+	}catch(std::exception e) {qFatal("Error reading config params");	}
 	
+
 	//timer.start(Period);
 	init();
 	timer.start(50);
@@ -70,14 +100,12 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow"
-			    << "leftForeArm" << "leftWrist1" << "leftWrist2";
-	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"
-			  << "rightForeArm" << "rightWrist1" << "rightWrist2";
-	listaCabeza << "head1" << "head2" << "head3";
-	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm"
-		     << "rightWrist1" <<"rightWrist2" << "leftShoulder1" << "leftShoulder2" << "leftShoulder3"
-		     << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"<< "base" << "head1" << "head2" << "head3";
+	listaBrazoIzquierdo	<< "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2";
+	listaBrazoDerecho 	<< "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"<< "rightForeArm" << "rightWrist1" << "rightWrist2";
+	listaCabeza 		<< "head1" << "head2" << "head3";
+	listaMotores 		<< "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2"
+						<< "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"<< "rightForeArm" << "rightWrist1" << "rightWrist2"
+						<< "base" << "head1" << "head2" << "head3";
 	
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
@@ -168,15 +196,11 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 }		
 
 
-/**
-* \brief Default destructor
-*/
-SpecificWorker::~SpecificWorker()
-{
-	fichero.close();
-}
 
 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+ * 										SLOTS DE LA CLASE											*
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 void SpecificWorker::compute( )				
 {
 		QMap<QString, BodyPart>::iterator iterador;
