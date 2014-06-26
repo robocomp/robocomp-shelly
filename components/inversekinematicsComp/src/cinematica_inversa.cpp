@@ -261,7 +261,7 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
  	{
 		if(motores[j] == 0)
 		{
-			// TRASLACIONES: con respecto al último NO traslada
+/*			// TRASLACIONES: con respecto al último NO traslada
 			QVec axisTip = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
 			axisTip = this->inner->transform(this->listaJoints.last(), axisTip, linkName);
 			QVec axisBase = this->inner->transform(this->listaJoints.last(), zero, linkName);
@@ -281,7 +281,39 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			
 			jacob(3,j) = axis2.x(); 
 			jacob(4,j) = axis2.y();
-			jacob(5,j) = axis2.z();	
+			jacob(5,j) = axis2.z();*/	
+			
+			
+			
+			QString frameBase;
+			//frameBase = "sensor_transform2";
+			frameBase = this->listaJoints.last();
+						
+			// TRASLACIONES: con respecto al último NO traslada
+			QVec axisTip = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
+			axisTip = this->inner->transform(frameBase, axisTip, linkName);
+			QVec axisBase = this->inner->transform(frameBase, zero, linkName);
+			QVec axis = axisBase - axisTip;
+			QVec toEffector = (axisBase - this->inner->transform(frameBase, zero, this->endEffector) );		
+			QVec res = toEffector.crossProduct(axis);
+
+			jacob(0,j) = res.x();
+			jacob(1,j) = res.y();
+			jacob(2,j) = res.z();
+			
+			// ROTACIONES
+			QVec axisTip2 = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios en el que gira
+			axisTip2 = this->inner->transform(frameBase, axisTip2, linkName); //vector de giro pasado al hombro.
+			QVec axisBase2 = this->inner->transform(frameBase, zero, linkName); //motor al hombro
+			QVec axis2 = axisBase2 - axisTip2; //vector desde el eje de giro en el sist. hombro, hasta la punta del eje de giro en el sist. hombro. 
+			
+			jacob(3,j) = axis2.x(); 
+			jacob(4,j) = axis2.y();
+			jacob(5,j) = axis2.z();
+			
+			
+			
+			
 		}
  		j++;
  	}
@@ -335,34 +367,72 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		
 		//---> PRUEBAS
 		
-		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
-		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
-		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
+// 		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
+// 		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
+// 		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
+// 		
+// 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
+// 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
+// 		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
+// 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
+// 		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+// 		// 3) Calculamos el error de rotación entre el target y el tip:
+// 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
+// 		// 4) Pasamos los errores de rotación al last joint.
+// 		QVec anglesRot = matTipInLastJoint * targetRInTip;
+// 		
+// 		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
+// 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
+// 		
+// 		QVec secondRot = matTipInLastJoint * QVec::vec3(0,targetRInTip[1],0);
+// 		Rot3D matSecondRot(secondRot[0], secondRot[1], secondRot[2]);
+// 		
+// 		QVec thirdRot = matTipInLastJoint * QVec::vec3(0,0,targetRInTip[2]);
+// 		Rot3D matThirdRot(thirdRot[0], thirdRot[1], thirdRot[2]);
+// 		
+// 		QMat matResulInLastJoint =  (matFirtRot * matSecondRot) * matThirdRot;
+// 		QVec errorRInLastJoint = matResulInLastJoint.extractAnglesR_min();
+// 	
+// 		errorTotal.inject(errorTInLastJoint,0);
+// 		errorTotal.inject(errorRInLastJoint, 3);
+		
+		
+		QString frameBase; // Frame where the errors will be referred
+		//frameBase = "sensor_transform2";
+		frameBase = this->listaJoints.last();
+		
+		QVec targetTInFrameBase = inner->transform(frameBase, QVec::zeros(3), target.getNameInInnerModel());	
+		QVec tipTInFrameBase = inner->transform(frameBase, QVec::zeros(3), this->endEffector);			
+		QVec errorTInFrameBase = targetTInFrameBase - tipTInFrameBase;
 		
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
 		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
-		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+		QMat matTipInFrameBase = inner->getRotationMatrixTo(frameBase, this->endEffector);
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
 		// 4) Pasamos los errores de rotación al last joint.
-		QVec anglesRot = matTipInLastJoint * targetRInTip;
+		QVec anglesRot = matTipInFrameBase * targetRInTip;
 		
-		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
+		QVec firstRot = matTipInFrameBase * QVec::vec3(targetRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
 		
-		QVec secondRot = matTipInLastJoint * QVec::vec3(0,targetRInTip[1],0);
+		QVec secondRot = matTipInFrameBase * QVec::vec3(0,targetRInTip[1],0);
 		Rot3D matSecondRot(secondRot[0], secondRot[1], secondRot[2]);
 		
-		QVec thirdRot = matTipInLastJoint * QVec::vec3(0,0,targetRInTip[2]);
+		QVec thirdRot = matTipInFrameBase * QVec::vec3(0,0,targetRInTip[2]);
 		Rot3D matThirdRot(thirdRot[0], thirdRot[1], thirdRot[2]);
 		
-		QMat matResulInLastJoint =  (matFirtRot * matSecondRot) * matThirdRot;
-		QVec errorRInLastJoint = matResulInLastJoint.extractAnglesR_min();
+		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
+		QVec errorRInFrameBase = matResulInFrameBase.extractAnglesR_min();
 	
-		errorTotal.inject(errorTInLastJoint,0);
-		errorTotal.inject(errorRInLastJoint, 3);
+		errorTotal.inject(errorTInFrameBase,0);
+		errorTotal.inject(errorRInFrameBase, 3);
+		
+		
+		
+		
 	}
 	
 	if(target.getType() == Target::ALIGNAXIS)
