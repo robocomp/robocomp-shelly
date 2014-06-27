@@ -127,31 +127,20 @@ void Cinematica_Inversa::resolverTarget(Target& target)
  */
 void Cinematica_Inversa::chopPath(Target &target)
 {	
-	static QVec posicion_anterior (6);
-	posicion_anterior.print("Posicion anterior");
-	const float minTraslaciones = 0.0001;
-	const float minRotaciones = 0.001;
+	const float step = 0.1;
+	static QList<QVec> listaSubtargets;
+	QVec targetTotal(6);
 	
 	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese target	
-  QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
-  QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
-  QVec targetTotal(6);
-  targetTotal.inject(targetTInTip,0);
-  targetTotal.inject(targetRInTip,3);
+	QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
+	QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
+	targetTotal.inject(targetTInTip,0);
+	targetTotal.inject(targetRInTip,3);
 	
-	const float step = 0.1;
-	
-	(QMat::makeDiagonal(target.getWeights()) * targetTotal).print("targetTotal");
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
-	//qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
-	
-// 	if( targetTInTip.norm2() < target.getRadius() )
-// 		target.setAtTarget(true);
-/*	else*/ 
 	
 	if( dist > step)  
 	{
-		//qDebug() << "entering CHOP" << dist;
 		int nPuntos = floor(dist / step);
 		T landa = 1./nPuntos;
 		QVec R(6);
@@ -162,7 +151,6 @@ void Cinematica_Inversa::chopPath(Target &target)
 		
 		
 		// Añadido por Mercedes y Agustín 		
-		
 		// Target visto desde end effector
 		QVec R2(6);
 		R2 = (targetTotal * (T)(landa));	
@@ -176,33 +164,74 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R.inject(matResul.extractAnglesR_min(),3);
 		qDebug() << "P" << P << " Rnueva" << R;
 		
-		if(fabs(R[0]-posicion_anterior[0])<minTraslaciones and fabs(R[1]-posicion_anterior[1])<minTraslaciones and fabs(R[2]-posicion_anterior[2])<minTraslaciones and
-			fabs(R[3]-posicion_anterior[3])<minRotaciones and fabs(R[4]-posicion_anterior[4])<minRotaciones and fabs(R[5]-posicion_anterior[5])<minRotaciones	)
+		if(comprobarBucleChop(listaSubtargets, R)==true)
 		{
-			//posicion_anterior.print("anterior");		R.print("actual");
 			//qDebug()<<"Incrementos muy pequeños, salimos del chop";
 			target.setChopped(false);
-			//target.setAtTarget(true);
+			listaSubtargets.clear();
 		}
 		else
 		{
-			posicion_anterior=R;
-			//Fin añadido
-			
-
+			listaSubtargets.append(R);
 			//Update virtual target in innermodel to chopped postion
 			inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
-		
-			
 			target.setChopped(true);
 			target.setChoppedPose(R);
 			target.setExecuted(false);
 		}
 	}
 	else
+	{
 		target.setChopped(false);
+		listaSubtargets.clear();
+	}
 }
 	
+/**
+ * @brief Método COMPROBAR BUCLE CHOP
+ * Mira si en la lista existe algún target idéntico al nuevo subtarget calculado por el chopPath
+ * o muy parecido a alguno recorriendo la lista y restando elementos hasta que alguno no supere el
+ * umbral de traslaciones y de rotaciones.
+ * @param listaSubtargets lista con todos los subtargets calculados por el chopPath
+ * @param subTarget subtarget nuevo calculado por el chopPath.
+ * 
+ * @return bool
+ */ 
+bool Cinematica_Inversa::comprobarBucleChop(QList< QVec > listaSubtargets, QVec subTarget)
+{
+	//Booleano para detectar patrones y bucles
+	bool subtargetRepetido=false;
+	const float minTraslaciones = 0.0001;
+	const float minRotaciones = 0.001;
+	
+	//Si la lista de subtargets no está vacía hace las comprobaciones
+	if(listaSubtargets.isEmpty()==false)
+	{
+		// Si el nuevo subtarget calculado por el chopPath ya está dentro de la lista, 
+		// levanta la bandera del subtargetRepetido.
+		if(listaSubtargets.contains(subTarget))
+			subtargetRepetido=true;
+		else
+		{
+			// Si no está idéntico, recorremos la lista y vamos comparando con los elementos almacenados. 
+			// Si encuantra alguno parecido al subtarget recién calculado levanta bandera y rompe el bucle.
+			for(int i=0; i<listaSubtargets.size(); i++)
+			{
+				QVec anterior=listaSubtargets.at(i);
+				
+				if(fabs(subTarget[0]-anterior[0])<minTraslaciones and fabs(subTarget[1]-anterior[1])<minTraslaciones and fabs(subTarget[2]-anterior[2])<minTraslaciones and
+				   fabs(subTarget[3]-anterior[3])<minRotaciones   and fabs(subTarget[4]-anterior[4])<minRotaciones   and fabs(subTarget[5]-anterior[5])<minRotaciones)
+				{
+					subtargetRepetido=true; 
+					break;
+				}
+			}
+		}
+	}
+
+	return subtargetRepetido;
+}
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE TRASLACIÓN Y ROTACIÓN									   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
@@ -232,7 +261,7 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
  	{
 		if(motores[j] == 0)
 		{
-			// TRASLACIONES: con respecto al último NO traslada
+/*			// TRASLACIONES: con respecto al último NO traslada
 			QVec axisTip = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
 			axisTip = this->inner->transform(this->listaJoints.last(), axisTip, linkName);
 			QVec axisBase = this->inner->transform(this->listaJoints.last(), zero, linkName);
@@ -252,7 +281,39 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			
 			jacob(3,j) = axis2.x(); 
 			jacob(4,j) = axis2.y();
-			jacob(5,j) = axis2.z();	
+			jacob(5,j) = axis2.z();*/	
+			
+			
+			
+			QString frameBase;
+			//frameBase = "sensor_transform2";
+			frameBase = this->listaJoints.last();
+						
+			// TRASLACIONES: con respecto al último NO traslada
+			QVec axisTip = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
+			axisTip = this->inner->transform(frameBase, axisTip, linkName);
+			QVec axisBase = this->inner->transform(frameBase, zero, linkName);
+			QVec axis = axisBase - axisTip;
+			QVec toEffector = (axisBase - this->inner->transform(frameBase, zero, this->endEffector) );		
+			QVec res = toEffector.crossProduct(axis);
+
+			jacob(0,j) = res.x();
+			jacob(1,j) = res.y();
+			jacob(2,j) = res.z();
+			
+			// ROTACIONES
+			QVec axisTip2 = this->inner->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios en el que gira
+			axisTip2 = this->inner->transform(frameBase, axisTip2, linkName); //vector de giro pasado al hombro.
+			QVec axisBase2 = this->inner->transform(frameBase, zero, linkName); //motor al hombro
+			QVec axis2 = axisBase2 - axisTip2; //vector desde el eje de giro en el sist. hombro, hasta la punta del eje de giro en el sist. hombro. 
+			
+			jacob(3,j) = axis2.x(); 
+			jacob(4,j) = axis2.y();
+			jacob(5,j) = axis2.z();
+			
+			
+			
+			
 		}
  		j++;
  	}
@@ -306,34 +367,72 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		
 		//---> PRUEBAS
 		
-		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
-		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
-		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
+// 		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
+// 		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
+// 		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
+// 		
+// 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
+// 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
+// 		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
+// 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
+// 		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+// 		// 3) Calculamos el error de rotación entre el target y el tip:
+// 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
+// 		// 4) Pasamos los errores de rotación al last joint.
+// 		QVec anglesRot = matTipInLastJoint * targetRInTip;
+// 		
+// 		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
+// 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
+// 		
+// 		QVec secondRot = matTipInLastJoint * QVec::vec3(0,targetRInTip[1],0);
+// 		Rot3D matSecondRot(secondRot[0], secondRot[1], secondRot[2]);
+// 		
+// 		QVec thirdRot = matTipInLastJoint * QVec::vec3(0,0,targetRInTip[2]);
+// 		Rot3D matThirdRot(thirdRot[0], thirdRot[1], thirdRot[2]);
+// 		
+// 		QMat matResulInLastJoint =  (matFirtRot * matSecondRot) * matThirdRot;
+// 		QVec errorRInLastJoint = matResulInLastJoint.extractAnglesR_min();
+// 	
+// 		errorTotal.inject(errorTInLastJoint,0);
+// 		errorTotal.inject(errorRInLastJoint, 3);
+		
+		
+		QString frameBase; // Frame where the errors will be referred
+		//frameBase = "sensor_transform2";
+		frameBase = this->listaJoints.last();
+		
+		QVec targetTInFrameBase = inner->transform(frameBase, QVec::zeros(3), target.getNameInInnerModel());	
+		QVec tipTInFrameBase = inner->transform(frameBase, QVec::zeros(3), this->endEffector);			
+		QVec errorTInFrameBase = targetTInFrameBase - tipTInFrameBase;
 		
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
 		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
-		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+		QMat matTipInFrameBase = inner->getRotationMatrixTo(frameBase, this->endEffector);
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
 		// 4) Pasamos los errores de rotación al last joint.
-		QVec anglesRot = matTipInLastJoint * targetRInTip;
+		QVec anglesRot = matTipInFrameBase * targetRInTip;
 		
-		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
+		QVec firstRot = matTipInFrameBase * QVec::vec3(targetRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
 		
-		QVec secondRot = matTipInLastJoint * QVec::vec3(0,targetRInTip[1],0);
+		QVec secondRot = matTipInFrameBase * QVec::vec3(0,targetRInTip[1],0);
 		Rot3D matSecondRot(secondRot[0], secondRot[1], secondRot[2]);
 		
-		QVec thirdRot = matTipInLastJoint * QVec::vec3(0,0,targetRInTip[2]);
+		QVec thirdRot = matTipInFrameBase * QVec::vec3(0,0,targetRInTip[2]);
 		Rot3D matThirdRot(thirdRot[0], thirdRot[1], thirdRot[2]);
 		
-		QMat matResulInLastJoint =  (matFirtRot * matSecondRot) * matThirdRot;
-		QVec errorRInLastJoint = matResulInLastJoint.extractAnglesR_min();
+		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
+		QVec errorRInFrameBase = matResulInFrameBase.extractAnglesR_min();
 	
-		errorTotal.inject(errorTInLastJoint,0);
-		errorTotal.inject(errorRInLastJoint, 3);
+		errorTotal.inject(errorTInFrameBase,0);
+		errorTotal.inject(errorRInFrameBase, 3);
+		
+		
+		
+		
 	}
 	
 	if(target.getType() == Target::ALIGNAXIS)

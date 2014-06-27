@@ -57,7 +57,6 @@ public:
 	
 	///// MÉTODOS PÚBLICOS /////
 	void resolverTarget( Target &target);			// Fija el punto objetivo.
-	float devolverError();
 	
 private:
 	
@@ -76,6 +75,7 @@ private:
 	void levenbergMarquardt(Target &target);		// algoritmo de Levenberg-Marquart completo.
 	void levenbergMarquardt2(Target &target); //alternative implementaiton
 	void chopPath(Target &target);
+	bool comprobarBucleChop(QList<QVec> listaSubtargets, QVec subTarget);
 	//_-----------------------------------------------------------------------------
 	
 	// DE CÁLCULO.....
