@@ -259,39 +259,48 @@ void Cinematica_Inversa::chopPath(Target &target)
  */
 
 /**
- * @brief Método COMPROBAR BUCLE CHOP. (EN PRUEBAS)
- * Se encarga de buscar patrones repetidos en la lista de subtargets que crea el chop. En cuanto
- * encuentre un patrón repetido, devuelve TRUE y detiene el chop.
- * 
- * @param listaSubtargets lista con los subtargets calculados por el chop
+ * @brief Método COMPROBAR BUCLE CHOP
+ * Mira si en la lista existe algún target idéntico al nuevo subtarget calculado por el chopPath
+ * o muy parecido a alguno recorriendo la lista y restando elementos hasta que alguno no supere el
+ * umbral de traslaciones y de rotaciones.
+ * @param listaSubtargets lista con todos los subtargets calculados por el chopPath
+ * @param subTarget subtarget nuevo calculado por el chopPath.
  * 
  * @return bool
- */
-bool Cinematica_Inversa::comprobarBucleChop(QList<QVec> listaSubtargets, QVec subtarget)
+ */ 
+bool Cinematica_Inversa::comprobarBucleChop(QList< QVec > listaSubtargets, QVec subTarget)
 {
-	bool patronRepetido = false;
-		
+	//Booleano para detectar patrones y bucles
+	bool subtargetRepetido=false;
+	const float minTraslaciones = 0.0001;
+	const float minRotaciones = 0.001;
+	
+	//Si la lista de subtargets no está vacía hace las comprobaciones
 	if(listaSubtargets.isEmpty()==false)
 	{
-		// Si el último elemento y éste nuevo son iguales entonces el patrón se repite:
-		if(listaSubtargets.last()==subtarget)
-			patronRepetido=true;
-		
-		// Si no está repetido con el último, tenemos que buscar en la lista un subtarget 
-		// igual al nuevo subtarget. Una vez encontrado debemos mirar si los subtargets anteriores
-		// a él hacen algún patrón repetido
-		else if(listaSubtargets.contains(subtarget))
+		// Si el nuevo subtarget calculado por el chopPath ya está dentro de la lista, 
+		// levanta la bandera del subtargetRepetido.
+		if(listaSubtargets.contains(subTarget))
+			subtargetRepetido=true;
+		else
 		{
-			int index = listaSubtargets.indexOf(subtarget);
-
-			if(index>0)
-			{	
-				if(listaSubtargets.at(index-1)==listaSubtargets.last())
-					patronRepetido=true;
+			// Si no está idéntico, recorremos la lista y vamos comparando con los elementos almacenados. 
+			// Si encuantra alguno parecido al subtarget recién calculado levanta bandera y rompe el bucle.
+			for(int i=0; i<listaSubtargets.size(); i++)
+			{
+				QVec anterior=listaSubtargets.at(i);
+				
+				if(fabs(subTarget[0]-anterior[0])<minTraslaciones and fabs(subTarget[1]-anterior[1])<minTraslaciones and fabs(subTarget[2]-anterior[2])<minTraslaciones and
+				   fabs(subTarget[3]-anterior[3])<minRotaciones   and fabs(subTarget[4]-anterior[4])<minRotaciones   and fabs(subTarget[5]-anterior[5])<minRotaciones)
+				{
+					subtargetRepetido=true; 
+					break;
+				}
 			}
 		}
 	}
-	return patronRepetido;
+
+	return subtargetRepetido;
 }
 
 	
