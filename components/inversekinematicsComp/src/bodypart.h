@@ -62,6 +62,9 @@ class BodyPart
 		void removeHeadFromTargets()							{ if (listaTargets.size() > 0) listaTargets.dequeue();}; // Elimina el primer target de la cola de targets
 		bool noTargets() const									{ return listaTargets.isEmpty();};
 		void markForRemoval()									{ for( int i=0; i<listaTargets.size(); i++) listaTargets[i].markForRemoval(true);};
+		void addJointStep(const QVec &joints)					{ jointStepList.append(joints);};
+		QList<QVec> getJointStepList() const 					{ return jointStepList;};
+		void cleanJointStep()									{ jointStepList.clear();};
 		
 		
 	private:
@@ -71,6 +74,7 @@ class BodyPart
 		Cinematica_Inversa *ik;											// Puntero a la cinemática inversa de esa parte del cuerpo
 		InnerModel *inner;												// POR AHORA INÚTIL.
 		QQueue<Target> listaTargets;									// Lista de targets para esa parte del cuerpo.
+		QList<QVec> jointStepList;										// List of 
 };
 
 

@@ -63,7 +63,7 @@
 
 // ICE includes
 #include <Ice/Ice.h>
-
+#include <IceStorm/IceStorm.h>
 #include <Ice/Application.h>
 
 #include <rapplication/rapplication.h>
@@ -76,6 +76,7 @@
 #include "specificworker.h"
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
+#include <apriltagsI.h>
 
 // Includes for remote proxy example
 // #include <Remote.h>
@@ -90,6 +91,7 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
+using namespace RoboCompAprilTags;
 using namespace RoboCompInnerModelManager;
 using namespace RoboCompJointMotor;
 using namespace RoboCompBodyInverseKinematics;
@@ -113,6 +115,7 @@ void LokiArmTesterComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int LokiArmTesterComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
@@ -188,6 +191,8 @@ BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 	}
 	rInfo("BodyInverseKinematicsProxy initialized Ok!");
 	mprx["BodyInverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&bodyinversekinematics_proxy);
+	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	
 	
 	GenericWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread
@@ -206,6 +211,27 @@ BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
 		adapterCommonBehavior->activate();
 		// Server adapter creation and publication
+    	Ice::ObjectAdapterPtr AprilTags_adapter = communicator()->createObjectAdapter("AprilTagsTopic");
+    	AprilTagsPtr apriltagsI_ = new AprilTagsI(worker);
+    	Ice::ObjectPrx apriltags_proxy = AprilTags_adapter->addWithUUID(apriltagsI_)->ice_oneway();
+    	IceStorm::TopicPrx apriltags_topic;
+    	if(!apriltags_topic){
+	    	try {
+	    		apriltags_topic = topicManager->create("AprilTags");
+	    	}
+	    	catch (const IceStorm::TopicExists&) {
+	    	  	//Another client created the topic
+	    	  	try{
+	       			apriltags_topic = topicManager->retrieve("AprilTags");
+	    	  	}catch(const IceStorm::NoSuchTopic&){
+	    	  	  	//Error. Topic does not exist
+				}
+	    	}
+	    	IceStorm::QoS qos;
+	      	apriltags_topic->subscribeAndGetPublisher(qos, apriltags_proxy);
+    	}
+    	AprilTags_adapter->activate();
+    	// Server adapter creation and publication
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )

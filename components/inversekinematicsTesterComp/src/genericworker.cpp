@@ -22,7 +22,7 @@
 */
 GenericWorker::GenericWorker(MapPrx& mprx) :
 #ifdef USE_QTGUI
-Ui_Form()
+Ui_guiDlg()
 #else
 QObject()
 #endif
@@ -33,10 +33,10 @@ QObject()
 	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
 
 	mutex = new QMutex();
-#ifdef USE_QTGUI
-this->setupUi(this);
-show();
-#endif
+	#ifdef USE_QTGUI
+		setupUi(this);
+		show();
+	#endif
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 }

@@ -118,6 +118,9 @@ void SpecificWorker::init()
 // 		qFatal("Path NOT found");
 // 	QList<QVec> path = planner->getPath();
 	
+	//Online trajectory generaration with Reflexxes
+	
+	
 	qDebug();
 	qDebug() << "---------------------------------";
 	qDebug() << "BodyInverseKinematics --> Waiting for requests!";
@@ -174,7 +177,7 @@ SpecificWorker::~SpecificWorker()
 }
 
 
-void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
+void SpecificWorker::compute( )				
 {
 		QMap<QString, BodyPart>::iterator iterador;
 		for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
@@ -194,6 +197,8 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
 					{
 						moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+						//Acumulamos los angulos en una lista en bodyPart para lanzarlos con Reflexx
+						iterador.value().addJointStep(target.getFinalAngles());
 						usleep(100000);
 						target.setExecuted(true);
 					}
@@ -206,16 +211,33 @@ void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE 
 					removeInnerModelTarget(target);
 					target.print("AFTER PROCESSING");
 				}
+				if( target.isChopped() == false)
+				{
+					doReflexxes( iterador.value().getJointStepList(), iterador.value().getMotorList());
+				}
 				if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 				{
 						mutex->lock();	
  							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelt
+							iterador.value().cleanJointStep();
 						mutex->unlock();
-				}									
+				}	
+				
 	
 			}
 		}
 	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
+}
+
+
+void SpecificWorker::doReflexxes( const QList<QVec> &jointValues, const QStringList &motors )
+{
+	Reflexx *reflexx = new Reflexx(proxy, jointValues, motors);
+	//reflexx->updateMotorState(motors);
+	//reflexx->setSyncPosition( listGoals );
+	reflexx->start();
+	qDebug() << __FUNCTION__ << "Waiting for Reflexx...";
+	reflexx->wait(5000);
 }
 
 /**
