@@ -85,7 +85,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>6</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -642,6 +642,20 @@
                     <widget class="QLabel" name="label17">
                      <property name="text">
                       <string>Others Trajectories</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="esfera">
+                     <property name="text">
+                      <string>Puntos Esfera</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="cubo">
+                     <property name="text">
+                      <string>Puntos Cubo</string>
                      </property>
                     </widget>
                    </item>
