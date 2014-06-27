@@ -646,9 +646,16 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="matlab">
+                    <widget class="QPushButton" name="esfera">
                      <property name="text">
-                      <string>Esfera en efector</string>
+                      <string>Puntos Esfera</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
+                    <widget class="QPushButton" name="cubo">
+                     <property name="text">
+                      <string>Puntos Cubo</string>
                      </property>
                     </widget>
                    </item>
