@@ -43,7 +43,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
 	connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 	
-	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(sendPartToAprilTarget()));
+	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
 	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 
@@ -781,7 +781,7 @@ void SpecificWorker::actualizarInnerModel()
 
 		for(uint j=0; j<motorList.size(); j++)
 		{
-			printf("%s\n", motorList[j].c_str());
+			//printf("%s\n", motorList[j].c_str());
 			innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
 		}
 		printf("%s %d\n", __FILE__, __LINE__);
@@ -1338,14 +1338,23 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
  	for(uint i=0; i<tags.size(); i++)
  	{
  		//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
-		mutex->lock();
-			marcaApril[0] = tags[0].tx; marcaApril[1] = tags[0].ty; marcaApril[2] = tags[0].tz; marcaApril[3] = tags[0].rx; marcaApril[4] = tags[0].ry; marcaApril[5] = tags[0].rz;    
-		mutex->unlock();
+		if( tags[i].id == 2 )  //Taza
+		{
+			mutex->lock();
+				marcaApril[0] = tags[0].tx; marcaApril[1] = tags[0].ty; marcaApril[2] = tags[0].tz; marcaApril[3] = tags[0].rx; marcaApril[4] = tags[0].ry; marcaApril[5] = tags[0].rz;    
+			mutex->unlock();
+		}
+		if( tags[i].id == 10 )  //Mano
+		{
+			mutex->lock();
+				manoApril[0] = tags[0].tx; manoApril[1] = tags[0].ty; manoApril[2] = tags[0].tz; manoApril[3] = tags[0].rx; manoApril[4] = tags[0].ry; manoApril[5] = tags[0].rz;    
+			mutex->unlock();
+		}
  	}
 }
 
 
-void SpecificWorker::sendPartToAprilTarget()
+void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 {
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
@@ -1356,6 +1365,9 @@ void SpecificWorker::sendPartToAprilTarget()
 	mutex->unlock();
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	
+	marcaTInWorld[0] += xoffset;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
+	
 	//QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
 	QVec marcaRInWorld = QVec::vec3(3.15,-1.57,0);
 	QVec marcaInWorld(6);
@@ -1371,6 +1383,33 @@ void SpecificWorker::sendPartToAprilTarget()
 
 void SpecificWorker::finePartToAprilTarget()
 {
-
-
+	//Here we should have both apriltags on sight
+	// The target and the grabPositionHandL
+	
+	//Now we want to tell BIK to change its endEffector to manoApril once transformed to the current endEffector reference system	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("handInCamera", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	
+	mutex->lock();
+		innerModel->updateTransformValues("marca",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz(), "rgbd");	
+	mutex->unlock();
+	
+	QVec manoTInEndEffector = innerModel->transform("grabPositionHandR", QVec::zeros(3), "handInCamera");
+	QVec manoRInEndEffector = innerModel->getRotationMatrixTo("grabPositionHandR","handInCamera").extractAnglesR_min();
+	QVec manoInEndEffector(6);
+	manoInEndEffector.inject(manoTInEndEffector,0);
+	manoInEndEffector.inject(manoRInEndEffector,3);  //This is the 6D pose from current endEffector to mano apriltags
+	//We send now to BIK the new endEffector pose
+	try 
+	{
+		//bodyinversekinematics_proxy->setNewEndEffectorRelativeToCurrentEndEffector(part, "visualGrabPositionHandR", Pose6D);
+	} catch (exception) 
+	{
+		
+	}
+	
+	//And finally, we tell BIK to move the new endEffector to marcaApril, already in rgbd reference frame
+	// ballisticPartToAprilTarget(0);
 }
+

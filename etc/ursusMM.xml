@@ -179,7 +179,7 @@
 																					<plane id="zwr2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																				</transform>-->
 
-																				<plane id="handMesh1" pz="60" py="-20" ny="1" size="85,80,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
+																				<plane id="handMesh1" pz="60" py="-20" ny="1" size="85,80,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-10.png" />
 
 																				<transform id="arm_right_8" tx="20" tz="95" >
 					<!-- 																Gira en Y -->

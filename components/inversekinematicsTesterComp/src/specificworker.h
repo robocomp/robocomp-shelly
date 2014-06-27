@@ -87,7 +87,7 @@ public slots:
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
 
-	void sendPartToAprilTarget();
+	void ballisticPartToAprilTarget(int xoffset = 200);
 	void finePartToAprilTarget();
 private:
 
@@ -108,6 +108,7 @@ private:
 	int tabIndex;										//Index of current tabIndex	
 
 	QVec marcaApril;
+	QVec manoApril;
 		
 	// MÉTODOS
 	void moverTargetEnRCIS(const QVec &pose);
