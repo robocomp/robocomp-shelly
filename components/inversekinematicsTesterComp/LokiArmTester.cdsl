@@ -9,6 +9,6 @@ Component LokiArmTesterComp
 		requires BodyInverseKinematics, InnerModelManager, JointMotor;
 		subscribesTo AprilTags;
 	};
-	gui Qt(QWidget);
+	gui Qt(QDialog);
 	language Cpp;
 };

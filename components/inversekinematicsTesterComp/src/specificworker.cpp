@@ -41,6 +41,10 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
 	connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 	
+	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(sendPartToAprilTarget()));
+	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
+	
+	
 	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 	
 	//Conectamos botones de la primera pestaña POSE6D:
@@ -711,7 +715,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 		//colocamos el target en el RCIS. HAY QUE PASAR A METROS LAS TRASLACIONES
 		//poseMetros[0] = p[0]/1000; 	poseMetros[1]=p[1]/1000; 	poseMetros[2]=p[2]/1000;
 		//poseMetros[0] = p[0]; 	poseMetros[1]=p[1]; 	poseMetros[2]=p[2];   //POSE A RCIS EN mm
-		moverTargetEnRCIS(p); 
+		
+		//moverTargetEnRCIS(p); 
 			
 		//Creamos la pose6D para pasárselo al componente lokiArm (pasamos MILÍMETROS)
 		pose6D.x = p[0];     pose6D.y = p[1];     pose6D.z = p[2];
@@ -727,8 +732,10 @@ void SpecificWorker::enviarPose6D(QVec p)
 		if(wRX->isChecked()) pesos[3] = 1;	if(wRY->isChecked()) pesos[4] = 1;	if(wRZ->isChecked()) pesos[5] = 1; //ROTACIONES
 			
 		//Creamos la variable del tipo weightvector para pasarselo al componente lokiArm
-		weights.x = pesos[0];		weights.y = pesos[1];		weights.z = pesos[2];    
+		weights.x = pesos[0];		weights.y = pesos[1];		weights.z = pesos[2];  
+		
 		weights.rx = pesos[3];		weights.ry = pesos[4];		weights.rz = pesos[5];
+   	//weights.rx = 1;		weights.ry = 0;		weights.rz = 1;
    	
 		//Sacamos la/s parte/s del cuerpo a la que va destinado el target y las encolamos para
 		//luego ir sacándolas en un bucle. También obtenemos el tipo de target
@@ -1179,6 +1186,48 @@ void SpecificWorker::izquierdoOfrecer()
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN IZQUIERDO OFRECER: "<<ex<<endl;}
 }
 
+/// SUBSCRIBED METHOD FROM APRILTAGS
 
+void SpecificWorker::newAprilTag(const tagsList& tags)
+{
+	marcaApril = QVec::zeros(6);
+ 	for(uint i=0; i<tags.size(); i++)
+ 	{
+ 		//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
+		mutex->lock();
+			marcaApril[0] = tags[0].tx; marcaApril[1] = tags[0].ty; marcaApril[2] = tags[0].tz; marcaApril[3] = tags[0].rx; marcaApril[4] = tags[0].ry; marcaApril[5] = tags[0].rz;    
+		mutex->unlock();
+ 	}
+}
+
+
+void SpecificWorker::sendPartToAprilTarget()
+{
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	
+	mutex->lock();
+		innerModel->updateTransformValues("marca",marcaApril.x(), marcaApril.y(), marcaApril.z(), marcaApril.rx(), marcaApril.ry(), marcaApril.rz(), "rgbd");	
+	mutex->unlock();
+	
+	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	//QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
+	QVec marcaRInWorld = QVec::vec3(3.15,-1.57,0);
+	QVec marcaInWorld(6);
+
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+	enviarPose6D( marcaInWorld );
+	qDebug() << "Sent to target" << marcaInWorld;
+	
+	innerModel->removeNode("marca");
+}
+
+
+void SpecificWorker::finePartToAprilTarget()
+{
+
+}
 
 

@@ -49,6 +49,7 @@ public:
 	SpecificWorker(MapPrx& mprx);	
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
+	void  newAprilTag(const tagsList& tags);
 
 public slots:
 	
@@ -83,6 +84,8 @@ public slots:
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
 
+	void sendPartToAprilTarget();
+	void finePartToAprilTarget();
 	
 private:
 	
@@ -100,6 +103,7 @@ private:
 	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
 	QString tabName;									//Name of current tab
 	int tabIndex;										//Index of current tabIndex	
+	QVec marcaApril;
 		
 	// MÉTODOS
 	void moverTargetEnRCIS(const QVec &pose);
@@ -108,6 +112,7 @@ private:
 	void moveAlongAxis();
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
+	
 	
 };
 

@@ -101,12 +101,12 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 			// Si hemos salido nada más ejecutar el target por incrementos pequeños volvemos a ejecutar el target
 			// cambiando la matriz de pesos. LM devuelve lowIncrementFirst a true si hay incrementos pequeños e 
 			// incrementa en una unidad fisrtTime, que entra a cero, sale a uno y si vuelve a entrar aquí saldrá con dos.
-			if(lowIncrementFirst and firstTime==1)
-			{
-				qDebug()<<"\nENTRA POR SEGUNDA VEZ\n";
-				levenbergMarquardt(target);
-				lowIncrementFirst = false;
-			}
+// 			if(lowIncrementFirst and firstTime==1)
+// 			{
+// 				qDebug()<<"\nENTRA POR SEGUNDA VEZ\n";
+// 				levenbergMarquardt(target);
+// 				lowIncrementFirst = false;
+// 			}
 			firstTime=0;
 		}
 	}
@@ -201,8 +201,8 @@ bool Cinematica_Inversa::comprobarBucleChop(QList< QVec > listaSubtargets, QVec 
 {
 	//Booleano para detectar patrones y bucles
 	bool subtargetRepetido=false;
-	const float minTraslaciones = 0.0001;
-	const float minRotaciones = 0.001;
+	const float minTraslaciones = 0.01;
+	const float minRotaciones = 0.01;
 	
 	//Si la lista de subtargets no está vacía hace las comprobaciones
 	if(listaSubtargets.isEmpty()==false)

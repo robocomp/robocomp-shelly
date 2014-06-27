@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Form</class>
- <widget class="QDialog" name="Form">
+ <class>guiDlg</class>
+ <widget class="QDialog" name="guiDlg">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -2733,6 +2733,37 @@
           </layout>
          </item>
         </layout>
+       </widget>
+       <widget class="QWidget" name="tabApril">
+        <attribute name="title">
+         <string>April</string>
+        </attribute>
+        <widget class="QPushButton" name="aprilSendButton">
+         <property name="geometry">
+          <rect>
+           <x>330</x>
+           <y>100</y>
+           <width>151</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Ballistic to Target</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="aprilFineButton">
+         <property name="geometry">
+          <rect>
+           <x>510</x>
+           <y>100</y>
+           <width>151</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Visual Servo to Target</string>
+         </property>
+        </widget>
        </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">

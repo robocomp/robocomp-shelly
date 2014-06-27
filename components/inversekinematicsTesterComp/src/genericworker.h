@@ -49,7 +49,7 @@ using namespace RoboCompBodyInverseKinematics;
 using namespace RoboCompAprilTags;
 class GenericWorker :
 #ifdef USE_QTGUI
-public QWidget, public Ui_guiDlg
+public QDialog, public Ui_guiDlg
 #else
 public QObject
 #endif
@@ -67,6 +67,7 @@ public:
 	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
 	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
+	virtual void  newAprilTag(const tagsList& tags) = 0;
 
 protected:
 	QTimer timer;
