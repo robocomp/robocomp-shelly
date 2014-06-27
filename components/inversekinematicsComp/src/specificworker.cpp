@@ -235,10 +235,10 @@ void SpecificWorker::compute( )
 					removeInnerModelTarget(target);
 					target.print("AFTER PROCESSING");
 				}
-				if( target.isChopped() == false)
-				{
-					doReflexxes( iterador.value().getJointStepList(), iterador.value().getMotorList());
-				}
+// 				if( target.isChopped() == false)
+// 				{
+// 					doReflexxes( iterador.value().getJointStepList(), iterador.value().getMotorList());
+// 				}
 				if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 				{
 						mutex->lock();	

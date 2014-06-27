@@ -29,7 +29,7 @@
 #include <qt4/QtGui/qlabel.h>
 #include <qt4/QtGui/qspinbox.h>
 #include <qt4/QtGui/QFrame>
-
+#include <time.h>
 #include <osgviewer/osgview.h>
 #include <innermodel/innermodelviewer.h>
 // #include <innermodel/innermodelreader.h>
@@ -51,27 +51,30 @@ public:
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
 public slots:
-	
+
 	void compute(); 
-	
+
 	// SLOTS DE LOS BOTONES DE EJECUCIÓN DE LA INTERFAZ.
+	void stop();
 	void enviarRCIS(); 		// select RCIS.
 	void enviarROBOT(); 	// select robot
+	
 	void enviar();				// send data to robot or rcis
 	void enviarHome();
 	void actualizarInnerModel();
-	
-	
+
+
 	// SLOTS DE LA PESTAÑA POSE6D:
 	void activarDesactivar(); //ACtiva/desactiva la opción de escoger una o más partes del cuerpo.
 	void camareroZurdo();
 	void camareroDiestro();
 	void camareroCentro();
-	void camareroCentro2();
-	void stop();
+	void puntosEsfera();
+	void puntosCubo();
+	
 	void closeFingers();
 	void goHome(QString partName);
-	
+
 	// MÉTODOS AÑADIDOS: REVISAR
 	void abrirPinza();
 	void cerrarPinza();
@@ -83,9 +86,9 @@ public slots:
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
 
-	
+
 private:
-	
+
 	// ATRIBUTOS
 	InnerModel *innerModel;								// Para trabajar con el innerModel
 	OsgView *osgView;
@@ -97,10 +100,11 @@ private:
 	RoboCompJointMotor::MotorList motorList;
 
 	bool banderaTrayectoria;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
+	bool banderaNiapa;                                  // Se pone a true cuando se envía trayectoria pruebaMatlab
 	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
 	QString tabName;									//Name of current tab
 	int tabIndex;										//Index of current tabIndex	
-		
+
 	// MÉTODOS
 	void moverTargetEnRCIS(const QVec &pose);
 	void enviarPose6D(QVec p);
@@ -108,7 +112,7 @@ private:
 	void moveAlongAxis();
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
-	
+
 
 
 };
