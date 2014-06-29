@@ -775,16 +775,13 @@ void SpecificWorker::actualizarInnerModel()
 {
 	try 
 	{
-		printf("%s %d\n", __FILE__, __LINE__);
 		RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap( this->motorList);
-		printf("%s %d\n", __FILE__, __LINE__);
 
 		for(uint j=0; j<motorList.size(); j++)
 		{
 			//printf("%s\n", motorList[j].c_str());
 			innerModel->updateJointValue(QString::fromStdString(motorList[j]), mMap.at(motorList[j]).pos);
 		}
-		printf("%s %d\n", __FILE__, __LINE__);
 	} catch (const Ice::Exception &ex) {cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;	}
 }
 
@@ -1335,19 +1332,21 @@ void SpecificWorker::izquierdoOfrecer()
 void SpecificWorker::newAprilTag(const tagsList& tags)
 {
 	marcaApril = QVec::zeros(6);
+	manoApril = QVec::zeros(6);
+	
  	for(uint i=0; i<tags.size(); i++)
  	{
  		//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
 		if( tags[i].id == 2 )  //Taza
 		{
 			mutex->lock();
-				marcaApril[0] = tags[0].tx; marcaApril[1] = tags[0].ty; marcaApril[2] = tags[0].tz; marcaApril[3] = tags[0].rx; marcaApril[4] = tags[0].ry; marcaApril[5] = tags[0].rz;    
+				marcaApril[0] = tags[i].tx; marcaApril[1] = tags[i].ty; marcaApril[2] = tags[i].tz; marcaApril[3] = tags[i].rx; marcaApril[4] = tags[i].ry; marcaApril[5] = tags[i].rz;    
 			mutex->unlock();
 		}
-		if( tags[i].id == 10 )  //Mano
+		if( tags[i].id == 11 )  //Mano
 		{
 			mutex->lock();
-				manoApril[0] = tags[0].tx; manoApril[1] = tags[0].ty; manoApril[2] = tags[0].tz; manoApril[3] = tags[0].rx; manoApril[4] = tags[0].ry; manoApril[5] = tags[0].rz;    
+				manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
 			mutex->unlock();
 		}
  	}
@@ -1365,7 +1364,7 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 	mutex->unlock();
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
-	
+	marcaTInWorld.print("marcaTInWorld");
 	marcaTInWorld[0] += xoffset;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
 	
 	//QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
@@ -1392,7 +1391,7 @@ void SpecificWorker::finePartToAprilTarget()
 	nodeParent->addChild(node);
 	
 	mutex->lock();
-		innerModel->updateTransformValues("marca",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz(), "rgbd");	
+		innerModel->updateTransformValues("handInCamera",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz(), "rgbd");	
 	mutex->unlock();
 	
 	QVec manoTInEndEffector = innerModel->transform("grabPositionHandR", QVec::zeros(3), "handInCamera");
@@ -1400,10 +1399,17 @@ void SpecificWorker::finePartToAprilTarget()
 	QVec manoInEndEffector(6);
 	manoInEndEffector.inject(manoTInEndEffector,0);
 	manoInEndEffector.inject(manoRInEndEffector,3);  //This is the 6D pose from current endEffector to mano apriltags
+// 	QMat m  = innerModel->getTransformationMatrix("grabPositionHandR","handInCamera");
+// 	m.print("m");
+// 	QMat m2  = innerModel->getTransformationMatrix("handInCamera","grabPositionHandR");
+// 	m2.print("m2");
+		
 	//We send now to BIK the new endEffector pose
 	try 
 	{
 		//bodyinversekinematics_proxy->setNewEndEffectorRelativeToCurrentEndEffector(part, "visualGrabPositionHandR", Pose6D);
+		qDebug() << manoInEndEffector;
+		
 	} catch (exception) 
 	{
 		
@@ -1411,5 +1417,7 @@ void SpecificWorker::finePartToAprilTarget()
 	
 	//And finally, we tell BIK to move the new endEffector to marcaApril, already in rgbd reference frame
 	// ballisticPartToAprilTarget(0);
+	
+	innerModel->removeNode("handInCamera");
 }
 
