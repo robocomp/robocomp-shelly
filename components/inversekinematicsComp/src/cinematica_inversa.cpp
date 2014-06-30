@@ -52,6 +52,13 @@ Cinematica_Inversa::~Cinematica_Inversa()
  * 										MÉTODOS PÚBLICOS													   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 
+void Cinematica_Inversa::setNewTip(const RoboCompBodyInverseKinematics::Pose6D &tip)
+{
+	
+}
+
+
+
 /**
  * @brief Asigna el valor de la variable de entrada (target) al atributo puntoObjetivo.
  * Es el punto al que queremos llevar el nodo effector o nodo final.

@@ -532,6 +532,10 @@ void SpecificWorker::setRobot(const int t)
 TargetState SpecificWorker::getState(const std::string &part)
 {
 	TargetState state;
+	state.finish = false;
+	state.elapsedTime = 0;
+	state.estimatedEndTime = -1;
+	
 	QString partName = QString::fromStdString(part);
 	
 	if ( bodyParts.contains(partName) == false)
@@ -583,6 +587,37 @@ void SpecificWorker::stop(const std::string& part)
 		mutex->unlock();
 	}	
 }
+
+
+/**
+ * @brief Changes the current tip of the corresponding part
+ * 
+ * @param part ...
+ * @return void
+ */
+void SpecificWorker::setNewTip(const std::string& part, const Pose6D &pose)
+{
+	QString partName = QString::fromStdString(part);
+	if ( bodyParts.contains(partName)==false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	else
+	{
+		qDebug() << "-------------------------------------------------------------------";
+		qDebug() << "New COMMAND arrived " << __FUNCTION__ << QString::fromStdString(part);
+		
+		//Check if tip is a valid new tip
+		
+		mutex->lock();
+			bodyParts[partName].setNewVisualTip(pose);
+		mutex->unlock();
+	}
+}
+
 
 
 /*-----------------------------------------------------------------------------*

@@ -87,7 +87,7 @@ public slots:
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
 
-	void ballisticPartToAprilTarget(int xoffset = 200);
+	void ballisticPartToAprilTarget(int xoffset = 100);
 	void finePartToAprilTarget();
 private:
 

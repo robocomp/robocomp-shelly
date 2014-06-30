@@ -56,6 +56,7 @@ public:
 	
 	
 	///// MÉTODOS PÚBLICOS /////
+	void setNewTip( const RoboCompBodyInverseKinematics::Pose6D &tip);
 	void resolverTarget( Target &target);			// Fija el punto objetivo.
 	
 private:
