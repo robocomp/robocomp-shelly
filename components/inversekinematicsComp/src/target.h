@@ -59,9 +59,9 @@ public:
 	
 	// CONSTRUCTORES Y DESTRUCTORES:
 	Target();
-	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &weights, bool chop=true);											// For Pose6D
+	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &weights, bool chop=true);			// For Pose6D
 	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &axis, const QVec &weights);		// For AlingAxis
-	Target(TargetType tt, InnerModel* inner, const QString &tip, const QVec& axis, float step);																	// For ADVANCEALONGAXIS
+	Target(TargetType tt, InnerModel* inner, const QString &tip, const QVec& axis, float step);										// For ADVANCEALONGAXIS
 
 	~Target();
 	

@@ -614,8 +614,8 @@ void SpecificWorker::puntosEsfera()
  * @brief Método PUNTOS CUBO.Crea una trayectoria de puntos aleatorios pertenecientes al cubo
  * tridimensional formado por los vértices:
  * 			x    y    z
- * 		- (400, 800, 200)	(400,1200, 200)		(400, 800, 600) 	(400, 1200, 600)
- * 		- (-400, 800, 200)	(-400,1200, 200)	(-400, 800, 600) 	(-400, 1200, 600)
+ * 		- (400, 800, 200)	(400,1200, 200)		(400, 800, 500) 	(400, 1200, 500)
+ * 		- (-400, 800, 200)	(-400,1200, 200)	(-400, 800, 500) 	(-400, 1200, 500)
  * 
  * Está pensado para que la parte del robot a la que se le envíe llegue sin muchos problemas, 
  * relativamente.
@@ -646,11 +646,11 @@ void SpecificWorker::puntosCubo()
 	
 	// Mientras que no rellenemos la lista con todos los targets que queremos calcular:
 	// calculamos las traslaciones, que serán alrededor de una esfera.
-	while(trayectoria.size()<100)
+	while(trayectoria.size()<=10)
 	{
 		paux[0]= (rand()%801)-400; 			// X entre -400 y 400
 		paux[1]= (rand()%(1200-800))+800; 	// Y entre 800 y 1200
-		paux[2]= (rand()%(600-200))+200;  	// Z entre 200 y 600
+		paux[2]= (rand()%(500-200))+200;  	// Z entre 200 y 500
 
 		if(!listaPuntos.contains(paux))
 		{
