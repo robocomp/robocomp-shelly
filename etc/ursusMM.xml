@@ -36,14 +36,14 @@
 
 						<transform id="base_head" ty="-67" tz="954"  rx="1.5707963267948966"  >
 
-							<plane id="motorHead1Mesh" pz="-23" nz="1" size="40,40,66" repeat="1" texture="#051105" />
+							<plane id="motorHead1Mesh" pz="-23" nz="1" size="40,40,66" repeat="1" texture="#ff0000" />
 							<!-- Giro en X -->
 <!--							<joint id="head1" port="20000" min="-0.1" max="0.8" axis="x" home="0.1">-->
 							<joint id="head1" port="20000" axis="x" home="0.1" min="-0.05" max="0.6">
 <!--
 								<transform id="axesh1" >
 									<plane id="xh1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
-									<plane id="yh1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+									<plane id="yh1" py="50" nx="1" size="1,100,1" repeat="1" texture="#051105" />
 									<plane id="zh1" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 								</transform>
 							-->
@@ -310,55 +310,55 @@
 							<mesh id="arm_left_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="3.14159265359" tz="-55" tx="0" ty="30" scale="1000"    />
 							<!-- Gira en Z -->
 							<joint id="leftShoulder1" port="20000" min="-0.54" max="3.14" axis="z" home="0.2">
-<!--								<transform id="axessl1" >
+								<transform id="axessl1" >
 									<plane id="xsl1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 									<plane id="ysl1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 									<plane id="zsl1" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-								</transform>-->
+								</transform>
 								<mesh id="shoulder_left_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000"    />
 
 								<transform id="arm_left_2" tz="41" rx="-1.5707963267948966">
 <!-- 								Gira en X -->
 									<joint id="leftShoulder2" port="20000" min="-0.34" max="3.14" axis="x" home="0.2" >
 
-<!--										<transform id="axessl2" >
+										<transform id="axessl2" >
 											<plane id="xsl2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 											<plane id="ysl2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 											<plane id="zsl2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-										</transform>-->
+										</transform>
 										<mesh id="shoulder_left_2_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" rx="0" scale="1000"  />
 
 										<transform id="arm_left_3" tz="234" rz="1.5707963267948966" >
 											<!-- Gira en Z -->
 											<joint id="leftShoulder3" port="20000" min="-1.8" max="1.8" axis="z" home="-0.4" >
 
-<!--												<transform id="axessl3" >
+												<transform id="axessl3" >
 													<plane id="xsl3" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 													<plane id="ysl3" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 													<plane id="zsl3" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-												</transform>-->
+												</transform>
 												<mesh id="shoulder_left_3_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" scale="1000"  />
 
 												<transform id="arm_left_4"  ty="28"  tz="20" > <!--Codo-->
 <!-- 													Gira en X -->
 														<joint id="leftElbow" port="20000"  axis="x" min="-2.6" max="0" home="-0.6" >
 
-<!--															<transform id="axesel1" >
+															<transform id="axesel1" >
 																<plane id="xel1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																<plane id="yel1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																<plane id="zel1" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-															</transform>-->
+															</transform>
 															<mesh id="elbow_left_mesh"  file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive"  ty="0" scale="1000"   />
 
 															<transform id="arm_left_5" ty="-28" tz="166"    > <!--Giro1 muñeca-->
 <!-- 															Gira en Z-->
 																<joint id="leftForeArm" port="20000" min="-2.3" max="2.3" home="0" axis="z">
 
-<!--																	<transform id="axesfal1" >
+																	<transform id="axesfal1" >
 																		<plane id="xfal1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																		<plane id="yfal1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																		<plane id="zfal1" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-																	</transform>-->
+																	</transform>
 																	<mesh id="wrist_left_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="2" />
 
 
@@ -367,23 +367,23 @@
 																	<plane id="motorleftWrist1Mesh" py="23" pz="-20" ny="1" size="40,66,-40" repeat="1" texture="#051105" />
 																	<joint id="leftWrist1" port="20000" min="-1.5707963267948966" max="1.5707963267948966" axis="x" home="0" >
 
-<!--																		<transform id="axeswl1" >
+																		<transform id="axeswl1" >
 																			<plane id="xwl1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																			<plane id="ywl1" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																			<plane id="zwl1" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 																		</transform>
-																-->
+																
 
 																		<transform id="arm_left_7" tz="60" >
 			<!-- 																Gira en Y -->
 																			<plane id="motolefrWrist2Mesh" px="-15" pz="-20" ny="1" size="66,40,-40" repeat="1" texture="#051105" />
 																			<joint id="leftWrist2" port="20000" min="-0.1" max="1.5707963267948966" axis="y" home="0" >
 
-																				<!--<transform id="axeswl2" >
+																				<transform id="axeswl2" >
 																					<plane id="xwl2" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
 																					<plane id="ywl2" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
 																					<plane id="zwl2" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
-																				</transform>-->
+																				</transform>
 
 																				<plane id="handleftMesh1" pz="100" ny="1" size="170,170,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-3.png" />
 
