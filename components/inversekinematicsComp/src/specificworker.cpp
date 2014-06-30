@@ -226,7 +226,7 @@ void SpecificWorker::compute()
 					// Si ha sido resuelto con un error menor al umbral, no se ha alcanzado el objetivo y no es un subtarget,
 					// movemos la parte del robot con los ángulos calculados y ponemos bandera de ejecutado al target.
 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-					usleep(100000);
+					usleep(500000);
 					target.setExecuted(true);
 				}
 				else  

@@ -362,7 +362,9 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		{
 			printf("mesa!\n");
 			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/mesa_redonda.osg";
-// 			pose2.z = 800;
+// 			mesh.pose.z = 800;
+			pose2.rx += 1.57;
+			pose2.y = pose2.y - 750;
 			mesh.scaleX = 100;
 			mesh.scaleY = 100; // <--- A 674mm radius table has a scale of "100"
 			mesh.scaleZ = 100; // <--- A 800mm height table has a scale of "100"
@@ -371,7 +373,10 @@ void SpecificWorker::RCIS_addObjectNode(RoboCompAGMWorldModel::Node node)
 		{
 			printf("taza!\n");
 			mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/mobiliario/taza.osg";
-// 			pose2.z = 160; // La x va claramente a la derecha
+// 			pose2.z = 0; // La x va claramente a la derecha
+			pose2.rx += 1.57;
+			pose2.rz += 3.14;
+			pose2.y = pose2.y - 50;
 			mesh.scaleX = 120;
 			mesh.scaleY = 120;
 			mesh.scaleZ = 120;

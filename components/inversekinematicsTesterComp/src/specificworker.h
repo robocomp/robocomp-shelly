@@ -67,7 +67,9 @@ public slots:
 	void camareroZurdo();
 	void camareroDiestro();
 	void camareroCentro();
-	void pruebaMatlab();
+	void puntosEsfera();
+	void puntosCubo();
+	
 	void stop();
 	void closeFingers();
 	void goHome(QString partName);
