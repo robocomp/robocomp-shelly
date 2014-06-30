@@ -29,7 +29,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 
-	innerModel = new InnerModel("/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml");
+	innerModel = new InnerModel("/home/robocomp/robocomp/components/perception/etc/ursusMM.xml");
 	trTag = innerModel->newTransform("trTag", "static", innerModel->getTransform("rgbd_transform"));
 	innerModel->getTransform("rgbd_transform")->addChild(trTag);
 
@@ -53,6 +53,7 @@ void SpecificWorker::compute( )
 	jointmotor_proxy->getAllMotorState(mstateMap);
 	for (MotorStateMap::iterator it= mstateMap.begin(); it!=mstateMap.end(); it++)
 	{
+		printf("Actualizamos joint %s con giro %f\n", it->first.c_str(), it->second.pos);
 		innerModel->updateJointValue(QString::fromStdString(it->first), it->second.pos);
 	}
 	/// Update wrist position in the robot symbol according to innermodel or the corresponding April tag
@@ -245,6 +246,12 @@ void SpecificWorker::updateSymbolWithTag(AGMModelSymbol::SPtr symbol, const Apri
 		symbol->attributes["rx"] = float2str(R(0));
 		symbol->attributes["ry"] = float2str(R(1));
 		symbol->attributes["rz"] = float2str(R(2));
+		
+		
+		if (tag.id==0)
+		{
+			symbol->attributes["rx"] = float2str(R(0)-1.57);
+		}
 		RoboCompAGMWorldModel::Node symbolICE;
 		AGMModelConverter::fromInternalToIce(symbol, symbolICE);
 		agmagenttopic->update(symbolICE);
