@@ -118,8 +118,9 @@ printf("<<< init()\n");
 
 		
 	//Open file to write errors and times of executions
-	ficheroErrores.open("errores.txt", ios::out);
-
+	ficheroErrores.open("errores.txt", std::ofstream::out | std::ofstream::trunc);
+	ficheroErrores<<"cabecera: num_de_exitos, [ tx ty tz rx ry rz ]  error, elapsedTime \n";
+	
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -194,6 +195,7 @@ SpecificWorker::~SpecificWorker()
  */ 
 void SpecificWorker::compute() 
 {
+	static int exitos=0;
 	// Obtenemos iterador del mapa de partes del cuerpo del robot. Con él iremos
 	// recorriendo las partes, sacando los targets de cada parte y resolviéndolos.
 	QMap<QString, BodyPart>::iterator iterador;
@@ -216,9 +218,9 @@ void SpecificWorker::compute()
 				target.print("BEFORE PROCESSING");
 					
 				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
-				target.setRunTime(QTime::currentTime());
+				//target.setRunTime(QTime::currentTime());
 				iterador.value().getInverseKinematics()->resolverTarget(target);
-				target.setElapsedTime(target.getRunTime().elapsed());
+				//target.setElapsedTime(target.getRunTime().elapsed());
 
 				// local goal achieved: execute the solution
 				if(target.getError() <= 0.9 and target.isAtTarget() == false) 
@@ -244,23 +246,44 @@ void SpecificWorker::compute()
 			// Guardamos errores del target y tiempo de ejecución. FORMATO:
 			// Error # Tiempo de ejecución
 			// TODO ÁRBOL KD.
-			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
-			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
-						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
+// 			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
+// 			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
+// 						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
 			
 			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 			{
+				if(target.getError()<=0.9)
+				{	
+					exitos = exitos+1;
+					qDebug()<<"HE LLEGADO AL TARGET OBJETIVO "<<exitos<<"!!!";
+// 					ficheroErrores.open("errores.txt",std::ios::app);
+					ficheroErrores<<"He llegado:"<<exitos<<" [ "<<target.getPose()[0]<<" "<<target.getPose()[1]<<" "<<target.getPose()[2]<<" "
+					              <<target.getPose()[3]<<" "<<target.getPose()[4]<<" "<<target.getPose()[5]<<" ] "
+						      <<target.getError()<<" , "<<target.getElapsedTime()<<"\n";
+					ficheroErrores.flush();
+					
+					goHome("RIGHTARM");
+					sleep(3);
+				}
+				else {	
+					qDebug()<<"NO HE LLEGADO AL TARGET OBJETIVO!!!";
+					ficheroErrores<<"NO HE LLEGADO AL TARGET OBJETIVO!!!"<<" [ "<<target.getPose()[0]<<" "<<target.getPose()[1]<<" "<<target.getPose()[2]<<" "
+					<<target.getPose()[3]<<" "<<target.getPose()[4]<<" "<<target.getPose()[5]<<" ] "
+					<<target.getError()<<" , "<<target.getElapsedTime()<<"\n";
+					
+				}
+				target.setElapsedTime(target.getRunTime().elapsed());
 				// Si el target no está siendo troceado, se ha marcado para eliminar o ya se está allí lo eliminamos
 				// de la lista de targets de la parte del cuerpo del robot.
-				mutex->lock();	
- 					iterador.value().removeHeadFromTargets();
+				mutex->lock();					
+ 					iterador.value().removeHeadFromTargets();					
 				mutex->unlock();
 			}									
 		}
 	}
 	//actualizamos TODOS los motores y limipamos de basura los ficheros:
 	actualizarInnermodel(listaMotores); 
-	ficheroErrores.flush();
+	
 }
 
 /**
@@ -328,6 +351,9 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 
    Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
    t.setRadius(radius/1000.f);
+   t.setRunTime(QTime::currentTime());
+   
+				
   
     mutex->lock();
         bodyParts[partName].addTargetToList(t);
