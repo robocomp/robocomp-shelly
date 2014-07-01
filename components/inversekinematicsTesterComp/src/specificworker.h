@@ -112,7 +112,10 @@ private:
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
 	
+<<<<<<< HEAD
+=======
 
+>>>>>>> 9bae3208c978bc16d1336fc10d039d065e6fad5a
 
 };
 

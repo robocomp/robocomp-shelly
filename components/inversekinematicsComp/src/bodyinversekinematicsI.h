@@ -45,6 +45,7 @@ void  goHome(const string& part, const Ice::Current& = Ice::Current());
 void  setRobot(Ice::Int type, const Ice::Current& = Ice::Current());
 TargetState getState(const string& part, const Ice::Current& = Ice::Current());
 void  stop(const string& part, const Ice::Current& = Ice::Current());
+void  setNewTip(const string& part, const Pose6D& pose, const Ice::Current& = Ice::Current());
 
 
 	QMutex *mutex;
