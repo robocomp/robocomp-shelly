@@ -1355,6 +1355,8 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 
 void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 {
+	qDebug() << __FUNCTION__;
+	
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
 	nodeParent->addChild(node);
@@ -1382,20 +1384,22 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 
 void SpecificWorker::finePartToAprilTarget()
 {
+	qDebug() << __FUNCTION__;
+	
 	//Here we should have both apriltags on sight
 	// The target and the grabPositionHandL
-	
+
 	//Now we want to tell BIK to change its endEffector to manoApril once transformed to the current endEffector reference system	
-	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
-	InnerModelTransform *node = innerModel->newTransform("handInCamera", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
-	nodeParent->addChild(node);
+ 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+  InnerModelTransform *node = innerModel->newTransform("handInCamera", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+ 	nodeParent->addChild(node);
 	
 	mutex->lock();
-		innerModel->updateTransformValues("handInCamera",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz(), "rgbd");	
+		innerModel->updateTransformValues("handInCamera",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz());	
 	mutex->unlock();
 	
-	QVec manoTInEndEffector = innerModel->transform("grabPositionHandR", QVec::zeros(3), "handInCamera");
-	QVec manoRInEndEffector = innerModel->getRotationMatrixTo("grabPositionHandR","handInCamera").extractAnglesR_min();
+	QVec manoTInEndEffector = innerModel->transform("pre-grabPositionHandR", QVec::zeros(3), "handInCamera");
+	QVec manoRInEndEffector = innerModel->getRotationMatrixTo("pre-grabPositionHandR","handInCamera").extractAnglesR_min();
 	QVec manoInEndEffector(6);
 	manoInEndEffector.inject(manoTInEndEffector,0);
 	manoInEndEffector.inject(manoRInEndEffector,3);  //This is the 6D pose from current endEffector to mano apriltags
@@ -1404,15 +1408,28 @@ void SpecificWorker::finePartToAprilTarget()
 // 	QMat m2  = innerModel->getTransformationMatrix("handInCamera","grabPositionHandR");
 // 	m2.print("m2");
 		
+	innerModel->transform("world",QVec::zeros(3),"handInCamera").print("handInCamera in World");
+	
+	mutex->lock();
+		innerModel->updateTransformValues("grabPositionHandR",manoInEndEffector.x(), manoInEndEffector.y(), manoInEndEffector.z(), manoInEndEffector.rx(), manoInEndEffector.ry(), manoInEndEffector.rz());	
+	mutex->unlock();
+	
 	//We send now to BIK the new endEffector pose
 	try 
 	{
-		//bodyinversekinematics_proxy->setNewEndEffectorRelativeToCurrentEndEffector(part, "visualGrabPositionHandR", Pose6D);
-		qDebug() << manoInEndEffector;
+		RoboCompBodyInverseKinematics::Pose6D pose;
+		pose.x = manoInEndEffector.x();pose.y = manoInEndEffector.y();pose.z = manoInEndEffector.z();
+		pose.rx = manoInEndEffector.rx();pose.ry = manoInEndEffector.ry();pose.rz = manoInEndEffector.rz();
+		bodyinversekinematics_proxy->setNewTip("RIGHTARM", pose);
+		qDebug() << __FUNCTION__ << manoInEndEffector;
 		
-	} catch (exception) 
+//		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", pose, pesos,10);
+		
+			
+	} 
+	catch (const Ice::Exception &ex) 
 	{
-		
+		std::cout << ex << endl;
 	}
 	
 	//And finally, we tell BIK to move the new endEffector to marcaApril, already in rgbd reference frame
