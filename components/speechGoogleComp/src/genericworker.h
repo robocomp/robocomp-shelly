@@ -25,10 +25,8 @@
 #include <stdint.h>
 #include <qlog/qlog.h>
 #include <CommonBehavior.h>
-#include <ui_guiDlg.h>
-#include "config.h"
-#include <JointMotor.h>
-#include <BodyInverseKinematics.h>
+#include <ASRPublish.h>
+#include <TTSGoogle.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -41,18 +39,14 @@ using namespace std;
        \brief
        @author authorname
 */
-using namespace RoboCompJointMotor;
-using namespace RoboCompBodyInverseKinematics;
-class GenericWorker :
-#ifdef USE_QTGUI
-public QWidget, public Ui_guiDlg
-#else
-public QObject
-#endif
+using namespace RoboCompTTSGoogle;
+using namespace RoboCompASRPublish;
+
+class GenericWorker : public QObject
 {
 Q_OBJECT
 public:
-	GenericWorker(MapPrx& mprx);
+	GenericWorker(MapPrx& mprx, QObject *parent = 0);
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);
@@ -60,17 +54,9 @@ public:
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;                //Shared mutex with servant
 
-	JointMotorPrx jointmotor0_proxy;
-	JointMotorPrx jointmotor1_proxy;
-	virtual void  setTargetPose6D(const string& bodyPart, const Pose6D& target, const WeightVector& weights, float radius) = 0;
-	virtual void  pointAxisTowardsTarget(const string& bodyPart, const Pose6D& target, const Axis& ax, bool axisConstraint, float axisAngleConstraint) = 0;
-	virtual void  advanceAlongAxis(const string& bodyPart, const Axis& ax, float dist) = 0;
-	virtual void  setFingers(float d) = 0;
-	virtual void  goHome(const string& part) = 0;
-	virtual void  setRobot(int type) = 0;
-	virtual TargetState getState(const string& part) = 0;
-	virtual void  stop(const string& part) = 0;
-	virtual void  setNewTip(const string& part, const Pose6D& pose) = 0;
+	ASRPublishPrx asrpublish;
+	virtual void  newText(const string& text) = 0;
+
 protected:
 	QTimer timer;
 	int Period;

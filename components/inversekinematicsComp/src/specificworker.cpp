@@ -20,7 +20,9 @@
 #include "specificworker.h"
 #include <qt4/QtCore/QMutexLocker>
 
-
+/**
+ * @brief default constructor
+ */
 SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mprx)	
 {	
 	correlativeID = 0;		//Unique ID to name provisional targets
@@ -28,7 +30,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QWidget *parent) : GenericWorker(mp
 }
 
 /**
- * @brief Method called by the thread Monitor to pass the configuration parmaeters read from the config file
+ * @brief Method called by the thread Monitor to pass the configuration parameters read from the config file
  * 
  * @param params ...
  * @return bool
@@ -69,46 +71,56 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::init()
 {
+printf("<<< init()\n");
+
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot
-	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow"
-			    << "leftForeArm" << "leftWrist1" << "leftWrist2";
-	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"
-			  << "rightForeArm" << "rightWrist1" << "rightWrist2";
+	listaBrazoIzquierdo << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2";
+	listaBrazoDerecho << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"  << "rightForeArm" << "rightWrist1" << "rightWrist2";
 	listaCabeza << "head1" << "head2" << "head3";
-	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm"
-		     << "rightWrist1" <<"rightWrist2" << "leftShoulder1" << "leftShoulder2" << "leftShoulder3"
-		     << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"<< "base" << "head1" << "head2" << "head3";
-	
+	listaMotores << "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow" << "rightForeArm" << "rightWrist1" <<"rightWrist2" 
+	             << "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" <<"leftWrist2"
+				 << "head1" << "head2" << "head3";
+
 	// PREPARA LA CINEMATICA INVERSA: necesita el innerModel, los motores y el tip:
 	QString tipRight = "grabPositionHandR";
 	QString tipLeft = "grabPositionHandL";
-	QString nose = "head3";  //OJO PROV
+	QString nose = "head3"; 
+
 	
-	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho, tipRight);
-	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo, tipLeft);
-	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza, nose);
+	IK_BrazoDerecho = new Cinematica_Inversa(innerModel, listaBrazoDerecho);
+	IK_BrazoIzquierdo = new Cinematica_Inversa(innerModel, listaBrazoIzquierdo);
+	IK_Cabeza = new Cinematica_Inversa(innerModel, listaCabeza);
+
 							 
 	// CREA EL MAPA DE PARTES DEL CUERPO: por ahora los brazos.
 	bodyParts.insert("LEFTARM", BodyPart(innerModel, IK_BrazoIzquierdo, "LEFTARM", tipLeft, listaBrazoIzquierdo));
 	bodyParts.insert("RIGHTARM", BodyPart(innerModel, IK_BrazoDerecho, "RIGHTARM", tipRight, listaBrazoDerecho)); 
 	bodyParts.insert("HEAD", BodyPart(innerModel, IK_Cabeza, "HEAD", nose, listaCabeza)); 
 
+
 	//Initialize proxy to RCIS
 	proxy = jointmotor0_proxy;
 
 	actualizarInnermodel(listaMotores);  // actualizamos los ángulos de los motores del brazo derecho
+
 	
-	//goHomePosition(listaMotores); 
  	foreach(BodyPart p, bodyParts)
- 		goHome(p.getPartName().toStdString());
+ 	{
+
+		goHome(p.getPartName().toStdString());
+	}
+	
 	sleep(1);
+
 	actualizarInnermodel(listaMotores);
+
 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
+
 		
-	//Open file to write errors
-	fichero.open("errores.txt", ios::out);
-	
-	
+	//Open file to write errors and times of executions
+	ficheroErrores.open("errores.txt", ios::out);
+
+		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
 // 	qDebug("Planning ...");
@@ -121,6 +133,7 @@ void SpecificWorker::init()
 	qDebug();
 	qDebug() << "---------------------------------";
 	qDebug() << "BodyInverseKinematics --> Waiting for requests!";
+printf(">>> init()\n");
 }
 
 
@@ -166,57 +179,158 @@ void SpecificWorker::convertInnerModelFromMilimetersToMeters(InnerModelNode* nod
 
 
 /**
-* \brief Default destructor
+* \brief Default destructor. Close the files.
 */
 SpecificWorker::~SpecificWorker()
 {
-	fichero.close();
+	ficheroErrores.close();
 }
 
 
-void SpecificWorker::compute( )				///OJO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
+/**
+ *  @brief Compute method.
+ * TODO HAY QUE PERMITIR QUE SEA PARABLE ESTE BUCLE DESDE ICE
+ * 
+ */ 
+void SpecificWorker::compute() 
 {
-		QMap<QString, BodyPart>::iterator iterador;
-		for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
-		{	
-			if(iterador.value().noTargets() == false)
-			{
-				Target &target = iterador.value().getHeadFromTargets(); 	
-				if (target.isMarkedforRemoval() == false)
-				{
-					target.annotateInitialTipPose();
-					target.setInitialAngles(iterador.value().getMotorList());
-					createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
-					target.print("BEFORE PROCESSING");
-					
-					iterador.value().getInverseKinematics()->resolverTarget(target);
-
-					if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
-					{
-						moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-						usleep(100000);
-						target.setExecuted(true);
-					}
-					else  
-					{
-						target.markForRemoval(true);
-					}
-					actualizarInnermodel(listaMotores); 			//actualizamos TODOS los motores.	OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza
-					target.annotateFinalTipPose();
-					removeInnerModelTarget(target);
-					target.print("AFTER PROCESSING");
-				}
-				if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
-				{
-						mutex->lock();	
- 							iterador.value().removeHeadFromTargets(); //eliminamos el target resuelt
-						mutex->unlock();
-				}									
+	static int Targets;
+	// Obtenemos iterador del mapa de partes del cuerpo del robot. Con él iremos
+	// recorriendo las partes, sacando los targets de cada parte y resolviéndolos.
+	QMap<QString, BodyPart>::iterator iterador;
 	
+	for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
+	{	
+		if(iterador.value().noTargets() == false)
+		{
+			// Si la parte tiene targets en su lista, sacamos el primero. Comprobamos que no ha sido
+			// marcado para ser eliminado y lo resolvemos.
+			Target &target = iterador.value().getHeadFromTargets(); 
+			
+			if (target.isMarkedforRemoval() == false)
+			{
+				// Anotamos tiempo de inicio de procesamiento del target y los ángulos iniciales que tiene 
+				// la parte del robot al que está asignado. Crea el target en el InnerModel y lo imprime.
+				target.annotateInitialTipPose();
+				target.setInitialAngles(iterador.value().getMotorList());
+				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
+				target.print("BEFORE PROCESSING");
+					
+				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
+				iterador.value().getInverseKinematics()->resolverTarget(target);
+
+
+			/*	// Si no supera el umbral o ya se está allí, lo marcamos para eliminar.
+				target.markForRemoval(true);
+			*/	
+				// Actualizamos TODOS los motores (OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza)
+				// Guardamos los ángulos asignados al target como solución, lo imprimimos y lo eliminamos de InnerModel
+				actualizarInnermodel(listaMotores); 			
+				target.annotateFinalTipPose();
+				target.print("AFTER PROCESSING");
+				removeInnerModelTarget(target);
 			}
+			
+			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
+			{
+				
+				moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+				usleep(2*500000);
+				actualizarInnermodel(listaMotores); 			
+				
+					
+				// Si el target no está siendo troceado, se ha marcado para eliminar o ya se está allí lo eliminamos
+				// de la lista de targets de la parte del cuerpo del robot.
+				mutex->lock();	
+ 					iterador.value().removeHeadFromTargets();
+				mutex->unlock();
+				
+				Targets=Targets+1;
+				qDebug()<<"ELIMINADO TARGET:"<<Targets;
+				sleep(1);
+			}									
 		}
-	actualizarInnermodel(listaMotores); //actualizamos TODOS los motores.
+	}
+	//actualizamos TODOS los motores y limipamos de basura los ficheros:
+	actualizarInnermodel(listaMotores); 
+	ficheroErrores.flush();
 }
+
+
+// void SpecificWorker::compute() 
+// {
+// 	static int Targets;
+// 	// Obtenemos iterador del mapa de partes del cuerpo del robot. Con él iremos
+// 	// recorriendo las partes, sacando los targets de cada parte y resolviéndolos.
+// 	QMap<QString, BodyPart>::iterator iterador;
+// 	
+// 	for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
+// 	{	
+// 		if(iterador.value().noTargets() == false)
+// 		{
+// 			// Si la parte tiene targets en su lista, sacamos el primero y lo procesamos 
+// 			// si no ha sido marcado ya para ser eliminado.
+// 			Target &target = iterador.value().getHeadFromTargets(); 
+// 			
+// 			if (target.isMarkedforRemoval() == false)
+// 			{
+// 				// Anotamos tiempo de inicio de procesamiento dle target y los ángulos iniciales que tiene 
+// 				// la parte del robot al que está asignado. Crea el target en el InnerModel y lo imprime.
+// 				target.annotateInitialTipPose();
+// 				target.setInitialAngles(iterador.value().getMotorList());
+// 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
+// 				target.print("BEFORE PROCESSING");
+// 					
+// 				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
+// 				target.setRunTime(QTime::currentTime());
+// 				iterador.value().getInverseKinematics()->resolverTarget(target);
+// 				target.setElapsedTime(target.getRunTime().elapsed());
+// 
+// 				// local goal achieved: execute the solution
+// 				if(target.getError() <= 0.9 and target.isAtTarget() == false) 
+// 				{
+// 					// Si ha sido resuelto con un error menor al umbral, no se ha alcanzado el objetivo y no es un subtarget,
+// 					// movemos la parte del robot con los ángulos calculados y ponemos bandera de ejecutado al target.
+// 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
+// 					usleep(500000);
+// 					target.setExecuted(true);
+// 				}
+// 				else  
+// 				{
+// 					// Si no supera el umbral o ya se está allí, lo marcamos para eliminar.
+// 					target.markForRemoval(true);
+// 				}
+// 				// Actualizamos TODOS los motores (OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza)
+// 				// Guardamos los ángulos asignados al target como solución, lo imprimimos y lo eliminamos de InnerModel
+// 				actualizarInnermodel(listaMotores); 			
+// 				target.annotateFinalTipPose();
+// 				target.print("AFTER PROCESSING");
+// 				removeInnerModelTarget(target);
+// 			}
+// 			// Guardamos errores del target y tiempo de ejecución. FORMATO:
+// 			// Error # Tiempo de ejecución
+// 			// TODO ÁRBOL KD.
+// 			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
+// 			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
+// 						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
+// 			
+// 			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
+// 			{
+// 				// Si el target no está siendo troceado, se ha marcado para eliminar o ya se está allí lo eliminamos
+// 				// de la lista de targets de la parte del cuerpo del robot.
+// 				mutex->lock();	
+//  					iterador.value().removeHeadFromTargets();
+// 				mutex->unlock();
+// 				Targets=Targets+1;
+// 				qDebug()<<"ELIMINADO TARGET:"<<Targets;
+// 				sleep(1);
+// 			}									
+// 		}
+// 	}
+// 	//actualizamos TODOS los motores y limipamos de basura los ficheros:
+// 	actualizarInnermodel(listaMotores); 
+// 	ficheroErrores.flush();
+// }
 
 /**
  * @brief Creates a target element inside InnerModel to be used by IK. Avoids having a "target" in the XML file.
@@ -414,7 +528,6 @@ void SpecificWorker::setFingers(float d)
 	// Ahora cinemática inversa: ang = asin(D/l)
 	// ang1  = ang - 1;
 	// ang2 = -ang + 1;
-	
 }
 
 /**
@@ -455,7 +568,6 @@ void SpecificWorker::goHome(const string& part)
 	}
 	//goHomePosition( bodyParts[partName].getMotorList());
 	//sleep(1);
-	
 }
 
 /**
@@ -558,14 +670,20 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 	{
 		MotorList mList;
 		for(int i=0; i<listaJoints.size(); i++)
-			mList.push_back(listaJoints[i].toStdString());
-		
-		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
-		
-		for(int j=0; j<listaJoints.size(); j++)
-			innerModel->updateJointValue(listaJoints[j], mMap.at(listaJoints[j].toStdString()).pos);
+		{		
+			mList.push_back(listaJoints[i].toStdString());		
+		}
 
-	} catch (const Ice::Exception &ex) {
+		RoboCompJointMotor::MotorStateMap mMap = proxy->getMotorStateMap(mList);
+		for(int j=0; j<listaJoints.size(); j++)
+		{
+			const float pos = mMap.at(listaJoints[j].toStdString()).pos;
+			innerModel->updateJointValue(listaJoints[j], pos);
+		}
+
+	}
+	catch (const Ice::Exception &ex)
+	{
 		cout<<"--> Excepción en actualizar InnerModel: "<<ex<<endl;
 	}
 }

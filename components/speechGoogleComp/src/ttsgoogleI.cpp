@@ -16,9 +16,9 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "agmexecutivetopicI.h"
+#include "ttsgoogleI.h"
 
-AGMExecutiveTopicI::AGMExecutiveTopicI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+TTSGoogleI::TTSGoogleI(GenericWorker *_worker, QObject *parent) : QObject(parent)
 {
 	worker = _worker;
 	mutex = worker->mutex;       // Shared worker mutex
@@ -26,24 +26,14 @@ AGMExecutiveTopicI::AGMExecutiveTopicI(GenericWorker *_worker, QObject *parent) 
 }
 
 
-AGMExecutiveTopicI::~AGMExecutiveTopicI()
+TTSGoogleI::~TTSGoogleI()
 {
 	// Free component resources here
 }
 
 // Component functions, implementation
-void AGMExecutiveTopicI::modelModified(const RoboCompAGMWorldModel::Event& modification, const Ice::Current&)
-{
-// 	printf("%s: %d\n", __FILE__, __LINE__);
-	worker->modelModified(modification);
-// 	printf("%s: %d\n", __FILE__, __LINE__);
-}
-
-void AGMExecutiveTopicI::modelUpdated(const RoboCompAGMWorldModel::Node& modification, const Ice::Current&)
-{
-// 	printf("%s: %d\n", __FILE__, __LINE__);
-	worker->modelUpdated(modification);
-// 	printf("%s: %d\n", __FILE__, __LINE__);
+void TTSGoogleI::newText(const string& text, const Ice::Current&){
+	worker->newText(text);
 }
 
 

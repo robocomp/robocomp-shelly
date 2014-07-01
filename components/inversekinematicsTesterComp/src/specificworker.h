@@ -67,7 +67,9 @@ public slots:
 	void camareroZurdo();
 	void camareroDiestro();
 	void camareroCentro();
-	void camareroCentro2();
+	void puntosEsfera();
+	void puntosCubo();
+	
 	void stop();
 	void closeFingers();
 	void goHome(QString partName);
@@ -97,6 +99,7 @@ private:
 	RoboCompJointMotor::MotorList motorList;
 
 	bool banderaTrayectoria;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
+	bool banderaNiapa;                                  // Se pone a true cuando se envía trayectoria pruebaMatlab
 	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
 	QString tabName;									//Name of current tab
 	int tabIndex;										//Index of current tabIndex	
@@ -109,6 +112,10 @@ private:
 	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
 	
+<<<<<<< HEAD
+=======
+
+>>>>>>> 9bae3208c978bc16d1336fc10d039d065e6fad5a
 
 };
 

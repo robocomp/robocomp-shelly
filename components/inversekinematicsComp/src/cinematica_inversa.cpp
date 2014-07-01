@@ -32,13 +32,13 @@
  * 								CONSTRUCTORES Y DESTRUCTORES												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 /**
- * @brief Default Constructor
+ * @brief Constructor parametrizado
+ * 
+ * @param inner_ 	puntero a la variable de innerModel.
+ * @param joints_	lista con los nombre de los joinst de la cadena cinemática con la que trabaja el IK
  */
-Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_, QString endEffector_) 
-		:	inner(inner_), listaJoints(joints_), endEffector(endEffector_)
+Cinematica_Inversa::Cinematica_Inversa(InnerModel *inner_, QStringList joints_) :	inner(inner_), listaJoints(joints_)
 {
-	// Inicializa los atributos de la clase a partir de los : //
-	
 }
 
 /**
@@ -48,70 +48,63 @@ Cinematica_Inversa::~Cinematica_Inversa()
 {
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
- * 										MÉTODOS PÚBLICOS													   *
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
+/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
+ * 										MÉTODOS PÚBLICOS															   *
+ *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 
 /**
- * @brief Asigna el valor de la variable de entrada (target) al atributo puntoObjetivo.
- * Es el punto al que queremos llevar el nodo effector o nodo final.
- * Hay que llamar a este metodo cada vez que queramos llevar la mano del robot a 
- * un objetivo distinto: cada vez que llamemos al Levenberg-Marquardt.
+ * @brief Método RESOLVER TARGET.
+ * Ejecuta los cálculos necesarios anteriores al levenbergMarquardt para resolver el target que recibe como parámetro
+ * de entrada. Dependiendo del tipo de target hará unos cálculos u otros:
+ * 	- ALINGAXIS: Para los targets de tipo alinearse con los ejes se ejecuta directamente el levenbergMarquardt
+ * 	- ADVANCEAXIS: Para los targets de avanzar sobre el eje primero hay que hacer una serie de cálculos.
+ * 			- Primero escalamos el vector unitario, sobre el que debe avanzar el efector, multiplicándolo  
+ *			  por la distancia que debe avanzar el efector sobre él. Pasamos ese vector escalado del target al mundo.
+ *			- Después obtenemos la matriz de rotación del efector final del target al mundo y le sacamos
+ *			  los ángulos que debe rotar el mundo para orientarse como el efector final.
+ *			- Por último colocamos el target en el innerModel con las traslaciones calculadas en el primer paso y las
+ *			  rotaciones calculadas en el segundo paso y lo enviamos al levenbergMarquardt
+ * 	- POSE6D: Para los targets de tipo POSE6D trocea el target y manda a resolver ese subtarget si el efector final no
+ * 	  está ya posicionado sobre él. Hace una pequeña ÑAPA: cuando los pesos no son restrictivos normalmente el 
+ * 	  Levenberg-Marquardt no encuentra una solución aceptable y sale con incrementos enanos. Así que lo volvemos a ejecutar
+ *    por segunda vez con todas las restricciones levantadas.
  * 
- * @param target ...
+ * @param target punto objetivo que se desea resolver.
  * @return void
  */
 void Cinematica_Inversa::resolverTarget(Target& target)
 {
-	target.setRunTime(QTime::currentTime());
-	
 	if(target.getType() == Target::ALIGNAXIS)  
-	{
-		 levenbergMarquardt(target);
-	}
+		levenbergMarquardt(target);
+	
 	else if(target.getType() == Target::ADVANCEAXIS) 
 	{
-		//Scale the unitary vector along direction by distance
 		QVec axis = target.getAxis() * target.getStep();
-		//axis.print("axis scaled");
+		QVec p = inner->transform("world", axis, target.getTipName());
 		
-		QVec p = inner->transform("world", axis, this->endEffector);
-		//p.print("target to reach in world");
-		inner->transform("world", QVec::zeros(3), this->endEffector).print("position of tip");
+		QMat mat = inner->getRotationMatrixTo("world", target.getTipName());
+		QVec rot = mat.extractAnglesR_min();
 		
-		QMat mat = inner->getRotationMatrixTo("world", this->endEffector);
-		QVec rot = mat.extractAnglesR();
-		QVec r(3);
-		if(rot.subVector(0,2).norm2() < rot.subVector(3,5).norm2())
-			r = rot.subVector(0,2);
-		else
-			r = rot.subVector(3,5);
-		inner->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), r.x(), r.y(), r.z(), "world");
-	
+		inner->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), rot.x(), rot.y(), rot.z(), "world");
 		levenbergMarquardt(target);
 	}
 	else  //POSE6D
 	{
-	
 		chopPath(target);	
-		// Si el target no ha sido resuelto llamamos Levenberg-Marquardt
 		if( target.isAtTarget() == false )
 		{
 			levenbergMarquardt(target);			
 			// Si hemos salido nada más ejecutar el target por incrementos pequeños volvemos a ejecutar el target
 			// cambiando la matriz de pesos. LM devuelve lowIncrementFirst a true si hay incrementos pequeños e 
 			// incrementa en una unidad fisrtTime, que entra a cero, sale a uno y si vuelve a entrar aquí saldrá con dos.
-			if(lowIncrementFirst and firstTime==1)
-			{
-				qDebug()<<"\nENTRA POR SEGUNDA VEZ\n";
-				levenbergMarquardt(target);
-				lowIncrementFirst = false;
-			}
+// 			if(lowIncrementFirst and firstTime==1)
+// 			{
+// 				levenbergMarquardt(target);
+// 				lowIncrementFirst = false;
+// 			}
 			firstTime=0;
 		}
 	}
-		
-	target.setElapsedTime(target.getRunTime().elapsed());
 }
 
 
@@ -122,32 +115,94 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 /**
  * @brief Método TROCEAR TARGET.  Crea una recta entre el tip y el target colocando subtargets cada distanciaMax
  * permitida. Troceamos con la ecuación paramétrica de una segmento entre P y Q: R= (1-Landa)*P + Landa*Q
+ * TODO CONTROL DE BUCLES:
+ * TODO QUE NO SE MUEVA SI NO PUEDE LLEGAR AL TARGET FINAL
  * 
  * @return void
  */
 void Cinematica_Inversa::chopPath(Target &target)
 {	
+	static QList<QVec> listaSubtargets;
+	const float step = 0.1;
+	QVec targetTotal(6);	
+	
+	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese targe:
+	//	- Sacamos sus traslaciones y sus rotaciones para componer el target FINAL.
+	QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());
+	QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();
+	targetTotal.inject(targetTInTip,0);		
+	targetTotal.inject(targetRInTip,3);
+	
+	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
+	
+	if( dist > step)  
+	{
+		int nPuntos = floor(dist / step);
+		T landa = 1./nPuntos;
+		QVec R(6);
+		QVec P(6);
+		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
+		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
+		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);	
+		
+		
+		// Añadido por Mercedes y Agustín 		
+		QVec R2(6);
+		R2 = (targetTotal * (T)(landa));	
+				
+		QMat matTipInWorld = inner->getRotationMatrixTo("world", target.getTipName());
+		Rot3D matErrorInTip(R2[3], R2[4], R2[5]);
+		QMat matResul = matTipInWorld * matErrorInTip;
+		
+		R.inject(inner->transform("world", R2.subVector(0,2), target.getTipName()),0) ;
+		R.inject(matResul.extractAnglesR_min(),3);
+		qDebug() << "P" << P << " Rnueva" << R;
+		
+		if(comprobarBucleChop(listaSubtargets, R)==true)
+		{
+			qDebug()<<"Patrones repetidos salimos del chop";
+			target.setChopped(false);
+			listaSubtargets.clear();
+		}
+		else
+		{
+			listaSubtargets.append(R);
+			//Fin añadido
+			//Update virtual target in innermodel to chopped postion
+			inner->updateTransformValues(target.getNameInInnerModel(), R.x(), R.y(), R.z(), R.rx(), R.ry(), R.rz());
+			target.setChopped(true);
+			target.setChoppedPose(R);
+			target.setExecuted(false);
+		}
+	}
+	else
+		
+	{
+		target.setChopped(false);
+		listaSubtargets.clear();
+	}
+}
+
+/*
+ 
+ void Cinematica_Inversa::chopPath(Target &target)
+{	
+	QList<QVec> listaSubtargets;
+	
 	static QVec posicion_anterior (6);
-	posicion_anterior.print("Posicion anterior");
 	const float minTraslaciones = 0.0001;
 	const float minRotaciones = 0.001;
-	
-	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese target	
-  QVec targetTInTip = inner->transform(this->endEffector, QVec::zeros(3), target.getNameInInnerModel());				
-  QVec targetRInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()).extractAnglesR_min();		//orientation of tip in world
-  QVec targetTotal(6);
-  targetTotal.inject(targetTInTip,0);
-  targetTotal.inject(targetRInTip,3);
-	
 	const float step = 0.1;
+	QVec targetTotal(6);	
 	
-	(QMat::makeDiagonal(target.getWeights()) * targetTotal).print("targetTotal");
+	//Si hay un target encolado previo, deberia tomar el punto de partida como la pose6d de ese targe:
+	//	- Sacamos sus traslaciones y sus rotaciones para componer el target FINAL.
+	QVec targetTInTip = inner->transform(target.getTipName(), QVec::zeros(3), target.getNameInInnerModel());
+	QVec targetRInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()).extractAnglesR_min();
+	targetTotal.inject(targetTInTip,0);		
+	targetTotal.inject(targetRInTip,3);
+	
 	float dist = (QMat::makeDiagonal(target.getWeights()) * targetTotal ).norm2();  //Error is weighted with weight matr
-	//qDebug() << "dis" << dist << targetTInTip.norm2() << target.getRadius();
-	
-// 	if( targetTInTip.norm2() < target.getRadius() )
-// 		target.setAtTarget(true);
-/*	else*/ 
 	
 	if( dist > step)  
 	{
@@ -156,8 +211,8 @@ void Cinematica_Inversa::chopPath(Target &target)
 		T landa = 1./nPuntos;
 		QVec R(6);
 		QVec P(6);
-		P.inject(inner->transform("world", QVec::zeros(3), this->endEffector),0);
-		P.inject(inner->getRotationMatrixTo("world", this->endEffector).extractAnglesR_min(),3);
+		P.inject(inner->transform("world", QVec::zeros(3), target.getTipName()),0);
+		P.inject(inner->getRotationMatrixTo("world", target.getTipName()).extractAnglesR_min(),3);
 		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);	
 		
 		
@@ -168,11 +223,11 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R2 = (targetTotal * (T)(landa));	
 		//qDebug() << "Error total visto desde end effector" << targetTotal << " R2" << R2;
 				
-		QMat matTipInWorld = inner->getRotationMatrixTo("world", this->endEffector);
+		QMat matTipInWorld = inner->getRotationMatrixTo("world", target.getTipName());
 		Rot3D matErrorInTip(R2[3], R2[4], R2[5]);
 		QMat matResul = matTipInWorld * matErrorInTip;
 		
-		R.inject(inner->transform("world", R2.subVector(0,2), this->endEffector),0) ;
+		R.inject(inner->transform("world", R2.subVector(0,2), target.getTipName()),0) ;
 		R.inject(matResul.extractAnglesR_min(),3);
 		qDebug() << "P" << P << " Rnueva" << R;
 		
@@ -202,6 +257,53 @@ void Cinematica_Inversa::chopPath(Target &target)
 	else
 		target.setChopped(false);
 }
+ */
+
+/**
+ * @brief Método COMPROBAR BUCLE CHOP
+ * Mira si en la lista existe algún target idéntico al nuevo subtarget calculado por el chopPath
+ * o muy parecido a alguno recorriendo la lista y restando elementos hasta que alguno no supere el
+ * umbral de traslaciones y de rotaciones.
+ * @param listaSubtargets lista con todos los subtargets calculados por el chopPath
+ * @param subTarget subtarget nuevo calculado por el chopPath.
+ * 
+ * @return bool
+ */ 
+bool Cinematica_Inversa::comprobarBucleChop(QList< QVec > listaSubtargets, QVec subTarget)
+{
+	//Booleano para detectar patrones y bucles
+	bool subtargetRepetido=false;
+	const float minTraslaciones = 0.01;
+	const float minRotaciones = 0.01;
+	
+	//Si la lista de subtargets no está vacía hace las comprobaciones
+	if(listaSubtargets.isEmpty()==false)
+	{
+		// Si el nuevo subtarget calculado por el chopPath ya está dentro de la lista, 
+		// levanta la bandera del subtargetRepetido.
+		if(listaSubtargets.contains(subTarget))
+			subtargetRepetido=true;
+		else
+		{
+			// Si no está idéntico, recorremos la lista y vamos comparando con los elementos almacenados. 
+			// Si encuantra alguno parecido al subtarget recién calculado levanta bandera y rompe el bucle.
+			for(int i=0; i<listaSubtargets.size(); i++)
+			{
+				QVec anterior=listaSubtargets.at(i);
+				
+				if(fabs(subTarget[0]-anterior[0])<minTraslaciones and fabs(subTarget[1]-anterior[1])<minTraslaciones and fabs(subTarget[2]-anterior[2])<minTraslaciones and
+				   fabs(subTarget[3]-anterior[3])<minRotaciones   and fabs(subTarget[4]-anterior[4])<minRotaciones   and fabs(subTarget[5]-anterior[5])<minRotaciones)
+				{
+					subtargetRepetido=true; 
+					break;
+				}
+			}
+		}
+	}
+
+	return subtargetRepetido;
+}
+
 	
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 										MÉTODOS DE TRASLACIÓN Y ROTACIÓN									   *
@@ -219,7 +321,7 @@ void Cinematica_Inversa::chopPath(Target &target)
  * 
  * @return QMat la matriz jacobiana
  */ 
-QMat Cinematica_Inversa::jacobian(QVec motores)
+QMat Cinematica_Inversa::jacobian(QVec motores, Target target)
 {
 	// Inicializamos la matriz jacobiana de tamaño el del punto objetivo que tiene 6 ELEMENTOS [tx, ty, tz, rx, ry, rz]
 	// por el número de motores de la lista de articulaciones: 6 filas por n columnas. También inicializamos un vector de ceros
@@ -237,7 +339,7 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			axisTip = this->inner->transform(this->listaJoints.last(), axisTip, linkName);
 			QVec axisBase = this->inner->transform(this->listaJoints.last(), zero, linkName);
 			QVec axis = axisBase - axisTip;
-			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints.last(), zero, this->endEffector) );		
+			QVec toEffector = (axisBase - this->inner->transform(this->listaJoints.last(), zero, target.getTipName()) );		
 			QVec res = toEffector.crossProduct(axis);
 
 			jacob(0,j) = res.x();
@@ -307,18 +409,16 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		//---> PRUEBAS
 		
 		QVec targetTInLastJoint = inner->transform(listaJoints.last(), QVec::zeros(3), target.getNameInInnerModel());	
-		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), this->endEffector);			
+		QVec tipTInLastJoint = inner->transform(this->listaJoints.last(), QVec::zeros(3), target.getTipName());			
 		QVec errorTInLastJoint = targetTInLastJoint - tipTInLastJoint;
 		
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
-		QMat matTargetInTip = inner->getRotationMatrixTo(this->endEffector, target.getNameInInnerModel()); 
+		QMat matTargetInTip = inner->getRotationMatrixTo(target.getTipName(), target.getNameInInnerModel()); 
 		// 2) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el lastJoint para orientarse como el tip:
-		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), this->endEffector);
+		QMat matTipInLastJoint = inner->getRotationMatrixTo(listaJoints.last(), target.getTipName());
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();	
-		// 4) Pasamos los errores de rotación al last joint.
-		QVec anglesRot = matTipInLastJoint * targetRInTip;
 		
 		QVec firstRot = matTipInLastJoint * QVec::vec3(targetRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
@@ -400,7 +500,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 		We = QMat::makeDiagonal(target.getWeights());  //matriz de pesos para compensar milímietros con radianes.
 	
 	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
-	QMat J = jacobian(motores);
+	QMat J = jacobian(motores, target);
 	QMat H = J.transpose()*(We*J);			
 	QVec g = J.transpose()*(error);		
 	bool stop = (g.maxAbs(auxInt) <= e1);
@@ -446,7 +546,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 				{
 					// Recalculamos el Jacobiano, el Hessiano y el vector g. El error es el mismo que antes
 					// puesto que NO aplicamos los cambios (los ángulos nuevos).
-					J = jacobian(motores);
+					J = jacobian(motores, target);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
 				}
@@ -464,7 +564,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 					angulos = aux;
 					// Recalculamos con nuevos datos.
 					error = We*computeErrorVector(target);						
-					J = jacobian(motores);
+					J = jacobian(motores, target);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
 		
@@ -490,9 +590,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 	else if ( smallInc == true) target.setStatus(Target::LOW_INCS);
 	else if ( nanInc == true) target.setStatus(Target::NAN_INCS);
 	
-	target.setError(error.norm2());
 	target.setErrorVector(error);
-  target.setFinalAngles(angulos);
+	target.setFinalAngles(angulos);
 	
 }
 
@@ -654,6 +753,8 @@ void Cinematica_Inversa::levenbergMarquardt2(Target &target)
 // // qDebug() << "-----------------------------------------------------------------";
 	
 }
+
+
 QVec Cinematica_Inversa::computeH(const QVec &angs)
 {
 	QVec alfas(angs.size());

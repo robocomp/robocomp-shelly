@@ -1,0 +1,9 @@
+import "/robocomp/interfaces/IDSLs/TTSGoogle.idsl";
+import "/robocomp/interfaces/IDSLs/ASRPublish.idsl";
+Component GoogleSpeechComp{
+	Communications{
+		publishes ASRPublish;
+		subscribesTo TTSGoogle;
+	};
+	language Cpp;
+};

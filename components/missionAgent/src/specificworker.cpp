@@ -127,119 +127,137 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
-	refresh = true;
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
-	printf("%s: %d\n", __FILE__, __LINE__);
 	modelMutex.lock();
-	printf("%s: %d\n", __FILE__, __LINE__);
 	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 	AGMModelPrinter::printWorld(worldModel);
-	modelDrawer->update(worldModel);
+	refresh = true;
 	modelMutex.unlock();
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
-	refresh = true;
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	modelMutex.lock();
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+	refresh = true;
 	modelMutex.unlock();
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &pl)
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("SpecificWorker::update\n");
 	planMutex.lock();
 	plan = pl;
-	planMutex.unlock();
 	refresh = true;
-	printf("%s: %d\n", __FILE__, __LINE__);
+	planMutex.unlock();
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::quitButtonClicked()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("quit button\n");
 	exit(0);
 }
 
 void SpecificWorker::broadcastButtonClicked()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("broadcast button\n");
-	agmexecutive_proxy->broadcastModel();
-	printf("%s: %d\n", __FILE__, __LINE__);
+	try
+	{
+		agmexecutive_proxy->broadcastModel();
+	}
+	catch(const Ice::Exception &e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::setMission()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("mission #%d\n", missions->currentIndex());
-	agmexecutive_proxy->broadcastModel();
+	try
+	{
+		agmexecutive_proxy->broadcastModel();
+	}
+	catch(const Ice::Exception & e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
 	planText->clear();
 	AGMModelConverter::fromXMLToInternal(missionPaths[missions->currentIndex()], targetModel);
 	AGMModelConverter::fromInternalToIce(targetModel, targetModelICE);
 
-	printf("%s: %d\n", __FILE__, __LINE__);
-	try { agmexecutive_proxy->deactivate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->deactivate"<< endl; }
-	try { agmexecutive_proxy->setMission(targetModelICE); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->setMission. Check ExecutiveComp" << endl; }
-	try { agmexecutive_proxy->activate(); } catch(const Ice::Exception & e) { cout << e << "agmexecutive_proxy->activate"<< endl; }
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
+	try
+	{
+		agmexecutive_proxy->deactivate();
+		agmexecutive_proxy->setMission(targetModelICE);
+		agmexecutive_proxy->activate(); 
+	}
+	catch(const Ice::Exception & e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::activateClicked()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->activate();
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->activate" << endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::deactivateClicked()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->deactivate();
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->deactivate"<< endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::resetClicked()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->reset();
 	}
 	catch(const Ice::Exception & e)
 	{
-		cout << e << "agmexecutive_proxy->reset"<< endl;
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::set3DViewer()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 // #if QT_VERSION >= 0x050000
 // 	// Qt5 is currently crashing and reporting "Cannot make QOpenGLContext current in a different thread" when the viewer is run multi-threaded, this is regression from Qt4
 	osgViewer::ViewerBase::ThreadingModel threadingModel = osgViewer::ViewerBase::SingleThreaded;
@@ -251,7 +269,7 @@ void SpecificWorker::set3DViewer()
 
 	setGeometry();
 	graphViewer->show();
-	printf("%s: %d\n", __FILE__, __LINE__);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::setGeometry()
