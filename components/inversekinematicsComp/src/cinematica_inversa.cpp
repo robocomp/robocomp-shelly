@@ -54,7 +54,7 @@ Cinematica_Inversa::~Cinematica_Inversa()
 
 void Cinematica_Inversa::setNewTip(const RoboCompBodyInverseKinematics::Pose6D &tip)
 {
-	
+	inner->updateTransformValues(endEffector,tip.x, tip.y, tip.z, tip.rx, tip.ry, tip.rz);
 }
 
 
