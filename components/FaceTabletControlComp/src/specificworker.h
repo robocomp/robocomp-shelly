@@ -94,8 +94,8 @@ protected:
 	int new_fd;	               // new connection on new_fd
 	int datasockfd;	             
 	int senddatasockfd;	              
-        struct sockaddr_in their_addr; // connector's address information
-        struct sockaddr_in my_addr;    // my address information
+    struct sockaddr_in their_addr; // connector's address information
+    struct sockaddr_in my_addr;    // my address information
 	struct hostent *he;
 	double buffer[BUFFSIZE];	// reuse the same memory for buffer
 	double buffer2[BUFFSIZE];

@@ -12,7 +12,7 @@ INCLUDE ( CMakeListsSpecific.txt)
 SET ( SOURCES
   ${SOURCES}
   googlespeechcomp.cpp
-  ttsgoogleI.cpp
+  speechI.cpp
 
   genericmonitor.cpp
   commonbehaviorI.cpp
@@ -24,7 +24,7 @@ SET ( SOURCES
 # Headers set
 SET ( HEADERS
   ${HEADERS}
-  ttsgoogleI.h
+  speechI.h
 
   genericmonitor.h
   commonbehaviorI.h
@@ -32,7 +32,7 @@ SET ( HEADERS
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  TTSGoogle  ASRPublish)
+ROBOCOMP_WRAP_ICE( CommonBehavior  Speech  ASRPublish)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4

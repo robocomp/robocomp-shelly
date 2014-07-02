@@ -76,7 +76,7 @@
 #include "specificworker.h"
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
-#include <ttsgoogleI.h>
+#include <speechI.h>
 
 // Includes for remote proxy example
 // #include <Remote.h>
@@ -88,7 +88,7 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
-using namespace RoboCompTTSGoogle;
+using namespace RoboCompSpeech;
 using namespace RoboCompASRPublish;
 
 
@@ -186,27 +186,11 @@ int GoogleSpeechComp::run(int argc, char* argv[])
 		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
 		adapterCommonBehavior->activate();
 		// Server adapter creation and publication
-    	Ice::ObjectAdapterPtr TTSGoogle_adapter = communicator()->createObjectAdapter("TTSGoogleTopic");
-    	TTSGooglePtr ttsgoogleI_ = new TTSGoogleI(worker);
-    	Ice::ObjectPrx ttsgoogle_proxy = TTSGoogle_adapter->addWithUUID(ttsgoogleI_)->ice_oneway();
-    	IceStorm::TopicPrx ttsgoogle_topic;
-    	if(!ttsgoogle_topic){
-	    	try {
-	    		ttsgoogle_topic = topicManager->create("TTSGoogle");
-	    	}
-	    	catch (const IceStorm::TopicExists&) {
-	    	  	//Another client created the topic
-	    	  	try{
-	       			ttsgoogle_topic = topicManager->retrieve("TTSGoogle");
-	    	  	}catch(const IceStorm::NoSuchTopic&){
-	    	  	  	//Error. Topic does not exist
-				}
-	    	}
-	    	IceStorm::QoS qos;
-	      	ttsgoogle_topic->subscribeAndGetPublisher(qos, ttsgoogle_proxy);
-    	}
-    	TTSGoogle_adapter->activate();
-    	// Server adapter creation and publication
+		Ice::ObjectAdapterPtr adapterSpeech = communicator()->createObjectAdapter("SpeechComp");
+		SpeechI *speech = new SpeechI(worker);
+		adapterSpeech->add(speech, communicator()->stringToIdentity("speech"));
+
+		adapterSpeech->activate();
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )

@@ -48,109 +48,107 @@ void SpecificWorker::compute( )
 {
 	 
 	for (uint i=0; i<values2.size(); i++)
-	{
-	 
-	port = 9999;
-	dataport = 33012;
-	int rev = 1;
+	{	 
+		port = 9999;
+		dataport = 33012;
 
-        if (VERBOSE) printf("Server: opening socket to %s on port = %d, datagrams on port = %d\n", "158.49.247.247", port, dataport);
+			if (VERBOSE) printf("Server: opening socket to %s on port = %d, datagrams on port = %d\n", "158.49.247.247", port, dataport);
 
-	if ((he=gethostbyname("158.49.247.247"))==NULL) 
-		perror("gethostbyname");
+		if ((he=gethostbyname("158.49.247.247"))==NULL) 
+			perror("gethostbyname");
 
-        if ((new_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
-            perror("socket");
+			if ((new_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
+				perror("socket");
 
-	if ((datasockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-            perror("datagram socket");
-            exit(1);
-        }
+		if ((datasockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+				perror("datagram socket");
+				exit(1);
+			}
 
-        if ((senddatasockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
-            perror("datagram send socket");
-            exit(1);
-        }
-	
-        my_addr.sin_family = AF_INET;        
-        my_addr.sin_port = htons(dataport); 
-        my_addr.sin_addr.s_addr = INADDR_ANY; 
-        bzero(&(my_addr.sin_zero), 8);        
+			if ((senddatasockfd = socket(AF_INET, SOCK_DGRAM, 0)) == -1) {
+				perror("datagram send socket");
+				exit(1);
+			}
+		
+			my_addr.sin_family = AF_INET;        
+			my_addr.sin_port = htons(dataport); 
+			my_addr.sin_addr.s_addr = INADDR_ANY; 
+			bzero(&(my_addr.sin_zero), 8);        
 
-        their_addr.sin_family = AF_INET;        
-        their_addr.sin_port = htons(port);      
-        their_addr.sin_addr = *((struct in_addr *) he->h_addr); 
-        bzero(&(their_addr.sin_zero), 8);        
+			their_addr.sin_family = AF_INET;        
+			their_addr.sin_port = htons(port);      
+			their_addr.sin_addr = *((struct in_addr *) he->h_addr); 
+			bzero(&(their_addr.sin_zero), 8);        
 
-        if (::connect(new_fd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
-            perror("connect new_fd");
-            exit(1);
-        }
+			if (::connect(new_fd, (struct sockaddr *)&their_addr, sizeof(struct sockaddr)) == -1) {
+				perror("connect new_fd");
+				exit(1);
+			}
 
-        if (bind(datasockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
-            perror("bind datagram socket");
-	    exit(1);
-        }
-	
-	string Srcy = static_cast<ostringstream*>( &(ostringstream() << values2[0].rcy) )->str();
-	string Srcd = static_cast<ostringstream*>( &(ostringstream() << values2[0].rcd) )->str();
-	string Sgb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].gb) )->str();
-	string Sab  = static_cast<ostringstream*>( &(ostringstream() << values2[0].ab) )->str();
-	string Stb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].tb) )->str();
-	string Seb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].eb) )->str();
-	string SpoiX = static_cast<ostringstream*>( &(ostringstream() << values2[0].poiX) )->str();
-	string SpoiY = static_cast<ostringstream*>( &(ostringstream() << values2[0].poiY) )->str();
-	string SpodX = static_cast<ostringstream*>( &(ostringstream() << values2[0].podX) )->str();
-	string SpodY = static_cast<ostringstream*>( &(ostringstream() << values2[0].podY) )->str();
-	
+			if (bind(datasockfd, (struct sockaddr *)&my_addr, sizeof(struct sockaddr)) == -1) {
+				perror("bind datagram socket");
+			exit(1);
+			}
+		
+		string Srcy = static_cast<ostringstream*>( &(ostringstream() << values2[0].rcy) )->str();
+		string Srcd = static_cast<ostringstream*>( &(ostringstream() << values2[0].rcd) )->str();
+		string Sgb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].gb) )->str();
+		string Sab  = static_cast<ostringstream*>( &(ostringstream() << values2[0].ab) )->str();
+		string Stb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].tb) )->str();
+		string Seb  = static_cast<ostringstream*>( &(ostringstream() << values2[0].eb) )->str();
+		string SpoiX = static_cast<ostringstream*>( &(ostringstream() << values2[0].poiX) )->str();
+		string SpoiY = static_cast<ostringstream*>( &(ostringstream() << values2[0].poiY) )->str();
+		string SpodX = static_cast<ostringstream*>( &(ostringstream() << values2[0].podX) )->str();
+		string SpodY = static_cast<ostringstream*>( &(ostringstream() << values2[0].podY) )->str();
+		
 
-	  cout<<"id emotional state"<<values2[0].idES<<endl;
-	  cout<<"flag"<<values2[0].flag<<endl;
-	  
-	  // 1 anger - 2 fear- 3 sad - 4 Happy - 5 Neutral - 6 Confused
-	  
-	  if (values2[0].idES == 1)
-	  {
-	    cout<<"Anger state"<<endl;
-	    send_Position("20","-20","0","10","90","-1","0","0","0","0");
-	    
-	  } else if (values2[0].idES == 2)
-	  {
-	    cout<<"Fear state"<<endl;
+		cout<<"id emotional state"<<values2[0].idES<<endl;
+		cout<<"flag"<<values2[0].flag<<endl;
+		
+		// 1 anger - 2 fear- 3 sad - 4 Happy - 5 Neutral - 6 Confused
+		
+		if (values2[0].idES == 1)
+		{
+			cout<<"Anger state"<<endl;
+			send_Position("20","-20","0","10","90","-1","0","0","0","0");
+			
+		} else if (values2[0].idES == 2)
+		{
+			cout<<"Fear state"<<endl;
 
-	    send_Position("-10","10","0","60","90","0","5","-10","5","-10");
-	  } else   if (values2[0].idES == 3)
-	  {
-	    cout<<"Sad state"<<endl;
-	    send_Position("-20","20","0","40","90","-1","0","40","0","40");
-	    
-	  } else  if (values2[0].idES == 4)
-	  {
-	    cout<<"Happy state"<<endl;
-	    send_Position("0","0","0","60","99","1","0","10","0","10");
-	    
-	  }   else  if (values2[0].idES == 5)
-	  {
-	    cout<<"Neutral state"<<endl;
-	    send_Position("0","0","0","10","80","0","5","10","5","3");
-	  } else  if (values2[0].idES == 6)
-	  {
-	    cout<<"Confused state"<<endl;
+			send_Position("-10","10","0","60","90","0","5","-10","5","-10");
+		} else   if (values2[0].idES == 3)
+		{
+			cout<<"Sad state"<<endl;
+			send_Position("-20","20","0","40","90","-1","0","40","0","40");
+			
+		} else  if (values2[0].idES == 4)
+		{
+			cout<<"Happy state"<<endl;
+			send_Position("0","0","0","60","99","1","0","10","0","10");
+			
+		}   else  if (values2[0].idES == 5)
+		{
+			cout<<"Neutral state"<<endl;
+			send_Position("0","0","0","10","80","0","5","10","5","3");
+		} else  if (values2[0].idES == 6)
+		{
+			cout<<"Confused state"<<endl;
 
-	    send_Position("-10","-10","20","40","50","0","-30","35","30","-10");
-	  } else {
-	    cout<<"control manual"<<endl;
-	    send_Position(Srcy, Srcd, Sgb, Sab, Stb, Seb, SpoiX, SpodY, SpodX, SpodY);
-	  }
-	  values2.clear();
+			send_Position("-10","-10","20","40","50","0","-30","35","30","-10");
+		} else {
+			cout<<"control manual"<<endl;
+			send_Position(Srcy, Srcd, Sgb, Sab, Stb, Seb, SpoiX, SpodY, SpodX, SpodY);
+		}
+		values2.clear();
 
- 	shutdown(new_fd, SHUT_RDWR);
+		shutdown(new_fd, SHUT_RDWR);
 
-	close(new_fd);
-	//closesocket();
-	
- 	close(datasockfd);
- 	close(senddatasockfd);
+		close(new_fd);
+		//closesocket();
+		
+		close(datasockfd);
+		close(senddatasockfd);
 	}
 
 }
@@ -196,7 +194,7 @@ void  SpecificWorker::send_ints(int *val, int len)
 {
 	int *buff;
 	char *ptr, *valptr;
-	int i,j;
+	uint i,j;
 
 	// we may need to reverse the byte order, oh joy
 
@@ -485,9 +483,9 @@ int  SpecificWorker::recv_floats(float *val, int maxlen)
 	int numbytes = 0;
 	int i, j;
 	char *temp;
-        char *result;
+    char *result;
 	int end = 0;
-	int total_bytes = 0;
+	uint total_bytes = 0;
 
 	temp = (char *) buffer;
 	result = (char *) buffer2;
@@ -508,7 +506,7 @@ int  SpecificWorker::recv_floats(float *val, int maxlen)
 		}
 
 		total_bytes = total_bytes + numbytes;
-		if (total_bytes==maxlen*sizeof(float))
+		if (total_bytes == maxlen*sizeof(float))
 			end = 1;
 
 	}

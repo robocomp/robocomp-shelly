@@ -34,13 +34,30 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
 void SpecificWorker::compute( )
 {
 }
+
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	timer.start(Period);
+	/**
+	 * @brief PUblish method
+	 * 
+	 * @param text ...
+	 * @return void
+	 */
 	return true;
 };
-void SpecificWorker::newText(const string& text){
+
+
+bool SpecificWorker::isBusy()
+{
+	return false;
+
+}
+bool SpecificWorker::say(const string& text, bool owerwrite)
+{
+	return true;
 }
