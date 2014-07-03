@@ -1366,6 +1366,7 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 	mutex->unlock();
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	marcaApril.print("marcaInHead");
 	marcaTInWorld.print("marcaTInWorld");
 	marcaTInWorld[0] += xoffset;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
 	
@@ -1421,6 +1422,7 @@ void SpecificWorker::finePartToAprilTarget()
 		pose.x = manoInEndEffector.x();pose.y = manoInEndEffector.y();pose.z = manoInEndEffector.z();
 		pose.rx = manoInEndEffector.rx();pose.ry = manoInEndEffector.ry();pose.rz = manoInEndEffector.rz();
 		bodyinversekinematics_proxy->setNewTip("RIGHTARM", pose);
+		
 		qDebug() << __FUNCTION__ << manoInEndEffector;
 		
 //		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", pose, pesos,10);

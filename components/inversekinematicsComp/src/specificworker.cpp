@@ -615,8 +615,8 @@ void SpecificWorker::setNewTip(const std::string& part, const Pose6D &pose)
 		mutex->lock();
 			//bodyParts[partName].setNewVisualTip(pose);
 			innerModel->transform("world",QVec::zeros(3),"grabPositionHandR").print("antes setNewTip");
-			//innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., pose.rx, pose.ry, pose.rz);	
-			innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., 0,0,0);	
+			innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., pose.rx, pose.ry, pose.rz);	
+			//innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., 0,0,0);	
 			
 			innerModel->transform("world",QVec::zeros(3),"grabPositionHandR").print("despues setNewTipo");
 		mutex->unlock();
