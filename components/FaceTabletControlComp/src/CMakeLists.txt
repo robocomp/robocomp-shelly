@@ -1,32 +1,30 @@
 cmake_minimum_required(VERSION 2.6)
 PROJECT( facetabletcontrolcomp )
-IF(NOT EXISTS $ENV{ROBOCOMP}/CMake)
+IF(NOT EXISTS $ENV{ROBOCOMP}/cmake)
 MESSAGE(FATAL_ERROR "
  ROBOCOMPROOT variable not set, check your bashrc profile!
 ")
-ENDIF(NOT EXISTS $ENV{ROBOCOMP}/CMake)
-INCLUDE( $ENV{ROBOCOMP}/CMake/robocomp.cmake )
+ENDIF(NOT EXISTS $ENV{ROBOCOMP}/cmake)
+INCLUDE( $ENV{ROBOCOMP}/cmake/robocomp.cmake )
 INCLUDE ( CMakeListsSpecific.txt)
 
 # Sources set
 SET ( SOURCES
   ${SOURCES}
   facetabletcontrolcomp.cpp
-  facetabletI.cpp
-facetabletursusI.cpp
+  facetabletursusI.cpp
 
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
-  $ENV{ROBOCOMP}/Classes/rapplication/rapplication.cpp
-  $ENV{ROBOCOMP}/Classes/qlog/qlog.cpp
+  $ENV{ROBOCOMP}/classes/rapplication/rapplication.cpp
+  $ENV{ROBOCOMP}/classes/qlog/qlog.cpp
 )
 
 # Headers set
 SET ( HEADERS
   ${HEADERS}
-  facetabletI.h
-facetabletursusI.h
+  facetabletursusI.h
 
   genericmonitor.h
   commonbehaviorI.h
@@ -34,7 +32,7 @@ facetabletursusI.h
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  FaceTablet  FaceTabletUrsus)
+ROBOCOMP_WRAP_ICE( CommonBehavior   FaceTabletUrsus)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4

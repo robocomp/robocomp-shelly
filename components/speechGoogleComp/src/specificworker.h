@@ -33,8 +33,8 @@ public:
 	SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	void  newText(const string& text);
-
+	bool say(const string& text, bool owerwrite);
+	bool isBusy();
 
 public slots:
  	void compute(); 	

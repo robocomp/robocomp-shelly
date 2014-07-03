@@ -3,8 +3,8 @@
 #
 # This property is used to configure the endpoints of the subscriber adapter.
 #
-CommonBehavior.Endpoints=tcp -p 12212
-TTSGoogleTopic.Endpoints=tcp -p 12213
+SpeechComp.Endpoints=tcp -p 10021
+CommonBehavior.Endpoints=tcp -p 12215
 
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001

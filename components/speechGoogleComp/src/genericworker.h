@@ -26,7 +26,7 @@
 #include <qlog/qlog.h>
 #include <CommonBehavior.h>
 #include <ASRPublish.h>
-#include <TTSGoogle.h>
+#include <Speech.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -39,7 +39,7 @@ using namespace std;
        \brief
        @author authorname
 */
-using namespace RoboCompTTSGoogle;
+using namespace RoboCompSpeech;
 using namespace RoboCompASRPublish;
 
 class GenericWorker : public QObject
@@ -55,8 +55,8 @@ public:
 	QMutex *mutex;                //Shared mutex with servant
 
 	ASRPublishPrx asrpublish;
-	virtual void  newText(const string& text) = 0;
-
+	virtual bool say(const string& text, bool owerwrite) = 0;
+	virtual bool isBusy() = 0;
 protected:
 	QTimer timer;
 	int Period;

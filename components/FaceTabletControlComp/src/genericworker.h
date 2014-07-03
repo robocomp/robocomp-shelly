@@ -25,7 +25,6 @@
 #include <stdint.h>
 #include <qlog/qlog.h>
 #include <CommonBehavior.h>
-#include <FaceTablet.h>
 #include <FaceTabletUrsus.h>
 
 #define CHECK_PERIOD 5000
@@ -39,7 +38,6 @@ using namespace std;
        \brief
        @author authorname
 */
-using namespace RoboCompFaceTablet;
 using namespace RoboCompFaceTabletUrsus;
 
 class GenericWorker : public QObject
@@ -55,7 +53,6 @@ public:
 	QMutex *mutex;                //Shared mutex with servant
 
 	virtual void  newFaceTabletUrsus(const valuesList& values) = 0;
-
 protected:
 	QTimer timer;
 	int Period;

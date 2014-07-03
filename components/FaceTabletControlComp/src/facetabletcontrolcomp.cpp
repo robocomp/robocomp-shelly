@@ -63,7 +63,7 @@
 
 // ICE includes
 #include <Ice/Ice.h>
-#include <IceStorm/IceStorm.h>
+
 #include <Ice/Application.h>
 
 #include <rapplication/rapplication.h>
@@ -76,7 +76,6 @@
 #include "specificworker.h"
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
-#include <facetabletI.h>
 #include <facetabletursusI.h>
 
 // Includes for remote proxy example
@@ -88,7 +87,6 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
-using namespace RoboCompFaceTablet;
 using namespace RoboCompFaceTabletUrsus;
 
 
@@ -110,6 +108,7 @@ void FaceTabletControlComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int FaceTabletControlComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
@@ -149,8 +148,6 @@ int FaceTabletControlComp::run(int argc, char* argv[])
 	//rInfo("RemoteProxy initialized Ok!");
 	// 	// Now you can use remote server proxy (remotecomponent_proxy) as local object
 	
-	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
-	
 	
 	GenericWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread
@@ -169,27 +166,11 @@ int FaceTabletControlComp::run(int argc, char* argv[])
 		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
 		adapterCommonBehavior->activate();
 		// Server adapter creation and publication
-    	Ice::ObjectAdapterPtr FaceTabletUrsus_adapter = communicator()->createObjectAdapter("FaceTabletUrsusTopic");
-    	FaceTabletUrsusPtr facetabletursusI_ = new FaceTabletUrsusI(worker);
-    	Ice::ObjectPrx facetabletursus_proxy = FaceTabletUrsus_adapter->addWithUUID(facetabletursusI_)->ice_oneway();
-    	IceStorm::TopicPrx facetabletursus_topic;
-    	while(!facetabletursus_topic){
-	    	try {
-	    		facetabletursus_topic = topicManager->retrieve("FaceTabletUrsus");
-	    	 	IceStorm::QoS qos;
-	      		facetabletursus_topic->subscribeAndGetPublisher(qos, facetabletursus_proxy);
-	    	}
-	    	catch (const IceStorm::NoSuchTopic&) {
-	       		// Error! No topic found!
-	    	}
-    	}
-    	FaceTabletUrsus_adapter->activate();
-    	// Server adapter creation and publication
-		Ice::ObjectAdapterPtr adapterFaceTablet = communicator()->createObjectAdapter("FaceTabletComp");
-		FaceTabletI *facetablet = new FaceTabletI(worker);
-		adapterFaceTablet->add(facetablet, communicator()->stringToIdentity("facetablet"));
+		Ice::ObjectAdapterPtr adapterFaceTabletUrsus = communicator()->createObjectAdapter("FaceTabletUrsusComp");
+		FaceTabletUrsusI *facetabletursus = new FaceTabletUrsusI(worker);
+		adapterFaceTabletUrsus->add(facetabletursus, communicator()->stringToIdentity("facetabletursus"));
 
-		adapterFaceTablet->activate();
+		adapterFaceTabletUrsus->activate();
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )
