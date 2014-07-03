@@ -19,13 +19,26 @@
 #ifndef SPECIFICWORKER_H
 #define SPECIFICWORKER_H
 
+ #include <sys/types.h>
+ #include <signal.h>
+ #include <QPushButton>
+ #include <QFileDialog>
+ #include <QProcess>
+ #include <sstream>
+ 
+#include <stdlib.h>
+#include <fstream>
+#include <stdio.h>
+#include <iostream>
+
+
 #include <genericworker.h>
 
 /**
        \brief
        @author authorname
 */
-
+using namespace std;
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
@@ -36,8 +49,10 @@ public:
 	bool say(const string& text, bool owerwrite);
 	bool isBusy();
 
+
 public slots:
- 	void compute(); 	
+ 	void compute(); 
+ 	void waitForRecognition();	
 };
 
 #endif
