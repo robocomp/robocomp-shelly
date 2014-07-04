@@ -1342,16 +1342,49 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			mutex->lock();
 				marcaApril[0] = tags[i].tx; marcaApril[1] = tags[i].ty; marcaApril[2] = tags[i].tz; marcaApril[3] = tags[i].rx; marcaApril[4] = tags[i].ry; marcaApril[5] = tags[i].rz;    
 			mutex->unlock();
+			
 		}
 		if( tags[i].id == 11 )  //Mano
 		{
 			mutex->lock();
 				manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
 			mutex->unlock();
+			
+// 			qDebug() << "manoApril" << manoApril;
+// 			InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+// 			InnerModelTransform *node = innerModel->newTransform("marca2", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+// 			nodeParent->addChild(node);
+// 			
+// 			mutex->lock();
+// 				innerModel->updateTransformValues("marca2",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz());	
+// 			mutex->unlock();
+// 			
+// 			QVec marca2TInWorld = innerModel->transform("world", QVec::zeros(3), "marca2");
+// 			QVec marca2RInWorld = innerModel->getRotationMatrixTo("world","marca2").extractAnglesR_min();
+// 			QVec marca2InWorld(6);
+// 
+// 			marca2InWorld.inject(marca2TInWorld,0);
+// 			marca2InWorld.inject(marca2RInWorld,3);
+// 			
+// 			qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
+// 			
+// 			QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
+// 			QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
+// 			QVec marcaInWorld(6);
+// 
+// 			marcaInWorld.inject(marcaTInWorld,0);
+// 			marcaInWorld.inject(marcaRInWorld,3);
+// 			
+// 			qDebug() << "Marca de la mano en el mundo vista desde RCIS" << marcaInWorld;
+// 			
+// 			innerModel->removeNode("marca2");
+			
+			
 		}
  	}
 }
 
+///BOTONES DE APRIL
 
 void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 {
@@ -1360,7 +1393,6 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
 	nodeParent->addChild(node);
-	
 	mutex->lock();
 		innerModel->updateTransformValues("marca",marcaApril.x(), marcaApril.y(), marcaApril.z(), marcaApril.rx(), marcaApril.ry(), marcaApril.rz(), "rgbd");	
 	mutex->unlock();
