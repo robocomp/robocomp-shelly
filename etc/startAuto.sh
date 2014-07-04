@@ -34,7 +34,6 @@ sleep 1
  qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'lokiArmTester'
 sleep 1
 
-
 #faulhaberComp
 qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
 sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
@@ -70,3 +69,20 @@ sleep 1
  qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'MonitorReal'
 sleep 1
 
+#IceBox
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
+ sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/robocomp/robocomp/components/robocomp-ursus/etc'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'killall -9 icebox'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'icebox --Ice.Config=config.icebox'
+ qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'IceBox'
+sleep 1
+
+#AprilTag
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
+ sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/bin'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'killall -9 apriltagscomp'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand './apriltagscomp --Ice.Config=../../../../robocomp-ursus/etc/aprilcomp_rcis.conf'
+ qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'AprilTag'
+sleep 1
