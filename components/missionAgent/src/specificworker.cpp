@@ -128,7 +128,7 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
 // 	printf("%s: %d\n", __FILE__, __LINE__);
-	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
+// 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
 	modelMutex.lock();
 	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 	AGMModelPrinter::printWorld(worldModel);

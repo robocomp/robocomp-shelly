@@ -93,7 +93,7 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 	  qFatal("Monitor::initialize - Zero motors found. Exiting..." );
 
 	params["Faulhaber.NumMotors"] = aux;
-	configGetString( "Faulhaber.Device", aux.value, "/dev/ttyUSB0" );	
+	configGetString( "Faulhaber.Device", aux.value, "/dev/ttyUSB1" );	
 	params["Faulhaber.Device"] = aux;
 
 	configGetString( "Faulhaber.BaudRate", aux.value, "" );

@@ -52,9 +52,9 @@ void SpecificWorker::compute( )
 		port = 9999;
 		dataport = 33012;
 
-			if (VERBOSE) printf("Server: opening socket to %s on port = %d, datagrams on port = %d\n", "158.49.247.247", port, dataport);
+			if (VERBOSE) printf("Server: opening socket to %s on port = %d, datagrams on port = %d\n", "158.49.247.194", port, dataport);
 
-		if ((he=gethostbyname("158.49.247.247"))==NULL) 
+		if ((he=gethostbyname("158.49.247.194"))==NULL) 
 			perror("gethostbyname");
 
 			if ((new_fd = socket(AF_INET, SOCK_STREAM, 0)) == -1) 
