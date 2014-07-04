@@ -249,18 +249,26 @@
 
 																		
 																				
-																			<transform	id="ThandMesh1" tz= "50" ty="-70" rz="1.5707963267948966"> 
-																				<transform	id="ThandMesh1_2" rx="3.14"> 
-																					<plane id="handMesh1" ny="1" size="5,90,90" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-11.png" />
+																			<transform	id="ThandMesh1" tz= "50" ty="-70" rx="-1.5707963267948966" rz="3.14159265359"> 
+																			  
+																			  <plane id="hx" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
+																			  <plane id="hy" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+																			  <plane id="hz" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />	
+																			  
+																			  <transform id="ThandMesh1_2" rz="-3.14159265359"> 
+																			    <transform id="ThandMesh1_3" ry="0"> 
+																			      <transform id="ThandMesh1_4" rx="1.5707963267948966"> 
+																					<plane id="handMesh1" ny="1" size="90,90,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-11.png" />
 																			
-																					<plane id="hx" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
-																					<plane id="hy" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
-																					<plane id="hz" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />	
+																					
+																				
+																			      </transform>
+																			    </transform>
 																			  </transform>								
 																			</transform>
 																			
-																			<transform id="pre-grabPositionHandR" rx="0,20" ry="0,20" rz="0,20">
-																				
+<!-- 																			<transform id="pre-grabPositionHandR" rx="0,20" ry="0,20" rz="0,20"> -->
+																			<transform id="pre-grabPositionHandR" >	
 																				<transform id="grabPositionHandR" tz="50">
 																						<plane id="axisx" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" />
 																						<plane id="axisy" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" />
