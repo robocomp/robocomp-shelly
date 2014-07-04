@@ -16,43 +16,38 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPECIFICWORKER_H
-#define SPECIFICWORKER_H
+#ifndef SPEECHI_H
+#define SPEECHI_H
 
- #include <sys/types.h>
- #include <signal.h>
- #include <QPushButton>
- #include <QFileDialog>
- #include <QProcess>
- #include <sstream>
- 
-#include <stdlib.h>
-#include <fstream>
-#include <stdio.h>
-#include <iostream>
+// QT includes
+#include <QtCore/QObject>
 
+// Ice includes
+#include <Ice/Ice.h>
+#include <Speech.h>
 
-#include <genericworker.h>
+#include <config.h>
+#include "genericworker.h"
 
-/**
-       \brief
-       @author authorname
-*/
-using namespace std;
-class SpecificWorker : public GenericWorker
+using namespace RoboCompSpeech;
+
+class SpeechI : public QObject , public virtual RoboCompSpeech::Speech
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	bool say(const string& text, bool owerwrite);
-	bool isBusy();
+	SpeechI( GenericWorker *_worker, QObject *parent = 0 );
+	~SpeechI();
+	bool say(const string& text, bool owerwrite, const Ice::Current& = Ice::Current());
+bool isBusy(const Ice::Current& = Ice::Current());
 
 
+	QMutex *mutex;
+private:
+
+	GenericWorker *worker;
 public slots:
- 	void compute(); 
- 	void waitForRecognition();	
+
+
 };
 
 #endif

@@ -16,43 +16,28 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPECIFICWORKER_H
-#define SPECIFICWORKER_H
+#include "speechI.h"
 
- #include <sys/types.h>
- #include <signal.h>
- #include <QPushButton>
- #include <QFileDialog>
- #include <QProcess>
- #include <sstream>
- 
-#include <stdlib.h>
-#include <fstream>
-#include <stdio.h>
-#include <iostream>
-
-
-#include <genericworker.h>
-
-/**
-       \brief
-       @author authorname
-*/
-using namespace std;
-class SpecificWorker : public GenericWorker
+SpeechI::SpeechI(GenericWorker *_worker, QObject *parent) : QObject(parent)
 {
-Q_OBJECT
-public:
-	SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	bool say(const string& text, bool owerwrite);
-	bool isBusy();
+	worker = _worker;
+	mutex = worker->mutex;       // Shared worker mutex
+	// Component initialization...
+}
 
 
-public slots:
- 	void compute(); 
- 	void waitForRecognition();	
-};
+SpeechI::~SpeechI()
+{
+	// Free component resources here
+}
 
-#endif
+// Component functions, implementation
+bool SpeechI::say(const string& text, bool owerwrite, const Ice::Current&){
+	return worker->say(text,owerwrite);
+}
+
+bool SpeechI::isBusy(const Ice::Current&){
+	return worker->isBusy();
+}
+
+
