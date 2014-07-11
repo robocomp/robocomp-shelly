@@ -64,8 +64,11 @@ void BodyInverseKinematicsI::stop(const string& part, const Ice::Current&){
 	worker->stop(part);
 }
 
-void BodyInverseKinematicsI::setNewTip(const string& part, const Pose6D& pose, const Ice::Current&){
-	worker->setNewTip(part,pose);
+void BodyInverseKinematicsI::setNewTip(const string &part, const string &transform, const Pose6D& pose, const Ice::Current&){
+	worker->setNewTip(part,transform,pose);
 }
+
+
+
 
 

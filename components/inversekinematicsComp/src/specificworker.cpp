@@ -595,10 +595,13 @@ void SpecificWorker::stop(const std::string& part)
  * @param part ...
  * @return void
  */
-void SpecificWorker::setNewTip(const std::string& part, const Pose6D &pose)
+void SpecificWorker::setNewTip(const std::string &part, const std::string &transform, const Pose6D &pose)
 {
 	QString partName = QString::fromStdString(part);
-	if ( bodyParts.contains(partName)==false)
+	QString transformName = QString::fromStdString(transform);
+
+	//Check if tip is a valid new tip
+	if (bodyParts.contains(partName)==false)
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 		RoboCompBodyInverseKinematics::BIKException ex;
@@ -609,16 +612,14 @@ void SpecificWorker::setNewTip(const std::string& part, const Pose6D &pose)
 	{
 		qDebug() << "-------------------------------------------------------------------";
 		qDebug() << "New COMMAND arrived " << __FUNCTION__ << QString::fromStdString(part);
-		
-		//Check if tip is a valid new tip
-		
+
 		mutex->lock();
-			//bodyParts[partName].setNewVisualTip(pose);
-			innerModel->transform("world",QVec::zeros(3),"grabPositionHandR").print("antes setNewTip");
-			innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., pose.rx, pose.ry, pose.rz);	
-			//innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., 0,0,0);	
-			
-			innerModel->transform("world",QVec::zeros(3),"grabPositionHandR").print("despues setNewTipo");
+		//bodyParts[partName].setNewVisualTip(pose);
+		//innerModel->transform("world", QVec::zeros(3),part).print("antes setNewTip");
+		innerModel->updateTransformValues(transformName, pose.x/1000., pose.y/1000., pose.z/1000., pose.rx, pose.ry, pose.rz);
+		//innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., 0,0,0);	
+		
+		//innerModel->transform("world", QVec::zeros(3), part).print("despues setNewTipo");
 		mutex->unlock();
 	}
 }

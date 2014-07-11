@@ -70,7 +70,7 @@ public:
 	virtual void  setRobot(int type) = 0;
 	virtual TargetState getState(const string& part) = 0;
 	virtual void  stop(const string& part) = 0;
-	virtual void  setNewTip(const string& part, const Pose6D& pose) = 0;
+	virtual void  setNewTip(const string &part, const string &transform, const Pose6D& pose) = 0;
 protected:
 	QTimer timer;
 	int Period;
