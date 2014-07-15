@@ -69,6 +69,15 @@ sleep 1
  qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'MonitorReal'
 sleep 1
 
+#PrimeSense
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
+ sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'cd /home/robocomp/robocomp/components/robocomp-robolab/experimental/primeSenseComp/bin'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand 'killall -9 primeSenseComp'
+ qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.runCommand './primeSenseComp --Ice.Config=config'
+ qdbus org.kde.yakuake /yakuake/tabs org.kde.yakuake.setTabTitle $sess 'PrimeSense'
+sleep 1
+
 #IceBox
  qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.addSession
  sess=`qdbus org.kde.yakuake /yakuake/sessions org.kde.yakuake.activeSessionId`
