@@ -1,13 +1,13 @@
-import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
-import "/robocomp/Interfaces/IDSLs/InnerModelManager.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/InnerModelManager.idsl";
 
 Component joystickArmComp{
 	Communications{
 		requires JointMotor, InnerModelManager;
 	};
 	RoboCompClasses{
-		"/Classes/q4serialport/q4serialport.h";
-		"/Classes/q4serialport/q4serialport.cpp";
+		"/classes/q4serialport/q4serialport.h";
+		"/classes/q4serialport/q4serialport.cpp";
 		
 	};
 	language Cpp;

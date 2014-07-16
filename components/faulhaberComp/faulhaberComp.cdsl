@@ -1,4 +1,4 @@
-import "../../IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
 
 Component faulhaberComp{
 	Communications{
