@@ -27,7 +27,7 @@
 				<joint id="base" port="20000" axis="y" home="0">
 					<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.ive"  tx="0" ty="0" tz="0" scale="1000"  />
 
-					<transform id="base_body" rx="-1.5707963267948966" ty="0" tz="-100" >
+					<transform id="base_body" rx="-1.5707963267948966" ty="0" tz="0" >
 						<!-- Gira en Z -->
 						<joint id="body" port="20000" min="-1" max="1" axis="z" >
 						<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" tx="-150" ty="0" tz="945" ry="-1.5707963267948966" scale="1000"  />
@@ -81,10 +81,13 @@
 														<plane id="zh4" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />
 													</transform>
 -->
-													<transform id="sensor_transform2" ty="125" tz="27" > <!-- rx="0.7" -->
-														<transform id="rgbd_transform" rx="1.05">
+													<transform id="sensor_transform2" tx="-25" ty="125" tz="27"  > <!-- rx="0.7" -->
+														<transform id="rgbd_transform" rx="0.5236">
 															<plane id="sensor" nz="1" pz="-10" size="80,60" repeat="1" texture="#0000ff" />
-															<rgbd id="rgbd" focal="525" width="640" height="480" port="10096" ifconfig="20000,10004" />
+															<rgbd id="rgbd" focal="525" width="640" height="480" port="10097" ifconfig="20000,10004" />
+															<!--<plane id="xt" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />
+															<plane id="yt" py="50" nx="1" size="1,100,1" repeat="1" texture="#00ff00" />
+															<plane id="zt" pz="50" nx="1" size="100,1,1" repeat="1" texture="#0000ff" />-->
 														</transform>
 													</transform>
 												</transform>
@@ -260,7 +263,7 @@
 																					<transform id="ThandMesh1_4" rx="1.5707963267948966"> 
 
 																					    <!--  Metemos un error en la marca -->
-																					    <transform id="errorMarcaPruebas" tx="80" rx="0,50" ry="0,0" rz="0,0">
+																					    <transform id="errorMarcaPruebas" tx="0" rx="0,0" ry="0,0" rz="0,0">
 																					      <plane id="handMesh1" ny="1" size="90,90,5" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-11.png" />
 																					    </transform>
 																  

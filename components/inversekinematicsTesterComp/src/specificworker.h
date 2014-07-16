@@ -107,7 +107,7 @@ private:
 	QString tabName;									//Name of current tab
 	int tabIndex;										//Index of current tabIndex	
 
-	QVec marcaApril;
+	QVec marcaBote;
 	QVec manoApril;
 		
 	// MÉTODOS
