@@ -891,7 +891,8 @@ void SpecificWorker::enviarPose6D(QVec p)
 					qDebug()<<"---> TARGET ENVIADO con traslaciones ("<<pose6D.x<<pose6D.y<<pose6D.z<<") y rotaciones ("<<pose6D.rx<<pose6D.ry<<pose6D.rz<<")";
 					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 				}
-				usleep(50000);
+				//usleep(50000);
+				usleep(2*500000);
 
 // 				// ÑAPA: Cuando se le envía una trayectoria pruebaMatlab después de cada target se le lleva al home.
 // 				if(banderaNiapa==true)
