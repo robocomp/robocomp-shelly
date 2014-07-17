@@ -1,8 +1,8 @@
-import "/robocomp/Interfaces/IDSLs/AGMAgent.idsl";
-import "/robocomp/Interfaces/IDSLs/AGMExecutive.idsl";
-import "/robocomp/Interfaces/IDSLs/AGMCommonBehavior.idsl";
-import "/robocomp/Interfaces/IDSLs/AGMWorldModel.idsl";
-import "/robocomp/Interfaces/IDSLs/BodyInverseKinematics.idsl";
+import "/robocomp/interfaces/IDSLs/AGMAgent.idsl";
+import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
+import "/robocomp/interfaces/IDSLs/AGMCommonBehavior.idsl";
+import "/robocomp/interfaces/IDSLs/AGMWorldModel.idsl";
+import "/robocomp/interfaces/IDSLs/BodyInverseKinematics.idsl";
 
 Component inversekinematicsAgentComp{
 	Communications{

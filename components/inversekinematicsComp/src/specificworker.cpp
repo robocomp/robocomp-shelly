@@ -118,8 +118,9 @@ printf("<<< init()\n");
 
 		
 	//Open file to write errors and times of executions
-	ficheroErrores.open("errores.txt", ios::out);
-
+	ficheroErrores.open("errores.txt", std::ofstream::out | std::ofstream::trunc);
+	ficheroErrores<<"cabecera: num_de_exitos, [ tx ty tz rx ry rz ]  error, elapsedTime \n";
+	
 		
 	//RRT path-Planning stuff
 // 	planner = new Planner(innerModel);
@@ -194,7 +195,9 @@ SpecificWorker::~SpecificWorker()
  */ 
 void SpecificWorker::compute() 
 {
-	static int Targets;
+
+	
+
 	// Obtenemos iterador del mapa de partes del cuerpo del robot. Con él iremos
 	// recorriendo las partes, sacando los targets de cada parte y resolviéndolos.
 	QMap<QString, BodyPart>::iterator iterador;
@@ -217,8 +220,8 @@ void SpecificWorker::compute()
 				target.print("BEFORE PROCESSING");
 					
 				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
-				iterador.value().getInverseKinematics()->resolverTarget(target);
 
+				iterador.value().getInverseKinematics()->resolverTarget(target);
 
 			/*	// Si no supera el umbral o ya se está allí, lo marcamos para eliminar.
 				target.markForRemoval(true);
@@ -230,6 +233,14 @@ void SpecificWorker::compute()
 				target.print("AFTER PROCESSING");
 				removeInnerModelTarget(target);
 			}
+
+			// Guardamos errores del target y tiempo de ejecución. FORMATO:
+			// Error # Tiempo de ejecución
+			// TODO ÁRBOL KD.
+// 			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
+// 			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
+// 						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
+				
 			
 			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
 			{
@@ -238,99 +249,26 @@ void SpecificWorker::compute()
 				usleep(2*500000);
 				actualizarInnermodel(listaMotores); 			
 				
-					
+				writeFile(false, target,"HEAD");
+				
+				
+									
 				// Si el target no está siendo troceado, se ha marcado para eliminar o ya se está allí lo eliminamos
 				// de la lista de targets de la parte del cuerpo del robot.
-				mutex->lock();	
- 					iterador.value().removeHeadFromTargets();
+				mutex->lock();					
+ 					iterador.value().removeHeadFromTargets();					
 				mutex->unlock();
 				
-				Targets=Targets+1;
-				qDebug()<<"ELIMINADO TARGET:"<<Targets;
-				sleep(1);
+				
 			}									
 		}
 	}
 	//actualizamos TODOS los motores y limipamos de basura los ficheros:
 	actualizarInnermodel(listaMotores); 
-	ficheroErrores.flush();
+	
 }
 
 
-// void SpecificWorker::compute() 
-// {
-// 	static int Targets;
-// 	// Obtenemos iterador del mapa de partes del cuerpo del robot. Con él iremos
-// 	// recorriendo las partes, sacando los targets de cada parte y resolviéndolos.
-// 	QMap<QString, BodyPart>::iterator iterador;
-// 	
-// 	for( iterador = bodyParts.begin(); iterador != bodyParts.end(); ++iterador)
-// 	{	
-// 		if(iterador.value().noTargets() == false)
-// 		{
-// 			// Si la parte tiene targets en su lista, sacamos el primero y lo procesamos 
-// 			// si no ha sido marcado ya para ser eliminado.
-// 			Target &target = iterador.value().getHeadFromTargets(); 
-// 			
-// 			if (target.isMarkedforRemoval() == false)
-// 			{
-// 				// Anotamos tiempo de inicio de procesamiento dle target y los ángulos iniciales que tiene 
-// 				// la parte del robot al que está asignado. Crea el target en el InnerModel y lo imprime.
-// 				target.annotateInitialTipPose();
-// 				target.setInitialAngles(iterador.value().getMotorList());
-// 				createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
-// 				target.print("BEFORE PROCESSING");
-// 					
-// 				// Resolvemos el target mediante la cinemática inversa. Le ponemos los tiempos de ejecución:
-// 				target.setRunTime(QTime::currentTime());
-// 				iterador.value().getInverseKinematics()->resolverTarget(target);
-// 				target.setElapsedTime(target.getRunTime().elapsed());
-// 
-// 				// local goal achieved: execute the solution
-// 				if(target.getError() <= 0.9 and target.isAtTarget() == false) 
-// 				{
-// 					// Si ha sido resuelto con un error menor al umbral, no se ha alcanzado el objetivo y no es un subtarget,
-// 					// movemos la parte del robot con los ángulos calculados y ponemos bandera de ejecutado al target.
-// 					moveRobotPart(target.getFinalAngles(), iterador.value().getMotorList());
-// 					usleep(500000);
-// 					target.setExecuted(true);
-// 				}
-// 				else  
-// 				{
-// 					// Si no supera el umbral o ya se está allí, lo marcamos para eliminar.
-// 					target.markForRemoval(true);
-// 				}
-// 				// Actualizamos TODOS los motores (OJO si la trayectoria no se ejecuta aquí, el Innermodel debe ser restaurado si la acción no se realiza)
-// 				// Guardamos los ángulos asignados al target como solución, lo imprimimos y lo eliminamos de InnerModel
-// 				actualizarInnermodel(listaMotores); 			
-// 				target.annotateFinalTipPose();
-// 				target.print("AFTER PROCESSING");
-// 				removeInnerModelTarget(target);
-// 			}
-// 			// Guardamos errores del target y tiempo de ejecución. FORMATO:
-// 			// Error # Tiempo de ejecución
-// 			// TODO ÁRBOL KD.
-// 			ficheroErrores<<target.getPose()[0]<<"#"<<target.getPose()[1]<<"#"<<target.getPose()[2]<<"#"
-// 			              <<target.getPose()[3]<<"#"<<target.getPose()[4]<<"#"<<target.getPose()[5]<<"#"
-// 						  <<target.getError()<<"#"<<target.getElapsedTime()<<"\n";
-// 			
-// 			if(target.isChopped() == false or target.isMarkedforRemoval() == true or target.isAtTarget() )
-// 			{
-// 				// Si el target no está siendo troceado, se ha marcado para eliminar o ya se está allí lo eliminamos
-// 				// de la lista de targets de la parte del cuerpo del robot.
-// 				mutex->lock();	
-//  					iterador.value().removeHeadFromTargets();
-// 				mutex->unlock();
-// 				Targets=Targets+1;
-// 				qDebug()<<"ELIMINADO TARGET:"<<Targets;
-// 				sleep(1);
-// 			}									
-// 		}
-// 	}
-// 	//actualizamos TODOS los motores y limipamos de basura los ficheros:
-// 	actualizarInnermodel(listaMotores); 
-// 	ficheroErrores.flush();
-// }
 
 /**
  * @brief Creates a target element inside InnerModel to be used by IK. Avoids having a "target" in the XML file.
@@ -340,6 +278,7 @@ void SpecificWorker::compute()
  * @param target ...
  * @return void
  */
+
 void SpecificWorker::createInnerModelTarget(Target &target)
 {
 	InnerModelNode *nodeParent = innerModel->getNode("world");
@@ -397,6 +336,9 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 
    Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, false);
    t.setRadius(radius/1000.f);
+   t.setRunTime(QTime::currentTime());
+   
+				
   
     mutex->lock();
         bodyParts[partName].addTargetToList(t);

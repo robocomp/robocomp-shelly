@@ -1,5 +1,5 @@
-import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
-import "/robocomp/Interfaces/IDSLs/JoystickAdapter.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/JoystickAdapter.idsl";
 Component ursusHeadComp{
 	Communications{
 		implements JoystickAdapter;

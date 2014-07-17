@@ -109,6 +109,37 @@ class SpecificWorker : public GenericWorker
 		float standardRad(float t);
         void calcularModuloFloat(QVec &angles, float mod);
         void chopPath(const QString &partName, const Target &target);
+		void writeFile(bool arg1, Target &target, const QString &partName) { 
+			if (arg1==false)
+				return;
+			
+			static int Targets =0;
+			if( target.getError()<=0.9)
+				{	
+					
+					
+					qDebug()<<"HE LLEGADO AL TARGET OBJETIVO "<<Targets<<"!!!";
+// 					ficheroErrores.open("errores.txt",std::ios::app);
+					ficheroErrores<<"He llegado:"<<Targets<<" [ "<<target.getPose()[0]<<" "<<target.getPose()[1]<<" "<<target.getPose()[2]<<" "
+					              <<target.getPose()[3]<<" "<<target.getPose()[4]<<" "<<target.getPose()[5]<<" ] "
+						      <<target.getError()<<" , "<<target.getElapsedTime()<<"\n";
+					ficheroErrores.flush();
+					sleep(3);
+					goHome(partName.toStdString());
+					sleep(3);
+				}
+				else 
+				{	
+					qDebug()<<"NO HE LLEGADO AL TARGET OBJETIVO!!!";
+					ficheroErrores<<"NO HE LLEGADO AL TARGET OBJETIVO!!!"<<" [ "<<target.getPose()[0]<<" "<<target.getPose()[1]<<" "<<target.getPose()[2]<<" "
+					<<target.getPose()[3]<<" "<<target.getPose()[4]<<" "<<target.getPose()[5]<<" ] "
+					<<target.getError()<<" , "<<target.getElapsedTime()<<"\n";
+					
+				}
+			Targets=Targets+1;
+			qDebug()<<"ELIMINADO TARGET:"<<Targets;
+			sleep(1);
+		};
 		
 		int correlativeID;
 		int typeR;

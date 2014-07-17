@@ -1,6 +1,6 @@
-import "/robocomp/Interfaces/IDSLs/JointMotor.idsl";
-import "/robocomp/Interfaces/IDSLs/InnerModelManager.idsl";
-import "/robocomp/Interfaces/IDSLs/BodyInverseKinematics.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/InnerModelManager.idsl";
+import "/robocomp/interfaces/IDSLs/BodyInverseKinematics.idsl";
 Component LokiArmTesterComp
 {
 	Communications{

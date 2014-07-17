@@ -142,12 +142,12 @@
                   <widget class="QComboBox" name="partBox1_pose6D">
                    <item>
                     <property name="text">
-                     <string>LEFTARM</string>
+                     <string>RIGHTARM</string>
                     </property>
                    </item>
                    <item>
                     <property name="text">
-                     <string>RIGHTARM</string>
+                     <string>LEFTARM</string>
                     </property>
                    </item>
                    <item>
