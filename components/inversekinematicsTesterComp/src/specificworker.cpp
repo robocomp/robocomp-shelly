@@ -1340,33 +1340,44 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 		if( tags[i].id == 12 )  //marcaBote
 		{
 			mutex->lock();
-				marcaBote[0] = tags[i].tx; marcaBote[1] = tags[i].ty; marcaBote[2] = tags[i].tz; marcaBote[3] = tags[i].rx; marcaBote[4] = tags[i].ry; marcaBote[5] = tags[i].rz;    
+			
+				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
+					qDebug() << "LA MARCA 12 SE HA LEIDO MAL (todo a cero)";
+				else
+				{
+					marcaBote[0] = tags[i].tx; marcaBote[1] = tags[i].ty; marcaBote[2] = tags[i].tz; marcaBote[3] = tags[i].rx; marcaBote[4] = tags[i].ry; marcaBote[5] = tags[i].rz;    
+				}
+				
 			mutex->unlock();
 			
-			InnerModelNode *nodeParent = innerModel->getNode("rgbd");
-			InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
-			nodeParent->addChild(node);
-			mutex->lock();
-				innerModel->updateTransformValues("marca",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
-			mutex->unlock();
 			
-			QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
-		// 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
-			QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
-			QVec marcaInWorld(6);
-			marcaInWorld.inject(marcaTInWorld,0);
-			marcaInWorld.inject(marcaRInWorld,3);
+				InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+				InnerModelTransform *node = innerModel->newTransform("marca3", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+				nodeParent->addChild(node);
+				mutex->lock();
+					innerModel->updateTransformValues("marca3",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
+				mutex->unlock();
+				
+				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca3");
+			 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca3").extractAnglesR_min();
+				QVec marcaInWorld(6);
+				marcaInWorld.inject(marcaTInWorld,0);
+				marcaInWorld.inject(marcaRInWorld,3);
+				
+				marcaInWorld.print("marcaInWorld");
+								
+				QVec targetInWorld = marcaInWorld;	
+				targetInWorld[0] += 100;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
+				targetInWorld[2] -= 100;   
+				targetInWorld[3] = 3.1415;
+				targetInWorld[4] = -1.57; 
+				targetInWorld[5] = 0; 
+				
+				
+				qDebug() << "Target" << targetInWorld;
+				
+				innerModel->removeNode("marca3");
 			
-			marcaBote.print("marcaInHead");
-			marcaInWorld.print("marcaInWorld");
-			
-			QVec targetInWorld = marcaInWorld;	
-			targetInWorld[0] += 100;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
-			targetInWorld[2] -= 100;   
-			
-			qDebug() << "Target" << targetInWorld;
-			
-			innerModel->removeNode("marca");
 			
 		}
 		if( tags[i].id == 11 )  //Mano
@@ -1508,7 +1519,7 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 				
 		RoboCompBodyInverseKinematics::WeightVector weights;
 		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 0; 	weights.rz = 1; 
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
  
 		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,250);
 			
