@@ -87,6 +87,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(test9Button, SIGNAL(clicked()), this, SLOT(goHomeR()));	
 	connect(test10Button, SIGNAL(clicked()), this, SLOT(izquierdoOfrecer()));
 	connect(test11Button, SIGNAL(clicked()), this, SLOT(enviarHome()));
+	
+	//
+	connect(boton1, SIGNAL(clicked()), this, SLOT(boton_1()));
+	connect(boton2, SIGNAL(clicked()), this, SLOT(boton_2()));
+	connect(boton3, SIGNAL(clicked()), this, SLOT(boton_3()));
+	connect(boton4, SIGNAL(clicked()), this, SLOT(boton_4()));
+	connect(boton5, SIGNAL(clicked()), this, SLOT(boton_5()));
 
 }
 
@@ -99,15 +106,15 @@ SpecificWorker::~SpecificWorker()
 }
 
 /**
- * @brief Method SET PARAMS. It's called for the MONITOR thread, which initialize the component with the parameters
- * of the correspondig config file.
+ * @brief Method SET PARAMS. It's called for the MONITOR thread, which initialize the component with the 
+ * parameters of the correspondig config file.
  * 
  * @return bool
  */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	// Guardamos el innerModel que se nos pasa como parámetro de inicialización.
-	// ¡CUIDADO CON EL INNERMODEL! Debe ser el mismo que LOKIARM!!!
+	// ¡CUIDADO CON EL INNERMODEL! Debe ser el mismo que el que utiliza LOKIARM!!!
 	try
 	{
 		RoboCompCommonBehavior::Parameter par = params.at("BIK.InnerModel") ;
@@ -165,7 +172,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en SETPARAMS al tomar datos del robot: "<<ex<<endl;}
 
-	// Ponemos también una ventana del innerModel en esta pestaña:
+	// Ponemos también una ventana del innerModel en la última pestaña:
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
 	timer.start(Period);
 	return true;
@@ -1708,8 +1715,37 @@ void SpecificWorker::finePartToAprilTarget()
 	
 	//Eliminamos el nodo creado
 	innerModel->removeNode("marcaHandInCamera");
-	
-	
+
 	
 }
+
+
+/**
+ * 
+ */ 
+void SpecificWorker::boton_1()
+{
+	
+}
+
+void SpecificWorker::boton_2()
+{
+	
+}
+
+void SpecificWorker::boton_3()
+{
+	
+}
+
+void SpecificWorker::boton_4()
+{
+	
+}
+
+void SpecificWorker::boton_5()
+{
+	
+}
+
 

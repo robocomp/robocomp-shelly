@@ -65,7 +65,7 @@ class SpecificWorker : public GenericWorker
 		void  		setRobot					(const int type) ;
 		void  		stop						(const string& part);
 		TargetState	getState					(const string &part);
-		void  setNewTip(const string &part, const string &transform, const Pose6D &pose); 
+		void 		setNewTip(const string &part, const string &transform, const Pose6D &pose); 
 		
 		
 	public slots:

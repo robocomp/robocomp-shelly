@@ -36,24 +36,34 @@
 
 
 /**
-       \brief
+       \brief INVERSE KINEMATICS TESTER COMP
        @author authorname
 */
 
-// extern std::pair< graph_traits< G >::out_edge_iterator, graph_traits< G >::out_edge_iterator > p;
 
 class SpecificWorker : public GenericWorker
 {
+	
 Q_OBJECT
 public:
+	// Constructores y destructores:
 	SpecificWorker(MapPrx& mprx);	
 	~SpecificWorker();
+	
+	// Métodos públicos:
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 	void  newAprilTag(const tagsList& tags);
 
 public slots:
 
 	void compute(); 
+	
+	// Métods AÑADIDOS +++
+	void boton_1();
+	void boton_2();
+	void boton_3();
+	void boton_4();
+	void boton_5();
 
 	// SLOTS DE LOS BOTONES DE EJECUCIÓN DE LA INTERFAZ.
 	void stop();
@@ -86,6 +96,9 @@ public slots:
 	void goHomeR();
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
+	
+
+
 
 	void ballisticPartToAprilTarget(int xoffset = 100);
 	void finePartToAprilTarget();

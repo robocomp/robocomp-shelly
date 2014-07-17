@@ -85,7 +85,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>0</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -2776,6 +2776,71 @@
          </property>
          <property name="text">
           <string>Visual Servo to Target</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton1">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>220</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Botón 1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton2">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>260</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Botón 2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton3">
+         <property name="geometry">
+          <rect>
+           <x>150</x>
+           <y>330</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Botón 3</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton4">
+         <property name="geometry">
+          <rect>
+           <x>170</x>
+           <y>370</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Botón 4</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton5">
+         <property name="geometry">
+          <rect>
+           <x>160</x>
+           <y>430</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Botón 5</string>
          </property>
         </widget>
        </widget>
