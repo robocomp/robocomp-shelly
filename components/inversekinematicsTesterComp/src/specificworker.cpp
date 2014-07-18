@@ -19,6 +19,10 @@
  
  #include "specificworker.h"
 
+ 
+ //**************************************************************************//
+ //						CONTRUCTORES Y DESTRUCTORES							 //
+ //**************************************************************************//
 /**
 * \brief Default constructor
 */
@@ -27,7 +31,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	// Inicializamos las banderas de los targets a FALSE:
 	//	- NO hay trayectoria asignada
 	//	- NO hay target para RCIS
-	banderaTrayectoria = banderaNiapa = banderaRCIS= false;
+	flagListTargets = existTarget = false;
 
 	// ÑAPA PARA PODER ENVIAR UN MISMO TARGET A DOS O TRES PARTES DEL CUERPO A LA VEZ
 	// Por defecto siempre empezamos con una única parte del cuerpo.
@@ -35,66 +39,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	//	- 0: está desactivada.
 	partesActivadas = QVec(3); //vector de partes
 	partesActivadas[0] = 1;		partesActivadas[1] = 0;		partesActivadas[2] = 0; 
-
-	///////////// HACEMOS LAS CONEXIONES /////////////////
-	//Conectamos botones de EJECUCIÓN:
-	connect(rcisButton, SIGNAL(clicked()), this, SLOT(enviarRCIS()));
-	connect(robotButton, SIGNAL(clicked()), this, SLOT(enviarROBOT()));
-	connect(homePushButton, SIGNAL(clicked()), this, SLOT(enviarHome()));
-	connect(stopButton, SIGNAL(clicked()), this, SLOT(stop()));
 	
-	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
-	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
-	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
-
-	//Conectamos botones de la primera pestaña POSE6D:
-	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
-	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
-	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
-	connect(esfera, SIGNAL(clicked()), this, SLOT(puntosEsfera()));
-	connect(cubo, SIGNAL(clicked()), this, SLOT(puntosCubo()));
-
-	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part3_pose6D, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-
-	//TODO Conectamos los botones de la pestaña ALIGNAXIS
-	connect(Part1_AxisAlign, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part2_AxisAlign, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part3_AxisAlign, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-
-
-	//TODO Conectamos los botones de la pestaña MOVE ALONG AXIS
-	connect(Part1_AlongAxis, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part2_AlongAxis, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-	connect(Part3_AlongAxis, SIGNAL(clicked()), this, SLOT(activarDesactivar()));
-
 	osgView = new OsgView (frame);
 	osgView->setCameraManipulator(new osgGA::TrackballManipulator); 	
 	osgView->getCameraManipulator()->setHomePosition(osg::Vec3(0.,0.,-2.),osg::Vec3(0.,0.,4.),osg::Vec3(0.,1,0.));
-
-// 	frameOsg->show();
-
-	// BOTONERA AÑADIDA
-	connect(test1Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
-	connect(test2Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
-	connect(test3Button, SIGNAL(clicked()), this, SLOT(posicionCoger()));
-	connect(test4Button, SIGNAL(clicked()), this, SLOT(cerrarPinza()));
-	connect(test5Button, SIGNAL(clicked()), this, SLOT(posicionSoltar()));
-	connect(test6Button, SIGNAL(clicked()), this, SLOT(izquierdoRecoger()));
-	connect(test7Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
-	connect(test8Button, SIGNAL(clicked()), this, SLOT(retroceder()));
-	connect(test9Button, SIGNAL(clicked()), this, SLOT(goHomeR()));	
-	connect(test10Button, SIGNAL(clicked()), this, SLOT(izquierdoOfrecer()));
-	connect(test11Button, SIGNAL(clicked()), this, SLOT(enviarHome()));
 	
-	//
-	connect(boton1, SIGNAL(clicked()), this, SLOT(boton_1()));
-	connect(boton2, SIGNAL(clicked()), this, SLOT(boton_2()));
-	connect(boton3, SIGNAL(clicked()), this, SLOT(boton_3()));
-	connect(boton4, SIGNAL(clicked()), this, SLOT(boton_4()));
-	connect(boton5, SIGNAL(clicked()), this, SLOT(boton_5()));
-
+	// Llamamos al método que se encarga de conectar los botones de la interfaz de usuario:
+	connectButtons();
 }
 
 /**
@@ -102,9 +53,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-
+	qDebug()<<"Cerrando el tester...";
 }
 
+
+//**************************************************************************//
+//							MÉTODOS PÚBLICOS								//
+//**************************************************************************//
 /**
  * @brief Method SET PARAMS. It's called for the MONITOR thread, which initialize the component with the 
  * parameters of the correspondig config file.
@@ -131,47 +86,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	catch(std::exception e)	{ qFatal("Error reading config params"); }
 
-	try
-	{
-		// Sacamos todos los parámetros de los motores del robot. Esto nos servirá para inicializar la pestaña de direct Kinematics
-		// de la interfaz de usuario.
-		motorparamList = jointmotor_proxy->getAllMotorParams();
-
-		foreach(RoboCompJointMotor::MotorParams motorParam, motorparamList)
-		{
-			// Ponemos los datos de los límites min y max a TODOS los motores. (por eso lo apiñurgo un poco, porque quedaría
-			// un tochaco de código insufrible --y aún así lo es--)
-			motorList.push_back(motorParam.name);
-
-			// BRAZO IZQUIERDO:
-			if(motorParam.name == shoulder1Left->text().toStdString()){	angleMaxSL1->display(motorParam.maxPos);	angleMinSL1->display(motorParam.minPos);	velocityNewSL1->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == shoulder2Left->text().toStdString()){	angleMaxSL2->display(motorParam.maxPos);	angleMinSL2->display(motorParam.minPos);	velocityNewSL2->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == shoulder3Left->text().toStdString()){	angleMaxSL3->display(motorParam.maxPos);	angleMinSL3->display(motorParam.minPos);	velocityNewSL3->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == elbowLeft->text().toStdString()){		angleMaxEL->display(motorParam.maxPos);		angleMinEL->display(motorParam.minPos);		velocityNewEL->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == foreArmLeft->text().toStdString()){	angleMaxFAL->display(motorParam.maxPos);	angleMinFAL->display(motorParam.minPos);	velocityNewFAL->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == wristLeft1->text().toStdString()){	angleMaxWL1->display(motorParam.maxPos);	angleMinWL1->display(motorParam.minPos);	velocityNewWL1->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == wristLeft2->text().toStdString()){	angleMaxWL2->display(motorParam.maxPos);	angleMinWL2->display(motorParam.minPos);	velocityNewWL2->setValue(motorParam.maxVelocity);}
-
-			// BRAZO DERECHO:	
-			if(motorParam.name == shoulder1Right->text().toStdString()){angleMaxSR1->display(motorParam.maxPos);	angleMinSR1->display(motorParam.minPos);	velocityNewSR1->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == shoulder2Right->text().toStdString()){angleMaxSR2->display(motorParam.maxPos);	angleMinSR2->display(motorParam.minPos);	velocityNewSR2->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == shoulder3Right->text().toStdString()){angleMaxSR3->display(motorParam.maxPos);	angleMinSR3->display(motorParam.minPos);	velocityNewSR3->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == elbowRight->text().toStdString()){	angleMaxER->display(motorParam.maxPos);		angleMinER->display(motorParam.minPos);		velocityNewER->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == foreArmRight->text().toStdString()){	angleMaxFAR->display(motorParam.maxPos);	angleMinFAR->display(motorParam.minPos);	velocityNewFAR->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == wristRight1->text().toStdString()){	angleMaxWR1->display(motorParam.maxPos);	angleMinWR1->display(motorParam.minPos);	velocityNewWR1->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == wristLeft2->text().toStdString()){	angleMaxWR2->display(motorParam.maxPos);	angleMinWR2->display(motorParam.minPos);	velocityNewWR2->setValue(motorParam.maxVelocity);}
-
-			// CABEZA:
-			if(motorParam.name == head1->text().toStdString()){	angleMaxH1->display(motorParam.maxPos);	angleMinH1->display(motorParam.minPos);	velocityNewH1->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == head2->text().toStdString()){	angleMaxH2->display(motorParam.maxPos);	angleMinH2->display(motorParam.minPos);	velocityNewH2->setValue(motorParam.maxVelocity);}
-			if(motorParam.name == head3->text().toStdString()){	angleMaxH3->display(motorParam.maxPos);	angleMinH3->display(motorParam.minPos);	velocityNewH3->setValue(motorParam.maxVelocity);}
-
-			// BASE:
-			// TODO
-		}
-
-	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en SETPARAMS al tomar datos del robot: "<<ex<<endl;}
-
+	//Inicializamos los valores de la pestaña inverseKinematicsComp
+	initDirectKinematicsFlange();
+	
 	// Ponemos también una ventana del innerModel en la última pestaña:
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
 	timer.start(Period);
@@ -180,76 +97,69 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 
-/*------------------------------------------------------------------------------------------------------*
- * 												SLOTS													*
- *------------------------------------------------------------------------------------------------------*/ 
+//**************************************************************************//
+//								SLOTS										//
+//**************************************************************************//
 /**
- * @brief Compute Method.
+ * @brief SLOT COMPUTE.
+ * Este método, con el motivo de que la GUI no se quede colgada, se encarga de:
+ * 	--> Hacer un PING al inverseKinematicsComp, para evr si funciona o no.
+ *	--> Revisar en qué pestaña estamos de la interfaz y mostrar su información correspondiente.
+ * 	--> Enviar LISTAS de targets.
+ * 	--> Actualizar el innerModel y los distintos elementos para pintarlo.
  * 
  * @return void
  */
 void SpecificWorker::compute( )
 {
 	static QTime reloj = QTime::currentTime();
-
-	// ÑAPA: Si estamos mirando la pestaña número 5 mostramos los límites de los motores
-	// para que no se nos quede colgada la interfaz.
-	if(pestanias->currentIndex()==5)
-		mostrarDatos();
-
-	// Desde el compute sólo se envían trayectorias. Para targets sueltos, se usan los demás
-	// métodos.
-	// ÑAPA: Si la trayectoriano está vacía y la bandera RCIS está levantada, enviamos la
-	// trayectoria de targetes al RCIS. De esta forma evitamos que el tester se quede
-	// colgado hasta que termine de enviar todos los targets de la trayectoria.
-	if((trayectoria.isEmpty() == false)  and banderaRCIS)
+	// Hacemos un ping al inverseKinematicsComp cada cierto tiempo. 
+	// Si no responde es que el componente no está levantado.
+	if (reloj.elapsed() > 3000)
 	{
-		enviarPose6D( trayectoria.dequeue() );
-		sleep(1);
+		try
+		{ 
+			bodyinversekinematics_proxy->ice_ping(); 
+			
+		}catch(const Ice::Exception &ex){ std::cout << "Warning! BIK not responding" << std::endl; };
+		reloj.restart();
 	}
-	else
-		banderaRCIS = false;
+
+ 	if(existTarget)	sendTarget(); //TODO ARREGLAR TRAYECTORIAS
+	
+	// Si estamos mirando la pestaña número 5 mostramos los datos de los valores angulares
+	// de los motores así como sus límites. Evitamos que la interfaz se cuelgue.
+	if(pestanias->currentIndex()==5)	showKinematicData();
 
 	// Actualizamos el innerModel y la ventada del viewer
 	actualizarInnerModel();
 	imv->update();
 	osgView->frame();
-
-	// Hacemos un ping al inverseKinematicsComp cada cierto tiempo. Si no responde
-	// es que el inverseKinematicsComp no está levantado.
-	if ( reloj.elapsed() > 3000)
-	{
-		try{ 
-			bodyinversekinematics_proxy->ice_ping(); 
-
-		}catch(const Ice::Exception &ex){ std::cout << "Warning! BIK not responding" << std::endl; };
-		reloj.restart();
-	}
-
 }
 
-/*------------------------------------------------------------------------------------------------------*
- * 									SLOTS DE LOS BOTONES DE ENVÍO										*
- *------------------------------------------------------------------------------------------------------*/
+//**************************************************************************//
+//						SLOTS DE LOS SUBMIT BUTTONS							//
+//**************************************************************************//
 /**
- * @brief SLOT STOP. Para la ejecución del componente inverseKinematicsComp. Aborta el target o la
- * trayectoria de targets enviada al componente inverseKinematicsComp.
+ * @brief SLOT público STOP. 
+ * Este método se encarga de llamar al método de la interfaz stop de inverseKinematicsComp
+ * con las (por ahora) tres partes del cuerpo del robot, el brazo derecho, el izquierdo y
+ * la cabeza. Este método de la interfaz debería encargarse de parar la ejecución del target
+ * asignado a las partes del robot.
+ * Además el SLOT stop baja la bandera de trayectorias para anular los targets que se envían.
  * 
  * @return void
  */ 
 void SpecificWorker::stop()
 {
+	qDebug()<<"Parando todos los motores del robot...";
 	try 
 	{
-		std::string part;
-		if(partesActivadas[0] == 1)	
-			bodyinversekinematics_proxy->stop( partBox1_pose6D->currentText().toStdString() );
-
-		if(partesActivadas[1] == 1)
-			bodyinversekinematics_proxy->stop( partBox2_pose6D->currentText().toStdString() );
-
-		if(partesActivadas[2] == 1) 
-			bodyinversekinematics_proxy->stop( partBox3_pose6D->currentText().toStdString() );		
+		bodyinversekinematics_proxy->stop("LEFTARM");
+		bodyinversekinematics_proxy->stop("RIGHTARM");
+		bodyinversekinematics_proxy->stop("HEAD");	
+		
+		flagListTargets=false;
 	} 
 	catch (const Ice::Exception &ex) {	cout<<"Excepción en STOP: "<<ex<<endl;	}
 }
@@ -265,19 +175,21 @@ void SpecificWorker::enviarHome()
 }
 
 /**
- * @brief SLOT ENVIAR RCIS. Marca como proxy objetivo el del RCIS y llama a la función enviar, que se 
- * encarga de ver en qué pestaña está el usuario de la GUI y enviar el target del tipo que sea, al proxy 
- * indicado.
+ * @brief SLOT ENVIAR RCIS. 
+ * Marca como proxy objetivo el del RCIS, levanta la bandera indicando que existen targets a resolver
+ * y llama a la función enviar, que se encarga de ver en qué pestaña está el usuario de la GUI y enviar
+ * el target del tipo que sea, al proxy indicado.
+ * 
+ * También marca el botón RCIS con un color distinto.
  * 
  * @return void
  */ 
 void SpecificWorker::enviarRCIS()
 {
+	changeText(0);
 	try
 	{
 		bodyinversekinematics_proxy->setRobot(0);
-		banderaRCIS = true;
-		enviar();
 	}
 	catch(const Ice::Exception &ex){std::cout <<"Enviar RCIS:"<< ex << std::endl;};
 }
@@ -291,29 +203,29 @@ void SpecificWorker::enviarRCIS()
  */ 
 void SpecificWorker::enviarROBOT()
 {
+	changeText(1);
 	try
 	{
 		bodyinversekinematics_proxy->setRobot(1);
-		banderaRCIS = false;
-		enviar();
 	}
 	catch(const Ice::Exception &ex){std::cout <<"Enviar ROBOT: "<< ex << std::endl;};
 }
 
-/*------------------------------------------------------------------------------------------------------*
- * 									SLOTS COMUNES A TODAS LAS PESTAÑAS									*
- *------------------------------------------------------------------------------------------------------*/
+//**************************************************************************//
+//					SLOTS ÚTILES PARA FACILITAR LA INTERFAZ					//
+//**************************************************************************//
 /**
- * @brief SLOT ACTIVAR DESACTIVAR. Activa o desactiva en todas las pestañas de la interfaz las cajas 
- * donde estan las distintas partes del cuerpo. Sirve para poder enviar un mismo target a dos o más 
- * partes al mismo tiempo. Para ello, pone un 1 en el vector de partesActivadas en aquellas cajas que
- * esten seleccionadas o un 0 si no están activadas. Yo se que me explico muy mal, pero el caso es que
- * funciona.
+ * @brief SLOT UPDATE BODY PARTS BOX.
+ * Activa o desactiva en TODAS las pestañas de la interfaz las cajas donde estan las distintas partes 
+ * del cuerpo del robot. Sirve para poder enviar un mismo target a dos o más partes al mismo tiempo. 
+ * Para ello, pone un 1 en el vector de partesActivadas en aquellas cajas que esten seleccionadas o 
+ * un 0 si no están activadas. 
+ * 
  * TODO Se puede añadir el control para eliminar las partes ya seleccionadas en las cajas anteriores.
  * 
  * @return void
  */ 
-void SpecificWorker::activarDesactivar()
+void SpecificWorker:: updateBodyPartsBox()
 {
 	// Si están activadas alguna de las tres primeras cajas de partes del robot ACTIVAMOS TODAS.
 	// Si no lo está, DESACTIVAMOS TODAS. Así tenemos la misma configuración cuando cambiemos de página	
@@ -374,6 +286,20 @@ void SpecificWorker::activarDesactivar()
 	}
 }
 
+/**
+ * @brief SLOT SEND
+ * Cuando los botones "send" de las pestañas son pulsados, levantan la bandera existTarget, indicando
+ * que existe uno o varios targets a resolver. De esta forma SEPARAMOS los botones RCIS y URSUS del 
+ * envío de Targets, función que llevará a cabo el compute evitando que la interfaz vaya tan lenta
+ * y facilitando su depuración.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::send()
+{
+	existTarget = true;
+}
+
 
 /*------------------------------------------------------------------------------------------------------*
  * 									SLOTS PARA LA PESTAÑA POSE6D										*
@@ -382,7 +308,7 @@ void SpecificWorker::activarDesactivar()
  * @brief Metodo CAMARERO ZURDO. Crea una trayectoria de poses para un camarero con una bandeja en
  * la mano izquierda. Guarda esa trayectoria en un atributo de la clase, trayectoria, para luego 
  * enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar la trayectoria siempre
- * para que no se acumulen las trayectorias y levanta la banderaTrayectoria, indicando que existe 
+ * para que no se acumulen las trayectorias y levanta la flagListTargets, indicando que existe 
  * una trayectoria lista para enviar al RCIS o al ROBOT.
  * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
  * Desactiva el resto de banderas para el resto de targets.
@@ -397,7 +323,6 @@ void SpecificWorker::camareroZurdo()
 	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
 	//				rotaciones se dejan a CERO.
 	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
-	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
 	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
     QVec pose = QVec::zeros(6);
 	float salto = 10;
@@ -432,14 +357,14 @@ void SpecificWorker::camareroZurdo()
 		yAux = j;
 	}
 
-	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
 /**
  * @brief Metodo CAMARERO DIESTRO. Crea una trayectoria de poses para un camarero con una bandeja 
  * en la mano derecha. Guarda esa trayectoria en un atributo de la clase, trayectoria, para luego 
  * enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar la trayectoria siempre
- * para que no se acumulen las trayectorias y levanta la banderaTrayectoria, indicando que existe 
+ * para que no se acumulen las trayectorias y levanta la flagListTargets, indicando que existe 
  * una trayectoria lista para enviar al RCIS o al ROBOT.
  * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
  * Desactiva el resto de banderas para el resto de targets
@@ -501,14 +426,14 @@ void SpecificWorker::camareroDiestro()
 	//go back to initial grabPositionHandR
 	trayectoria.append(home);
 
-	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
 /**
  * @brief Metodo CAMARERO CENTRO. Crea una trayectoria de poses para un camarero con una bandeja 
  * en moviendola por el centro del pecho. Guarda esa trayectoria en un atributo de la clase, 
  * trayectoria, para luego enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar
- * la trayectoria siempre para que no se acumulen las trayectorias y levanta la banderaTrayectoria, 
+ * la trayectoria siempre para que no se acumulen las trayectorias y levanta la flagListTargets, 
  * indicando que existe una trayectoria lista para enviar al RCIS o al ROBOT.
  * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
  * Desactiva el resto de banderas para el resto de targets.
@@ -544,7 +469,7 @@ void SpecificWorker::camareroCentro()
 	pose[0] = -150; pose[1] = 900; pose[2] = 300;
 	trayectoria.append(pose);
 
-	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
 /**
@@ -615,7 +540,7 @@ void SpecificWorker::puntosEsfera()
 			trayectoria.enqueue(pose);
 		}
 	}
-	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
 // 	banderaNiapa = true;
 }
 
@@ -668,7 +593,7 @@ void SpecificWorker::puntosCubo()
 			trayectoria.enqueue(pose);
 		}
 	}
-	banderaTrayectoria = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
 }
 
 
@@ -702,6 +627,8 @@ void SpecificWorker::goHome(QString partName)
 	{
 		cout << ex << endl;
 	}
+	
+	existTarget=false;
 }
 
 /*--------------------------------------------------------------------------------------------------*
@@ -723,6 +650,7 @@ void SpecificWorker::closeFingers()
 		cout << ex << endl;
 	}
 
+	existTarget=false;
 }
 
 /*--------------------------------------------------------------------------------------------------*
@@ -733,42 +661,7 @@ void SpecificWorker::closeFingers()
 /*----------------------------------------------------------------------------------------------*
  * 	MÉTODOS PRIVADOS DE LA CLASE									*
  *----------------------------------------------------------------------------------------------*/
-/**
- * @brief MÉTODO ENVIAR. Mira la pestaña en la que se encuentra el usuario de la GUI:
- * 	- Si está en la primera pestaña envía targets de tipo POSE6D sueltos, leyendo los 
- *    parámetros de traslación y rotación de la GUI. Las trayectorias las envía 
- * 	  directamente el compute para que el tester no se quede bloqueado.
- * 	- Si está en la segunda pestaña envía targets de tipo AXISALIGN.
- * 	- Si está en la tercera pestaña envía targets de tipo ALONGAXIS.
- * 	- Si está en la cuarta pestaña envía al robot a la posición de HOME.
- * 	- Si está en la quinta pestaña envía al robot la apertura de los dedos del robot.
- * 
- * @return void
- */ 
-void SpecificWorker::enviar()
-{
-	// Levnatamos bandera para enviar también al RCIS:
-	banderaRCIS = true;
-	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una pose suelta 
-	// de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
-	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
-	{
-		QVec p = QVec(6);
-		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
-		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
-		enviarPose6D(p);
-	}
 
-	// Estamos en la segunda pestaña: Axis Align. Enviamos target del tipo AXISALIGN.
-	if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
-		enviarAxisAlign();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
-		moveAlongAxis();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
-		goHome(part_home->currentText());
-	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
-		closeFingers();
-}
 
 
 
@@ -821,7 +714,7 @@ void SpecificWorker::moverTargetEnRCIS(const QVec &pose)
 }
 
 /**
- * @brief Metodo privado ENVIAR POSE6D. Es llamado por el SLOT enviarRCIS cuando la banderaTrayectoria
+ * @brief Metodo privado ENVIAR POSE6D. Es llamado por el SLOT enviarRCIS cuando la flagListTargets
  * no esta levantada y se está trabajando en la primera pestaña (Pose6D). Tiene capacidad para enviar 
  * un mismo target a las tres partes del cuerpo con las que se estan trabajando ahora: el brazo derecho,
  * el izquierdo y la cabeza, con las opciones de la interfaz.
@@ -902,18 +795,16 @@ void SpecificWorker::enviarPose6D(QVec p)
 					bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
 				}
 				usleep(50000);
-
-// 				// ÑAPA: Cuando se le envía una trayectoria pruebaMatlab después de cada target se le lleva al home.
-// 				if(banderaNiapa==true)
-// 				{
-// 					sleep(1);
-// 					qDebug()<<"banderaNiapa"<<banderaNiapa;
-// 					goHome(QString::fromStdString(part));
-// 					sleep(1);
-// 				}
 			}
 		}
 	}catch(Ice::Exception ex){ std::cout<<"Error al pasar TARGET POSE6D: "<<ex<<endl;}
+	
+	// Terminamos de procesar el target
+	if(flagListTargets==false or (flagListTargets==true and trayectoria.isEmpty()==true))
+	{
+		existTarget=false;
+		qDebug()<<"FIN DEL TARGET";
+	}
 }
 
 
@@ -958,6 +849,9 @@ void SpecificWorker::enviarAxisAlign()
  		}
  		catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "Error al pasar el target tipo ALIGNAXIS: "<<ex<<endl;}
 	}
+
+	existTarget=false;
+	qDebug()<<"FIN DEL TARGET";
 }
 
 /**
@@ -993,50 +887,12 @@ void SpecificWorker::moveAlongAxis()
 		} 
 		catch(Ice::Exception ex){ std::cout<<"Error al pasar el target tipo ADVANCEALONGAXIS: "<<ex<<endl;}
 	}
+	existTarget=false;
+	qDebug()<<"FIN DEL TARGET";
 }
 
 
-/**
- * @brief Metodo MOSTRAR DATOS. Muestra los datos de los motores por la interfaz: el nombre del motor, los
- * limites que tiene, la posicion angular en radianes actual y la velocidad en radianes por segundo.
- * 
- * @return void
- */ 
-void SpecificWorker::mostrarDatos()
-{
-	try
-	{
-		// Recuerda: motorparamList ya lo tenemos relleno de datos desde el setParams.
-		foreach(RoboCompJointMotor::MotorParams motorParam, motorparamList)
-		{
-			// Sacamos parámetros dinámicos del motor.
-			RoboCompJointMotor::MotorState motorState = jointmotor_proxy->getMotorState(motorParam.name);
 
-			// BRAZO IZQUIERDO:
-			if(motorParam.name == shoulder1Left->text().toStdString()){	angleCurrentSL1->display(motorState.pos);	velocityNewSL1->setValue(motorState.vel); }
-			if(motorParam.name == shoulder2Left->text().toStdString()){	angleCurrentSL2->display(motorState.pos);	velocityNewSL2->setValue(motorState.vel); }
-			if(motorParam.name == shoulder3Left->text().toStdString()){	angleCurrentSL3->display(motorState.pos);	velocityNewSL3->setValue(motorState.vel); }
-			if(motorParam.name == elbowLeft->text().toStdString()){		angleCurrentEL->display(motorState.pos);	velocityNewEL->setValue(motorState.vel); }
-			if(motorParam.name == foreArmLeft->text().toStdString()){	angleCurrentFAL->display(motorState.pos);	velocityNewFAL->setValue(motorState.vel); }
-			if(motorParam.name == wristLeft1->text().toStdString()){	angleCurrentWL1->display(motorState.pos);	velocityNewWL1->setValue(motorState.vel); }
-			if(motorParam.name == wristLeft2->text().toStdString()){	angleCurrentWL2->display(motorState.pos);	velocityNewWL2->setValue(motorState.vel); }
-
-			// BRAZO DERECHO
-			if(motorParam.name == shoulder1Right->text().toStdString()){angleCurrentSR1->display(motorState.pos);	velocityNewSR1->setValue(motorState.vel); }
-			if(motorParam.name == shoulder2Right->text().toStdString()){angleCurrentSR2->display(motorState.pos);	velocityNewSR2->setValue(motorState.vel); }
-			if(motorParam.name == shoulder3Right->text().toStdString()){angleCurrentSR3->display(motorState.pos);	velocityNewSR3->setValue(motorState.vel); }
-			if(motorParam.name == elbowRight->text().toStdString()){	angleCurrentER->display(motorState.pos);	velocityNewER->setValue(motorState.vel); }
-			if(motorParam.name == foreArmRight->text().toStdString()){	angleCurrentFAR->display(motorState.pos);	velocityNewFAR->setValue(motorState.vel); }
-			if(motorParam.name == wristRight1->text().toStdString()){	angleCurrentWR1->display(motorState.pos);	velocityNewWR1->setValue(motorState.vel); }
-			if(motorParam.name == wristRight2->text().toStdString()){	angleCurrentWR2->display(motorState.pos);	velocityNewWR2->setValue(motorState.vel); }
-
-			// CABEZA:
-			if(motorParam.name == head1->text().toStdString()){	angleCurrentH1->display(motorState.pos);	velocityNewH1->setValue(motorState.vel); }
-			if(motorParam.name == head2->text().toStdString()){	angleCurrentH2->display(motorState.pos);	velocityNewH2->setValue(motorState.vel); }
-			if(motorParam.name == head3->text().toStdString()){	angleCurrentH3->display(motorState.pos);	velocityNewH3->setValue(motorState.vel); }
-		}				
-	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en MOSTRAR DATOS: "<<ex<<endl;}
-}
 
 
 /*
@@ -1887,4 +1743,277 @@ void SpecificWorker::boton_5()
 	
 }
 
+//**************************************************************************************************//
+//						 MÉTODOS PRIVADOS MUY IMPORTANTES PARA QUE ESTO FUNCIONE 					//
+//**************************************************************************************************//
+/**
+ * @brief Método SEND TARGET
+ * Cuando se le llama, mira en qué pestaña está el usuario dentro de la interfaz gráfica. En el caso
+ * de enviar un único target, lo compone con los datos de la pestaña y luego lo envía a través de 
+ * cada método particular para enviar POSES6D, ALINGAXIS, ADVACEAXIS, HOME y FINGERS.
+ * Si no son targets sueltos, entonces envía una lista de targets desencolándolos uno a uno y enviándolos
+ * al método POSE6D.
+ * Mira la pestaña en la que se encuentra el usuario de la GUI:
+ * 	- Si está en la primera pestaña envía targets de tipo POSE6D sueltos, leyendo los 
+ *    parámetros de traslación y rotación de la GUI. Las trayectorias las envía 
+ * 	  directamente el compute para que el tester no se quede bloqueado.
+ * 	- Si está en la segunda pestaña envía targets de tipo AXISALIGN.
+ * 	- Si está en la tercera pestaña envía targets de tipo ALONGAXIS.
+ * 	- Si está en la cuarta pestaña envía al robot a la posición de HOME.
+ * 	- Si está en la quinta pestaña envía al robot la apertura de los dedos del robot.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::sendTarget()
+{
+	//PRIMERO LAS TRAYECTORIAS DE TARGETS.
+	if(flagListTargets and !trayectoria.isEmpty())
+	{
+		qDebug()<<"Enviamos trayectoria";
+		enviarPose6D( trayectoria.dequeue() ); 
+		sleep(1);	
+	}
+	
+	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una pose suelta 
+	// de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
+	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
+	{
+		QVec p = QVec(6);
+		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
+		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
+		enviarPose6D(p);
+	}
 
+	// Estamos en la segunda pestaña: Axis Align. Enviamos target del tipo AXISALIGN.
+	if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
+		enviarAxisAlign();
+	if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
+		moveAlongAxis();
+	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
+		goHome(part_home->currentText());
+	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
+		closeFingers();
+}
+
+
+//**************************************************************************************************//
+// MÉTODOS MUY SIMPLES Y AUXILIARES TOTALES QUE NO TIENEN MAYOR IMPORTANCIA PERO QUE LIMPIAN CÓDIGO //
+//**************************************************************************************************//
+/**
+ * @brief Método CONNECT BUTTONS.
+ * Se encarga de conectar TODOS los botones de la interfaz de usuario (de TODAS las pestañas). Es
+ * llamado en el constructor de la clase para hacer todas las conexiones de los botones a sus 
+ * correspondientes slots.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::connectButtons()
+{
+	qDebug()<<"Conectando botones...";
+	
+	//BOTONES DE EJECUCIÓN: SUBMIT BUTTONS.
+	connect(	stopButton, 	SIGNAL(clicked()), 	this, 	SLOT(stop())		); //botón de parada obligada.
+	connect(	homeButton,		SIGNAL(clicked()), 	this,	SLOT(enviarHome())	); //botón de envío a la posición de HOME.
+
+	connect(	rcisButton, 	SIGNAL(clicked()), 	this,	SLOT(enviarRCIS())	); //botón de enviar al robot simulado RCIS.
+	connect(	robotButton,	SIGNAL(clicked()), 	this, 	SLOT(enviarROBOT())	); //botón de enviar al robot real Ursus.
+	
+	// BOTONES DE LA PESTAÑA POSE6D:
+	connect(	sendButton1,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	
+	// BOTONES DE LA PESTAÑA AXIS ALING:
+	connect(	sendButton2,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	
+	// BOTONES DE LA PESTAÑA ADVANCE AXIS:
+	connect(	sendButton3,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	
+	//BOTONES DE LA PESTAÑA HOME:
+	connect(	sendButton4,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	
+	// BOTONES DE LA PESTAÑA FINGERS:
+	connect(	sendButton5,	SIGNAL(clicked()),	this,	SLOT(send())	);
+
+
+
+	
+	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
+	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
+	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
+	connect(esfera, SIGNAL(clicked()), this, SLOT(puntosEsfera()));
+	connect(cubo, SIGNAL(clicked()), this, SLOT(puntosCubo()));
+	
+	
+	
+	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
+	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
+	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
+
+
+
+	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part3_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+
+	//TODO Conectamos los botones de la pestaña ALIGNAXIS
+	connect(Part1_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part2_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part3_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+
+
+	//TODO Conectamos los botones de la pestaña MOVE ALONG AXIS
+	connect(Part1_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part2_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+	connect(Part3_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
+
+	
+
+	// BOTONERA AÑADIDA
+	connect(test1Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
+	connect(test2Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
+	connect(test3Button, SIGNAL(clicked()), this, SLOT(posicionCoger()));
+	connect(test4Button, SIGNAL(clicked()), this, SLOT(cerrarPinza()));
+	connect(test5Button, SIGNAL(clicked()), this, SLOT(posicionSoltar()));
+	connect(test6Button, SIGNAL(clicked()), this, SLOT(izquierdoRecoger()));
+	connect(test7Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
+	connect(test8Button, SIGNAL(clicked()), this, SLOT(retroceder()));
+	connect(test9Button, SIGNAL(clicked()), this, SLOT(goHomeR()));	
+	connect(test10Button, SIGNAL(clicked()), this, SLOT(izquierdoOfrecer()));
+	connect(test11Button, SIGNAL(clicked()), this, SLOT(enviarHome()));
+	
+	//
+	connect(boton1, SIGNAL(clicked()), this, SLOT(boton_1()));
+	connect(boton2, SIGNAL(clicked()), this, SLOT(boton_2()));
+	connect(boton3, SIGNAL(clicked()), this, SLOT(boton_3()));
+	connect(boton4, SIGNAL(clicked()), this, SLOT(boton_4()));
+	connect(boton5, SIGNAL(clicked()), this, SLOT(boton_5()));
+
+}
+
+
+/**
+ * @brief Método INIT DIRECT KINEMATICS FLANGE.
+ * Inicializa los valores angulares de los motores del robot, así como sus límites máximos y mínimos.
+ * Ampliable para añadir funcionalidad a la velocidad de movimiento, el nuevo ángulo y esas cosillas 
+ * extras que quedan muy monas...
+ * 
+ * @return void
+ */ 
+void SpecificWorker::initDirectKinematicsFlange()
+{
+	qDebug()<<"Inicializando valores angulares...";
+	try
+	{
+		// Sacamos todos los parámetros de los motores del robot. Esto nos servirá para inicializar la pestaña 
+		// de direct Kinematics de la interfaz de usuario.
+		motorparamList = jointmotor_proxy->getAllMotorParams();
+
+		foreach(RoboCompJointMotor::MotorParams motorParam, motorparamList)
+		{
+			// Ponemos los datos de los límites min y max a TODOS los motores. (por eso lo apiñurgo un poco, porque quedaría
+			// un tochaco de código insufrible --y aún así lo es--)
+			motorList.push_back(motorParam.name);
+
+			// BRAZO IZQUIERDO:
+			if(motorParam.name == shoulder1Left->text().toStdString()){	angleMaxSL1->display(motorParam.maxPos);	angleMinSL1->display(motorParam.minPos);	velocityNewSL1->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == shoulder2Left->text().toStdString()){	angleMaxSL2->display(motorParam.maxPos);	angleMinSL2->display(motorParam.minPos);	velocityNewSL2->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == shoulder3Left->text().toStdString()){	angleMaxSL3->display(motorParam.maxPos);	angleMinSL3->display(motorParam.minPos);	velocityNewSL3->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == elbowLeft->text().toStdString()){		angleMaxEL->display(motorParam.maxPos);		angleMinEL->display(motorParam.minPos);		velocityNewEL->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == foreArmLeft->text().toStdString()){	angleMaxFAL->display(motorParam.maxPos);	angleMinFAL->display(motorParam.minPos);	velocityNewFAL->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == wristLeft1->text().toStdString()){	angleMaxWL1->display(motorParam.maxPos);	angleMinWL1->display(motorParam.minPos);	velocityNewWL1->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == wristLeft2->text().toStdString()){	angleMaxWL2->display(motorParam.maxPos);	angleMinWL2->display(motorParam.minPos);	velocityNewWL2->setValue(motorParam.maxVelocity);}
+
+			// BRAZO DERECHO:	
+			if(motorParam.name == shoulder1Right->text().toStdString()){angleMaxSR1->display(motorParam.maxPos);	angleMinSR1->display(motorParam.minPos);	velocityNewSR1->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == shoulder2Right->text().toStdString()){angleMaxSR2->display(motorParam.maxPos);	angleMinSR2->display(motorParam.minPos);	velocityNewSR2->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == shoulder3Right->text().toStdString()){angleMaxSR3->display(motorParam.maxPos);	angleMinSR3->display(motorParam.minPos);	velocityNewSR3->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == elbowRight->text().toStdString()){	angleMaxER->display(motorParam.maxPos);		angleMinER->display(motorParam.minPos);		velocityNewER->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == foreArmRight->text().toStdString()){	angleMaxFAR->display(motorParam.maxPos);	angleMinFAR->display(motorParam.minPos);	velocityNewFAR->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == wristRight1->text().toStdString()){	angleMaxWR1->display(motorParam.maxPos);	angleMinWR1->display(motorParam.minPos);	velocityNewWR1->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == wristLeft2->text().toStdString()){	angleMaxWR2->display(motorParam.maxPos);	angleMinWR2->display(motorParam.minPos);	velocityNewWR2->setValue(motorParam.maxVelocity);}
+
+			// CABEZA:
+			if(motorParam.name == head1->text().toStdString()){	angleMaxH1->display(motorParam.maxPos);	angleMinH1->display(motorParam.minPos);	velocityNewH1->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == head2->text().toStdString()){	angleMaxH2->display(motorParam.maxPos);	angleMinH2->display(motorParam.minPos);	velocityNewH2->setValue(motorParam.maxVelocity);}
+			if(motorParam.name == head3->text().toStdString()){	angleMaxH3->display(motorParam.maxPos);	angleMinH3->display(motorParam.minPos);	velocityNewH3->setValue(motorParam.maxVelocity);}
+
+			// BASE:
+			// TODO
+		}
+
+	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en initDirectKinematicsFlange al tomar datos del robot: "<<ex<<endl;}
+}
+
+/**
+ * @brief Método SHOW KINEMATICS DATA. 
+ * Este método se encarga de mostrar los datos de los motores por la pestaña DirectKinematics de la interfaz
+ * gráfica de usuario: el nombre del motor, los limites mínimo y máximo que tiene, la posicion angular en 
+ * radianes actual y la velocidad en radianes por segundo.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::showKinematicData()
+{
+	try
+	{
+		// Recuerda: motorparamList ya lo tenemos relleno de datos desde el setParams.
+		foreach(RoboCompJointMotor::MotorParams motorParam, motorparamList)
+		{
+			// Sacamos parámetros dinámicos del motor.
+			RoboCompJointMotor::MotorState motorState = jointmotor_proxy->getMotorState(motorParam.name);
+
+			// BRAZO IZQUIERDO:
+			if(motorParam.name == shoulder1Left->text().toStdString()){	angleCurrentSL1->display(motorState.pos);	velocityNewSL1->setValue(motorState.vel); }
+			if(motorParam.name == shoulder2Left->text().toStdString()){	angleCurrentSL2->display(motorState.pos);	velocityNewSL2->setValue(motorState.vel); }
+			if(motorParam.name == shoulder3Left->text().toStdString()){	angleCurrentSL3->display(motorState.pos);	velocityNewSL3->setValue(motorState.vel); }
+			if(motorParam.name == elbowLeft->text().toStdString()){		angleCurrentEL->display(motorState.pos);	velocityNewEL->setValue(motorState.vel); }
+			if(motorParam.name == foreArmLeft->text().toStdString()){	angleCurrentFAL->display(motorState.pos);	velocityNewFAL->setValue(motorState.vel); }
+			if(motorParam.name == wristLeft1->text().toStdString()){	angleCurrentWL1->display(motorState.pos);	velocityNewWL1->setValue(motorState.vel); }
+			if(motorParam.name == wristLeft2->text().toStdString()){	angleCurrentWL2->display(motorState.pos);	velocityNewWL2->setValue(motorState.vel); }
+
+			// BRAZO DERECHO
+			if(motorParam.name == shoulder1Right->text().toStdString()){angleCurrentSR1->display(motorState.pos);	velocityNewSR1->setValue(motorState.vel); }
+			if(motorParam.name == shoulder2Right->text().toStdString()){angleCurrentSR2->display(motorState.pos);	velocityNewSR2->setValue(motorState.vel); }
+			if(motorParam.name == shoulder3Right->text().toStdString()){angleCurrentSR3->display(motorState.pos);	velocityNewSR3->setValue(motorState.vel); }
+			if(motorParam.name == elbowRight->text().toStdString()){	angleCurrentER->display(motorState.pos);	velocityNewER->setValue(motorState.vel); }
+			if(motorParam.name == foreArmRight->text().toStdString()){	angleCurrentFAR->display(motorState.pos);	velocityNewFAR->setValue(motorState.vel); }
+			if(motorParam.name == wristRight1->text().toStdString()){	angleCurrentWR1->display(motorState.pos);	velocityNewWR1->setValue(motorState.vel); }
+			if(motorParam.name == wristRight2->text().toStdString()){	angleCurrentWR2->display(motorState.pos);	velocityNewWR2->setValue(motorState.vel); }
+
+			// CABEZA:
+			if(motorParam.name == head1->text().toStdString()){	angleCurrentH1->display(motorState.pos);	velocityNewH1->setValue(motorState.vel); }
+			if(motorParam.name == head2->text().toStdString()){	angleCurrentH2->display(motorState.pos);	velocityNewH2->setValue(motorState.vel); }
+			if(motorParam.name == head3->text().toStdString()){	angleCurrentH3->display(motorState.pos);	velocityNewH3->setValue(motorState.vel); }
+		}				
+	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en showKinematicData: "<<ex<<endl;}
+}
+
+/**
+ * @brief Método SHOW KINEMATICS DATA. 
+ * Este método se encarga de mostrar los datos de los motores por la pestaña DirectKinematics de la interfaz
+ * gráfica de usuario: el nombre del motor, los limites mínimo y máximo que tiene, la posicion angular en 
+ * radianes actual y la velocidad en radianes por segundo.
+ * 
+ * @param type entero que indica que texto hay que poner en las ventanitas.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::changeText(int type)
+{
+	if(type==0)
+	{
+		aDonde1->clear(); aDonde1->insertPlainText("El target se enviara al RCIS .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde2->clear(); aDonde2->insertPlainText("El target se enviara al RCIS .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde3->clear(); aDonde3->insertPlainText("El target se enviara al RCIS .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde4->clear(); aDonde4->insertPlainText("El target se enviara al RCIS .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde5->clear(); aDonde5->insertPlainText("El target se enviara al RCIS .\n Para cambiar el destino del target pulse los botones superiores.");
+
+	}
+	else
+	{
+		aDonde1->clear(); aDonde1->insertPlainText("El target se enviara al ROBOT REAL .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde2->clear(); aDonde2->insertPlainText("El target se enviara al ROBOT REAL .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde3->clear(); aDonde3->insertPlainText("El target se enviara al ROBOT REAL .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde4->clear(); aDonde4->insertPlainText("El target se enviara al ROBOT REAL .\n Para cambiar el destino del target pulse los botones superiores.");
+		aDonde5->clear(); aDonde5->insertPlainText("El target se enviara al ROBOT REAL .\n Para cambiar el destino del target pulse los botones superiores.");
+	}
+}

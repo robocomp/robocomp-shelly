@@ -56,7 +56,21 @@ public:
 
 public slots:
 
-	void compute(); 
+	void 	compute				(); 
+	
+	//// SLOTS DE LOS BOTONES DE EJECUCIÓN DE LA INTERFAZ. ////
+	void 	stop				(); 		// Botón de parada segura. Para abortar la ejecución del movimiento tanto en RCIS como en Robot real
+	
+	//// SLOTS DE LA PESTAÑA POSE6D ////
+
+	
+	//// SLOTS ÚTILES PARA FACILITAR EL USO DE LA GUI ////
+	void 	updateBodyPartsBox	(); 		//Activa/desactiva la opción de escoger una o más partes del cuerpo.
+	void 	send				();			// Botón que indica que existe un target para ser resuelto.
+
+	
+	void 	enviarRCIS(); 		// select RCIS.
+	void 	enviarROBOT(); 	// select robot
 	
 	// Métods AÑADIDOS +++
 	void boton_1();
@@ -65,18 +79,13 @@ public slots:
 	void boton_4();
 	void boton_5();
 
-	// SLOTS DE LOS BOTONES DE EJECUCIÓN DE LA INTERFAZ.
-	void stop();
-	void enviarRCIS(); 		// select RCIS.
-	void enviarROBOT(); 	// select robot
 	
-	void enviar();				// send data to robot or rcis
+	
 	void enviarHome();
 	void actualizarInnerModel();
 
 
 	// SLOTS DE LA PESTAÑA POSE6D:
-	void activarDesactivar(); //ACtiva/desactiva la opción de escoger una o más partes del cuerpo.
 	void camareroZurdo();
 	void camareroDiestro();
 	void camareroCentro();
@@ -104,32 +113,45 @@ public slots:
 	void finePartToAprilTarget();
 private:
 
-	// ATRIBUTOS
-	InnerModel *innerModel;								// Para trabajar con el innerModel
-	OsgView *osgView;
-	QFrame *frameOsg;
-	InnerModelViewer *imv;
-	QQueue<QVec> trayectoria;							// Cola de poses donde se guardan las trayectorias de los Camareros
-	QVec partesActivadas;								//vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
-	RoboCompJointMotor::MotorParamsList motorparamList;	//lista de motores.
-	RoboCompJointMotor::MotorList motorList;
+	//// ATRIBUTOS PRIVADOS DE LA CLASE ////
+	RoboCompJointMotor::MotorParamsList 	motorparamList;			// Lista de parámetros de los motores del robot. Para sacar valores angulares.
+	RoboCompJointMotor::MotorList 			motorList;				// Lista con los nombres de los motores del robot.
 
-	bool banderaTrayectoria;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
-	bool banderaNiapa;                                  // Se pone a true cuando se envía trayectoria pruebaMatlab
-	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
-	QString tabName;									//Name of current tab
-	int tabIndex;										//Index of current tabIndex	
+	InnerModel 			*innerModel;								// Puntero para trabajar con el innerModel (pintar el target y obtener valores angulares)
+	InnerModelViewer 	*imv;										// Puntero para pintar el innerModel en la pestaña DirectKinematics
+	OsgView 			*osgView;									// Puntero para pintar innerModel en una de las pestañas.
+	QFrame				*frameOsg;									// Puntero para pintar innerModel en una de las pestañas.
+	QQueue<QVec>		trayectoria;								// Cola de poses donde se guardan las trayectorias de los Camareros
+	QVec				partesActivadas;							// Vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
+	QVec 				marcaBote;
+	QVec 				manoApril;
+	
+	bool				flagListTargets;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
+	bool				existTarget;								// Se pone a TRU cuando hay un target o una lista de targets a enviar al RCIS o al ROBOT
+	QString 			tabName;									//Name of current tab
+	int 				tabIndex;									//Index of current tabIndex	
 
-	QVec marcaBote;
-	QVec manoApril;
+	
 		
 	// MÉTODOS
 	void moverTargetEnRCIS(const QVec &pose);
 	void enviarPose6D(QVec p);
 	void enviarAxisAlign();
 	void moveAlongAxis();
-	void mostrarDatos();
 	void calcularModuloFloat(QVec &angles, float mod);
+	
+	
+	
+	////////////////  MÉTODOS PRIVADOS  ////////////////
+	/// MÉTODOS PRIVADOS IMPORTANTES ///
+	void 	sendTarget					();				// Envia los targets, HOME o FINGERS al RCIS o al ROBOT.
+
+	/// MÉTODOS MUY SIMPLES Y AUXILIARES TOTALES QUE NO TIENEN MAYOR IMPORTANCIA PERO QUE LIMPIAN CÓDIGO ///
+	void 	connectButtons				();				// Conecta botones de la interfaz de usuario con sus SLOTS correspondientes.
+	void 	initDirectKinematicsFlange	();				// Inicializa datos de la pestaña DirectKinematics. 
+	void 	showKinematicData			();				// Mantiene actualizados los valores de la pestaña DirectKinematics.
+	void 	changeText					(int type);		// Cambia el texto de las ventanitas aDonde
+
 };
 
 #endif
