@@ -1819,13 +1819,27 @@ void SpecificWorker::connectButtons()
 	connect(	robotButton,	SIGNAL(clicked()), 	this, 	SLOT(enviarROBOT())	); //botón de enviar al robot real Ursus.
 	
 	// BOTONES DE LA PESTAÑA POSE6D:
-	connect(	sendButton1,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	connect(	sendButton1,			SIGNAL(clicked()),	this,	SLOT(send())				);
+	connect(	Part1_pose6D, 			SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part2_pose6D, 			SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part3_pose6D, 			SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	camareroZurdoButton, 	SIGNAL(clicked()),	this, 	SLOT(camareroZurdo())		);
+	connect(	camareroDiestroButton, 	SIGNAL(clicked()), 	this, 	SLOT(camareroDiestro())		);
+	connect(	camareroCentroButton, 	SIGNAL(clicked()),	this, 	SLOT(camareroCentro())		);
+	connect(	esfera, 				SIGNAL(clicked()),	this, 	SLOT(puntosEsfera())		);
+	connect(	cubo,					SIGNAL(clicked()), 	this, 	SLOT(puntosCubo())			);
 	
 	// BOTONES DE LA PESTAÑA AXIS ALING:
-	connect(	sendButton2,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	connect(	sendButton2,		SIGNAL(clicked()),	this,	SLOT(send())				);
+	connect(	Part1_AxisAlign, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part2_AxisAlign, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part3_AxisAlign, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
 	
 	// BOTONES DE LA PESTAÑA ADVANCE AXIS:
-	connect(	sendButton3,	SIGNAL(clicked()),	this,	SLOT(send())	);
+	connect(	sendButton3,		SIGNAL(clicked()),	this,	SLOT(send())				);
+	connect(	Part1_AlongAxis, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part2_AlongAxis, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
+	connect(	Part3_AlongAxis, 	SIGNAL(clicked()), 	this, 	SLOT(updateBodyPartsBox())	);
 	
 	//BOTONES DE LA PESTAÑA HOME:
 	connect(	sendButton4,	SIGNAL(clicked()),	this,	SLOT(send())	);
@@ -1833,41 +1847,7 @@ void SpecificWorker::connectButtons()
 	// BOTONES DE LA PESTAÑA FINGERS:
 	connect(	sendButton5,	SIGNAL(clicked()),	this,	SLOT(send())	);
 
-
-
-	
-	connect(camareroZurdoButton, SIGNAL(clicked()), this, SLOT(camareroZurdo()));
-	connect(camareroDiestroButton, SIGNAL(clicked()), this, SLOT(camareroDiestro()));
-	connect(camareroCentroButton, SIGNAL(clicked()), this, SLOT(camareroCentro()));
-	connect(esfera, SIGNAL(clicked()), this, SLOT(puntosEsfera()));
-	connect(cubo, SIGNAL(clicked()), this, SLOT(puntosCubo()));
-	
-	
-	
-	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
-	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
-	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
-
-
-
-	connect(Part1_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part2_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part3_pose6D, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-
-	//TODO Conectamos los botones de la pestaña ALIGNAXIS
-	connect(Part1_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part2_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part3_AxisAlign, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-
-
-	//TODO Conectamos los botones de la pestaña MOVE ALONG AXIS
-	connect(Part1_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part2_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-	connect(Part3_AlongAxis, SIGNAL(clicked()), this, SLOT(updateBodyPartsBox()));
-
-	
-
-	// BOTONERA AÑADIDA
+	// BOTONERA AÑADIDA: UNIT TEST
 	connect(test1Button, SIGNAL(clicked()), this, SLOT(abrirPinza()));
 	connect(test2Button, SIGNAL(clicked()), this, SLOT(posicionInicial()));
 	connect(test3Button, SIGNAL(clicked()), this, SLOT(posicionCoger()));
@@ -1886,6 +1866,10 @@ void SpecificWorker::connectButtons()
 	connect(boton3, SIGNAL(clicked()), this, SLOT(boton_3()));
 	connect(boton4, SIGNAL(clicked()), this, SLOT(boton_4()));
 	connect(boton5, SIGNAL(clicked()), this, SLOT(boton_5()));
+	
+	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
+	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
+	//Esta señal la emite el QTabWidget cuando el usuario cambia el tab activo
 
 }
 
