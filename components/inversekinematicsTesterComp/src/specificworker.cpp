@@ -1231,7 +1231,7 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				marcaInWorld.print("marcaInWorld");
 								
 				QVec targetInWorld = marcaInWorld;	
-				targetInWorld[0] += 100;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
+				targetInWorld[0] -= 100;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
 				targetInWorld[2] -= 100;   
 				targetInWorld[3] = 3.1415;
 				targetInWorld[4] = -1.57; 
@@ -1254,8 +1254,8 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			qDebug() << "\n";
 			
 			// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
-			QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
-			QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min();
+			QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+			QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
 			QVec grabInWorld(6);
 			grabInWorld.inject(grabTInWorld,0);
 			grabInWorld.inject(grabRInWorld,3);
@@ -1326,8 +1326,8 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			qDebug() << "Posicion final si se corrigiese del ThandMesh1 respecto al padre" << finalHandMarca;
 			
 			//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
-			grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
-			grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min();
+			grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+			grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
 			grabInWorld.inject(grabTInWorld,0);
 			grabInWorld.inject(grabRInWorld,3);
 			qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
@@ -1366,8 +1366,8 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 	marcaInWorld.print("marcaInWorld");
 	
 	QVec targetInWorld = marcaInWorld;	
-	targetInWorld[0] += 200;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
-	targetInWorld[2] -= 200;   
+	targetInWorld[0] -= 100;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
+	targetInWorld[2] -= 100;   
 	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   
 	
 	
@@ -1384,12 +1384,12 @@ void SpecificWorker::ballisticPartToAprilTarget(int xoffset)
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
  
  		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 		
 		sleep(4);
 		
 		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 	} 
 	catch (const Ice::Exception &ex) 
 	{
@@ -1461,8 +1461,8 @@ void SpecificWorker::finePartToAprilTarget()
 	qDebug() << "\n-----------------------------------------------------------------------------------------------------";
 	
 	// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
-	QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
-	QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min();
+	QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+	QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
 	QVec grabInWorld(6);
 	grabInWorld.inject(grabTInWorld,0);
 	grabInWorld.inject(grabRInWorld,3);
@@ -1540,8 +1540,8 @@ void SpecificWorker::finePartToAprilTarget()
 	
 	
 	//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
-	grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandR");
-	grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min();
+	grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+	grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
 	grabInWorld.inject(grabTInWorld,0);
 	grabInWorld.inject(grabRInWorld,3);
 	qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
@@ -1557,11 +1557,11 @@ void SpecificWorker::finePartToAprilTarget()
 		RoboCompBodyInverseKinematics::Pose6D pose;
 		pose.x = finalHandMarca.x();pose.y = finalHandMarca.y();pose.z = finalHandMarca.z();
 		pose.rx = finalHandMarca.rx();pose.ry = finalHandMarca.ry();pose.rz = finalHandMarca.rz();
-		bodyinversekinematics_proxy->setNewTip("RIGHTARM", "ThandMesh1", pose);
+		bodyinversekinematics_proxy->setNewTip("LEFTARM", "ThandMesh1", pose);
 		
 		qDebug() << __FUNCTION__ << visualMarcaInHandMarca;
 		
-//		bodyinversekinematics_proxy->setTargetPose6D("RIGHTARM", pose, pesos,10);
+//		bodyinversekinematics_proxy->setTargetPose6D("LEFTARM", pose, pesos,10);
 		
 			
 	} 
@@ -1588,7 +1588,7 @@ void SpecificWorker::boton_1()
 	try
 	{
 		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = 100;
+		pose6D.x = -100;
 		pose6D.y = 1000;
 		pose6D.z = 400;
 		pose6D.rx = 3.14;
@@ -1604,7 +1604,7 @@ void SpecificWorker::boton_1()
 		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
 
-		std::string part = "RIGHTARM";
+		std::string part = "LEFTARM";
 		
 		bodyinversekinematics_proxy->setRobot(0);
  		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 0);
@@ -1641,7 +1641,7 @@ qDebug() << __FUNCTION__;
 	marcaInWorld.print("marcaInWorld");
 	
 	QVec targetInWorld = marcaInWorld;	
-	targetInWorld[0] += 200;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
+	targetInWorld[0] -= 200;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
 	targetInWorld[2] -= 200;   
 	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   
 	
@@ -1659,12 +1659,12 @@ qDebug() << __FUNCTION__;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
  
  		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 		
 		sleep(4);
 		
 		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 	} 
 	catch (const Ice::Exception &ex) 
 	{
@@ -1697,7 +1697,8 @@ qDebug() << __FUNCTION__;
 	marcaInWorld.print("marcaInWorld");
 	
 	QVec targetInWorld = marcaInWorld;	
-	targetInWorld[0] += 120;   ///OJO ESTO SOLO VALE PARA LA MANO DERECHA
+	targetInWorld[0] -= 120;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
+	targetInWorld[1] -= 40;
 	targetInWorld[2] -= 0;   
 	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   
 	
@@ -1717,12 +1718,12 @@ qDebug() << __FUNCTION__;
 		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
  
  		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 		
 		sleep(4);
 		
 		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
-		bodyinversekinematics_proxy->setTargetPose6D( "RIGHTARM", pose, weights,0);
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 	} 
 	catch (const Ice::Exception &ex) 
 	{
@@ -1735,7 +1736,61 @@ qDebug() << __FUNCTION__;
 
 void SpecificWorker::boton_4()
 {
+qDebug() << __FUNCTION__;
 	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
+	mutex->unlock();
+	
+	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+// 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
+	QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+	
+	marcaBote.print("marcaInHead");
+	marcaInWorld.print("marcaInWorld");
+	
+	QVec targetInWorld = marcaInWorld;	
+	targetInWorld[0] -= 40;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
+	targetInWorld[1] -= 40;
+	targetInWorld[2] -= 0;   
+	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   
+	
+	
+	
+	
+	try 
+	{
+		qDebug() << "Sent to target2" << targetInWorld;
+		
+		RoboCompBodyInverseKinematics::Pose6D pose;
+		pose.x = targetInWorld.x();pose.y = targetInWorld.y();pose.z = targetInWorld.z();
+		pose.rx = targetInWorld.rx();pose.ry = targetInWorld.ry();pose.rz = targetInWorld.rz();
+				
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+ 
+ 		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
+		
+		sleep(4);
+		
+		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
+	} 
+	catch (const Ice::Exception &ex) 
+	{
+		std::cout << ex << endl;
+	}
+	
+	
+	innerModel->removeNode("marca");	
 }
 
 void SpecificWorker::boton_5()
