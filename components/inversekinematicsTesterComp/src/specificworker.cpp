@@ -1222,20 +1222,41 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 					innerModel->updateTransformValues("marca3",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
 				mutex->unlock();
 				
+								
 				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca3");
 			 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca3").extractAnglesR_min();
+				
+				marcaRInWorld.print("ROT marcaInWorld PRE");
+				
+				
+				QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca3");
+				Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+				Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+								
+				QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+				marcaRInWorld = matResul.extractAnglesR_min();				
+				
+// 				Rot3D matZero(0,0.4,0);
+// 				
+// 				QMat matResul1 =  matMarcaRInWorld * matZeroErrorWorld;
+// 				qDebug() << "Angulos 1" << matResul1.extractAnglesR_min();
+// 				QMat matResul2 =  matLateralGrip * matZero;
+// 				qDebug() << "Angulos 2" << matResul2.extractAnglesR_min();
+// 				QMat matResul3 =  matZero * matLateralGrip.invert();
+// 				qDebug() << "Angulos 3" << matResul3.extractAnglesR_min();
+				
 				QVec marcaInWorld(6);
 				marcaInWorld.inject(marcaTInWorld,0);
 				marcaInWorld.inject(marcaRInWorld,3);
 				
-				marcaInWorld.print("marcaInWorld");
+				marcaInWorld.print("marcaInWorld POS");
 								
 				QVec targetInWorld = marcaInWorld;	
 				targetInWorld[0] -= 100;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
 				targetInWorld[2] -= 100;   
-				targetInWorld[3] = 3.1415;
-				targetInWorld[4] = -1.57; 
-				targetInWorld[5] = 0; 
+// 				targetInWorld[3] = 3.1415;
+// 				targetInWorld[4] = -1.57; 
+// 				targetInWorld[5] = 0; 
 				
 				
 				qDebug() << "Target" << targetInWorld;
@@ -1631,8 +1652,15 @@ qDebug() << __FUNCTION__;
 	mutex->unlock();
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
-// 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
-	QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
+
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();	
+	
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
 	QVec marcaInWorld(6);
 	marcaInWorld.inject(marcaTInWorld,0);
 	marcaInWorld.inject(marcaRInWorld,3);
@@ -1687,8 +1715,14 @@ qDebug() << __FUNCTION__;
 	mutex->unlock();
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
-// 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
-	QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
+	//QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
 	QVec marcaInWorld(6);
 	marcaInWorld.inject(marcaTInWorld,0);
 	marcaInWorld.inject(marcaRInWorld,3);
@@ -1747,7 +1781,13 @@ qDebug() << __FUNCTION__;
 	
 	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
 // 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();
-	QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0);
 	QVec marcaInWorld(6);
 	marcaInWorld.inject(marcaTInWorld,0);
 	marcaInWorld.inject(marcaRInWorld,3);
