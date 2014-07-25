@@ -46,6 +46,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	// Llamamos al método que se encarga de conectar los botones de la interfaz de usuario:
 	connectButtons();
+	
 }
 
 /**
@@ -129,10 +130,14 @@ void SpecificWorker::compute( )
 	
 	// Si estamos mirando la pestaña número 5 mostramos los datos de los valores angulares
 	// de los motores así como sus límites. Evitamos que la interfaz se cuelgue.
-	if(pestanias->currentIndex()==5)	showKinematicData();
+	if(pestanias->currentIndex()==5)	
+		showKinematicData();
 
 	// Actualizamos el innerModel y la ventada del viewer
-	actualizarInnerModel();
+	mutex->lock();
+		actualizarInnerModel();
+	mutex->unlock();
+	
 	imv->update();
 	osgView->frame();
 }
@@ -1195,39 +1200,68 @@ void SpecificWorker::izquierdoOfrecer()
 
 void SpecificWorker::newAprilTag(const tagsList& tags)
 {
-	marcaBote = QVec::zeros(6);
-	manoApril = QVec::zeros(6);
+	static QTime reloj = QTime::currentTime();
 	
- 	for(uint i=0; i<tags.size(); i++)
- 	{
- 		//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
-		if( tags[i].id == 12 )  //marcaBote
+	if( reloj.elapsed() > 1000)
+	{	
+		marcaBote = QVec::zeros(6);
+		marcaBote2 = QVec::zeros(6);
+		manoApril = QVec::zeros(6);
+		
+		
+		QMutexLocker lock(mutex);
+		
+		for(uint i=0; i<tags.size(); i++)
 		{
-			mutex->lock();
-			
+			//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
+			if( tags[i].id == 13 )  //marcaBote
+			{
+				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
+					qDebug() << "LA MARCA 13 SE HA LEIDO MAL (todo a cero)";
+				else
+				{
+					marcaBote2[0] = tags[i].tx; marcaBote2[1] = tags[i].ty; marcaBote2[2] = tags[i].tz; marcaBote2[3] = tags[i].rx; marcaBote2[4] = tags[i].ry; marcaBote2[5] = tags[i].rz;    
+				}
+				InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+				InnerModelTransform *node = innerModel->newTransform("marca4", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+				nodeParent->addChild(node);
+				innerModel->updateTransformValues("marca4",marcaBote2.x(), marcaBote2.y(), marcaBote2.z(), marcaBote2.rx(), marcaBote2.ry(), marcaBote2.rz(), "rgbd");	
+				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca4");
+				QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca4").extractAnglesR_min();
+				QVec marcaInWorld(6);
+				marcaInWorld.inject(marcaTInWorld,0);
+				marcaInWorld.inject(marcaRInWorld,3);
+				//.print("Marca 13 en el mundo");	
+				innerModel->removeNode("marca4");
+				
+			}
+			if( tags[i].id == 12 )  //marcaBote
+			{
+				
 				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
 					qDebug() << "LA MARCA 12 SE HA LEIDO MAL (todo a cero)";
 				else
 				{
 					marcaBote[0] = tags[i].tx; marcaBote[1] = tags[i].ty; marcaBote[2] = tags[i].tz; marcaBote[3] = tags[i].rx; marcaBote[4] = tags[i].ry; marcaBote[5] = tags[i].rz;    
 				}
-				
-			mutex->unlock();
-			
 			
 				InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 				InnerModelTransform *node = innerModel->newTransform("marca3", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
 				nodeParent->addChild(node);
-				mutex->lock();
-					innerModel->updateTransformValues("marca3",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
-				mutex->unlock();
 				
-								
+				innerModel->updateTransformValues("marca3",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");		
 				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca3");
-			 	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca3").extractAnglesR_min();
+				QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca3").extractAnglesR_min();
 				
-				marcaRInWorld.print("ROT marcaInWorld PRE");
+				QVec marcaInWorldPre(6);
+				marcaInWorldPre.inject(marcaTInWorld,0);
+				marcaInWorldPre.inject(marcaRInWorld,3);
+				//marcaInWorldPre.print("Marca 12 en el mundo");	
 				
+	// 				QVec punto = QVec::zeros(3);
+	// 				punto[0] = -100; punto[1] = 0; punto[2] = 0; 
+	// 				innerModel->transform("world", punto, "marca3").print("traslacio'n 100 de la marca en el mundo");
+	// 				innerModel->transform("world", QVec::zeros(3), "marca3").print("sin traslaci'on");
 				
 				QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca3");
 				Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
@@ -1236,131 +1270,269 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
 				marcaRInWorld = matResul.extractAnglesR_min();				
 				
-// 				Rot3D matZero(0,0.4,0);
-// 				
-// 				QMat matResul1 =  matMarcaRInWorld * matZeroErrorWorld;
-// 				qDebug() << "Angulos 1" << matResul1.extractAnglesR_min();
-// 				QMat matResul2 =  matLateralGrip * matZero;
-// 				qDebug() << "Angulos 2" << matResul2.extractAnglesR_min();
-// 				QMat matResul3 =  matZero * matLateralGrip.invert();
-// 				qDebug() << "Angulos 3" << matResul3.extractAnglesR_min();
+	// 				Rot3D matZero(0,0.4,0);
+	// 				
+	// 				QMat matResul1 =  matMarcaRInWorld * matZeroErrorWorld;
+	// 				qDebug() << "Angulos 1" << matResul1.extractAnglesR_min();
+	// 				QMat matResul2 =  matLateralGrip * matZero;
+	// 				qDebug() << "Angulos 2" << matResul2.extractAnglesR_min();
+	// 				QMat matResul3 =  matZero * matLateralGrip.invert();
+	// 				qDebug() << "Angulos 3" << matResul3.extractAnglesR_min();
 				
 				QVec marcaInWorld(6);
 				marcaInWorld.inject(marcaTInWorld,0);
 				marcaInWorld.inject(marcaRInWorld,3);
 				
-				marcaInWorld.print("marcaInWorld POS");
-								
+				//marcaInWorld.print("marcaInWorld POS");
+															
 				QVec targetInWorld = marcaInWorld;	
 				targetInWorld[0] -= 100;   ///OJO ESTO SOLO VALE PARA LA MANO izquierda
 				targetInWorld[2] -= 100;   
-// 				targetInWorld[3] = 3.1415;
-// 				targetInWorld[4] = -1.57; 
-// 				targetInWorld[5] = 0; 
+	// 				targetInWorld[3] = 3.1415;
+	// 				targetInWorld[4] = -1.57; 
+	// 				targetInWorld[5] = 0; 
 				
 				
-				qDebug() << "Target" << targetInWorld;
+				//qDebug() << "Target" << targetInWorld;
 				
 				innerModel->removeNode("marca3");
 			
-			
-		}
-		if( tags[i].id == 11 )  //Mano
-		{
-			mutex->lock();
+				
+			}
+			if( tags[i].id == 11 )  //Mano
+			{
 				manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
-			mutex->unlock();
-			
-			
-			qDebug() << "\n";
-			
-			// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
-			QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
-			QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
-			QVec grabInWorld(6);
-			grabInWorld.inject(grabTInWorld,0);
-			grabInWorld.inject(grabRInWorld,3);
-			qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
-			
-			
-			// Inicio de los cálculos
+						
+				qDebug() << "\n";
 				
-			// Creamos el nodo de la marca vista desde la cámara
-			InnerModelNode *nodeParent = innerModel->getNode("rgbd");
-			InnerModelTransform *node = innerModel->newTransform("marcaHandInCamera3", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
-			nodeParent->addChild(node);
-			
-			mutex->lock();
-				innerModel->updateTransformValues("marcaHandInCamera3",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz());	
-			mutex->unlock();
-
-
-			// Esto es sólo para mostrar la posición de la marca vista desde la cámara y desde el innermodel expresadas en el sistema de referencia del mundo
-			QVec marca2TInWorld = innerModel->transform("world", QVec::zeros(3), "marcaHandInCamera3");
-			QVec marca2RInWorld = innerModel->getRotationMatrixTo("world","marcaHandInCamera3").extractAnglesR_min();
-			QVec marca2InWorld(6);
-			marca2InWorld.inject(marca2TInWorld,0);
-			marca2InWorld.inject(marca2RInWorld,3);
-			qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
-			
-			QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
-			QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
-			QVec marcaInWorld(6);
-			marcaInWorld.inject(marcaTInWorld,0);
-			marcaInWorld.inject(marcaRInWorld,3);
-			qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
-			qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
-			
-			
-			// Calculamos el error de la marca
-			// Ponemos la marca vista desde la cámara en el sistma de coordenadas de la marca de la mano, si no hay error debería ser todo cero
-			QVec visualMarcaTInHandMarca = innerModel->transform("ThandMesh1", QVec::zeros(3), "marcaHandInCamera3");
-			QVec visualMarcaRInHandMarca = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3").extractAnglesR_min();
-			QVec visualMarcaInHandMarca(6);
-			visualMarcaInHandMarca.inject(visualMarcaTInHandMarca,0);
-			visualMarcaInHandMarca.inject(visualMarcaRInHandMarca,3);
-			qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
-			
-			// Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
-			QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3");
-			QMat handMarcaRInParentMat = innerModel->getRotationMatrixTo("ThandMesh1_pre","ThandMesh1");
+				// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
+				QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+				QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
+				QVec grabInWorld(6);
+				grabInWorld.inject(grabTInWorld,0);
+				grabInWorld.inject(grabRInWorld,3);
+				qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
 				
-			// Multiplicamos las matrices de rotación para sumar la nueva rotación visualMarcaRInHandMarcaMat a la ya existente con respecto al padre
-			QMat finalHandMarcaRMat = handMarcaRInParentMat * visualMarcaRInHandMarcaMat;
-			QVec finalHandMarcaR = finalHandMarcaRMat.extractAnglesR_min();
 				
-			// Pasamos también las translaciones nuevas (visualMarcaTInHandMarca) al padre y las sumamos con las existentes
-			QVec handMarcaTInParent = innerModel->transform("ThandMesh1_pre", QVec::zeros(3), "ThandMesh1");
-			QVec finalHandMarcaT = handMarcaTInParent + (handMarcaRInParentMat* visualMarcaTInHandMarca);
-			
-			// Esto es sólo para mostar como está el ThandMesh1 respecto al padre antes de las modificaciones
-			QVec inicialHandMarca(6);
-			inicialHandMarca.inject(handMarcaTInParent,0);
-			inicialHandMarca.inject(handMarcaRInParentMat.extractAnglesR_min(),3);	
-			qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
-			
-			// Creamos el vector final con las rotaciones y translaciones del tHandMesh1 con respecto al padre
-			QVec finalHandMarca(6);
-			finalHandMarca.inject(finalHandMarcaT,0);
-			finalHandMarca.inject(finalHandMarcaR,3);
-			
-			qDebug() << "Posicion final si se corrigiese del ThandMesh1 respecto al padre" << finalHandMarca;
-			
-			//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
-			grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
-			grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
-			grabInWorld.inject(grabTInWorld,0);
-			grabInWorld.inject(grabRInWorld,3);
-			qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
-				
-			//Eliminamos el nodo creado
-			innerModel->removeNode("marcaHandInCamera3");
-	
-			qDebug() << "\n";
-			
+				// Inicio de los cálculos
 					
+				// Creamos el nodo de la marca vista desde la cámara
+				InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+				InnerModelTransform *node = innerModel->newTransform("marcaHandInCamera3", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+				nodeParent->addChild(node);
+				
+				innerModel->updateTransformValues("marcaHandInCamera3",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz());	
+
+				// Esto es sólo para mostrar la posición de la marca vista desde la cámara y desde el innermodel expresadas en el sistema de referencia del mundo
+				QVec marca2TInWorld = innerModel->transform("world", QVec::zeros(3), "marcaHandInCamera3");
+				QVec marca2RInWorld = innerModel->getRotationMatrixTo("world","marcaHandInCamera3").extractAnglesR_min();
+				QVec marca2InWorld(6);
+				marca2InWorld.inject(marca2TInWorld,0);
+				marca2InWorld.inject(marca2RInWorld,3);
+				qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
+				
+				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
+				QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
+				QVec marcaInWorld(6);
+				marcaInWorld.inject(marcaTInWorld,0);
+				marcaInWorld.inject(marcaRInWorld,3);
+				qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
+				qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
+				
+				
+				// Calculamos el error de la marca
+				// Ponemos la marca vista desde la cámara en el sistma de coordenadas de la marca de la mano, si no hay error debería ser todo cero
+				QVec visualMarcaTInHandMarca = innerModel->transform("ThandMesh1", QVec::zeros(3), "marcaHandInCamera3");
+				QVec visualMarcaRInHandMarca = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3").extractAnglesR_min();
+				QVec visualMarcaInHandMarca(6);
+				visualMarcaInHandMarca.inject(visualMarcaTInHandMarca,0);
+				visualMarcaInHandMarca.inject(visualMarcaRInHandMarca,3);
+				qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
+				
+				// Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
+				QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3");
+				QMat handMarcaRInParentMat = innerModel->getRotationMatrixTo("ThandMesh1_pre","ThandMesh1");
+					
+				// Multiplicamos las matrices de rotación para sumar la nueva rotación visualMarcaRInHandMarcaMat a la ya existente con respecto al padre
+				QMat finalHandMarcaRMat = handMarcaRInParentMat * visualMarcaRInHandMarcaMat;
+				QVec finalHandMarcaR = finalHandMarcaRMat.extractAnglesR_min();
+					
+				// Pasamos también las translaciones nuevas (visualMarcaTInHandMarca) al padre y las sumamos con las existentes
+				QVec handMarcaTInParent = innerModel->transform("ThandMesh1_pre", QVec::zeros(3), "ThandMesh1");
+				QVec finalHandMarcaT = handMarcaTInParent + (handMarcaRInParentMat* visualMarcaTInHandMarca);
+				
+				// Esto es sólo para mostar como está el ThandMesh1 respecto al padre antes de las modificaciones
+				QVec inicialHandMarca(6);
+				inicialHandMarca.inject(handMarcaTInParent,0);
+				inicialHandMarca.inject(handMarcaRInParentMat.extractAnglesR_min(),3);	
+				qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
+				
+				// Creamos el vector final con las rotaciones y translaciones del tHandMesh1 con respecto al padre
+				QVec finalHandMarca(6);
+				finalHandMarca.inject(finalHandMarcaT,0);
+				finalHandMarca.inject(finalHandMarcaR,3);
+				
+				qDebug() << "Posicion final si se corrigiese del ThandMesh1 respecto al padre" << finalHandMarca;
+				
+				//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
+				grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+				grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
+				grabInWorld.inject(grabTInWorld,0);
+				grabInWorld.inject(grabRInWorld,3);
+				qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
+					
+				//Eliminamos el nodo creado
+				innerModel->removeNode("marcaHandInCamera3");
+		
+				qDebug() << "\n";
+				
+						
+			}
 		}
- 	}
+	}  //Todavia no
+}
+
+///FUNCIONES APRIL
+
+void SpecificWorker::moveToFrom(const QVec &poseTarget, const QVec &poseFrom)
+{
+	qDebug() << __FUNCTION__;
+	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",poseFrom.x(), poseFrom.y(), poseFrom.z(), poseFrom.rx(), poseFrom.ry(), poseFrom.rz(), "rgbd");	
+	mutex->unlock();
+	
+	//QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	QVec poseT(3); poseT(0) = poseTarget(0); poseT(1) = poseTarget(1); poseT(2) = poseTarget(2);	
+	QVec marcaTInWorld = innerModel->transform("world", poseT, "marca");
+
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	//Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+	Rot3D matLateralGrip(poseTarget(3),poseTarget(4),poseTarget(5)); // Para coger un objeto desde la orientación dada
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();	
+	
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0); // Orientación fija 
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+
+	QVec targetInWorld = marcaInWorld;	
+	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	
+	innerModel->removeNode("marca");
+
+	moveToTarget(targetInWorld);
+}
+
+void SpecificWorker::moveToApril(const QVec &poseTarget)
+{
+	qDebug() << __FUNCTION__;
+	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",marcaBote.x(), marcaBote.y(), marcaBote.z(), marcaBote.rx(), marcaBote.ry(), marcaBote.rz(), "rgbd");	
+	mutex->unlock();
+	
+	//QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	QVec poseT(3); poseT(0) = poseTarget(0); poseT(1) = poseTarget(1); poseT(2) = poseTarget(2);	
+	QVec marcaTInWorld = innerModel->transform("world", poseT, "marca");
+
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	//Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+	Rot3D matLateralGrip(poseTarget(3),poseTarget(4),poseTarget(5)); // Para coger un objeto desde la orientación dada
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();	
+	
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0); // Orientación fija 
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+
+	QVec targetInWorld = marcaInWorld;	
+	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	
+	innerModel->removeNode("marca");
+
+	moveToTarget(targetInWorld);
+}
+
+void SpecificWorker::moveToApril2(const QVec &poseTarget)
+{
+	qDebug() << __FUNCTION__;
+	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",marcaBote2.x(), marcaBote2.y(), marcaBote2.z(), marcaBote2.rx(), marcaBote2.ry(), marcaBote2.rz(), "rgbd");	
+	mutex->unlock();
+	
+	//QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	QVec poseT(3); poseT(0) = poseTarget(0); poseT(1) = poseTarget(1); poseT(2) = poseTarget(2);	
+	QVec marcaTInWorld = innerModel->transform("world", poseT, "marca");
+
+	QMat matMarcaRInWorld = innerModel->getRotationMatrixTo("world","marca");
+	Rot3D matZeroErrorWorld(-M_PI/2.0,0,0); // Para que las rotaciones de la marca en el mundo sean cero cuando el plano de la marca está paralelo al suelo 
+	//Rot3D matLateralGrip(M_PI,-M_PI/2.0,0); // Para coger un objeto desde el lateral
+	Rot3D matLateralGrip(poseTarget(3),poseTarget(4),poseTarget(5)); // Para coger un objeto desde la orientación dada
+					
+	QMat matResul =  matMarcaRInWorld * matZeroErrorWorld * matLateralGrip.invert();
+	QVec marcaRInWorld = matResul.extractAnglesR_min();	
+	
+	//QVec marcaRInWorld = QVec::vec3(3.1415,-1.57,0); // Orientación fija 
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+
+	QVec targetInWorld = marcaInWorld;	
+	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	
+	innerModel->removeNode("marca");
+	
+	//targetInWorld.print("Target2");
+
+	moveToTarget(targetInWorld);
+}
+
+void SpecificWorker::moveToTarget(const QVec &targetInWorld)
+{
+	qDebug() << __FUNCTION__;
+	
+	try 
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose;
+		pose.x = targetInWorld.x();pose.y = targetInWorld.y();pose.z = targetInWorld.z();
+		pose.rx = targetInWorld.rx();pose.ry = targetInWorld.ry();pose.rz = targetInWorld.rz();
+				
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+ 
+		qDebug() << "Sent to target in RCIS" << targetInWorld;
+ 		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
+		
+		sleep(4);
+		
+		qDebug() << "Sent to target in real world" << targetInWorld;
+		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
+		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
+	} 
+	catch (const Ice::Exception &ex) 
+	{
+		std::cout << ex << endl;
+	} 
+	
 }
 
 ///BOTONES DE APRIL
@@ -1606,43 +1778,49 @@ void SpecificWorker::finePartToAprilTarget()
  */ 
 void SpecificWorker::boton_1()
 {
-	try
-	{
-		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = -100;
-		pose6D.y = 1000;
-		pose6D.z = 400;
-		pose6D.rx = 3.14;
-		pose6D.ry = -1.57;
-		pose6D.rz = 0;	
+	
+// 	abrirPinza();
+// 	sleep(2);
+// 	
+// 	QVec poseTarget = QVec::zeros(6);
+// 	poseTarget(0) = -200; poseTarget(1) = -200; poseTarget(2) = -200; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril(poseTarget);
+// 	sleep(6);
+// 	
+// 	
+// 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = 40; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril(poseTarget);
+// 	sleep(6);
+// 
+// 	
+// 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = 40; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril(poseTarget);
+// 	sleep(6);
+// 
+// 	//Cerrar pinza
+// 	cerrarPinza();
+// 	sleep(6);
+// 
+// 	poseTarget(0) = 0; poseTarget(1) = 1200; poseTarget(2) = 400; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToTarget(poseTarget);
+	
 
-		QVec pose = QVec::zeros(6);
-		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
-
-// 		moverTargetEnRCIS(pose);
-
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-
-		std::string part = "LEFTARM";
+	
 		
-		bodyinversekinematics_proxy->setRobot(0);
- 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 0);
-		
-		sleep(1);
-		
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 0);
-
-	}
- 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN POSICION COGER: "<<ex<<endl;}
+	bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
+	goHome("All");
+	
+	sleep(4);
+	
+	bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
+	goHome("All");
+	
 	
 }
 
 void SpecificWorker::boton_2()
 {
-qDebug() << __FUNCTION__;
+	/*qDebug() << __FUNCTION__;
 	
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
@@ -1673,7 +1851,7 @@ qDebug() << __FUNCTION__;
 	targetInWorld[2] -= 200;   
 	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   
 	
-	
+	 
 	try 
 	{
 		qDebug() << "Sent to target1" << targetInWorld;
@@ -1700,12 +1878,16 @@ qDebug() << __FUNCTION__;
 	}
 	
 	
-	innerModel->removeNode("marca");	
+	innerModel->removeNode("marca");*/	
+	
+	QVec poseTarget = QVec::zeros(6);
+	poseTarget(0) = -100; poseTarget(1) = 1000; poseTarget(2) = 450; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToTarget(poseTarget);
 }
 
 void SpecificWorker::boton_3()
 {
-qDebug() << __FUNCTION__;
+	/*qDebug() << __FUNCTION__;
 	
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
@@ -1765,12 +1947,130 @@ qDebug() << __FUNCTION__;
 	}
 	
 	
-	innerModel->removeNode("marca");	
+	innerModel->removeNode("marca");*/	
+	qDebug() << "\n-----------------------------------------------------------------------------------------------------";
+	
+	// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
+	QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+	QVec grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
+	QVec grabInWorld(6);
+	grabInWorld.inject(grabTInWorld,0);
+	grabInWorld.inject(grabRInWorld,3);
+	qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
+	
+	
+	// Inicio de los cálculos
+	
+	
+	// Creamos el nodo de la marca vista desde la cámara
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marcaHandInCamera", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+ 	nodeParent->addChild(node);
+	
+	mutex->lock();
+		innerModel->updateTransformValues("marcaHandInCamera",manoApril.x(), manoApril.y(), manoApril.z(), manoApril.rx(), manoApril.ry(), manoApril.rz());	
+	mutex->unlock();
+
+
+	// Esto es sólo para mostrar la posición de la marca vista desde la cámara y desde el innermodel expresadas en el sistema de referencia del mundo
+	QVec marca2TInWorld = innerModel->transform("world", QVec::zeros(3), "marcaHandInCamera");
+	QVec marca2RInWorld = innerModel->getRotationMatrixTo("world","marcaHandInCamera").extractAnglesR_min();
+	QVec marca2InWorld(6);
+	marca2InWorld.inject(marca2TInWorld,0);
+	marca2InWorld.inject(marca2RInWorld,3);
+	qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
+	
+	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
+	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+	qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
+	qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
+	
+	
+	// Calculamos el error de la marca
+	// Ponemos la marca vista desde la cámara en el sistma de coordenadas de la marca de la mano, si no hay error debería ser todo cero
+	QVec visualMarcaTInHandMarca = innerModel->transform("ThandMesh1", QVec::zeros(3), "marcaHandInCamera");
+	QVec visualMarcaRInHandMarca = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera").extractAnglesR_min();
+	QVec visualMarcaInHandMarca(6);
+	visualMarcaInHandMarca.inject(visualMarcaTInHandMarca,0);
+	visualMarcaInHandMarca.inject(visualMarcaRInHandMarca,3);
+	qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
+	
+	// Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
+	QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera");
+	QMat handMarcaRInParentMat = innerModel->getRotationMatrixTo("ThandMesh1_pre","ThandMesh1");
+		
+	// Multiplicamos las matrices de rotación para sumar la nueva rotación visualMarcaRInHandMarcaMat a la ya existente con respecto al padre
+	QMat finalHandMarcaRMat = handMarcaRInParentMat * visualMarcaRInHandMarcaMat;
+	QVec finalHandMarcaR = finalHandMarcaRMat.extractAnglesR_min();
+		
+	// Pasamos también las translaciones nuevas (visualMarcaTInHandMarca) al padre y las sumamos con las existentes
+	QVec handMarcaTInParent = innerModel->transform("ThandMesh1_pre", QVec::zeros(3), "ThandMesh1");
+	QVec finalHandMarcaT = handMarcaTInParent + (handMarcaRInParentMat* visualMarcaTInHandMarca);
+	
+	// Esto es sólo para mostar como está el ThandMesh1 respecto al padre antes de las modificaciones
+	QVec inicialHandMarca(6);
+	inicialHandMarca.inject(handMarcaTInParent,0);
+	inicialHandMarca.inject(handMarcaRInParentMat.extractAnglesR_min(),3);	
+	qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
+	
+	// Creamos el vector final con las rotaciones y translaciones del tHandMesh1 con respecto al padre
+	QVec finalHandMarca(6);
+	finalHandMarca.inject(finalHandMarcaT,0);
+	finalHandMarca.inject(finalHandMarcaR,3);
+	
+	qDebug() << "Posicion final corregida del ThandMesh1 respecto al padre" << finalHandMarca;
+	
+	//Actualizamos el transform de la marca en la mano (ThandMesh1) con las rotaciones y translaciones calculadas
+	mutex->lock();
+		innerModel->updateTransformValues("ThandMesh1",finalHandMarca.x(), finalHandMarca.y(), finalHandMarca.z(), finalHandMarca.rx(), finalHandMarca.ry(), finalHandMarca.rz());	
+	mutex->unlock();
+	
+	
+	//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
+	grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
+	grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
+	grabInWorld.inject(grabTInWorld,0);
+	grabInWorld.inject(grabRInWorld,3);
+	qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
+		
+	qDebug() << "-----------------------------------------------------------------------------------------------------\n";
+	
+	
+	
+	//Actualizamos el inermodel del Bik con los datos del inermodel del tester
+	//We send now to inermodel BIK the new endEffector pose
+	try 
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose;
+		pose.x = finalHandMarca.x();pose.y = finalHandMarca.y();pose.z = finalHandMarca.z();
+		pose.rx = finalHandMarca.rx();pose.ry = finalHandMarca.ry();pose.rz = finalHandMarca.rz();
+		bodyinversekinematics_proxy->setNewTip("LEFTARM", "ThandMesh1", pose);
+		
+		qDebug() << __FUNCTION__ << visualMarcaInHandMarca;
+		
+//		bodyinversekinematics_proxy->setTargetPose6D("LEFTARM", pose, pesos,10);
+		
+			
+	} 
+	catch (const Ice::Exception &ex) 
+	{
+		std::cout << ex << endl;
+	}
+	
+	
+	
+	
+	//Eliminamos el nodo creado
+	innerModel->removeNode("marcaHandInCamera");
+
 }
 
 void SpecificWorker::boton_4()
 {
-qDebug() << __FUNCTION__;
+/*qDebug() << __FUNCTION__;
 	
 	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
 	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
@@ -1830,13 +2130,214 @@ qDebug() << __FUNCTION__;
 	}
 	
 	
-	innerModel->removeNode("marca");	
+	innerModel->removeNode("marca");*/	
+
+	savedAprilTarget = QVec::zeros(6);
+	savedAprilTarget = marcaBote;
+	savedAprilTarget.print("AprilTag in camera");
+	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",savedAprilTarget.x(), savedAprilTarget.y(), savedAprilTarget.z(), savedAprilTarget.rx(), savedAprilTarget.ry(), savedAprilTarget.rz(), "rgbd");	
+	mutex->unlock();
+	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();	
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+	marcaInWorld.print("AprilTag in world");
+	innerModel->removeNode("marca");
+	
 }
 
 void SpecificWorker::boton_5()
 {
+// 	QVec poseTarget = QVec::zeros(6);
+// 	
+// 	poseTarget(0) = -200; poseTarget(1) = -200; poseTarget(2) = -330; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril2(poseTarget);
+// 	sleep(6);
+// 	
+// 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril2(poseTarget);
+// 	sleep(6);
+// 	
+// 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril2(poseTarget);
+// 	sleep(6);
+// 	
+// 	//Abrir pinza
+// 	abrirPinza();
+// 	sleep(6);
+// 	
+// 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToApril2(poseTarget);
+// 	sleep(6);
+// 			
+// 	poseTarget(0) = 0; poseTarget(1) = 1200; poseTarget(2) = 400; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+// 	moveToTarget(poseTarget);
+	
+	try
+	{	
+		qDebug() << __FUNCTION__ << "Open fingers RCIS";
+		bodyinversekinematics_proxy->setRobot(0);
+		bodyinversekinematics_proxy->setFingers(60);
+		
+		sleep(2);
+
+		qDebug() << __FUNCTION__ << "Open fingers real";
+ 		bodyinversekinematics_proxy->setRobot(1);
+ 		bodyinversekinematics_proxy->setFingers(60);
+	} catch (Ice::Exception ex) {cout <<"ERROR EN ABRIR PINZA: "<< ex << endl;}
+		
+}
+
+void SpecificWorker::boton_6()
+{
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -200; poseTarget(1) = -200; poseTarget(2) = -200; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);
+}
+
+void SpecificWorker::boton_7()
+{
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = 40; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);		
+}
+
+void SpecificWorker::boton_8()
+{
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = 40; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);		
+}
+
+void SpecificWorker::boton_9()
+{
+	try
+	{	
+		qDebug() << __FUNCTION__ << "Close fingers RCIS";
+		bodyinversekinematics_proxy->setRobot(0);
+		bodyinversekinematics_proxy->setFingers(5);
+		
+		sleep(2);
+
+		qDebug() << __FUNCTION__ << "Close fingers real";
+ 		bodyinversekinematics_proxy->setRobot(1);
+ 		bodyinversekinematics_proxy->setFingers(5);
+	} catch (Ice::Exception ex) {cout <<"ERROR EN ABRIR PINZA: "<< ex << endl;}	
+}
+
+void SpecificWorker::boton_10()
+{
+	QVec poseTarget = QVec::zeros(6);
+	poseTarget(0) = 0; poseTarget(1) = 1200; poseTarget(2) = 400; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToTarget(poseTarget);	
+}
+
+void SpecificWorker::boton_11()
+{
+	savedAprilTarget = QVec::zeros(6);
+	savedAprilTarget = marcaBote2;	
+	savedAprilTarget.print("AprilTag in camera");
+	
+	InnerModelNode *nodeParent = innerModel->getNode("rgbd");
+	InnerModelTransform *node = innerModel->newTransform("marca", "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
+	nodeParent->addChild(node);
+	mutex->lock();
+		innerModel->updateTransformValues("marca",savedAprilTarget.x(), savedAprilTarget.y(), savedAprilTarget.z(), savedAprilTarget.rx(), savedAprilTarget.ry(), savedAprilTarget.rz(), "rgbd");	
+	mutex->unlock();
+	QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "marca");
+	QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","marca").extractAnglesR_min();	
+	QVec marcaInWorld(6);
+	marcaInWorld.inject(marcaTInWorld,0);
+	marcaInWorld.inject(marcaRInWorld,3);
+	marcaInWorld.print("AprilTag in world");
+	innerModel->removeNode("marca");
 	
 }
+
+void SpecificWorker::boton_12()
+{
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);		
+}
+
+void SpecificWorker::boton_13()
+{
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);		
+}
+
+void SpecificWorker::boton_14()
+{
+	boton_5();	
+}
+
+void SpecificWorker::boton_15()
+{
+	boton_12();	
+}
+
+void SpecificWorker::boton_16()
+{
+	boton_10();	
+}
+
+// void SpecificWorker::boton_17()
+// {
+// 		
+// }
+// 
+// void SpecificWorker::boton_18()
+// {
+// 		
+// }
+// 
+// void SpecificWorker::boton_19()
+// {
+// 		
+// }
+
+
+void SpecificWorker::boton_21()
+{
+		
+}
+
+void SpecificWorker::boton_22()
+{
+		
+}
+
+void SpecificWorker::boton_23()
+{
+		
+}
+
+void SpecificWorker::boton_24()
+{
+		
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 //**************************************************************************************************//
 //						 MÉTODOS PRIVADOS MUY IMPORTANTES PARA QUE ESTO FUNCIONE 					//
@@ -1961,6 +2462,24 @@ void SpecificWorker::connectButtons()
 	connect(boton3, SIGNAL(clicked()), this, SLOT(boton_3()));
 	connect(boton4, SIGNAL(clicked()), this, SLOT(boton_4()));
 	connect(boton5, SIGNAL(clicked()), this, SLOT(boton_5()));
+	connect(boton6, SIGNAL(clicked()), this, SLOT(boton_6()));
+	connect(boton7, SIGNAL(clicked()), this, SLOT(boton_7()));
+	connect(boton8, SIGNAL(clicked()), this, SLOT(boton_8()));
+	connect(boton9, SIGNAL(clicked()), this, SLOT(boton_9()));
+	connect(boton10, SIGNAL(clicked()), this, SLOT(boton_10()));
+	connect(boton11, SIGNAL(clicked()), this, SLOT(boton_11()));
+	connect(boton12, SIGNAL(clicked()), this, SLOT(boton_12()));
+	connect(boton13, SIGNAL(clicked()), this, SLOT(boton_13()));
+	connect(boton14, SIGNAL(clicked()), this, SLOT(boton_14()));
+	connect(boton15, SIGNAL(clicked()), this, SLOT(boton_15()));
+	connect(boton16, SIGNAL(clicked()), this, SLOT(boton_16()));
+// 	connect(boton17, SIGNAL(clicked()), this, SLOT(boton_17()));
+// 	connect(boton18, SIGNAL(clicked()), this, SLOT(boton_18()));
+// 	connect(boton19, SIGNAL(clicked()), this, SLOT(boton_19()));
+	connect(boton21, SIGNAL(clicked()), this, SLOT(boton_21()));
+	connect(boton22, SIGNAL(clicked()), this, SLOT(boton_22()));
+	connect(boton23, SIGNAL(clicked()), this, SLOT(boton_23()));
+	connect(boton24, SIGNAL(clicked()), this, SLOT(boton_24()));
 	
 	connect(aprilSendButton, SIGNAL(clicked()), this, SLOT(ballisticPartToAprilTarget()));
 	connect(aprilFineButton, SIGNAL(clicked()), this, SLOT(finePartToAprilTarget()));
@@ -2020,6 +2539,7 @@ void SpecificWorker::initDirectKinematicsFlange()
 		}
 
 	} catch(const Ice::Exception &ex) {cout<<"--> Excepción en initDirectKinematicsFlange al tomar datos del robot: "<<ex<<endl;}
+	qDebug() << __FUNCTION__ << "Finished OK";
 }
 
 /**

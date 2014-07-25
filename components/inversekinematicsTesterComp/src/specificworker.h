@@ -78,8 +78,24 @@ public slots:
 	void boton_3();
 	void boton_4();
 	void boton_5();
-
-	
+	void boton_6();
+	void boton_7();	
+	void boton_8();
+	void boton_9();
+	void boton_10();
+	void boton_11();
+	void boton_12();
+	void boton_13();
+	void boton_14();
+	void boton_15();
+	void boton_16();
+// 	void boton_17();	
+// 	void boton_18();
+// 	void boton_19();
+	void boton_21();
+	void boton_22();
+	void boton_23();
+	void boton_24();
 	
 	void enviarHome();
 	void actualizarInnerModel();
@@ -106,8 +122,10 @@ public slots:
 	void izquierdoRecoger();
 	void izquierdoOfrecer();
 	
-
-
+	void moveToFrom(const QVec &poseTarget, const QVec &poseFrom);
+	void moveToApril(const QVec &poseTarget);
+	void moveToApril2(const QVec &poseTarget);
+	void moveToTarget(const QVec &targetInWorld);
 
 	void ballisticPartToAprilTarget(int xoffset = 100);
 	void finePartToAprilTarget();
@@ -124,6 +142,8 @@ private:
 	QQueue<QVec>		trayectoria;								// Cola de poses donde se guardan las trayectorias de los Camareros
 	QVec				partesActivadas;							// Vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
 	QVec 				marcaBote;
+	QVec 				marcaBote2;
+	QVec 				savedAprilTarget;
 	QVec 				manoApril;
 	
 	bool				flagListTargets;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
