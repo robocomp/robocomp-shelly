@@ -2307,22 +2307,55 @@ void SpecificWorker::boton_16()
 
 void SpecificWorker::boton_21()
 {
-		
+	boton_1();
+	sleep(4);
+	boton_2();
+	sleep(8);
+	boton_3();
+	sleep(1);
+	boton_2();
 }
 
 void SpecificWorker::boton_22()
 {
+	boton_4();
+	sleep(8);
+	boton_5();
+	sleep(8);
+	boton_6();
+	sleep(8);
+	boton_7();
+	sleep(8);
+	boton_8();
+	sleep(8);
+	boton_9();
+	sleep(8);
+	boton_10();
 		
 }
 
 void SpecificWorker::boton_23()
 {
-		
+	boton_11();
+	sleep(8);
+	boton_12();
+	sleep(8);
+	boton_13();
+	sleep(8);
+	boton_14();
+	sleep(8);
+	boton_15();
+	sleep(8);
+	boton_16();
 }
 
 void SpecificWorker::boton_24()
 {
-		
+	boton_21();
+	sleep(10);
+	boton_22();
+	sleep(10);
+	boton_23();		
 }
 
 
