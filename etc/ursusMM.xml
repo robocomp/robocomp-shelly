@@ -39,7 +39,7 @@
 							<plane id="motorHead1Mesh" pz="-23" nz="1" size="40,40,66" repeat="1" texture="#051105" />
 							<!-- Giro en X -->
 <!--							<joint id="head1" port="20000" min="-0.1" max="0.8" axis="x" home="0.1">-->
-							<joint id="head1" port="20000" axis="x" home="0.3" min="-0.05" max="0.6">
+							<joint id="head1" port="20000" axis="x" home="0.5" min="-0.05" max="0.6">
 <!--
 								<transform id="axesh1" >
 									<plane id="xh1" px="50" nx="1" size="1,1,100" repeat="1" texture="#ff0000" />

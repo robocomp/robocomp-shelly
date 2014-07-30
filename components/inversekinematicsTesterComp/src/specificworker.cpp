@@ -18,6 +18,7 @@
  */
  
  #include "specificworker.h"
+#include <qt4/QtCore/qdebug.h>
 
  
  //**************************************************************************//
@@ -1204,9 +1205,9 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 	
 	if( reloj.elapsed() > 1000)
 	{	
-		marcaBote = QVec::zeros(6);
-		marcaBote2 = QVec::zeros(6);
-		manoApril = QVec::zeros(6);
+		
+		
+		
 		
 		
 		QMutexLocker lock(mutex);
@@ -1216,10 +1217,14 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			//qDebug() << tags[i].id << tags[i].tx << tags[i].ty << tags[i].tz << tags[i].rx << tags[i].ry << tags[i].rz;
 			if( tags[i].id == 13 )  //marcaBote
 			{
-				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
-					qDebug() << "LA MARCA 13 SE HA LEIDO MAL (todo a cero)";
+// 				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
+// 					qDebug() << "LA MARCA 13 SE HA LEIDO MAL (todo a cero)";
+				
+				if ((tags[i].tx >= -0.0001) && (tags[i].tx <= 0.0001) && (tags[i].ty>= -0.0001) && (tags[i].ty <= 0.0001) &&  (tags[i].tz >= -0.0001) && (tags[i].tz <= 0.0001))
+					qDebug() << "LA MARCA 12 SE HA LEIDO MAL (todo a cero)";				
 				else
 				{
+					marcaBote2 = QVec::zeros(6);
 					marcaBote2[0] = tags[i].tx; marcaBote2[1] = tags[i].ty; marcaBote2[2] = tags[i].tz; marcaBote2[3] = tags[i].rx; marcaBote2[4] = tags[i].ry; marcaBote2[5] = tags[i].rz;    
 				}
 				InnerModelNode *nodeParent = innerModel->getNode("rgbd");
@@ -1238,10 +1243,11 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			if( tags[i].id == 12 )  //marcaBote
 			{
 				
-				if ((tags[i].tx == 0) && (tags[i].ty == 0) && (tags[i].tz == 0) && (tags[i].rx == 0) && (tags[i].ry == 0) && (tags[i].rz == 0))
+				if ((tags[i].tx >= -0.0001) && (tags[i].tx <= 0.0001) && (tags[i].tx >= -0.0001) && (tags[i].tx <= 0.0001) &&  (tags[i].tx >= -0.0001) && (tags[i].tx <= 0.0001))
 					qDebug() << "LA MARCA 12 SE HA LEIDO MAL (todo a cero)";
 				else
 				{
+					marcaBote = QVec::zeros(6);
 					marcaBote[0] = tags[i].tx; marcaBote[1] = tags[i].ty; marcaBote[2] = tags[i].tz; marcaBote[3] = tags[i].rx; marcaBote[4] = tags[i].ry; marcaBote[5] = tags[i].rz;    
 				}
 			
@@ -1301,8 +1307,14 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 			}
 			if( tags[i].id == 11 )  //Mano
 			{
-				manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
-						
+				
+				if ((tags[i].tx >= -0.0001) && (tags[i].tx <= 0.0001) && (tags[i].ty >= -0.0001) && (tags[i].ty <= 0.0001) &&  (tags[i].tz >= -0.0001) && (tags[i].tz <= 0.0001))
+					qDebug() << "LA MARCA 11 SE HA LEIDO MAL (todo a cero)";
+				else
+				{
+					manoApril = QVec::zeros(6);
+					manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
+				}
 				qDebug() << "\n";
 				
 				// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
@@ -1423,7 +1435,7 @@ void SpecificWorker::moveToFrom(const QVec &poseTarget, const QVec &poseFrom)
 	marcaInWorld.inject(marcaRInWorld,3);
 
 	QVec targetInWorld = marcaInWorld;	
-	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   // Para que no se peque mucho la mano al pecho
 	
 	innerModel->removeNode("marca");
 
@@ -1459,7 +1471,7 @@ void SpecificWorker::moveToApril(const QVec &poseTarget)
 	marcaInWorld.inject(marcaRInWorld,3);
 
 	QVec targetInWorld = marcaInWorld;	
-	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   // Para que no se peque mucho la mano al pecho
 	
 	innerModel->removeNode("marca");
 
@@ -1495,7 +1507,7 @@ void SpecificWorker::moveToApril2(const QVec &poseTarget)
 	marcaInWorld.inject(marcaRInWorld,3);
 
 	QVec targetInWorld = marcaInWorld;	
-	if (targetInWorld[2] < 150) targetInWorld[2] = 150;   // Para que no se peque mucho la mano al pecho
+	if (targetInWorld[2] < 200) targetInWorld[2] = 200;   // Para que no se peque mucho la mano al pecho
 	
 	innerModel->removeNode("marca");
 	
@@ -1522,7 +1534,7 @@ void SpecificWorker::moveToTarget(const QVec &targetInWorld)
  		bodyinversekinematics_proxy->setRobot(0); //Para enviar al RCIS-->0 Para enviar al robot-->1
 		bodyinversekinematics_proxy->setTargetPose6D( "LEFTARM", pose, weights,0);
 		
-		sleep(4);
+		sleep(3);
 		
 		qDebug() << "Sent to target in real world" << targetInWorld;
 		bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
@@ -2183,13 +2195,13 @@ void SpecificWorker::boton_5()
 	{	
 		qDebug() << __FUNCTION__ << "Open fingers RCIS";
 		bodyinversekinematics_proxy->setRobot(0);
-		bodyinversekinematics_proxy->setFingers(60);
+		bodyinversekinematics_proxy->setFingers(70);
 		
-		sleep(2);
+		sleep(1);
 
 		qDebug() << __FUNCTION__ << "Open fingers real";
  		bodyinversekinematics_proxy->setRobot(1);
- 		bodyinversekinematics_proxy->setFingers(60);
+ 		bodyinversekinematics_proxy->setFingers(70);
 	} catch (Ice::Exception ex) {cout <<"ERROR EN ABRIR PINZA: "<< ex << endl;}
 		
 }
@@ -2197,7 +2209,7 @@ void SpecificWorker::boton_5()
 void SpecificWorker::boton_6()
 {
 	QVec poseTarget = QVec::zeros(6);
- 	poseTarget(0) = -200; poseTarget(1) = -200; poseTarget(2) = -200; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	poseTarget(0) = -200; poseTarget(1) = -0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
  	moveToFrom(poseTarget,savedAprilTarget);
 }
 
@@ -2221,13 +2233,13 @@ void SpecificWorker::boton_9()
 	{	
 		qDebug() << __FUNCTION__ << "Close fingers RCIS";
 		bodyinversekinematics_proxy->setRobot(0);
-		bodyinversekinematics_proxy->setFingers(5);
+		bodyinversekinematics_proxy->setFingers(0);
 		
-		sleep(2);
+		sleep(1);
 
 		qDebug() << __FUNCTION__ << "Close fingers real";
  		bodyinversekinematics_proxy->setRobot(1);
- 		bodyinversekinematics_proxy->setFingers(5);
+ 		bodyinversekinematics_proxy->setFingers(0);
 	} catch (Ice::Exception ex) {cout <<"ERROR EN ABRIR PINZA: "<< ex << endl;}	
 }
 
@@ -2308,10 +2320,12 @@ void SpecificWorker::boton_16()
 void SpecificWorker::boton_21()
 {
 	boton_1();
-	sleep(4);
+	sleep(3);
 	boton_2();
-	sleep(8);
+	sleep(6);
+	//pause();
 	boton_3();
+// 	qDebug() << "___________________________AQUI SE CALIBRA____________________";
 	sleep(1);
 	boton_2();
 }
@@ -2319,17 +2333,17 @@ void SpecificWorker::boton_21()
 void SpecificWorker::boton_22()
 {
 	boton_4();
-	sleep(8);
+	sleep(1);
 	boton_5();
-	sleep(8);
+	sleep(2);
 	boton_6();
-	sleep(8);
+	sleep(4);
 	boton_7();
-	sleep(8);
+	sleep(3);
 	boton_8();
-	sleep(8);
+	sleep(3);
 	boton_9();
-	sleep(8);
+	sleep(2);
 	boton_10();
 		
 }
@@ -2337,15 +2351,15 @@ void SpecificWorker::boton_22()
 void SpecificWorker::boton_23()
 {
 	boton_11();
-	sleep(8);
+	sleep(1);
 	boton_12();
-	sleep(8);
+	sleep(4);
 	boton_13();
-	sleep(8);
+	sleep(3);
 	boton_14();
-	sleep(8);
+	sleep(2);
 	boton_15();
-	sleep(8);
+	sleep(3);
 	boton_16();
 }
 
@@ -2354,7 +2368,7 @@ void SpecificWorker::boton_24()
 	boton_21();
 	sleep(10);
 	boton_22();
-	sleep(10);
+	sleep(10); 
 	boton_23();		
 }
 
