@@ -1315,7 +1315,7 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 					manoApril = QVec::zeros(6);
 					manoApril[0] = tags[i].tx; manoApril[1] = tags[i].ty; manoApril[2] = tags[i].tz; manoApril[3] = tags[i].rx; manoApril[4] = tags[i].ry; manoApril[5] = tags[i].rz;    
 				}
-				qDebug() << "\n";
+				//qDebug() << "\n";
 				
 				// Escribimos por pantalla como está el grab en el mundo antes de hacer las modificaciones
 				QVec grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
@@ -1323,7 +1323,7 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				QVec grabInWorld(6);
 				grabInWorld.inject(grabTInWorld,0);
 				grabInWorld.inject(grabRInWorld,3);
-				qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
+				//qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
 				
 				
 				// Inicio de los cálculos
@@ -1341,15 +1341,15 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				QVec marca2InWorld(6);
 				marca2InWorld.inject(marca2TInWorld,0);
 				marca2InWorld.inject(marca2RInWorld,3);
-				qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
+				//qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
 				
 				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
 				QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
 				QVec marcaInWorld(6);
 				marcaInWorld.inject(marcaTInWorld,0);
 				marcaInWorld.inject(marcaRInWorld,3);
-				qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
-				qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
+				//qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
+				//qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
 				
 				
 				// Calculamos el error de la marca
@@ -1359,7 +1359,7 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				QVec visualMarcaInHandMarca(6);
 				visualMarcaInHandMarca.inject(visualMarcaTInHandMarca,0);
 				visualMarcaInHandMarca.inject(visualMarcaRInHandMarca,3);
-				qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
+				//qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
 				
 				// Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
 				QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3");
@@ -1377,26 +1377,38 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 				QVec inicialHandMarca(6);
 				inicialHandMarca.inject(handMarcaTInParent,0);
 				inicialHandMarca.inject(handMarcaRInParentMat.extractAnglesR_min(),3);	
-				qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
+				//qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
 				
 				// Creamos el vector final con las rotaciones y translaciones del tHandMesh1 con respecto al padre
 				QVec finalHandMarca(6);
 				finalHandMarca.inject(finalHandMarcaT,0);
 				finalHandMarca.inject(finalHandMarcaR,3);
 				
-				qDebug() << "Posicion final si se corrigiese del ThandMesh1 respecto al padre" << finalHandMarca;
+				//qDebug() << "Posicion final si se corrigiese del ThandMesh1 respecto al padre" << finalHandMarca;
 				
 				//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
 				grabTInWorld = innerModel->transform("world", QVec::zeros(3), "grabPositionHandL");
 				grabRInWorld = innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min();
 				grabInWorld.inject(grabTInWorld,0);
 				grabInWorld.inject(grabRInWorld,3);
-				qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
+				//qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
 					
 				//Eliminamos el nodo creado
 				innerModel->removeNode("marcaHandInCamera3");
 		
-				qDebug() << "\n";
+				//qDebug() << "\n";
+				
+				qDebug() << "";
+				qDebug() << "Grab en el mundo antes de modificar" << grabInWorld;
+				qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
+				qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
+				qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
+				qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
+				qDebug() << "Posicion inicial del ThandMesh1 respecto al padre" << inicialHandMarca;
+				qDebug() << "Posicion final corregida del ThandMesh1 respecto al padre" << finalHandMarca;
+				qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
+				qDebug() << "";
+
 				
 						
 			}
@@ -1827,7 +1839,7 @@ void SpecificWorker::boton_1()
 	bodyinversekinematics_proxy->setRobot(1); //Para enviar al RCIS-->0 Para enviar al robot-->1
 	goHome("All");
 	
-	
+	 
 }
 
 void SpecificWorker::boton_2()
@@ -2050,8 +2062,6 @@ void SpecificWorker::boton_3()
 		
 	qDebug() << "-----------------------------------------------------------------------------------------------------\n";
 	
-	
-	
 	//Actualizamos el inermodel del Bik con los datos del inermodel del tester
 	//We send now to inermodel BIK the new endEffector pose
 	try 
@@ -2233,13 +2243,13 @@ void SpecificWorker::boton_9()
 	{	
 		qDebug() << __FUNCTION__ << "Close fingers RCIS";
 		bodyinversekinematics_proxy->setRobot(0);
-		bodyinversekinematics_proxy->setFingers(0);
+		bodyinversekinematics_proxy->setFingers(-10);
 		
 		sleep(1);
 
 		qDebug() << __FUNCTION__ << "Close fingers real";
  		bodyinversekinematics_proxy->setRobot(1);
- 		bodyinversekinematics_proxy->setFingers(0);
+ 		bodyinversekinematics_proxy->setFingers(-10);
 	} catch (Ice::Exception ex) {cout <<"ERROR EN ABRIR PINZA: "<< ex << endl;}	
 }
 
@@ -2275,14 +2285,14 @@ void SpecificWorker::boton_11()
 void SpecificWorker::boton_12()
 {
 	QVec poseTarget = QVec::zeros(6);
- 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -90; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
  	moveToFrom(poseTarget,savedAprilTarget);		
 }
 
 void SpecificWorker::boton_13()
 {
 	QVec poseTarget = QVec::zeros(6);
- 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = -100; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	poseTarget(0) = -50; poseTarget(1) = 0; poseTarget(2) = -90; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
  	moveToFrom(poseTarget,savedAprilTarget);		
 }
 
@@ -2340,6 +2350,10 @@ void SpecificWorker::boton_22()
 	sleep(4);
 	boton_7();
 	sleep(3);
+// 	boton_3();
+// 	sleep(1);
+// 	boton_7();
+// 	sleep(3);
 	boton_8();
 	sleep(3);
 	boton_9();
@@ -2354,6 +2368,10 @@ void SpecificWorker::boton_23()
 	sleep(1);
 	boton_12();
 	sleep(4);
+// 	boton_3();
+// 	sleep(1);
+// 	boton_12();
+// 	sleep(3);
 	boton_13();
 	sleep(3);
 	boton_14();
@@ -2365,8 +2383,8 @@ void SpecificWorker::boton_23()
 
 void SpecificWorker::boton_24()
 {
-	boton_21();
-	sleep(10);
+// 	boton_21();
+// 	sleep(10);
 	boton_22();
 	sleep(10); 
 	boton_23();		
