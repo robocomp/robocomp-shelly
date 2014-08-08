@@ -2434,26 +2434,29 @@ void SpecificWorker::sendTarget()
 		enviarPose6D( trayectoria.dequeue() ); 
 		sleep(1);	
 	}
-	
-	// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una pose suelta 
-	// de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
-	if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
+	// Si no hay trayectorias que enviar entonces es que enviamos targets sueltos...
+	else
 	{
-		QVec p = QVec(6);
-		p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
-		p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
-		enviarPose6D(p);
-	}
+		// Si estamos en la pestaña 0 (la de Pose6D), entonces podemos enviar una pose suelta 
+		// de tipo Pose6D. Para enviar la pose suelta leemos de la interfaz del usuario
+		if(pestanias->tabText(pestanias->currentIndex()) == "Pose6D")
+		{
+			QVec p = QVec(6);
+			p[0] = poseTX->value();		p[1] = poseTY->value();		p[2] = poseTZ->value(); //TRASLACIONES
+			p[3] = poseRX->value();		p[4] = poseRY->value();		p[5] = poseRZ->value(); //ROTACIONES
+			enviarPose6D(p);
+		}
 
-	// Estamos en la segunda pestaña: Axis Align. Enviamos target del tipo AXISALIGN.
-	if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
-		enviarAxisAlign();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
-		moveAlongAxis();
-	if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
-		goHome(part_home->currentText());
-	if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
-		closeFingers();
+		// Estamos en la segunda pestaña: Axis Align. Enviamos target del tipo AXISALIGN.
+		if(pestanias->tabText(pestanias->currentIndex()) == "Axis Align" )
+			enviarAxisAlign();
+		if(pestanias->tabText(pestanias->currentIndex()) == "Move Along Axis" )
+			moveAlongAxis();
+		if(pestanias->tabText(pestanias->currentIndex()) == "Home" )
+			goHome(part_home->currentText());
+		if(pestanias->tabText(pestanias->currentIndex()) == "Fingers" )
+			closeFingers();
+	}
 }
 
 
