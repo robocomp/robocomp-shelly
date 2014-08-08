@@ -39,6 +39,11 @@
      </item>
      <item>
       <widget class="QPushButton" name="stopButton">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(255, 0, 0);
+font: 11pt &quot;Ubuntu&quot;;
+font: rgb(255, 255, 255);</string>
+       </property>
        <property name="text">
         <string>Stop</string>
        </property>
@@ -46,6 +51,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="homeButton">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(161, 223, 218);</string>
+       </property>
        <property name="text">
         <string>Home</string>
        </property>
@@ -56,11 +64,14 @@
        <property name="focusPolicy">
         <enum>Qt::ClickFocus</enum>
        </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(168, 168, 168);</string>
+       </property>
        <property name="text">
         <string>RCIS</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="checked">
         <bool>false</bool>
@@ -69,11 +80,14 @@
      </item>
      <item>
       <widget class="QPushButton" name="robotButton">
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(168, 168, 168);</string>
+       </property>
        <property name="text">
         <string>Ursus</string>
        </property>
        <property name="checkable">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
@@ -97,7 +111,7 @@
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>6</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -369,7 +383,7 @@
          <item>
           <widget class="QTabWidget" name="tablaPose6D">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <widget class="QWidget" name="Pagina_OnePose">
             <attribute name="title">
@@ -1552,6 +1566,19 @@
                </layout>
               </item>
              </layout>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_26">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>
@@ -3278,7 +3305,7 @@
           <rect>
            <x>510</x>
            <y>100</y>
-           <width>151</width>
+           <width>171</width>
            <height>61</height>
           </rect>
          </property>

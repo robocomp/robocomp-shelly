@@ -47,12 +47,12 @@ class SpecificWorker : public GenericWorker
 Q_OBJECT
 public:
 	// Constructores y destructores:
-	SpecificWorker(MapPrx& mprx);	
-	~SpecificWorker();
+	SpecificWorker				(MapPrx& mprx);	
+	~SpecificWorker				();
 	
 	// Métodos públicos:
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	void  newAprilTag(const tagsList& tags);
+	bool 	setParams			(RoboCompCommonBehavior::ParameterList params);	//Parámetros de configuración
+	void	newAprilTag			(const tagsList& tags); 						//Publicación del AprilTags
 
 public slots:
 
@@ -60,17 +60,29 @@ public slots:
 	
 	//// SLOTS DE LOS BOTONES DE EJECUCIÓN DE LA INTERFAZ. ////
 	void 	stop				(); 		// Botón de parada segura. Para abortar la ejecución del movimiento tanto en RCIS como en Robot real
+	void 	enviarHome			();			// Envía los brazos y la cabeza a la posición de home.
+	void 	enviarRCIS			();			// Selecciona como proxy el del RCIS.
+	void 	enviarROBOT			();			// Selecciona como proxy el del robot real.
 	
 	//// SLOTS DE LA PESTAÑA POSE6D ////
-
+	void 	camareroZurdo		();			// Trayectoria cuadrada para el brazo izquierdo
+	void 	camareroDiestro		();			// Trayectoria cuadrada para el brazo derecho
+	void 	camareroCentro		();			// Trayectoria cuadrada para ambos brazos 
+	void 	puntosEsfera		();			// Trayectoria cuadrada para ambos brazos 
+	void 	puntosCubo			();			// Trayectoria cuadrada para ambos brazos
 	
 	//// SLOTS ÚTILES PARA FACILITAR EL USO DE LA GUI ////
 	void 	updateBodyPartsBox	(); 		//Activa/desactiva la opción de escoger una o más partes del cuerpo.
 	void 	send				();			// Botón que indica que existe un target para ser resuelto.
+	
+	//// SLOTS DIABÓLICOS 1: UNIT TESTS ////
+	void 	abrirPinza			();			// Abre la mano del robot dejando una distancia de separación entre las dos pinzas 
+	void 	posicionInicial		();			// Mueve la mano a una posición inicial desde la que aproximarse para coger la taza
+	void 	posicionCoger		();			// Mueve la mano a la posición donde debería estar la taza para cogerla.
+	void 	cerrarPinza			();			// Cierra la mano del robot dejando una distancia de separación entre las dos pinzas 
 
 	
-	void 	enviarRCIS(); 		// select RCIS.
-	void 	enviarROBOT(); 	// select robot
+
 	
 	// Métods AÑADIDOS +++
 	void boton_1();
@@ -97,25 +109,9 @@ public slots:
 	void boton_23();
 	void boton_24();
 	
-	void enviarHome();
-	void actualizarInnerModel();
 
-
-	// SLOTS DE LA PESTAÑA POSE6D:
-	void camareroZurdo();
-	void camareroDiestro();
-	void camareroCentro();
-	void puntosEsfera();
-	void puntosCubo();
 	
-	void closeFingers();
-	void goHome(QString partName);
-
-	// MÉTODOS AÑADIDOS: REVISAR
-	void abrirPinza();
-	void cerrarPinza();
-	void posicionInicial();
-	void posicionCoger();
+	
 	void posicionSoltar();
 	void retroceder();
 	void goHomeR();
@@ -141,8 +137,8 @@ private:
 	QFrame				*frameOsg;									// Puntero para pintar innerModel en una de las pestañas.
 	QQueue<QVec>		trayectoria;								// Cola de poses donde se guardan las trayectorias de los Camareros
 	QVec				partesActivadas;							// Vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
-	QVec 				marcaBote;
-	QVec 				marcaBote2;
+	QVec 				marcaBote;									
+	QVec 				marcaBote2;									// Vector de 6 elementos-->coordenadas de traslación y rotación, de la marca nº 13, la del bote.
 	QVec 				savedAprilTarget;
 	QVec 				manoApril;
 	
@@ -150,27 +146,24 @@ private:
 	bool				existTarget;								// Se pone a TRU cuando hay un target o una lista de targets a enviar al RCIS o al ROBOT
 	QString 			tabName;									//Name of current tab
 	int 				tabIndex;									//Index of current tabIndex	
-
-	
-		
-	// MÉTODOS
-	void moverTargetEnRCIS(const QVec &pose);
-	void enviarPose6D(QVec p);
-	void enviarAxisAlign();
-	void moveAlongAxis();
-	void calcularModuloFloat(QVec &angles, float mod);
-	
-	
 	
 	////////////////  MÉTODOS PRIVADOS  ////////////////
-	/// MÉTODOS PRIVADOS IMPORTANTES ///
-	void 	sendTarget					();				// Envia los targets, HOME o FINGERS al RCIS o al ROBOT.
+	/// MÉTODOS PRIVADOS DE ENVÍO ///
+	void 	sendTarget					();					// Envia los targets, HOME o FINGERS al RCIS o al ROBOT.
+	void 	sendPose6D					(QVec p);			// Envía targets de tipo POSE6D
+	void 	sendAxisAlign				();					// Envía targets de tipo AXISALIGN
+	void 	sendAlongAxis				();					// Envía targets de tipo ALONGAXIS
+	void 	goHome						(QString partName);	// Envía la parte del cuerpo seleccionada al home.
+	void 	closeFingers				();					// Cierra o abre las pinzas de la mano del robot
 
 	/// MÉTODOS MUY SIMPLES Y AUXILIARES TOTALES QUE NO TIENEN MAYOR IMPORTANCIA PERO QUE LIMPIAN CÓDIGO ///
-	void 	connectButtons				();				// Conecta botones de la interfaz de usuario con sus SLOTS correspondientes.
-	void 	initDirectKinematicsFlange	();				// Inicializa datos de la pestaña DirectKinematics. 
-	void 	showKinematicData			();				// Mantiene actualizados los valores de la pestaña DirectKinematics.
-	void 	changeText					(int type);		// Cambia el texto de las ventanitas aDonde
+	void 	connectButtons				();							// Conecta botones de la interfaz de usuario con sus SLOTS correspondientes.
+	void 	initDirectKinematicsFlange	();							// Inicializa datos de la pestaña DirectKinematics. 
+	void 	showKinematicData			();							// Mantiene actualizados los valores de la pestaña DirectKinematics.
+	void 	changeText					(int type);					// Cambia el texto de las ventanitas aDonde
+	void 	actualizarInnerModel		();							// ACtualiza el innerModel
+	void 	moveTargetRCIS				(const QVec &pose);			// Mueve la marca en RCIS
+	void 	calcularModuloFloat			(QVec &angles, float mod);	// Normaliza ángulos entre -pi y pi.
 
 };
 
