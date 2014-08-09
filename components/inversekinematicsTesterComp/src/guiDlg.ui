@@ -111,7 +111,7 @@ font: rgb(255, 255, 255);</string>
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>7</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -3283,297 +3283,6 @@ font: rgb(255, 255, 255);</string>
          </item>
         </layout>
        </widget>
-       <widget class="QWidget" name="tabApril">
-        <attribute name="title">
-         <string>April</string>
-        </attribute>
-        <widget class="QPushButton" name="aprilSendButton">
-         <property name="geometry">
-          <rect>
-           <x>330</x>
-           <y>100</y>
-           <width>151</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Ballistic to Target</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="aprilFineButton">
-         <property name="geometry">
-          <rect>
-           <x>510</x>
-           <y>100</y>
-           <width>171</width>
-           <height>61</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Visual Servo to Target</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton1">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>220</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>1 Home All</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton2">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>220</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>2 Pose for cal.</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton3">
-         <property name="geometry">
-          <rect>
-           <x>280</x>
-           <y>220</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>3 Calibration</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton4">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>4 Get April1</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton5">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>5 Open grip</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton7">
-         <property name="geometry">
-          <rect>
-           <x>390</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>7 Aprox2 April1</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton8">
-         <property name="geometry">
-          <rect>
-           <x>500</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>8 Aprox3 April1</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton6">
-         <property name="geometry">
-          <rect>
-           <x>280</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>6 Aprox1 April1</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton9">
-         <property name="geometry">
-          <rect>
-           <x>610</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>9 Close grip</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton10">
-         <property name="geometry">
-          <rect>
-           <x>720</x>
-           <y>270</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>10 Move away</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton12">
-         <property name="geometry">
-          <rect>
-           <x>170</x>
-           <y>320</y>
-           <width>111</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>12 Aprox2 April2</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton11">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>320</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>11 Get April2</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton13">
-         <property name="geometry">
-          <rect>
-           <x>290</x>
-           <y>320</y>
-           <width>111</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>13 Aprox3 April2</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton14">
-         <property name="geometry">
-          <rect>
-           <x>410</x>
-           <y>320</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>14 Open grip</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton15">
-         <property name="geometry">
-          <rect>
-           <x>520</x>
-           <y>320</y>
-           <width>111</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>15 Aprox2 April2</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton16">
-         <property name="geometry">
-          <rect>
-           <x>640</x>
-           <y>320</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>16 Move away</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton21">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>410</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Do 1</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton22">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>450</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Do 2</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton23">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>490</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Do 3</string>
-         </property>
-        </widget>
-        <widget class="QPushButton" name="boton24">
-         <property name="geometry">
-          <rect>
-           <x>60</x>
-           <y>530</y>
-           <width>99</width>
-           <height>27</height>
-          </rect>
-         </property>
-         <property name="text">
-          <string>Do All</string>
-         </property>
-        </widget>
-       </widget>
        <widget class="QWidget" name="tab">
         <attribute name="title">
          <string>Unit Tests</string>
@@ -5040,6 +4749,297 @@ font: rgb(255, 255, 255);</string>
            </widget>
           </item>
          </layout>
+        </widget>
+       </widget>
+       <widget class="QWidget" name="tabApril">
+        <attribute name="title">
+         <string>April</string>
+        </attribute>
+        <widget class="QPushButton" name="aprilSendButton">
+         <property name="geometry">
+          <rect>
+           <x>330</x>
+           <y>100</y>
+           <width>151</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Ballistic to Target</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="aprilFineButton">
+         <property name="geometry">
+          <rect>
+           <x>510</x>
+           <y>100</y>
+           <width>171</width>
+           <height>61</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Visual Servo to Target</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton1">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>220</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>1 Home All</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton2">
+         <property name="geometry">
+          <rect>
+           <x>170</x>
+           <y>220</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>2 Pose for cal.</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton3">
+         <property name="geometry">
+          <rect>
+           <x>280</x>
+           <y>220</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>3 Calibration</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton4">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>4 Get April1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton5">
+         <property name="geometry">
+          <rect>
+           <x>170</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>5 Open grip</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton7">
+         <property name="geometry">
+          <rect>
+           <x>390</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>7 Aprox2 April1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton8">
+         <property name="geometry">
+          <rect>
+           <x>500</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>8 Aprox3 April1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton6">
+         <property name="geometry">
+          <rect>
+           <x>280</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>6 Aprox1 April1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton9">
+         <property name="geometry">
+          <rect>
+           <x>610</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>9 Close grip</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton10">
+         <property name="geometry">
+          <rect>
+           <x>720</x>
+           <y>270</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>10 Move away</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton12">
+         <property name="geometry">
+          <rect>
+           <x>170</x>
+           <y>320</y>
+           <width>111</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>12 Aprox2 April2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton11">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>320</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>11 Get April2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton13">
+         <property name="geometry">
+          <rect>
+           <x>290</x>
+           <y>320</y>
+           <width>111</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>13 Aprox3 April2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton14">
+         <property name="geometry">
+          <rect>
+           <x>410</x>
+           <y>320</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>14 Open grip</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton15">
+         <property name="geometry">
+          <rect>
+           <x>520</x>
+           <y>320</y>
+           <width>111</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>15 Aprox2 April2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton16">
+         <property name="geometry">
+          <rect>
+           <x>640</x>
+           <y>320</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>16 Move away</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton21">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>410</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Do 1</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton22">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>450</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Do 2</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton23">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>490</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Do 3</string>
+         </property>
+        </widget>
+        <widget class="QPushButton" name="boton24">
+         <property name="geometry">
+          <rect>
+           <x>60</x>
+           <y>530</y>
+           <width>99</width>
+           <height>27</height>
+          </rect>
+         </property>
+         <property name="text">
+          <string>Do All</string>
+         </property>
         </widget>
        </widget>
       </widget>

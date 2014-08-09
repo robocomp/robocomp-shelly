@@ -698,7 +698,6 @@ void SpecificWorker::puntosEsfera()
 		}
 	}
 	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
-// 	banderaNiapa = true;
 }
 
 /**
@@ -953,6 +952,200 @@ void SpecificWorker::posicionCoger()
 	}
  	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN POSICION COGER: "<<ex<<endl;}
 }
+
+/**
+ * @brief SLOT CERRAR PINZA
+ * Se encarga de cerrar la mano DERECHA del robot dejando una distancia determinada en la GUI 
+ * entre las dos pinzas que forman la mano.
+ * TODO Por ahora envía la orden AL ROBOT REAL. Se puede extender para que envíe al robot
+ * simulado de RCIS.
+ * 
+ * @return void.
+ */ 
+void SpecificWorker::cerrarPinza()
+{
+	try
+	{	
+		qDebug() << __FUNCTION__ << "Close fingers";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
+
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
+	} catch (Ice::Exception ex) { cout << "ERROR EN CERRAR PINZA: "<<ex << endl;}
+}
+
+/**
+ * @brief SLOT POSICION SOLTAR
+ * Este SLOT se encarga de llevar el brazo derecho a la posición donde debería estar
+ * la bandeja de la mano izquierda, donde soltará la taza.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::posicionSoltar()
+{
+
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX_3->value();		pose6D.y = PY_3->value();		pose6D.z = PZ_3->value();
+		pose6D.rx = RX_3->value();		pose6D.ry = RY_3->value();		pose6D.rz = RZ_3->value();	
+
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000; 		pose[1] = pose6D.y/1000; 		pose[2] = pose6D.z/1000;
+		moveTargetRCIS(pose);
+
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+
+		std::string part = "RIGHTARM";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
+		part = "HEAD";
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x = 0; axis.y = -1; axis.z = 0;
+// 		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+	}
+ 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN POSICION SOLTAR: "<<ex<<endl;}
+
+}
+
+/**
+ * @brief SLOT IZQUIERDO RECOGER
+ * Este slot se encarga de mover el brazo izquierdo para dejar la bandeja
+ * en horizontal justo debajo de donde está la taza sujetada por el brazo
+ * derecho.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::izquierdoRecoger()
+{
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX_4->value();		pose6D.y = PY_4->value();		pose6D.z = PZ_4->value();
+		pose6D.rx = RX_4->value();		pose6D.ry = RY_4->value();		pose6D.rz = RZ_4->value();	
+
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000;		pose[1] = pose6D.y/1000; 		pose[2] = pose6D.z/1000;
+		moveTargetRCIS(pose);
+
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+
+
+		std::string part = "LEFTARM";
+
+		/* AL ROBOT :*/
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
+		/* AL RCIS*/
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+	}catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN IZQUIERDO RECOGER: "<<ex<<endl;}
+
+}
+
+/**
+ * @brief SLOT RETROCEDER
+ * Este slot, después de que la mano derecha suelte la taza sobre la bandeja de la mano
+ * izquierda, retira el brazo hasta una posición de seguridad para luego llevar el brazo
+ * al home sin chocar con nada.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::retroceder()
+{
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX_5->value();			pose6D.y = PY_5->value();		pose6D.z = PZ_5->value();
+		pose6D.rx = RX_5->value();			pose6D.ry = RY_5->value();		pose6D.rz = RZ_5->value();	
+
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000; 			pose[1] = pose6D.y/1000; 		pose[2] = pose6D.z/1000;
+		moveTargetRCIS(pose);
+
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+
+		std::string part = "RIGHTARM";
+
+		/* AL ROBOT :*/
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
+		/* AL RCIS */
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+	}catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN RETROCEDER: "<<ex<<endl;}
+}
+
+/**
+ * @brief SLOT GO HOME R
+ * Este SLOT es un envoltorio que se encarga de llamar a la función goHome
+ * con el brazo derecho.
+ * 
+ * @return void.
+ */ 
+void SpecificWorker::goHomeR()
+{
+	goHome("RIGHTARM");
+}
+
+/**
+ * @brief SLOT IZQUIERDO OFRECER
+ * Este SLOT mueve el brazo izquierdo manteniendo la bandeja horizontal, hacia
+ * adelante, ofreciendo la taza colocada encima al usuario para que la coja.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::izquierdoOfrecer()
+{
+	try
+	{
+		RoboCompBodyInverseKinematics::Pose6D pose6D;
+		pose6D.x = PX_6->value();		pose6D.y = PY_6->value();		pose6D.z = PZ_6->value();
+		pose6D.rx = RX_6->value();		pose6D.ry = RY_6->value();		pose6D.rz = RZ_6->value();	
+
+		QVec pose = QVec::zeros(6);
+		pose[0] = pose6D.x/1000; 		pose[1] = pose6D.y/1000; 		pose[2] = pose6D.z/1000;
+		moveTargetRCIS(pose);
+
+		RoboCompBodyInverseKinematics::WeightVector weights;
+		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
+		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
+
+		std::string part = "LEFTARM";
+		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
+
+		part = "HEAD";
+		RoboCompBodyInverseKinematics::Axis axis;
+		axis.x = 0; axis.y = -1; axis.z = 0;
+// 		bodyinversekinematics_proxy->setRobot(1);
+		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+
+// 		bodyinversekinematics_proxy->setRobot(0);
+// 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
+	}catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN IZQUIERDO OFRECER: "<<ex<<endl;}
+}
+
+
+
 
 
 //**********************************************************************************//
@@ -1528,185 +1721,12 @@ void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
 
 
 
-void SpecificWorker::cerrarPinza()
-{
-	try
-	{	
-		qDebug() << __FUNCTION__ << "Close fingers";
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
-
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->setFingers((T)cerrarPinzaValor->value());
-	} catch (Ice::Exception ex) { cout << "ERROR EN CERRAR PINZA: "<<ex << endl;}
-}
 
 
 
 
 
 
-
-void SpecificWorker::posicionSoltar()
-{
-
-	try
-	{
-		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = PX_3->value();
-		pose6D.y = PY_3->value();
-		pose6D.z = PZ_3->value();
-		pose6D.rx = RX_3->value();
-		pose6D.ry = RY_3->value();
-		pose6D.rz = RZ_3->value();	
-
-		QVec pose = QVec::zeros(6);
-		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
-
-		moveTargetRCIS(pose);
-
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-
-		std::string part = "RIGHTARM";
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-
-		part = "HEAD";
-		RoboCompBodyInverseKinematics::Axis axis;
-		axis.x = 0; axis.y = -1; axis.z = 0;
-// 		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
-	}
- 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN POSICION SOLTAR: "<<ex<<endl;}
-
-}
-
-
-
-void SpecificWorker::izquierdoRecoger()
-{
-	try
-	{
-		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = PX_4->value();
-		pose6D.y = PY_4->value();
-		pose6D.z = PZ_4->value();
-		pose6D.rx = RX_4->value();
-		pose6D.ry = RY_4->value();
-		pose6D.rz = RZ_4->value();	
-
-		QVec pose = QVec::zeros(6);
-		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
-
-		moveTargetRCIS(pose);
-
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-
-
-		std::string part = "LEFTARM";
-
-		/* AL ROBOT :*/
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-
-		/* AL RCIS*/
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-	}
- 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN IZQUIERDO RECOGER: "<<ex<<endl;}
-
-}
-
-
-void SpecificWorker::retroceder()
-{
-	try
-	{
-		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = PX_5->value();
-		pose6D.y = PY_5->value();
-		pose6D.z = PZ_5->value();
-		pose6D.rx = RX_5->value();
-		pose6D.ry = RY_5->value();
-		pose6D.rz = RZ_5->value();	
-
-		QVec pose = QVec::zeros(6);
-		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
-
-		moveTargetRCIS(pose);
-
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-
-		std::string part = "RIGHTARM";
-
-		/* AL ROBOT :*/
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-
-		/* AL RCIS */
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-	}
- 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN RETROCEDER: "<<ex<<endl;}
-
-}
-
-void SpecificWorker::goHomeR()
-{
-	goHome("RIGHTARM");
-}
-
-
-void SpecificWorker::izquierdoOfrecer()
-{
-	try
-	{
-		RoboCompBodyInverseKinematics::Pose6D pose6D;
-		pose6D.x = PX_6->value();
-		pose6D.y = PY_6->value();
-		pose6D.z = PZ_6->value();
-		pose6D.rx = RX_6->value();
-		pose6D.ry = RY_6->value();
-		pose6D.rz = RZ_6->value();	
-
-		QVec pose = QVec::zeros(6);
-		pose[0] = pose6D.x/1000; pose[1] = pose6D.y/1000; pose[2] = pose6D.z/1000;
-
-		moveTargetRCIS(pose);
-
-		RoboCompBodyInverseKinematics::WeightVector weights;
-		weights.x = 1; 		weights.y = 1; 		weights.z = 1;
-		weights.rx = 1; 	weights.ry = 1; 	weights.rz = 1; 
-
-		std::string part = "LEFTARM";
-		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->setTargetPose6D(part, pose6D, weights, 250);
-
-		part = "HEAD";
-		RoboCompBodyInverseKinematics::Axis axis;
-		axis.x = 0; axis.y = -1; axis.z = 0;
-// 		bodyinversekinematics_proxy->setRobot(1);
-		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
-
-// 		bodyinversekinematics_proxy->setRobot(0);
-// 		bodyinversekinematics_proxy->pointAxisTowardsTarget(part, pose6D, axis, false, 0);	
-	}
- 	catch(Ice::Exception ex){ std::cout<< __FUNCTION__ << __LINE__ << "ERROR EN IZQUIERDO OFRECER: "<<ex<<endl;}
-
-}
 
 
 

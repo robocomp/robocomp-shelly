@@ -80,6 +80,13 @@ public slots:
 	void 	posicionInicial		();			// Mueve la mano a una posición inicial desde la que aproximarse para coger la taza
 	void 	posicionCoger		();			// Mueve la mano a la posición donde debería estar la taza para cogerla.
 	void 	cerrarPinza			();			// Cierra la mano del robot dejando una distancia de separación entre las dos pinzas 
+	void 	posicionSoltar		();			// Mueve el brazo hasta la bandeja de la mano izquierda para soltar la taza.
+	void 	izquierdoRecoger	();			// Mueve el brazo izquierdo para dejar la bandeja debajo de la taza.
+	void 	retroceder			();			// Después de dejar la taza, retira el brazo derecho.
+	void 	goHomeR				();			// Lleva el brazo derecho a la posición de home.
+	void 	izquierdoOfrecer	();			// Mueve el brazo izquierdo para que ofrezca la taza al usuario.
+
+
 
 	
 
@@ -112,11 +119,7 @@ public slots:
 
 	
 	
-	void posicionSoltar();
-	void retroceder();
-	void goHomeR();
-	void izquierdoRecoger();
-	void izquierdoOfrecer();
+	
 	
 	void moveToFrom(const QVec &poseTarget, const QVec &poseFrom);
 	void moveToApril(const QVec &poseTarget);
