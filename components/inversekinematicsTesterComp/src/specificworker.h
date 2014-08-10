@@ -20,6 +20,10 @@
 #define SPECIFICWORKER_H
 
 #include <genericworker.h>
+#include "trayectoria.h"
+
+
+
 #include <innermodel/innermodel.h>
 
 #include "../../inversekinematicsComp/src/target.h"
@@ -131,6 +135,9 @@ public slots:
 private:
 
 	//// ATRIBUTOS PRIVADOS DE LA CLASE ////
+	
+	Trayectoria tra;
+	
 	RoboCompJointMotor::MotorParamsList 	motorparamList;			// Lista de parámetros de los motores del robot. Para sacar valores angulares.
 	RoboCompJointMotor::MotorList 			motorList;				// Lista con los nombres de los motores del robot.
 

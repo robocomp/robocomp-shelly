@@ -111,7 +111,7 @@ font: rgb(255, 255, 255);</string>
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>6</number>
+        <number>0</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
@@ -633,6 +633,13 @@ font: rgb(255, 255, 255);</string>
                     </widget>
                    </item>
                    <item>
+                    <widget class="QPushButton" name="camareroCentroButton">
+                     <property name="text">
+                      <string>Camarero Centro</string>
+                     </property>
+                    </widget>
+                   </item>
+                   <item>
                     <widget class="QPushButton" name="camareroDiestroButton">
                      <property name="text">
                       <string>Camarero Diestro</string>
@@ -643,13 +650,6 @@ font: rgb(255, 255, 255);</string>
                     <widget class="QPushButton" name="camareroZurdoButton">
                      <property name="text">
                       <string>Camarero Zurdo</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QPushButton" name="camareroCentroButton">
-                     <property name="text">
-                      <string>Camarero Centro</string>
                      </property>
                     </widget>
                    </item>

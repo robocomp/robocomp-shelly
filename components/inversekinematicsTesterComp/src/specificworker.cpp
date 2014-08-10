@@ -462,175 +462,89 @@ void SpecificWorker::enviarROBOT()
 //						SLOTS DE LA PESTAÑA POSE6D							//
 //**************************************************************************//
 /**
- * @brief Metodo CAMARERO ZURDO. Crea una trayectoria de poses para un camarero con una bandeja en
- * la mano izquierda. Guarda esa trayectoria en un atributo de la clase, trayectoria, para luego 
- * enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar la trayectoria siempre
- * para que no se acumulen las trayectorias y levanta la flagListTargets, indicando que existe 
- * una trayectoria lista para enviar al RCIS o al ROBOT.
- * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
- * Desactiva el resto de banderas para el resto de targets.
- * 
- * @return void
- */ 
-void SpecificWorker::camareroZurdo()
-{
-	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
-
-	//DEFINIMOS VARIABLES:
-	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
-	//				rotaciones se dejan a CERO.
-	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
-	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-    QVec pose = QVec::zeros(6);
-	float salto = 10;
-    float xAux, yAux;
-
-	 // Trasladamos hacia la derecha en X:
-	for(float i=-150; i<=150; i=i+salto)
-	{
-		pose[0] = i; pose[1] = 900; pose[2] = 350;
-		trayectoria.enqueue(pose);
-		xAux = i;
-	}
-	// Subimos en Y:
-	for(float j=900; j<1100; j=j+salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.enqueue(pose);
-		yAux = j;
-	}
-	// Trasladamos hacia la izquierda en X:
-	for(float i=xAux; i>=-150; i=i-salto)
-	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 350;
-		trayectoria.enqueue(pose);
-		xAux=i;
-	}
-	// Bajamos en Y:
-	for(float j=yAux; j>=900; j=j-salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		trayectoria.enqueue(pose);
-		yAux = j;
-	}
-
-	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
-}
-
-/**
- * @brief Metodo CAMARERO DIESTRO. Crea una trayectoria de poses para un camarero con una bandeja 
- * en la mano derecha. Guarda esa trayectoria en un atributo de la clase, trayectoria, para luego 
- * enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar la trayectoria siempre
- * para que no se acumulen las trayectorias y levanta la flagListTargets, indicando que existe 
- * una trayectoria lista para enviar al RCIS o al ROBOT.
- * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
- * Desactiva el resto de banderas para el resto de targets
- * 
- * @return void
- */ 
-void SpecificWorker::camareroDiestro()
-{
-	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
-
-	//DEFINIMOS VARIABLES:
-	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
-	//				rotaciones se dejan a CERO.
-	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
-	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
-	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-    QVec pose = QVec::zeros(6);
-	float salto = 10;
-    float xAux, yAux;
-
-	//guardamos la posicion de partida
- 	QVec home(6);
- 	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandR"),0);
- 	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min(),3);
- 	
-	// Trasladamos en X hacia la izquierda: 
-	for(float i=-100; i<300; i=i+salto)
-	{
-		pose[0] = i; pose[1] = 900; pose[2] = 350;
-		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	// Subimos en Y:
-	for(float j=900; j<1100; j=j+salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
-		trayectoria.append(pose);
-		yAux = j;
-	}
-	// Trasladamos en X hacia la derecha:
-	for(float i=xAux; i>=-100; i=i-salto)
-	{
-		pose[0] = i; pose[1] = yAux; pose[2] = 350;
-		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
-		trayectoria.append(pose);
-		xAux = i;
-	}
-	// Bajamos en Y:
-	for(float j=yAux; j>=900; j=j-salto)
-	{
-		pose[0] = xAux; pose[1] = j; pose[2] = 350;
-		pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
-		trayectoria.append(pose);
-		yAux = j;
-	}
-
-	//go back to initial grabPositionHandR
-	trayectoria.append(home);
-
-	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
-}
-
-/**
- * @brief Metodo CAMARERO CENTRO. Crea una trayectoria de poses para un camarero con una bandeja 
- * en moviendola por el centro del pecho. Guarda esa trayectoria en un atributo de la clase, 
- * trayectoria, para luego enviarla a que la ejecute el innerModel o el robot real. Debemos limpiar
- * la trayectoria siempre para que no se acumulen las trayectorias y levanta la flagListTargets, 
- * indicando que existe una trayectoria lista para enviar al RCIS o al ROBOT.
- * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
- * Desactiva el resto de banderas para el resto de targets.
+ * @brief SLOT CAMARERO CENTRO. 
+ * Llama al método crearTrayectoria para crear cinco targets que simulan el comportamiento de un 
+ * camarero llevando una bandeja formando un cuadrado.
+ * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <---------------------------------
+ * Siempre limpia la trayectoria al empezar para que los targets no se acumulen. También recoge de
+ * la interfaz de usuario las rotaciones de los targets.
+ * Por último levanta la bandera de que existe una trayectoria lista para enviar.
  * 
  * @return void
  */ 
 void SpecificWorker::camareroCentro()
 {
-	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
+	trayectoria.clear();
+	
+	QVec rotaciones = QVec::zeros(3);
+	rotaciones[0] = poseRX->value();	rotaciones[1] = poseRY->value();	rotaciones[2] = poseRZ->value();
+	
+	trayectoria = tra.crearTrayectoria(1, rotaciones);
 
-	//DEFINIMOS VARIABLES:
-	//		- POSE: vector de 6 elementos donde se guardan las TRASLACIONES y ROTACIONES. Aunque las 
-	//				rotaciones se dejan a CERO.
-	//		- SALTO: salto en X e Y para pasar de una pose a otra. Fijado a 10mm.
-	//		- TRAYECTORIA: atributo de la clase donde se almacenan las POSES.
-	//		- xAux e yAux: auxiliares para crear el marco donde se mueve la mano del camarero.
-  QVec pose = QVec::zeros(6);
-
-	pose[3] = poseRX->value(); pose[4] = poseRY->value(); pose[5] = poseRZ->value();
-
-	pose[0] = -150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = 150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = 150; pose[1] = 1100; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = -150; pose[1] = 1100; pose[2] = 300;
-	trayectoria.append(pose);
-
-	pose[0] = -150; pose[1] = 900; pose[2] = 300;
-	trayectoria.append(pose);
-
-	flagListTargets = true; //Indicamos que hay una trayectoria lista para enviar.
+	flagListTargets = true;
 }
 
 /**
- * @brief Método PUNTOS ESFERA. Crea una trayectoria, formando una esfera cerca del efector final
+ * @brief Metodo CAMARERO DIESTRO. 
+ * Llama al método crearTrayectoria para una lista de targets que simulan el comportamiento de un 
+ * camarero diestro llevando una bandeja formando un cuadrado.
+ * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <---------------------------------
+ * Siempre limpia la trayectoria al empezar para que los targets no se acumulen. También recoge de
+ * la interfaz de usuario las rotaciones de los targets y guarda la posición del home del brazo derecho
+ * para enviarlo otra vez allí cuando termine la trayectoria.
+ * Por último levanta la bandera de que existe una trayectoria lista para enviar.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::camareroDiestro()
+{
+	trayectoria.clear();
+	
+	QVec rotaciones = QVec::zeros(3);
+	rotaciones[0] = poseRX->value();	rotaciones[1] = poseRY->value();	rotaciones[2] = poseRZ->value();
+	
+ 	QVec home(6);
+ 	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandR"),0);
+ 	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandR").extractAnglesR_min(),3);
+	
+	trayectoria = tra.crearTrayectoria(2, rotaciones);
+	trayectoria.append(home);
+	
+	flagListTargets = true;
+}
+
+/**
+ * @brief Metodo CAMARERO ZURDO.
+ * Llama al método crearTrayectoria para una lista de targets que simulan el comportamiento de un 
+ * camarero zurdo llevando una bandeja formando un cuadrado.
+ * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <---------------------------------
+ * Siempre limpia la trayectoria al empezar para que los targets no se acumulen. También recoge de
+ * la interfaz de usuario las rotaciones de los targets y guarda la posición del home del brazo izquierdo
+ * para enviarlo otra vez allí cuando termine la trayectoria.
+ * Por último levanta la bandera de que existe una trayectoria lista para enviar.
+ * 
+ * @return void
+ */ 
+void SpecificWorker::camareroZurdo()
+{
+	trayectoria.clear();
+	
+	QVec rotaciones = QVec::zeros(3);
+	rotaciones[0] = poseRX->value();	rotaciones[1] = poseRY->value();	rotaciones[2] = poseRZ->value();
+	
+ 	QVec home(6);
+ 	home.inject(innerModel->transform("world", QVec::zeros(3),"grabPositionHandL"),0);
+ 	home.inject(innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min(),3);
+	
+	trayectoria = tra.crearTrayectoria(3, rotaciones);
+	trayectoria.append(home);
+	
+	flagListTargets = true;
+}
+
+/**
+ * @brief Método PUNTOS ESFERA. 
+ * Crea una trayectoria, formando una esfera cerca del efector final
  * del robot.Está pensada para que la parte del robot a la que se le envíe llegue sin problemas, 
  * relativamente, se guarden los errores y el tiempo de ejecución de cada target resuleto y se pinte
  * una gráfica del error y del tiempo de ejecución en MATLAB.
@@ -1180,7 +1094,7 @@ void SpecificWorker::sendTarget()
 	{
 		qDebug()<<"Enviamos trayectoria";
 		sendPose6D( trayectoria.dequeue() ); 
-		sleep(1);	
+		usleep(10000);	
 	}
 	// Si no hay trayectorias que enviar entonces es que enviamos targets sueltos...
 	else
