@@ -8,11 +8,16 @@
 #define TRAYECTORIA_H
 
 #include <qt4/Qt/qqueue.h>
+#include <qt4/Qt/qlist.h>
+#include <qt4/Qt/qstring.h>
 #include <innermodel/innermodel.h>
 
 class Trayectoria
 {
 public:
+	//// ATRIBUTOS PÚBLICOS ////
+	QVec 			centroEsfera;
+	
 	// Constructores y destructores:
 					Trayectoria			();	
 					~Trayectoria		();

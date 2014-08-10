@@ -191,17 +191,94 @@ void Trayectoria::camareroZurdo()
 
 /**
  * @brief Metodo PUNTOS CUB0. 
- * Crea una lista de poses colocadas dentro de un cubo 3D.
- * -------------------------> CREA LA TRAYECTORIA EN MILIMETROS <--------------------------------
+ * Crea una lista de poses colocadas dentro de un cubo 3D formado por los vértices:
+ * 			x    y    z
+ * 		- (400, 800, 200)	(400,1200, 200)		(400, 800, 600) 	(400, 1200, 600)
+ * 		- (-400, 800, 200)	(-400,1200, 200)	(-400, 800, 600) 	(-400, 1200, 600)
+ * 
+ * Está pensado para que la parte del robot a la que se le envíe llegue sin muchos problemas.
+ *-------------------------> CREA LA TRAYECTORIA EN MILIMETROS <-----------------------------
  * 
  * @return void
  */
 void Trayectoria::puntosCubo()
 {
+	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
 
+	QList<QVec> listaPuntos;
+	QVec paux = QVec::zeros(3), pose = QVec::zeros(6);
+	
+	//Fijamos las mismas rotaciones
+	pose[3] = this->rotaciones[0];	pose[4] = this->rotaciones[1]; 	pose[5] = this->rotaciones[2];
+	
+	srand((unsigned) time(NULL)); 
+	
+	// Mientras que no rellenemos la lista con todos los targets que queremos calcular:
+	// calculamos las traslaciones, que serán alrededor de una esfera.
+	while(trayectoria.size()<100)
+	{
+		paux[0]= (rand()%801)-400; 			// X entre -400 y 400
+		paux[1]= (rand()%(1200-800))+800; 	// Y entre 800 y 1200
+		paux[2]= (rand()%(600-200))+200;  	// Z entre 200 y 600
+
+		if(!listaPuntos.contains(paux))
+		{
+			listaPuntos.append(paux);
+			pose[0] = paux[0];	pose[1] = paux[1];	pose[2] = paux[2];
+			trayectoria.enqueue(pose);
+		}
+	}
 }
 
+/**
+ * @brief Método PUNTOS ESFERA.
+ * Crea una lista de targets que forman una esfera 3D alrededor de un efector final,
+ * ya sea la mano derecha, la izquierda o la cabeza. Guarda la lista en la variable
+ * de la clase, trayectoria.
+ * 
+ * @return void.
+ */ 
 void Trayectoria::puntosEsfera()
 {
+	trayectoria.clear(); //Limpiamos trayectoria para que NO SE ACUMULEN.
+	
+	QList<QVec> listaPuntos;
+	int total = 0;
+	float radio = 100.0; //10cm
+	QVec paux = QVec::zeros(3), pose = QVec::zeros(6);
 
+	//Fijamos las mismas rotaciones
+	pose[3] = this->rotaciones[0];	pose[4] = this->rotaciones[1]; 	pose[5] = this->rotaciones[2];
+
+	
+
+	// Mientras que no rellenemos la lista con todos los targets que queremos calcular:
+	// 	- Por una parte calculamos las traslaciones, que serán alrededor de una esfera.
+	// 	- Por otra parte dejamos las rotaciones como están.
+	while(trayectoria.size()<100)
+	{
+		// Preparamos las traslaciones:
+		while(total < 1)
+		{
+			QVec d1 = QVec::uniformVector(1, -1, 1);
+			QVec d2 = QVec::uniformVector(1, -1, 1);
+
+			if (QVec::vec2(d1[0],d2[0]).norm2() < 1.f)
+			{
+				paux[0]	=	2*d1[0] - sqrt(1.f-d1[0]*d1[0] - d2[0]*d2[0]);	
+				paux[1]	=	2*d2[0] - sqrt(1.f-d1[0]*d1[0] - d2[0]*d2[0]);	
+				paux[2]	=	1.f -2.f*(d1[0]*d1[0] + d2[0]*d2[0]);
+				paux = (paux * (T)radio) + this->centroEsfera;
+				total++;
+			}
+		}
+		total = 0;
+
+		if(!listaPuntos.contains(paux))
+		{
+			listaPuntos.append(paux);
+			pose[0] = paux[0];	pose[1] = paux[1];	pose[2] = paux[2];
+			trayectoria.enqueue(pose);
+		}
+	}
 }
