@@ -111,7 +111,7 @@ font: rgb(255, 255, 255);</string>
      <item>
       <widget class="QTabWidget" name="pestanias">
        <property name="currentIndex">
-        <number>0</number>
+        <number>7</number>
        </property>
        <widget class="QWidget" name="Pagina_Pose6D">
         <property name="enabled">
