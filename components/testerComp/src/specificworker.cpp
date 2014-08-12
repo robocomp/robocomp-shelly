@@ -19,10 +19,12 @@
  
  #include "specificworker.h"
 
+//**********************************************************************************************************//
+//				CONSTRUCTORES Y DESTRUCTORES																//
+//**********************************************************************************************************//
 /**
 * \brief Default constructor
 */
-
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
 {
 }
@@ -34,13 +36,55 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
+//**********************************************************************************************************//
+//				MÉTODOS DE INICIALIZACIÓN Y CONEXIÓN?														//
+//**********************************************************************************************************//
+/**
+ * @brief Method SET PARAMS. 
+ * It's called for the MONITOR thread, which initialize the component with the 
+ * parameters of the correspondig config file.
+ * 
+ * @return bool
+ */ 
+bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
+{
+	// Guardamos el innerModel que se nos pasa como parámetro de inicialización.
+	// ¡CUIDADO CON EL INNERMODEL! Debe ser el mismo que el que utiliza LOKIARM!!!
+	try
+	{
+		RoboCompCommonBehavior::Parameter par = params.at("BIK.InnerModel") ;
+// 		if( QFile(QString::fromStdString(par.value)).exists() == true)
+// 		{
+// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
+// 			innerModel = new InnerModel(par.value);
+// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;		
+// 		}
+// 		else
+// 		{	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
+// 			qFatal("Exiting now.");
+// 		}
+	}
+	catch(std::exception e)	{ qFatal("Error reading config params"); }
+
+	timer.start(Period);
+	return true;
+}
+
+void SpecificWorker::newAprilTag(const tagsList& tags)
+{
+	// Definimos una variable de tiempo para hacer este método periódico...
+	static QTime reloj = QTime::currentTime();
+	
+	if( reloj.elapsed() > 1000)
+	{	
+	}
+}
+
+//**********************************************************************************************************//
+//			SLOTS PÚBLICOS																					//
+//**********************************************************************************************************//
 void SpecificWorker::compute( )
 {
 }
-bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
-{
-	timer.start(Period);
-	return true;
-};
-void SpecificWorker::newAprilTag(const tagsList& tags){
-}
+

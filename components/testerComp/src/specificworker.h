@@ -20,6 +20,17 @@
 #define SPECIFICWORKER_H
 
 #include <genericworker.h>
+#include <innermodel/innermodel.h>
+#include "../../inversekinematicsComp/src/target.h"
+#include <qt4/Qt/qcheckbox.h>
+#include <qt4/Qt/qwidget.h>
+#include <qt4/QtGui/qcombobox.h>
+#include <qt4/QtGui/qlabel.h>
+#include <qt4/QtGui/qspinbox.h>
+#include <qt4/QtGui/QFrame>
+#include <time.h>
+#include <osgviewer/osgview.h>
+#include <innermodel/innermodelviewer.h>
 
 /**
        \brief
@@ -30,14 +41,25 @@ class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);	
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	void  newAprilTag(const tagsList& tags);
+	
+	/// CONSTRUCTORES Y DESTRUCTORES ///
+					SpecificWorker		(MapPrx& mprx);	
+					~SpecificWorker		();
+	
+	/// MÉTODOS PÚBLICOS ///
+	bool 			setParams			(RoboCompCommonBehavior::ParameterList params);
+	void  			newAprilTag			(const tagsList& tags);
 
 
 public slots:
- 	void compute(); 	
+	/// SLOTS ///
+ 	void 			compute				();
+	
+private:
+	/// ATRIBUTOS PRIVADOS ///
+	InnerModel 		*innerModel;								// Puntero para trabajar con el innerModel (pintar el target y obtener valores angulares)
+	
+	/// MÉTODOS PRIVADOS ///
 };
 
 #endif
