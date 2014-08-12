@@ -1,7 +1,6 @@
 /**
  * @brief CLASE AÑADIDA:  TRAYECTORIA
- * Se
- *
+ * Se encarga de crear las trayectorias de poses6D ofrecidas por la interfaz.
  */
 
 #ifndef TRAYECTORIA_H

@@ -383,7 +383,7 @@ font: rgb(255, 255, 255);</string>
          <item>
           <widget class="QTabWidget" name="tablaPose6D">
            <property name="currentIndex">
-            <number>1</number>
+            <number>0</number>
            </property>
            <widget class="QWidget" name="Pagina_OnePose">
             <attribute name="title">

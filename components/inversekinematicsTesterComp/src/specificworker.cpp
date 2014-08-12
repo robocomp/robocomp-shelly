@@ -28,7 +28,7 @@
 * \brief Default constructor
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)	
-{	
+{			
 	// Inicializamos las banderas de los targets a FALSE:
 	//	- NO hay trayectoria asignada
 	//	- NO hay target para RCIS
@@ -114,11 +114,6 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 	
 	if( reloj.elapsed() > 1000)
 	{	
-		// Si el tiempo transcurrido es menor que 1000 milisegundos (1s) empezamos a calcular...
-		// Definimos una variable que simplifica el bloqueo y desbloqueo de los mutex. Con este
-		// tipo de variables aseguramos que siempre está bien definido el estado del mutex.
-		QMutexLocker lock(mutex);
-		
 		for(uint i=0; i<tags.size(); i++)
 		{
 			// Recorremos la lista de marcas detectadas buscando la marca que identifica al bote 
@@ -328,7 +323,7 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 						
 			}
 		}
-	}  //Todavia no
+	}
 }
 
 
@@ -1564,6 +1559,18 @@ void SpecificWorker::calcularModuloFloat(QVec &angles, float mod)
 
 
 
+
+//**************************************************************************************************//
+// 						MÉTODOS PARA CONTROLAR LAS MARCAS DE APRILTAGS								//
+//**************************************************************************************************//
+
+
+
+
+
+
+
+
 /*----------------------------------------------------------------------------------*/
 
 
@@ -2551,22 +2558,3 @@ void SpecificWorker::boton_24()
 	sleep(10); 
 	boton_23();		
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//**************************************************************************************************//
-// 								MÉTODOS PRIVADOS DE APRIL TAGS										//
-//**************************************************************************************************//

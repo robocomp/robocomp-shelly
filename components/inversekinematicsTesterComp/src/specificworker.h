@@ -22,8 +22,6 @@
 #include <genericworker.h>
 #include "trayectoria.h"
 
-
-
 #include <innermodel/innermodel.h>
 
 #include "../../inversekinematicsComp/src/target.h"
@@ -135,8 +133,7 @@ public slots:
 private:
 
 	//// ATRIBUTOS PRIVADOS DE LA CLASE ////
-	
-	Trayectoria tra;
+	Trayectoria 		tra;
 	
 	RoboCompJointMotor::MotorParamsList 	motorparamList;			// Lista de parámetros de los motores del robot. Para sacar valores angulares.
 	RoboCompJointMotor::MotorList 			motorList;				// Lista con los nombres de los motores del robot.
@@ -174,7 +171,6 @@ private:
 	void 	actualizarInnerModel		();							// ACtualiza el innerModel
 	void 	moveTargetRCIS				(const QVec &pose);			// Mueve la marca en RCIS
 	void 	calcularModuloFloat			(QVec &angles, float mod);	// Normaliza ángulos entre -pi y pi.
-
 };
 
 #endif
