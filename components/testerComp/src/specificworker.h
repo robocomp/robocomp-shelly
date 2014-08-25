@@ -55,18 +55,24 @@ public slots:
 	/// SLOTS ///
  	void 			compute				();
 	void			mission 			(int index);
-	void			stop				();						// Botón de parada segura. Para abortar la ejecución del movimiento tanto en RCIS como en Robot real
-	void			home				();						// Envía los brazos y la cabeza a la posición de home.
+	void			stop				();								// Botón de parada segura. Para abortar la ejecución del movimiento tanto en RCIS como en Robot real
+	void			home				();								// Envía los brazos y la cabeza a la posición de home.
 	
 private:
 	/// ATRIBUTOS PRIVADOS ///
-	InnerModel 		*innerModel;								// Puntero para trabajar con el innerModel (pintar el target y obtener valores angulares)
+	InnerModel 		*innerModel;										// Puntero para trabajar con el innerModel (pintar el target y obtener valores angulares)
 	
 	/// MÉTODOS PRIVADOS ///
-	void			connectButtons		();						// Para conectar botones.
-	void			goHome				(QString partName);		// Para enviar al home.
+	void			connectButtons		();								// Para conectar botones.
+	void			goHome				(QString partName);				// Para enviar al home.
 	void			changeProxy			(int p);
-	void 			changeText			(int text);				// Cambia el texto de las ventanitas aDonde
+	void 			changeText			(int text);						// Cambia el texto de las ventanitas aDonde
+	void			processTag			(RoboCompAprilTags::tag tag);
+	bool			correctTag			(RoboCompAprilTags::tag tag);
+	void			tag11				();
+	void			tag12				();
+	void			tag13				();
+	
 };
 
 #endif

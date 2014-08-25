@@ -81,6 +81,13 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	return true;
 }
 
+/**
+ * @brief  SUBSCRIBED METHOD FROM APRILTAGS
+ * Método para subscribire al apriltag. El aprilTags publica al tester.
+ * 
+ * @param tags lista de objetivos o marcas detectadas por el aprilTag.
+ * @return void 
+ */
 void SpecificWorker::newAprilTag(const tagsList& tags)
 {
 	// Definimos una variable de tiempo para hacer este método periódico...
@@ -88,6 +95,8 @@ void SpecificWorker::newAprilTag(const tagsList& tags)
 	
 	if( reloj.elapsed() > 1000)
 	{	
+		for(uint i=0; i<tags.size(); i++)
+			processTag(tags[i]);	
 	}
 }
 
@@ -272,4 +281,78 @@ void SpecificWorker::changeText(int text)
 			break;
 	}
 }
+
+/**
+ * @brief Método PROCESS TAG
+ * Procesa la marca que recibe como parámetro de netrada y mira si
+ * se trata de la marca del objetivo, la marca de la mano izquierda
+ * u otro tipo de marca.
+ * 
+ * @param tag marca que está viendo la cámara del robot.
+ * 
+ * @return void
+ * 
+ * TODO: PUEDE DAR PROBLEMAS. SI ES ASÍ TOMAMOS EL CÓDIGO ANTIGUO DE AGUSTÍN Y LISTO.
+ */ 
+void SpecificWorker::processTag(tag tag)
+{
+	if(this->correctTag(tag))
+		switch (tag.id)
+		{
+			case 11:
+				qDebug()<<"Marca 11: manos";
+				tag11();
+				break;
+				
+			case 12:
+				qDebug()<<"Marca 12: objetivo 1";
+				tag12();
+				break;
+				
+			case 13:
+				qDebug()<<"Marca 13: objetivo 2";
+				tag13();
+				break;
+				
+			default:
+				qDebug()<<"\n---> Marca no identificada\n";
+				break;
+		}
+	else
+		qDebug()<<"\n---> ERROR TAG!";
+}
+
+/**
+ * @brief Método CORRECT TAG
+ * Comprueba si la marca está bien o se ha leído mal.
+ * 
+ * @return bool;
+ */ 
+bool SpecificWorker::correctTag(tag tag)
+{
+	if ((tag.tx >= -0.0001 && tag.tx <= 0.0001) && 
+		(tag.ty >= -0.0001 && tag.ty <= 0.0001) && 
+		(tag.tz >= -0.0001 && tag.tz <= 0.0001))
+		return false;
+	else
+		return true;
+}
+
+void SpecificWorker::tag11()
+{
+	
+}
+
+void SpecificWorker::tag12()
+{
+
+}
+
+
+void SpecificWorker::tag13()
+{
+
+}
+
+
 
