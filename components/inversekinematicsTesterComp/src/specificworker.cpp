@@ -2472,7 +2472,10 @@ void SpecificWorker::boton_14()
 
 void SpecificWorker::boton_15()
 {
-	boton_12();	
+	//boton_12();	
+	QVec poseTarget = QVec::zeros(6);
+ 	poseTarget(0) = -130; poseTarget(1) = 0; poseTarget(2) = -110; poseTarget(3) = M_PI; poseTarget(4) = -M_PI/2; poseTarget(5) = 0;
+ 	moveToFrom(poseTarget,savedAprilTarget);	
 }
 
 void SpecificWorker::boton_16()
