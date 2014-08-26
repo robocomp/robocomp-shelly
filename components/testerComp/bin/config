@@ -7,11 +7,17 @@ AprilTagsTopic.Endpoints=tcp -p 10261
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 
-BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
 InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
+#JointMotorProxy = jointmotor:tcp -h localhost -p 10067
 JointMotorProxy = jointmotor:tcp -h localhost -p 20000
+BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
 
 BIK.InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursusMM.xml 
 
+
+#
+# This property is used by the clients to connect to IceStorm.
+#
 TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+
 
