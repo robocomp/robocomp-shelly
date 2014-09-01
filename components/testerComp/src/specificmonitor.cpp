@@ -66,6 +66,7 @@ void SpecificMonitor::initialize()
 	}
 	state = RoboCompCommonBehavior::Running;
 }
+
 bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList params)
 {
 	if(checkParams(params))
@@ -88,10 +89,10 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 {
 	//Read params from config file
 	//Example
-	    //RoboCompCommonBehavior::Parameter aux;
-	    //aux.editable = true;
-	    //configGetString( "DRobot.Device", aux.value,"/dev/ttyUSB0");
-	    //params["DRobot.Device"] = aux;
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = true;
+	configGetString( "BIK.InnerModel", aux.value,"no file");
+	params["BIK.InnerModel"] = aux;
 }
 
 //comprueba que los parametros sean correctos y los transforma a la estructura del worker
@@ -109,3 +110,102 @@ bool SpecificMonitor::checkParams(RoboCompCommonBehavior::ParameterList l)
 	return correct;
 }
 
+
+
+
+
+
+
+
+// #include "specificmonitor.h"
+// /**
+// * \brief Default constructor
+// */
+// SpecificMonitor::SpecificMonitor(GenericWorker *_worker,Ice::CommunicatorPtr _communicator):GenericMonitor(_worker, _communicator)
+// {
+// 
+// }
+// /**
+// * \brief Default destructor
+// */
+// SpecificMonitor::~SpecificMonitor()
+// {
+// 
+// }
+// 
+// void SpecificMonitor::run()
+// {
+// 	initialize();
+// 	forever
+// 	{
+// 		//rDebug("specific monitor run");
+// 		this->sleep(period);
+// 	}
+// }
+// 
+// /**
+//  * \brief Reads components parameters and checks set integrity before signaling the Worker thread to start running
+//  * There can be four (4) types of parameteres:
+//  *		(1) Ice parameters
+//  *		(2) Nexus (configuration) parameters	
+//  *		(3) Local component parameters read at start
+//  *		(4) Local parameters read from other running component
+//  *
+//  */
+// void SpecificMonitor::initialize()
+// {
+// 	rInfo("Starting monitor ...");
+// 	initialTime=QTime::currentTime();
+// 	RoboCompCommonBehavior::ParameterList params;
+// 	readPConfParams(params);
+// 	readConfig(params);
+// 	if(!sendParamsToWorker(params))
+// 	{
+// 		rError("Error reading config parameters. Exiting");
+// 		killYourSelf();
+// 	}
+// 	state = RoboCompCommonBehavior::Running;
+// }
+// bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList params)
+// {
+// 	if(checkParams(params))
+// 	{
+// 		//Set params to worker
+// 		if(worker->setParams(params)) 
+// 			return true;
+// 	}
+// 	else
+// 	{
+// 		rError("Incorrect parameters");
+// 	}
+// 	return false;
+// 
+// }
+// ///Local Component parameters read at start
+// ///Reading parameters from config file or passed in command line, with Ice machinery
+// ///We need to supply a list of accepted values to each call
+// void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
+// {
+// 	//Read params from config file
+// 	//Example
+// 	    //RoboCompCommonBehavior::Parameter aux;
+// 	    //aux.editable = true;
+// 	    //configGetString( "DRobot.Device", aux.value,"/dev/ttyUSB0");
+// 	    //params["DRobot.Device"] = aux;
+// }
+// 
+// //comprueba que los parametros sean correctos y los transforma a la estructura del worker
+// bool SpecificMonitor::checkParams(RoboCompCommonBehavior::ParameterList l)
+// {
+// 	bool correct = true;
+// 	//Check parameters
+// 	//Example
+// // 	    if(l["DRobot.Handler"].value != "Robex" and l["DRobot.Handler"].value != "Gazebo" and l["DRobot.Handler"].value != "Player")
+// // 		    correct = false;
+// 	
+// 	//copy parameters
+// // 	if(correct)
+// // 		config_params = l;
+// 	return correct;
+// }
+// 

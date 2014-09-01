@@ -60,18 +60,24 @@ public slots:
 	
 private:
 	/// ATRIBUTOS PRIVADOS ///
+	RoboCompJointMotor::MotorParamsList 	motorparamList;				// Lista de parámetros de los motores del robot. Para sacar valores angulares.
+	RoboCompJointMotor::MotorList 			motorList;					// Lista con los nombres de los motores del robot.
+	
 	InnerModel 		*innerModel;										// Puntero para trabajar con el innerModel (pintar el target y obtener valores angulares)
+	QVec 			manoApril;											// Marca de la mano del robot.
+	
 	
 	/// MÉTODOS PRIVADOS ///
 	void			connectButtons		();								// Para conectar botones.
+	void			updateRCIS			();								// Para actualizar RCIS.
 	void			goHome				(QString partName);				// Para enviar al home.
 	void			changeProxy			(int p);
 	void 			changeText			(int text);						// Cambia el texto de las ventanitas aDonde
 	void			processTag			(RoboCompAprilTags::tag tag);
 	bool			correctTag			(RoboCompAprilTags::tag tag);
-	void			tag11				();
-	void			tag12				();
-	void			tag13				();
+	void			tag11				(RoboCompAprilTags::tag tag);
+	void			tag12				(RoboCompAprilTags::tag tag);
+	void			tag13				(RoboCompAprilTags::tag tag);
 	
 };
 
