@@ -387,11 +387,18 @@ void SpecificWorker::tag11(tag tag)
 	this->manoApril[0] = tag.tx; 	this->manoApril[1] = tag.ty; 	this->manoApril[2] = tag.tz; 
 	this->manoApril[3] = tag.rx; 	this->manoApril[4] = tag.ry; 	this->manoApril[5] = tag.rz;    
 	
+	
+	// <--------- Todo esto se puede borrar:
+	
 	//Mostramos la posición de la mano izquierda en el mundo (lo que el robot cree)
-	QVec hand_L_World (6);
-	hand_L_World.inject(this->innerModel->transform("world", QVec::zeros(3), "grabPositionHandL"),0);
-	hand_L_World.inject(this->innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min(), 3);
-	qDebug()<<"\n\n MANO IZQUIERDA EN EL MUNDO -->    "<<hand_L_World;
+// 	QVec hand_L_World (6);
+// 	hand_L_World.inject(this->innerModel->transform("world", QVec::zeros(3), "grabPositionHandL"),0);
+// 	hand_L_World.inject(this->innerModel->getRotationMatrixTo("world","grabPositionHandL").extractAnglesR_min(), 3);
+// 	qDebug()<<"\n\n MANO IZQUIERDA EN EL MUNDO -->    "<<hand_L_World;
+	
+	// <--------- Todo esto se puede borrar.
+	
+	
 	
 	// Al lío... Si no lo hemos creado ya, creamos el nodo de la marca vista desde la cámara:
 	if(!innerModel->getNode("tag_Hand_L_Camera"))
@@ -404,41 +411,38 @@ void SpecificWorker::tag11(tag tag)
 												this->manoApril.x(),	this->manoApril.y(),	this->manoApril.z(), 
 												this->manoApril.rx(),	this->manoApril.ry(),	this->manoApril.rz());
 	}
-	QVec tag_L_World (6);
-	tag_L_World.inject(this->innerModel->transform("world", QVec::zeros(3), "tag_Hand_L_Camera"), 0);
-	tag_L_World.inject(this->innerModel->getRotationMatrixTo("world","tag_Hand_L_Camera").extractAnglesR_min(), 3);
-	qDebug()<<"\n\n MARCA DE MANO IZQUIERDA EN EL MUNDO -->   "<<tag_L_World;
 	
-	/*
-
-
-				// Esto es sólo para mostrar la posición de la marca vista desde la cámara y desde el innermodel expresadas en el sistema de referencia del mundo
-				QVec marca2TInWorld = innerModel->transform("world", QVec::zeros(3), "marcaHandInCamera3");
-				QVec marca2RInWorld = innerModel->getRotationMatrixTo("world","marcaHandInCamera3").extractAnglesR_min();
-				QVec marca2InWorld(6);
-				marca2InWorld.inject(marca2TInWorld,0);
-				marca2InWorld.inject(marca2RInWorld,3);
-				//qDebug() << "Marca de la mano en el mundo vista desde la camara" << marca2InWorld;
-				
-				QVec marcaTInWorld = innerModel->transform("world", QVec::zeros(3), "ThandMesh1");
-				QVec marcaRInWorld = innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min();
-				QVec marcaInWorld(6);
-				marcaInWorld.inject(marcaTInWorld,0);
-				marcaInWorld.inject(marcaRInWorld,3);
-				//qDebug() << "ThandMesh1 en el mundo vista desde RCIS" << marcaInWorld;
-				//qDebug() << "Diferencia" <<  marca2InWorld - marcaInWorld;
-				
-				
-				// Calculamos el error de la marca
-				// Ponemos la marca vista desde la cámara en el sistma de coordenadas de la marca de la mano, si no hay error debería ser todo cero
-				QVec visualMarcaTInHandMarca = innerModel->transform("ThandMesh1", QVec::zeros(3), "marcaHandInCamera3");
-				QVec visualMarcaRInHandMarca = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3").extractAnglesR_min();
-				QVec visualMarcaInHandMarca(6);
-				visualMarcaInHandMarca.inject(visualMarcaTInHandMarca,0);
-				visualMarcaInHandMarca.inject(visualMarcaRInHandMarca,3);
-				//qDebug() << "Marca vista por la camara en el sistema de la marca de la mano (deberia ser cero si no hay errores)" << visualMarcaInHandMarca;
-				
-				// Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
+	
+	// <------------ Todo esto se puede borrar:
+	
+	// Calculamos coordenadas de la MARCA creada a partir de lo que la cámara ve:
+// 	QVec tag_L_World (6);
+// 	tag_L_World.inject(this->innerModel->transform("world", QVec::zeros(3), "tag_Hand_L_Camera"), 0);
+// 	tag_L_World.inject(this->innerModel->getRotationMatrixTo("world","tag_Hand_L_Camera").extractAnglesR_min(), 3);
+// 	qDebug()<<"\n\n MARCA DE MANO IZQUIERDA EN EL MUNDO (camara)-->   "<<tag_L_World;
+// 	
+// 	// Calculamos coordenadas de la MARCA en el XML (ThandMesh1)
+// 	QVec tag_L_World_XML (6);
+// 	tag_L_World_XML.inject(this->innerModel->transform("world", QVec::zeros(3), "ThandMesh1"), 0);
+// 	tag_L_World_XML.inject(this->innerModel->getRotationMatrixTo("world","ThandMesh1").extractAnglesR_min(), 3);
+// 	qDebug()<<"MARCA DE MANO IZQUIERDA EN EL MUNDO (xml)-->   "<<tag_L_World_XML;
+// 	qDebug()<<"Diferencia: "<<tag_L_World - tag_L_World_XML;
+	
+	//<------------- Todo esto se puede borrar.
+	
+	
+	
+	// Calculamos el error existente entre lo que la cámara ve y lo que el robot cree. Para ello ponemos 
+	// la marca creada a partir de los datos obtenidos por la cámara en el sistema de coordenadas de la 
+	// mano (en el sistema donde está la marca en el RCIS). Si está bien, debería dar CERO.
+	QVec tag_L_Hand (6);
+	tag_L_Hand.inject(this->innerModel->transform("ThandMesh1", QVec::zeros(3), "tag_Hand_L_Camera"), 0);
+	tag_L_Hand.inject(this->innerModel->getRotationMatrixTo("ThandMesh1","tag_Hand_L_Camera").extractAnglesR_min(), 3);
+	qDebug()<<"\n\n MARCA DEL RCIS EN MANO   --->   "<<tag_L_Hand;
+	
+	
+	/*			
+	 // Cogemos la matriz de rotación dek tHandMesh1 (marca en la mano) con respecto al padre para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaInHandMarca) sean añadidas a las ya esistentes en ThandMesh1
 				QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo("ThandMesh1","marcaHandInCamera3");
 				QMat handMarcaRInParentMat = innerModel->getRotationMatrixTo("ThandMesh1_pre","ThandMesh1");
 					
