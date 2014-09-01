@@ -434,11 +434,16 @@ void SpecificWorker::tag11(tag tag)
 	
 	// Calculamos el error existente entre lo que la cámara ve y lo que el robot cree. Para ello ponemos 
 	// la marca creada a partir de los datos obtenidos por la cámara en el sistema de coordenadas de la 
-	// mano (en el sistema donde está la marca en el RCIS). Si está bien, debería dar CERO.
+	// mano (en el sistema donde está la marca en el XML). Si está bien, debería dar CERO.
 	QVec tag_L_Hand (6);
 	tag_L_Hand.inject(this->innerModel->transform("ThandMesh1", QVec::zeros(3), "tag_Hand_L_Camera"), 0);
 	tag_L_Hand.inject(this->innerModel->getRotationMatrixTo("ThandMesh1","tag_Hand_L_Camera").extractAnglesR_min(), 3);
 	qDebug()<<"\n\n MARCA DEL RCIS EN MANO   --->   "<<tag_L_Hand;
+	
+	// Calculamos la matriz de rotación para pasar de tag_Hand_L_Camera al Mesh del XML, y la matriz de rotación para
+	// pasar del Mesh del XML al Mesh anterior (o Mesh_pre)
+	QMat rot_Mesh_Tag = this->innerModel->getRotationMatrixTo("ThandMesh1","tag_Hand_L_Camera");
+	QMat rot_MeshPre_Mesh = this->innerModel->getRotationMatrixTo("ThandMesh1_pre","ThandMesh1");
 	
 	
 	/*			
