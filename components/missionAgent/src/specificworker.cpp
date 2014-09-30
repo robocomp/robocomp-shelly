@@ -81,7 +81,7 @@ void SpecificWorker::compute( )
 		refresh = false;
 		/// Print PLAN
 		QString planString;
-		planMutex.lock();
+		QMutexLocker dd(&planMutex);
 		for (uint i=0; i<plan.actions.size(); ++i)
 		{
 			planString += "<p><b>" + QString::number(i+1) + "</b> ";
@@ -96,23 +96,23 @@ void SpecificWorker::compute( )
 			}
 			planString += " ) </p>\n";
 		}
-		planMutex.unlock();
 		planText->clear();
 		planText->setText(planString);
 	}
 
-	modelMutex.lock();
-	if (tabWidget->currentIndex()==0)
 	{
-		modelDrawer->update(worldModel);
-		targetDrawer->update(targetModel);
+		QMutexLocker dd(&modelMutex);
+		if (tabWidget->currentIndex()==0)
+		{
+			modelDrawer->update(worldModel);
+			targetDrawer->update(targetModel);
+		}
+		else
+		{
+			graphViewer->update(worldModel);
+			graphViewer->animateStep();
+		}
 	}
-	else
-	{
-		graphViewer->update(worldModel);
-		graphViewer->animateStep();
-	}
-	modelMutex.unlock();
 
 	taim = QTime::currentTime();
 // 	printf("compute>\n");
@@ -127,47 +127,42 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 
 void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 // 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
-	modelMutex.lock();
-	AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
-	AGMModelPrinter::printWorld(worldModel);
-	refresh = true;
-	modelMutex.unlock();
-// 	printf("%s: %d\n", __FILE__, __LINE__);
+	{
+		QMutexLocker dd(&modelMutex);
+		AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
+		AGMModelPrinter::printWorld(worldModel);
+		refresh = true;
+	}
 }
 
 void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
-	modelMutex.lock();
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	refresh = true;
-	modelMutex.unlock();
-// 	printf("%s: %d\n", __FILE__, __LINE__);
+	{
+		QMutexLocker dd(&modelMutex);
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		refresh = true;
+	}
 }
 
 void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &pl)
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("SpecificWorker::update\n");
-	planMutex.lock();
-	plan = pl;
-	refresh = true;
-	planMutex.unlock();
-// 	printf("%s: %d\n", __FILE__, __LINE__);
+	{
+		QMutexLocker dd(&planMutex);
+		plan = pl;
+		refresh = true;
+	}
 }
 
 void SpecificWorker::quitButtonClicked()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("quit button\n");
 	exit(0);
 }
 
 void SpecificWorker::broadcastButtonClicked()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("broadcast button\n");
 	try
 	{
@@ -177,13 +172,11 @@ void SpecificWorker::broadcastButtonClicked()
 	{
 		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::setMission()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	printf("mission #%d\n", missions->currentIndex());
 	try
 	{
@@ -197,7 +190,6 @@ void SpecificWorker::setMission()
 	AGMModelConverter::fromXMLToInternal(missionPaths[missions->currentIndex()], targetModel);
 	AGMModelConverter::fromInternalToIce(targetModel, targetModelICE);
 
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->deactivate();
@@ -208,12 +200,10 @@ void SpecificWorker::setMission()
 	{
 		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::activateClicked()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->activate();
@@ -222,12 +212,10 @@ void SpecificWorker::activateClicked()
 	{
 		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::deactivateClicked()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->deactivate();
@@ -236,13 +224,11 @@ void SpecificWorker::deactivateClicked()
 	{
 		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::resetClicked()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	try
 	{
 		agmexecutive_proxy->reset();
@@ -251,13 +237,11 @@ void SpecificWorker::resetClicked()
 	{
 		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
 	}
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 
 void SpecificWorker::set3DViewer()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 // #if QT_VERSION >= 0x050000
 // 	// Qt5 is currently crashing and reporting "Cannot make QOpenGLContext current in a different thread" when the viewer is run multi-threaded, this is regression from Qt4
 	osgViewer::ViewerBase::ThreadingModel threadingModel = osgViewer::ViewerBase::SingleThreaded;
@@ -269,12 +253,9 @@ void SpecificWorker::set3DViewer()
 
 	setGeometry();
 	graphViewer->show();
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
 
 void SpecificWorker::setGeometry()
 {
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 }
