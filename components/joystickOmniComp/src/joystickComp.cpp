@@ -101,6 +101,7 @@ void JoyStickComp::initialize()
 	configGetString( "Joy.Device", joystick_device, "/dev/input/js0" );
 	configGetInt( "Joy.XMotionAxis", joy_config.XMotionAxis, 0 );
 	configGetInt( "Joy.YMotionAxis", joy_config.YMotionAxis, 1 );
+	configGetInt( "Joy.ZMotionAxis", joy_config.ZMotionAxis, 2 );
 	configGetInt( "Joy.SampleRate", joy_config.SampleRate,5);
 	configGetInt( "Joy.MaxAdvanceX", joy_config.maxAdvX, 120 );
 	configGetInt( "Joy.MaxAdvanceZ", joy_config.maxAdvZ, 120 );
