@@ -19,3 +19,6 @@ SET (LIBS ${LIBS}
   -lagm
   -lboost_system
 )
+
+ADD_DEFINITIONS( -std=c++11 )
+
