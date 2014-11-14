@@ -99,7 +99,7 @@ void JoyStickHandler::receivedJoyStickEvent(int value, int type, int number)
 		else if (number == config.ZMotionAxis)
 		{
 			if (fabs(value) > JOYSTICK_CENTER)
-				base_joy_axis.actualZ = JOYtoROBOT_ROT * -value;
+				base_joy_axis.actualZ = JOYtoROBOT_ROT * value;
 			else
 				base_joy_axis.actualZ = 0.f;
 // 			cout << "[" << PROGRAM_NAME << "]: Motion in axis Z: "<< base_joy_axis.actualZ<<endl;

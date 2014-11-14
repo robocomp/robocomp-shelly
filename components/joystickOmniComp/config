@@ -12,9 +12,9 @@ Joy.XMotionAxis = 0
 Joy.YMotionAxis = 1
 Joy.ZMotionAxis = 2
 Joy.SampleRate = 5
-Joy.MaxSteering = 0.7
-Joy.MaxAdvanceX = 450
-Joy.MaxAdvanceZ = 450
+Joy.MaxSteering = 0.1
+Joy.MaxAdvanceX = 150
+Joy.MaxAdvanceZ = 150
 
 Ice.Warn.Connections=0
 Ice.Trace.Network=0
