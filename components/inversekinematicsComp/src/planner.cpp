@@ -20,20 +20,20 @@
 #include "planner.h"
 #include <boost/concept_check.hpp>
 
-Planner::Planner(InnerModel *innerModel, QObject *parent)
+Planner::Planner(InnerModel *innerModel_, QObject *parent)
 {
-  this->innerModel = innerModel;
+	innerModel = innerModel_;
 	InnerModelTransform *t = innerModel->newTransform("baseT", "static", innerModel->getNode("floor"), 0, 0, 0, 0, 0, 0);
 	innerModel->getNode("floor")->addChild(t);
-	InnerModelMesh *m = innerModel->newMesh ("baseFake", t, "/home/robocomp/robocomp/Files/osgModels/RobEx/robex.ive", 1000, 0, 0, 0, -181, 0, 0, 0);
+	InnerModelMesh *m = innerModel->newMesh ("baseFake", t, "/home/robocomp/robocomp/files/osgModels/robex/robex.ive", 1000, 0, 0, 0, -181, 0, 0, 0);
 	t->addChild(m);
   
-  //Trees and planning
-  arbol = new tree<QVec>;
-  arbolGoal = new tree<QVec>;
-  //p2Ant = innerModel->robotToWorld(QVec::vec3(0,0,-500));	
-  PATH_FOUND = false;
-  MAX_ITER = 5000;
+	//Trees and planning
+	arbol = new tree<QVec>;
+	arbolGoal = new tree<QVec>;
+	//p2Ant = innerModel->robotToWorld(QVec::vec3(0,0,-500));	
+	PATH_FOUND = false;
+	MAX_ITER = 5000;
 
 }
 
