@@ -66,6 +66,7 @@ void SpecificMonitor::initialize()
 	}
 	state = RoboCompCommonBehavior::Running;
 }
+
 bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList params)
 {
 	if(checkParams(params))
