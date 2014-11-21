@@ -239,7 +239,8 @@ void SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	
 	
 	//Creacion de faulhaberApi
-	faulhaber = new FaulHaberApi(QString::fromStdString(busParams.device),busParams.baudRate);
+	qDebug() << "Opening CAN device" << QString::fromStdString(busParams.device);
+	faulhaber = new FaulHaberApi(QString::fromStdString(busParams.device), busParams.baudRate);
 	initializeMotors();
 	qDebug()<<"basicperiod"<<Period;
 

@@ -58,7 +58,7 @@ void SpecificMonitor::initialize()
 	rInfo("Starting monitor ...");
 	initialTime=QTime::currentTime();
 	RoboCompCommonBehavior::ParameterList params;
-	readConfig(params );
+	readConfig(params);
 	if(!sendParamsToWorker(params))
 	{
 		rError("Error reading config parameters. Exiting");
@@ -93,7 +93,7 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 	  qFatal("Monitor::initialize - Zero motors found. Exiting..." );
 
 	params["Faulhaber.NumMotors"] = aux;
-	configGetString( "Faulhaber.Device", aux.value, "/dev/ttyUSB1" );	
+	configGetString( "Faulhaber.Device", aux.value, "");	
 	params["Faulhaber.Device"] = aux;
 
 	configGetString( "Faulhaber.BaudRate", aux.value, "" );
