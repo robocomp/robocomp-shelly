@@ -74,7 +74,7 @@ void SpecificWorker::init()
 			if( ret.second == false )
 			{
 				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << cout<<endl;
-				qFatal("Fary");
+				qFatal("Name %s already exists\n", ret.first->second.c_str());
 			}
 		}
 	}
@@ -242,8 +242,6 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 
 void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 {
-	std::cout << "<<<" << __FILE__ << __FUNCTION__ << __LINE__ << "\n";
-
 	MotorStateMap map1;
 	try
 	{
@@ -264,8 +262,6 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 		std::cout << "Error reading motor bus 0\n";
 		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Dynamixel bus" << std::endl;
 	}
-	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << ">>>\n";
-
 }
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
