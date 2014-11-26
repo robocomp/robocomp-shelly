@@ -73,8 +73,8 @@ void SpecificWorker::init()
 			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList1[i].name, jointmotor1_proxy));
 			if( ret.second == false )
 			{
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << cout<<endl;
-				qFatal("Name %s already exists\n", ret.first->second.c_str());
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << motorList1[i].name.c_str() << " already exists" << cout<<endl;
+				qFatal("Name %s already exists\n", motorList1[i].name.c_str());
 			}
 		}
 	}
