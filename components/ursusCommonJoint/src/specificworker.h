@@ -20,39 +20,49 @@
 #define SPECIFICWORKER_H
 
 #include <genericworker.h>
+
 #include <innermodel/innermodel.h>
 
+#ifdef USE_QTGUI
+	#include <osgviewer/osgview.h>
+	#include <innermodel/innermodelviewer.h>
+#endif
 /**
        \brief
        @author authorname
 */
-
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
+	SpecificWorker(MapPrx &mprx);
+
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	void  setPosition(const MotorGoalPosition& goal);
-	void  setVelocity(const MotorGoalVelocity& goal);
-	void  setZeroPos(const string& name);
-	void  setSyncPosition(const MotorGoalPositionList& listGoals);
-	void  setSyncVelocity(const MotorGoalVelocityList& listGoals);
-	void  setSyncZeroPos();
+	void setPosition(const MotorGoalPosition& goal);
+	void setVelocity(const MotorGoalVelocity& goal);
+	void setZeroPos(const string& name);
+	void setSyncPosition(const MotorGoalPositionList& listGoals);
+	void setSyncVelocity(const MotorGoalVelocityList& listGoals);
+	void setSyncZeroPos();
 	MotorParams getMotorParams(const string& motor);
 	MotorState getMotorState(const string& motor);
 	MotorStateMap getMotorStateMap(const MotorList& mList);
-	void  getAllMotorState(MotorStateMap& mstateMap);
+	void getAllMotorState(MotorStateMap& mstateMap);
 	MotorParamsList getAllMotorParams();
 	BusParams getBusParams();
 
 public slots:
- 	void compute(); 	
+	void compute();
 	
 	
 private:
 	InnerModel *innerModel;
+#ifdef USE_QTGUI
+	OsgView *osgView;
+	InnerModelViewer *imv;
+#endif
+
 	RoboCompJointMotor::MotorParamsList motorList1, motorList0;
 	std::map<string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 	void init();

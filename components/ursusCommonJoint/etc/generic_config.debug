@@ -4,7 +4,8 @@
 # This property is used to configure the endpoints of the subscriber adapter.
 #
 JointMotorComp.Endpoints=tcp -p 10067
-CommonBehavior.Endpoints=tcp -p 12215
+CommonBehavior.Endpoints=tcp -p 12240
+
 # Remote servers proxies example
 #RemoteProxy = remote:tcp -h remotehost -p 10001
 

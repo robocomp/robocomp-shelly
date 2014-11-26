@@ -10,3 +10,6 @@ SET ( HEADERS
   specificworker.h
   specificmonitor.h
 )
+
+SET (LIBS ${LIBS} -losgViewer)
+

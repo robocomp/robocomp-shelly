@@ -17,16 +17,21 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
  
- #include "specificworker.h"
+#include "specificworker.h"
 #include <boost/graph/graph_concepts.hpp>
 
 /**
 * \brief Default constructor
 */
 
-SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx, parent)	
+SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
 {
-
+#ifdef USE_QTGUI
+	imv = NULL;
+	osgView = new OsgView(this);
+	osgView->setCameraManipulator(new osgGA::TrackballManipulator); 	
+	osgView->getCameraManipulator()->setHomePosition(osg::Vec3(0.,0.,-2.),osg::Vec3(0.,0.,4.),osg::Vec3(0.,1,0.));
+#endif
 }
 
 /**
@@ -36,9 +41,13 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
+
 void SpecificWorker::compute( )
 {
-	//qDebug() << "hola";
+	// Actualizamos el innerModel y la ventada del viewer
+// 	actualizarInnerModel();
+	if (imv) imv->update();
+	osgView->frame();
 }
 
 void SpecificWorker::init()
@@ -48,13 +57,13 @@ void SpecificWorker::init()
 	{
 		motorList0 = jointmotor0_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for(uint i=0; i<motorList0.size(); i++)
+		for (uint i=0; i<motorList0.size(); i++)
 		{
 			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList0[i].name, jointmotor0_proxy));
-			if( ret.second == false )
+			if (ret.second == false)
 			{
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << cout<<endl;
-				qFatal("Fary");
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << endl;
+				qFatal("Name %s already exists\n", motorList0[i].name.c_str());
 			}
 		}
 	}
@@ -68,19 +77,19 @@ void SpecificWorker::init()
 	{
 		motorList1 = jointmotor1_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for(uint i=0; i<motorList1.size(); i++)
+		for (uint i=0; i<motorList1.size(); i++)
 		{
 			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList1[i].name, jointmotor1_proxy));
 			if( ret.second == false )
 			{
 				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << cout<<endl;
-				qFatal("Fary");
+				qFatal("Name %s already exists\n", motorList1[i].name.c_str());
 			}
 		}
 	}
-	catch(const Ice::Exception &ex)
+	catch (const Ice::Exception &ex)
 	{
-			cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex << endl;
+		cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex << endl;
 	};
 }
 
@@ -90,6 +99,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	
 	innerModel = new InnerModel(params["InnerModel"].value);
 	init();
+#ifdef USE_QTGUI
+	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
+	show();
+#endif
 	return true;
 };
 
@@ -99,94 +112,76 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::setPosition(const MotorGoalPosition& goal)
 {
 
-	try
-	{		prxMap.at(goal.name)->setPosition(goal);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << goal.name << " not found in initial proxy list" << std::endl;	};
-	
+	try { prxMap.at(goal.name)->setPosition(goal); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
+
 void SpecificWorker::setVelocity(const MotorGoalVelocity& goal)
 {
-	try
-	{		prxMap.at(goal.name)->setVelocity(goal);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << goal.name << " not found in initial proxy list" << std::endl;	};
-	
+	try { prxMap.at(goal.name)->setVelocity(goal); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
+
 void SpecificWorker::setZeroPos(const string& name)
 {
-	try
-	{		prxMap.at(name)->setZeroPos(name);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << name << " not found in initial proxy list" << std::endl;	};
-	
+	try { prxMap.at(name)->setZeroPos(name); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << name << " not found in proxy list" << std::endl; };
 }
+
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for(uint i=0;i<listGoals.size();i++)
 	{
-			if (prxMap.at( listGoals[i].name) == jointmotor0_proxy )
-				l0.push_back(listGoals[i]);
-			else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
-				l1.push_back(listGoals[i]);
-			else 
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
+		if (prxMap.at( listGoals[i].name) == jointmotor0_proxy )
+			l0.push_back(listGoals[i]);
+		else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
+			l1.push_back(listGoals[i]);
+		else 
+			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in proxy list\n";
 	}
-	try
-	{		jointmotor0_proxy->setSyncPosition(l0);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Dynamixel" << std::endl;	};
-	try
-	{		jointmotor1_proxy->setSyncPosition(l1);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Faulhaber" << std::endl;	};
-	
+	try { jointmotor0_proxy->setSyncPosition(l0); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition prx 0" << std::endl; };
+	try { jointmotor1_proxy->setSyncPosition(l1); }
+	catch(std::exception &ex) {std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition prx 1" << std::endl; };
 }
+
 void SpecificWorker::setSyncVelocity(const MotorGoalVelocityList& listGoals)
 {
 	RoboCompJointMotor::MotorGoalVelocityList l0,l1;
-	for(uint i=0;i<listGoals.size();i++)
+	for (uint i=0;i<listGoals.size();i++)
 	{
-			if (prxMap.at( listGoals[i].name) == jointmotor0_proxy )
-				l0.push_back(listGoals[i]);
-			else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
-				l1.push_back(listGoals[i]);
-			else 
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
+		if (prxMap.at( listGoals[i].name) == jointmotor0_proxy )
+			l0.push_back(listGoals[i]);
+		else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
+			l1.push_back(listGoals[i]);
+		else 
+			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
 	}
-	try
-	{		jointmotor0_proxy->setSyncVelocity(l0);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncVelocity to Dynamixel" << std::endl;	};
-	try
-	{		jointmotor1_proxy->setSyncVelocity(l1);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Faulhaber" << std::endl;	};
-
+	try { jointmotor0_proxy->setSyncVelocity(l0); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncVelocity to Dynamixel" << std::endl; };
+	try { jointmotor1_proxy->setSyncVelocity(l1); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error in setSyncPosition to Faulhaber" << std::endl; };
 }
+
 void SpecificWorker::setSyncZeroPos()
 {
 }
+
 MotorParams SpecificWorker::getMotorParams(const string& motor)
 {
 	MotorParams mp;
-	try
-	{		mp 	= prxMap.at(motor)->getMotorParams(motor);	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl;	};
+	try { mp = prxMap.at(motor)->getMotorParams(motor); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl; };
 	return mp;
 }
 
 MotorState SpecificWorker::getMotorState(const string& motor)
 {
 	MotorState ms;
-	try
-	{		ms = prxMap.at(motor)->getMotorState(motor);	
-	}
-	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl;	};
-	return ms;	
+	try { ms = prxMap.at(motor)->getMotorState(motor); }
+	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl; };
+	return ms;
 }
 
 MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)

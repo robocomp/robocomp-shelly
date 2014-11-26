@@ -80,6 +80,7 @@
 
 // Includes for remote proxy example
 // #include <Remote.h>
+#include <ui_guiDlg.h>
 #include <JointMotor.h>
 
 
@@ -110,6 +111,7 @@ void UrsusCommonJointComp::initialize()
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
+
 int UrsusCommonJointComp::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI

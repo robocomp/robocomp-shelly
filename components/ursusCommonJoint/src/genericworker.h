@@ -20,10 +20,13 @@
 #define GENERICWORKER_H
 
 // #include <ipp.h>
+#include "config.h"
 #include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
 #include <CommonBehavior.h>
+#include <ui_guiDlg.h>
+#include "config.h"
 #include <JointMotor.h>
 #include <JointMotor.h>
 
@@ -40,12 +43,16 @@ using namespace std;
 */
 using namespace RoboCompJointMotor;
 using namespace RoboCompJointMotor;
-
-class GenericWorker : public QObject
+class GenericWorker :
+#ifdef USE_QTGUI
+public QWidget, public Ui_guiDlg
+#else
+public QObject
+#endif
 {
 Q_OBJECT
 public:
-	GenericWorker(MapPrx& mprx, QObject *parent = 0);
+	GenericWorker(MapPrx& mprx);
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);

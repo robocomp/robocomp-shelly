@@ -89,20 +89,20 @@ public slots:
 private:
 	
 	// ATRIBUTOS
-	InnerModel *innerModel;								// Para trabajar con el innerModel
+	InnerModel *innerModel;          // Para trabajar con el innerModel
 	OsgView *osgView;
 	QFrame *frameOsg;
 	InnerModelViewer *imv;
-	QQueue<QVec> trayectoria;							// Cola de poses donde se guardan las trayectorias de los Camareros
-	QVec partesActivadas;								//vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
-	RoboCompJointMotor::MotorParamsList motorparamList;	//lista de motores.
+	QQueue<QVec> trayectoria;        // Cola de poses donde se guardan las trayectorias de los Camareros
+	QVec partesActivadas;            //vector de partes (se ponen a 0 si NO se les envía target y a 1 si SÍ se les envía target)
+	RoboCompJointMotor::MotorParamsList motorparamList; //lista de motores.
 	RoboCompJointMotor::MotorList motorList;
 
-	bool banderaTrayectoria;							// Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
-	bool banderaNiapa;                                  // Se pone a true cuando se envía trayectoria pruebaMatlab
-	bool banderaRCIS;										//indica que se ha pulsado el boton de rcis ÑAPA
-	QString tabName;									//Name of current tab
-	int tabIndex;										//Index of current tabIndex	
+	bool banderaTrayectoria;         // Se pone a TRUE si hay una trayectoria para enviar. FALSE si no hay trayectoria.
+	bool banderaNiapa;               // Se pone a true cuando se envía trayectoria pruebaMatlab
+	bool banderaRCIS;                // Indica que se ha pulsado el boton de rcis ÑAPA
+	QString tabName;                 // Name of current tab
+	int tabIndex;                    // Index of current tabIndex	
 		
 	// MÉTODOS
 	void moverTargetEnRCIS(const QVec &pose);

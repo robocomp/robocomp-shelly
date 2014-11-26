@@ -9,4 +9,5 @@ Component UrsusCommonJointComp
 		
 	};
 	language Cpp;
+	gui Qt(QWidget);
 };

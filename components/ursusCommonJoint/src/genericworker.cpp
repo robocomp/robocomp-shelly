@@ -20,12 +20,22 @@
 /**
 * \brief Default constructor
 */
-GenericWorker::GenericWorker(MapPrx& mprx, QObject *parent) : QObject(parent)
+GenericWorker::GenericWorker(MapPrx& mprx) :
+#ifdef USE_QTGUI
+Ui_guiDlg()
+#else
+QObject()
+#endif
+
 {
 	jointmotor0_proxy = (*(JointMotorPrx*)mprx["JointMotor0Proxy"]);
 	jointmotor1_proxy = (*(JointMotorPrx*)mprx["JointMotor1Proxy"]);
 
 	mutex = new QMutex();
+	#ifdef USE_QTGUI
+		setupUi(this);
+		show();
+	#endif
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 }
