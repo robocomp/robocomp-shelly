@@ -104,6 +104,30 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
 	show();
 #endif
+
+
+// 	std::map<std::string, std::vector<std::string>> exclusions;
+// 	QString exclusion = params["ExclusionList"].value
+// 	if (exclusion.size()<2)
+// 	{
+// 		qFatal("Couldn't read ExclusionList\n");
+// 		return false;
+// 	}	
+// 	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
+// 	{
+// 		QStringList parejaLista = parejaTexto.split(",");
+// 		if (not exclusions.has(parejaLista[0].toStdString()))
+// 			exclusions[parejaLista[0].toStdString()] = std::vector<std::string>()
+// 		exclusions[parejaLista[0].toStdString()].push_back(parejaLista[1]);
+// 		if (not exclusions.has(parejaLista[1].toStdString()))
+// 			exclusions[parejaLista[1].toStdString()] = std::vector<std::string>()
+// 		exclusions[parejaLista[1].toStdString()].push_back(parejaLista[0]);
+// 	}
+// 	
+	std::vector<QString> meshes;
+	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes);
+
+	
 	return true;
 };
 
@@ -282,3 +306,27 @@ BusParams SpecificWorker::getBusParams()
 		std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
 		return bus;
 }
+
+
+void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
+{
+	InnerModelMesh *mesh;
+	InnerModelPlane *plane;
+	InnerModelTransform *transformation;
+
+	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+	{
+		for (int i=0; i<node->children.size(); i++)
+		{
+			recursiveIncludeMeshes(node->children[i], in);
+		}
+	}
+	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+	{
+		if (node->collidable)
+		{
+			in.push_back(node->id);
+		}
+	}
+}
+

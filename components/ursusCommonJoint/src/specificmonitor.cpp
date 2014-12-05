@@ -66,12 +66,13 @@ void SpecificMonitor::initialize()
 	}
 	state = RoboCompCommonBehavior::Running;
 }
+
 bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList params)
 {
-	if(checkParams(params))
+	if (checkParams(params))
 	{
 		//Set params to worker
-		if(worker->setParams(params)) 
+		if (worker->setParams(params)) 
 			return true;
 	}
 	else
@@ -86,12 +87,14 @@ bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList p
 ///We need to supply a list of accepted values to each call
 void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 {
-	//Read params from config file
-	//Example
 	RoboCompCommonBehavior::Parameter aux;
 	aux.editable = true;
+
 	configGetString( "InnerModel", aux.value," ");
 	params["InnerModel"] = aux;
+
+	configGetString( "ExclusionList", aux.value," ");
+	params["ExclusionList"] = aux;
 }
 
 //comprueba que los parametros sean correctos y los transforma a la estructura del worker

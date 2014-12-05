@@ -13,5 +13,6 @@ SET ( HEADERS
 
 SET (LIBS ${LIBS} -losgViewer)
 include($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
+ADD_DEFINITIONS( -std=c++11 )
 
 

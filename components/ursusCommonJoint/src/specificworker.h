@@ -58,6 +58,7 @@ public slots:
 	
 private:
 	InnerModel *innerModel;
+	void recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in);
 #ifdef USE_QTGUI
 	OsgView *osgView;
 	InnerModelViewer *imv;
