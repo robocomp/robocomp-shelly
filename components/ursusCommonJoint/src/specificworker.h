@@ -67,6 +67,14 @@ private:
 	RoboCompJointMotor::MotorParamsList motorList1, motorList0;
 	std::map<string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 	void init();
+	
+	
+	void actualizarInnerModel();
+	
+	
+	std::vector< std::pair<QString, QString> > pairs;
+	bool checkFuturePosition(const MotorGoalPositionList &goals);
+
 };
 
 #endif

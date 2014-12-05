@@ -45,10 +45,16 @@ SpecificWorker::~SpecificWorker()
 void SpecificWorker::compute( )
 {
 	// Actualizamos el innerModel y la ventada del viewer
-// 	actualizarInnerModel();
+	actualizarInnerModel();
 	usleep(50000);
 	if (imv) imv->update();
 	osgView->frame();
+}
+
+
+void SpecificWorker::actualizarInnerModel()
+{
+// 	innerModel->
 }
 
 void SpecificWorker::init()
@@ -97,7 +103,7 @@ void SpecificWorker::init()
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	timer.start(Period);
-	
+
 	innerModel = new InnerModel(params["InnerModel"].value);
 	init();
 #ifdef USE_QTGUI
@@ -105,64 +111,113 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	show();
 #endif
 
+	printf("_____ %d ________\n", __LINE__);
 
-// 	std::map<std::string, std::vector<std::string>> exclusions;
-// 	QString exclusion = params["ExclusionList"].value
-// 	if (exclusion.size()<2)
-// 	{
-// 		qFatal("Couldn't read ExclusionList\n");
-// 		return false;
-// 	}	
-// 	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
-// 	{
-// 		QStringList parejaLista = parejaTexto.split(",");
-// 		if (not exclusions.has(parejaLista[0].toStdString()))
-// 			exclusions[parejaLista[0].toStdString()] = std::vector<std::string>()
-// 		exclusions[parejaLista[0].toStdString()].push_back(parejaLista[1]);
-// 		if (not exclusions.has(parejaLista[1].toStdString()))
-// 			exclusions[parejaLista[1].toStdString()] = std::vector<std::string>()
-// 		exclusions[parejaLista[1].toStdString()].push_back(parejaLista[0]);
-// 	}
-// 	
+	std::vector<std::pair<QString, QString> > exclusionList;
+	QString exclusion = QString::fromStdString(params["ExclusionList"].value);
+	if (exclusion.size()<2)
+	{
+		qFatal("Couldn't read ExclusionList\n");
+		return false;
+	}	
+	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
+	{
+		QStringList parejaLista = parejaTexto.split(",");
+		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
+		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
+	}
+	for (auto e: exclusionList)
+	{
+		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
+	}
+
+
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes);
+	std::sort(meshes.begin(), meshes.end());
+
+	for (auto a: meshes)
+	{
+		for (auto b: meshes)
+		{
+			if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
+			{
+				pairs.push_back(std::pair<QString,QString>(a, b));
+			}
+		}
+	}
 
 	
 	return true;
-};
+}
 
 /// SERVANT METHODS /////////////////////////////////////////////////////////////////////7
-
-
-void SpecificWorker::setPosition(const MotorGoalPosition& goal)
+bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals)
 {
+	MotorGoalPositionList backPoses = goals;
+	for (uint i=0; i<goals.size(); i++)
+	{
+		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
+	}
 
+	for (uint i=0; i<goals.size(); i++)
+	{
+		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position);
+	}
+
+	for (auto p: pairs)
+	{
+		if (innerModel->collide(p.first, p.second))
+		{
+			for (uint i=0; i<goals.size(); i++)
+			{
+				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position);
+			}
+			return true;
+		}
+	}
+
+	return false;
+}
+
+void SpecificWorker::setPosition(const MotorGoalPosition &goal)
+{
+	MotorGoalPositionList listGoals;
+	listGoals.push_back(goal);
+	if (checkFuturePosition(listGoals))
+	{
+		throw RoboCompJointMotor::OutOfRangeException("collision");
+	}
 	try { prxMap.at(goal.name)->setPosition(goal); }
-	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
+	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
 
 void SpecificWorker::setVelocity(const MotorGoalVelocity& goal)
 {
 	try { prxMap.at(goal.name)->setVelocity(goal); }
-	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
+	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
 
 void SpecificWorker::setZeroPos(const string& name)
 {
 	try { prxMap.at(name)->setZeroPos(name); }
-	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << name << " not found in proxy list" << std::endl; };
+	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << name << " not found in proxy list" << std::endl; };
 }
 
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
-	RoboCompJointMotor::MotorGoalPositionList l0,l1;
-	for(uint i=0;i<listGoals.size();i++)
+	if (checkFuturePosition(listGoals))
 	{
-		if (prxMap.at( listGoals[i].name) == jointmotor0_proxy )
+		throw RoboCompJointMotor::OutOfRangeException("collision");
+	}
+	RoboCompJointMotor::MotorGoalPositionList l0,l1;
+	for (uint i=0; i<listGoals.size(); i++)
+	{
+		if (prxMap.at(listGoals[i].name)==jointmotor0_proxy)
 			l0.push_back(listGoals[i]);
-		else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
+		else if (prxMap.at( listGoals[i].name)==jointmotor1_proxy)
 			l1.push_back(listGoals[i]);
-		else 
+		else
 			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in proxy list\n";
 	}
 	try { jointmotor0_proxy->setSyncPosition(l0); }
@@ -234,8 +289,6 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 		std::cout << mList[i] << ")\n";
 	}
 	
-	printf("l0 ,,, %d\n", (int)l0.size());
-	printf("l1 ,,, %d\n", (int)l1.size());
 
 	try
 	{
@@ -255,8 +308,6 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 	}
 	m0.insert(m1.begin(), m1.end());
 
-	printf("m0 ### %d\n", (int)m0.size());
-	printf("m1 ### %d\n", (int)m1.size());
 	return m0;
 }
 
@@ -283,28 +334,31 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading MotorStateMap from Dynamixel bus" << std::endl;
 	}
 }
+
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
 	MotorParamsList par1, par;
+
 	try
-	{		par = jointmotor0_proxy->getAllMotorParams();	}
+	{ par = jointmotor0_proxy->getAllMotorParams(); }
 	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading getAllMotorParams from Dynamixel bus" << std::endl;	};
+	{ std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading getAllMotorParams from Dynamixel bus" << std::endl; };
+
 	try
-	{		par1 = jointmotor1_proxy->getAllMotorParams();	}
+	{ par1 = jointmotor1_proxy->getAllMotorParams(); }
 	catch(std::exception &ex)
-	{		std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading getAllMotorParams from Faulhaber bus" << std::endl;	};
+	{ std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading getAllMotorParams from Faulhaber bus" << std::endl; };
 
 	par.insert(par.end(), par1.begin(), par1.end());
 	
 	return par;
-	
 }
+
 BusParams SpecificWorker::getBusParams()
 {
-		RoboCompJointMotor::BusParams bus;
-		std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
-		return bus;
+	RoboCompJointMotor::BusParams bus;
+	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
+	return bus;
 }
 
 
@@ -323,10 +377,8 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 	}
 	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
 	{
-		if (node->collidable)
-		{
-			in.push_back(node->id);
-		}
+		in.push_back(node->id);
 	}
 }
+
 
