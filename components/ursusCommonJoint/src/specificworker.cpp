@@ -111,8 +111,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	show();
 #endif
 
-	printf("_____ %d ________\n", __LINE__);
-
 	std::vector<std::pair<QString, QString> > exclusionList;
 	QString exclusion = QString::fromStdString(params["ExclusionList"].value);
 	if (exclusion.size()<2)
@@ -143,6 +141,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
 			{
 				pairs.push_back(std::pair<QString,QString>(a, b));
+				printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
 			}
 		}
 	}
@@ -152,7 +151,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 }
 
 /// SERVANT METHODS /////////////////////////////////////////////////////////////////////7
-bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals)
+bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret)
 {
 	MotorGoalPositionList backPoses = goals;
 	for (uint i=0; i<goals.size(); i++)
@@ -164,6 +163,7 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals)
 	{
 		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position);
 	}
+	innerModel->cleanupTables();
 
 	for (auto p: pairs)
 	{
@@ -173,6 +173,8 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals)
 			{
 				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position);
 			}
+			innerModel->cleanupTables();
+			ret = p;
 			return true;
 		}
 	}
@@ -184,8 +186,10 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 {
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal);
-	if (checkFuturePosition(listGoals))
+	std::pair<QString, QString> ret;
+	if (checkFuturePosition(listGoals, ret))
 	{
+		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 		throw RoboCompJointMotor::OutOfRangeException("collision");
 	}
 	try { prxMap.at(goal.name)->setPosition(goal); }
@@ -206,8 +210,10 @@ void SpecificWorker::setZeroPos(const string& name)
 
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
-	if (checkFuturePosition(listGoals))
+	std::pair<QString, QString> ret;
+	if (checkFuturePosition(listGoals, ret))
 	{
+		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 		throw RoboCompJointMotor::OutOfRangeException("collision");
 	}
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
@@ -266,14 +272,11 @@ MotorState SpecificWorker::getMotorState(const string& motor)
 
 MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 {
-	printf("###### %d\n", (int)mList.size());
-	std::cout << "<<<" << __FILE__ << __FUNCTION__ << __LINE__ << "\n";
 	MotorList l0,l1;
 	MotorStateMap m0, m1;
 	
 	for (uint i=0; i<mList.size(); i++)
 	{
-		std::cout << "(" << mList[i] << "\n";
 		if (prxMap.at( mList[i]) == jointmotor0_proxy )
 		{
 			l0.push_back(mList[i]);
@@ -286,7 +289,6 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 		{
 			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << mList[i] << " not found in initial proxy list\n";
 		}
-		std::cout << mList[i] << ")\n";
 	}
 	
 

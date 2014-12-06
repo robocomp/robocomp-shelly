@@ -73,7 +73,7 @@ private:
 	
 	
 	std::vector< std::pair<QString, QString> > pairs;
-	bool checkFuturePosition(const MotorGoalPositionList &goals);
+	bool checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret);
 
 };
 
