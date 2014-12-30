@@ -50,13 +50,14 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	set3DViewer();
 
 	connect(quitButton,             SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
-	connect(broadcastButton,        SIGNAL(clicked()), this, SLOT(broadcastButtonClicked()));
+	connect(broadcastPlanButton,    SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
+	connect(broadcastModelButton,   SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
 
 	connect(activateButton,         SIGNAL(clicked()), this, SLOT(activateClicked()));
 	connect(deactivateButton,       SIGNAL(clicked()), this, SLOT(deactivateClicked()));
 	connect(resetButton,            SIGNAL(clicked()), this, SLOT(resetClicked()));
 
-	connect(setMissionButton,         SIGNAL(clicked()), this, SLOT(setMission()));
+	connect(setMissionButton,       SIGNAL(clicked()), this, SLOT(setMission()));
 
 	timer.start(90);
 }
@@ -161,12 +162,26 @@ void SpecificWorker::quitButtonClicked()
 	exit(0);
 }
 
-void SpecificWorker::broadcastButtonClicked()
+void SpecificWorker::broadcastModelButtonClicked()
 {
 	printf("broadcast button\n");
 	try
 	{
 		agmexecutive_proxy->broadcastModel();
+	}
+	catch(const Ice::Exception &e)
+	{
+		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
+	}
+}
+
+
+void SpecificWorker::broadcastPlanButtonClicked()
+{
+	printf("broadcast button\n");
+	try
+	{
+		agmexecutive_proxy->broadcastPlan();
 	}
 	catch(const Ice::Exception &e)
 	{

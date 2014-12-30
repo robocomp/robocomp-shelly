@@ -87,10 +87,18 @@
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="broadcastButton">
+        <widget class="QPushButton" name="broadcastModelButton">
          <property name="text">
           <string>broadcast
 model</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="broadcastPlanButton">
+         <property name="text">
+          <string>broadcast
+plan</string>
          </property>
         </widget>
        </item>
