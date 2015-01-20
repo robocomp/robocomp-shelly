@@ -163,8 +163,8 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	{
 		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position);
 	}
+/*
 	innerModel->cleanupTables();
-
 	for (auto p: pairs)
 	{
 		if (innerModel->collide(p.first, p.second))
@@ -178,7 +178,7 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 			return true;
 		}
 	}
-
+*/
 	return false;
 }
 

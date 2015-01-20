@@ -63,6 +63,7 @@ public slots:
 	void resetClicked();
 
 	void broadcastButtonClicked();
+	void broadcastPlanButtonClicked();
 
 	void setMission();
 
