@@ -35,7 +35,7 @@ class Planner : public QObject
 {
 Q_OBJECT
 public:
-	Planner(InnerModel *innerModel, QObject *parent=0);
+	Planner(InnerModel *innerModel_, QObject *parent=0);
 	~Planner(){};
   
 	 void setMaxIter( int v) 		{ MAX_ITER = v;}
