@@ -39,42 +39,43 @@ using namespace std;
 
 class SpecificWorker : public GenericWorker
 {
-Q_OBJECT
-private:
-	void initialize();
-	void getData();	
-	void sendData( );
+	Q_OBJECT
+	public:
+		SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
+		~SpecificWorker();
+		bool setParams(RoboCompCommonBehavior::ParameterList params);
+		float Get_Valor_Motor(int ID, int valorPotenciometro);
+		int translateToJose (QString n);
 	
-	bool ascii2dec ( char *buf, int ndigits, int &out );
-	bool sendCommand(QString cmd, char *buf, int totalread);	
-	void convertToJointMotor();
-	QString translate(QString first);
-	void checkError(char character );
-	
-	struct Limites{
-    float Max;
-    float Min;
-};
-	
-public:
-	SpecificWorker(MapPrx& mprx, QObject *parent = 0);	
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	float Get_Valor_Motor(int ID, int valorPotenciometro);
-	int translateToJose (QString n);
+	private:
+		void initialize();
+		void getData();	
+		void sendData( );
+		
+		bool ascii2dec ( char *buf, int ndigits, int &out );
+		bool sendCommand(QString cmd, char *buf, int totalread);	
+		void convertToJointMotor();
+		QString translate(QString first);
+		void checkError(char character );
+		QSerialPort device;
+		bool send;
+		char resultado[70];
+		RoboCompJointMotor::MotorGoalPositionList listGoals;
+		
+		//no entiendo porque atributos de clase
+		unsigned char stringEnviado[200], stringRecibido[200];
+		int numEnviado, numRecibido;
+		bool READY;
+		
+		struct Limites
+		{
+			float Max;
+			float Min;
+		};
 
-public slots:
- 	void compute(); 	
-private:
-	QSerialPort device;
-	bool send;
-	char resultado[70];
-	RoboCompJointMotor::MotorGoalPositionList listGoals;
-	
-	//no entiendo porque atributos de clase
-	unsigned char stringEnviado[200], stringRecibido[200];
-	int numEnviado, numRecibido;
-	
+	public slots:
+		void compute(); 	
+		
 };
 
 #endif

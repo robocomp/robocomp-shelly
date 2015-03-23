@@ -1,4 +1,3 @@
-
 /*
  *    Copyright (C) 2010 by RoboLab - University of Extremadura
  *
@@ -86,41 +85,27 @@ bool SpecificMonitor::sendParamsToWorker(RoboCompCommonBehavior::ParameterList p
 ///We need to supply a list of accepted values to each call
 void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 {
-	//Read params from config file
-	//Example
-	    //RoboCompCommonBehavior::Parameter aux;
-	    //aux.editable = true;
-	    //configGetString( "DRobot.Device", aux.value,"/dev/ttyUSB0");
-	    //params["DRobot.Device"] = aux;
-	try
-	{		
-		RoboCompCommonBehavior::Parameter aux;
-		aux.editable = false;
-	    configGetString( "Joy.Device", aux.value,"/dev/ttyUSB0");
-	    params["Joy.Device"] = aux;
-		
-		configGetString( "Joy.MaxAdvance", aux.value,"100");
-		aux.editable=true;
-		params["Joy.MaxAdvance"] = aux;
+ 	RoboCompCommonBehavior::Parameter aux;
+ 
+ 	aux.editable = false;
+	configGetString( "JoystickArm.Device", aux.value, "/dev/ttyUSB0");
+	if( aux.value != "/dev/ttyUSB0" and aux.value != "/dev/ttyUSB1" and aux.value != "/dev/ttyUSB2" and aux.value != "/dev/ttyUSB4")
+	{
+		std::cout << __FUNCTION__ << "Warning. Wrong Device value. Using default /dev/ttyUSB0" << std::endl;
+		aux.value = "/dev/ttyUSB0";
 	}
-	catch(std::exception e) { } // Don't need to do anything, just go for the default interface type
+	params["JoystickArm.Device"] = aux;
+	
+	aux.editable = false;
+	configGetString( "JoystickArm.MaxAdvance", aux.value, "100");
+	params["JoystickArm.MaxAdvance"] = aux;
+	
 }
 
 //comprueba que los parametros sean correctos y los transforma a la estructura del worker
 bool SpecificMonitor::checkParams(RoboCompCommonBehavior::ParameterList l)
 {
 	bool correct = true;
-	//Check parameters
-	//Example
-// 	    if(l["DRobot.Handler"].value != "Robex" and l["DRobot.Handler"].value != "Gazebo" and l["DRobot.Handler"].value != "Player")
-// 		    correct = false;
-	
-	//copy parameters
-// 	if(correct)
-// 		config_params = l;
-
-	
-	
 	return correct;
 }
 

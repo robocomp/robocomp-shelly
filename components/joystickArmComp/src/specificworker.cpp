@@ -26,25 +26,50 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx, parent)	
 {
 	
-	qDebug()<<"constructor";
-	
-	
+	qDebug() << __FUNCTION__;	
+	READY = false;
+	timer.start(Period);	
 }
+
+/**
+* \brief Default destructor
+*/
+SpecificWorker::~SpecificWorker()
+{
+}
+
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	/// Read interface type from parameters	
-	RoboCompCommonBehavior::Parameter par = params.at("Joy.Device");	 
-	qDebug()<<"device value"<<QString::fromStdString(par.value);
-		
-	device.setName (QString::fromStdString(par.value) );
-	device.setBaudRate ( QSerialPort::BAUD9600);		
-	par =params.at("Joy.MaxAdvance");
-	qDebug()<<"Joy maxadvance value"<<QString::fromStdString(par.value);
+	RoboCompCommonBehavior::Parameter par;
+	try
+	{
+		par = params.at("JoystickArm.Device");	 	
+		device.setName (QString::fromStdString(par.value) );
+		device.setBaudRate ( QSerialPort::BAUD9600);		
+	}
+	catch(std::exception e) 
+	{ qFatal("\nAborting. Error reading config params"); }
 	
+	try
+	{
+		par = params.at("JoystickArm.MaxAdvance");
+	}
+	catch(std::exception e) 
+	{ qFatal("\nAborting. Error reading config params"); }
 	
-	setPeriod(1);		
-	initialize();
-	timer.start(Period);	
+	if ( device.open ( QIODevice::ReadOnly ) == false )
+	{
+		qDebug() << __FUNCTION__ << "Failed to open: " + device.name() << "check your config";
+		qFatal("Aborting");
+	}	
+	qDebug() << "shit";
+ 	
+ 	setPeriod(20);		
+	//initialize();
+
+	READY = true;
+	
 	return true;
 }
 
@@ -60,24 +85,89 @@ void SpecificWorker::initialize()
 		qDebug()<<"Failed to open: "+device.name()<<"check your config";
 		qFatal("exit");
 	}	
+
 	
 }
+
+
+void SpecificWorker::compute( )
+{
+ 	qDebug() << "compute send";
+
+	if( READY )
+	{
+		if (!send)
+			getData();
+		else
+			sendData();
+	}
+}
+
+
+//////////////////////////
+///
+////////////////////////
+
 void SpecificWorker::sendData()
 {
-	send=false;
-	convertToJointMotor();	
-	try
-	{	
-// 			qDebug()<<"motor:"<<i<<QString::fromStdString(listGoals[i].name);
-		jointmotor_proxy->setSyncPosition(listGoals);			
-		
-	}
-	catch ( Ice::Exception e )
-	{
-		qDebug()<<"Exception: error talking to JointMotor_proxy";//<<QString::fromStdString(listGoals[i].name)<<e.what();
-	}
+	static char resultadoAnt[70];
 	
+	send=false;
+	if( resultado != resultadoAnt)
+	{
+		convertToJointMotor();	
+		try
+		{	
+			jointmotor_proxy->setSyncPosition(listGoals);					
+		}
+		catch ( Ice::Exception e )
+		{
+			qDebug()<<"Exception: error talking to JointMotor_proxy";//<<QString::fromStdString(listGoals[i].name)<<e.what();
+		}
+		memcpy(resultadoAnt,resultado,70);
+	}
 }
+
+
+void SpecificWorker::getData()
+{
+	send=false;
+	if (device.isOpen() )
+	{
+		char buf[140];	
+		///solo hay 5 motores 10 caracteres por campo
+		for (int i=0;i<70;i++)
+			resultado[i]=' ';
+		
+		///esto no esta demasiao bien hecho
+		numRecibido = device.read(buf, 140);
+		qDebug()<<"buf"<<buf<<numRecibido;
+		
+		///este metodo me cambia el check error
+		//		checkError (buf[0] );
+		
+		for (int i=0;i<70;i++)
+		{
+			if (buf[i] =='S' && buf[i+1] =='0' && buf[i+2] =='0')
+			{
+				for (int j=i; j<i+69;j++)
+				{
+					resultado[j-i]=buf[j];				
+				}
+				qDebug()<<"resultado:"<<resultado<<"--";
+				send = true;
+				return;
+			}
+		}
+	}
+	else 
+	{
+		qDebug()<<device.name();
+		qFatal("device is not open");		
+	}
+}
+
+
 void SpecificWorker::convertToJointMotor()
 {
 	QString s (resultado);
@@ -90,7 +180,9 @@ void SpecificWorker::convertToJointMotor()
 	listGoals.clear();
 	int maximun = l.size()-2;
 	qDebug()<<maximun;
-	for (int i = 0; i < maximun; ++i) {
+	
+	for (int i = 0; i < maximun; ++i) 
+	{
 		QString n =l.at(i);
 		QString name,position;
 		
@@ -262,118 +354,6 @@ void SpecificWorker::checkError(char character)
 }
 
 
-// void SpecificWorker::getData()
-// {
-// 	send=false;
-// 	if (device.isOpen() )
-// 	{
-// 		char buf[59];		
-// 		for (int i=0;i<59;i++)
-// 			resultado[i]=' ';
-// 		///esto no esta demasiao bien hecho
-// 		numRecibido = device.read(buf, 1);
-// //		qDebug()<<"buf"<<buf[0];
-// 		checkError (buf[0] );
-// 		if (buf[0] =='S' )
-// 		{
-// 			resultado[0]=buf[0];
-// 			device.read(buf, 1);
-// 			if (buf[0] =='0' )
-// 			{
-// 				resultado[1]=buf[0];
-// 				device.read(buf,1);
-// 				if (buf[0] =='0' )
-// 				{
-// 					resultado[2]=buf[0];
-// 					numRecibido = device.read(buf, 56);
-// 					if (numRecibido == 56)
-// 					{
-// 						for (int j=0;j<numRecibido;j++)
-// 						{
-// 							resultado[j+3]=buf[j];
-// 						}
-// 						send = true;
-// 						
-// 					}
-// 				}
-// 			}
-// 		} 
-// 	}
-// 	else 
-// 	{
-// 		qDebug()<<device.name();
-// 		qFatal("device is not open");		
-// 	}
-// 
-// }
-
-void SpecificWorker::getData()
-{
-	send=false;
-	if (device.isOpen() )
-	{
-		char buf[140];	
-		///solo hay 5 motores 10 caracteres por campo
-		for (int i=0;i<70;i++)
-			resultado[i]=' ';
-		///esto no esta demasiao bien hecho
-		numRecibido = device.read(buf, 140);
-		qDebug()<<"buf"<<buf<<numRecibido;
-		///este metodo me cambia el check error
-//		checkError (buf[0] );
-		
-		for (int i=0;i<70;i++)
-		{
-			if (buf[i] =='S' && buf[i+1] =='0' && buf[i+2] =='0')
-			{
-				for (int j=i; j<i+69;j++)
-				{
-					resultado[j-i]=buf[j];
-					
-				}
-				
-				qDebug()<<"resultado:"<<resultado<<"--";
-				
-				send = true;
-				
-				return;
-			}
-				
-		}
-// 		if (buf[i] =='S' )
-// 		{
-// 			resultado[0]=buf[0];
-// 			device.read(buf, 1);
-// 			if (buf[0] =='0' )
-// 			{
-// 				resultado[1]=buf[0];
-// 				device.read(buf,1);
-// 				if (buf[0] =='0' )
-// 				{
-// 					resultado[2]=buf[0];
-// 					numRecibido = device.read(buf, 56);
-// 					if (numRecibido == 56)
-// 					{
-// 						for (int j=0;j<numRecibido;j++)
-// 						{
-// 							resultado[j+3]=buf[j];
-// 						}
-// 						send = true;
-// 						
-// 					}
-// 				}
-// 			}
-// 		} 
-	}
-	else 
-	{
-		qDebug()<<device.name();
-		qFatal("device is not open");		
-	}
-
-}
-
-
 
 
 /**
@@ -383,7 +363,8 @@ void SpecificWorker::getData()
 */
 bool SpecificWorker::sendCommand(QString cmd, char *buf, int totalread){
 	char *command;
-	if(device.isOpen()){
+	if(device.isOpen())
+	{
 		cmd += 'X';
 		cmd += 'X';
 		command = cmd.toLatin1().data();
@@ -393,8 +374,7 @@ bool SpecificWorker::sendCommand(QString cmd, char *buf, int totalread){
 		// Send command
 		device.write(command,cmd.size());
 		numRecibido = device.read(buf, totalread);
-		
-		
+			
 		for (int i = 0; i < numRecibido; ++i) 
 			stringRecibido[i] = (unsigned char)buf[i];
 	
@@ -413,7 +393,11 @@ bool SpecificWorker::sendCommand(QString cmd, char *buf, int totalread){
 		return false;
 	}
 }
+
+////////////
 //Utilities
+//////////
+
 /**
 * \brief Utility function. Transform ascii to decimal
 * @param buf Ascci string
@@ -432,44 +416,3 @@ bool SpecificWorker::ascii2dec ( char *buf, int ndigits, int &out ){
 	return true;
 }
 
-
-void SpecificWorker::compute( )
-{
- 	QMutexLocker l (mutex);	
-//	qDebug()<<"compute send"<<send;
-// 	qDebug()<<"device"<<device.isReadable();
- 	if (!send)
-		getData();
- 	else
- 		sendData();
-	
-}
-/**
-* \brief Default destructor
-*/
-SpecificWorker::~SpecificWorker()
-{
-
-}
-
-///copy to base
-// void SpecificWorker::getData()
-// {
-// 	char buf[128];
-// 	int i=0, tmp0=0,tmp1=0,tmp2=0;
-// 	bool success=false;
-// 
-// 	QString cmd = QString ( DEVICEDATA_GET_COMMAND_STRING DEVICEDATA_GET_COMMAND_CRC );
-// 	if ( sendCommand ( cmd, buf, DEVICEDATA_DATA_SIZE ) ){
-// 		// Read the received data
-// 		if ( buf[i] == 'D' && buf[++i] == '0' && buf[++i] == ':' ){
-// 			i++;
-// 			ascii2dec ( buf+i,DEVICEDATA_GETGEAR_DATASIZE,tmp0);
-// 			i += DEVICEDATA_GETGEAR_DATASIZE +1;  // : added
-// 			ascii2dec ( buf+i,DEVICEDATA_GETRADIO_DATASIZE,tmp1 );
-// 			i += DEVICEDATA_GETRADIO_DATASIZE +1;  // : added
-// 			ascii2dec ( buf+i,DEVICEDATA_GETDEVICELINE_DATASIZE,tmp2 );
-// 		}
-// 	}
-// 	qDebug()<<"tmp (0 1 2):"<<tmp0<<tmp1<<tmp2;;
-// }

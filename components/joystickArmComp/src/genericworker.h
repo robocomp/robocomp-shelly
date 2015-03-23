@@ -20,6 +20,7 @@
 #define GENERICWORKER_H
 
 // #include <ipp.h>
+#include "config.h"
 #include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
@@ -29,7 +30,7 @@
 #include "q4serialport/q4serialport.h"
 
 #define CHECK_PERIOD 5000
-#define BASIC_PERIOD 100 
+#define BASIC_PERIOD 100
 
 typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
