@@ -49,25 +49,16 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 
 	set3DViewer();
 
-<<<<<<< HEAD
 	connect(quitButton,           SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
-	connect(broadcastButton,      SIGNAL(clicked()), this, SLOT(broadcastButtonClicked()));
+// 	connect(broadcastButton,      SIGNAL(clicked()), this, SLOT(broadcastButtonClicked()));
 	connect(broadcastPlanButton,  SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
-=======
-	connect(quitButton,             SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
-	connect(broadcastPlanButton,    SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
-	connect(broadcastModelButton,   SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
->>>>>>> 335421634ee5f8e435ddd3323dde7f9f0e8455a0
 
 	connect(activateButton,       SIGNAL(clicked()), this, SLOT(activateClicked()));
 	connect(deactivateButton,     SIGNAL(clicked()), this, SLOT(deactivateClicked()));
 	connect(resetButton,          SIGNAL(clicked()), this, SLOT(resetClicked()));
 
-<<<<<<< HEAD
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
-=======
-	connect(setMissionButton,       SIGNAL(clicked()), this, SLOT(setMission()));
->>>>>>> 335421634ee5f8e435ddd3323dde7f9f0e8455a0
+
 
 	timer.start(90);
 }
@@ -188,20 +179,6 @@ void SpecificWorker::broadcastModelButtonClicked()
 void SpecificWorker::broadcastPlanButtonClicked()
 {
 	printf("broadcast plan button\n");
-	try
-	{
-		agmexecutive_proxy->broadcastPlan();
-	}
-	catch(const Ice::Exception &e)
-	{
-		QMessageBox::critical(this, "Can't connect to the executive", "Can't connect to the executive. Please, make sure the executive is running properly");
-	}
-}
-
-
-void SpecificWorker::broadcastPlanButtonClicked()
-{
-	printf("broadcast button\n");
 	try
 	{
 		agmexecutive_proxy->broadcastPlan();

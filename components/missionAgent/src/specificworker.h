@@ -62,13 +62,9 @@ public slots:
 	void deactivateClicked();
 	void resetClicked();
 
-<<<<<<< HEAD
-	void broadcastButtonClicked();
-	void broadcastPlanButtonClicked();
-=======
+// 	void broadcastButtonClicked();
 	void broadcastPlanButtonClicked();
 	void broadcastModelButtonClicked();
->>>>>>> 335421634ee5f8e435ddd3323dde7f9f0e8455a0
 
 	void setMission();
 

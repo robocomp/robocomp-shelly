@@ -107,7 +107,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	innerModel = new InnerModel(params["InnerModel"].value);
 	init();
 #ifdef USE_QTGUI
-	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup());
+	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
 	show();
 #endif
 
