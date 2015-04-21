@@ -50,7 +50,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	set3DViewer();
 
 	connect(quitButton,           SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
-// 	connect(broadcastButton,      SIGNAL(clicked()), this, SLOT(broadcastButtonClicked()));
+	connect(broadcastModelButton, SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
 	connect(broadcastPlanButton,  SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
 
 	connect(activateButton,       SIGNAL(clicked()), this, SLOT(activateClicked()));
