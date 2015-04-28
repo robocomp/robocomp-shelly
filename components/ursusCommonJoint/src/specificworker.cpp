@@ -29,8 +29,13 @@ SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI
 	imv = NULL;
 	osgView = new OsgView(this);
-	osgView->setCameraManipulator(new osgGA::TrackballManipulator); 	
-	osgView->getCameraManipulator()->setHomePosition(osg::Vec3(0.,0.,-2.),osg::Vec3(0.,0.,4.),osg::Vec3(0.,1,0.));
+	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
+	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
+	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
+	osg::Vec3d up(osg::Vec3(0.,1.,0.));
+	tb->setHomePosition(eye, center, up, true);
+	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
+ 	osgView->setCameraManipulator(tb);
 #endif
 	mutex = new QMutex(QMutex::Recursive);
 }
@@ -55,6 +60,14 @@ void SpecificWorker::compute( )
 
 void SpecificWorker::init()
 {
+	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
+	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
+	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
+	osg::Vec3d up(osg::Vec3(0.,1.,0));
+	tb->setHomePosition(eye, center, up, true);
+	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
+ 	osgView->setCameraManipulator(tb);
+
 	QMutexLocker locker(mutex);
 
 	//Dynamixel bus
