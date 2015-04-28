@@ -32,6 +32,7 @@ SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
 	osgView->setCameraManipulator(new osgGA::TrackballManipulator); 	
 	osgView->getCameraManipulator()->setHomePosition(osg::Vec3(0.,0.,-2.),osg::Vec3(0.,0.,4.),osg::Vec3(0.,1,0.));
 #endif
+	mutex = new QMutex(QMutex::Recursive);
 }
 
 /**
@@ -44,21 +45,18 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-	// Actualizamos el innerModel y la ventada del viewer
-	actualizarInnerModel();
 	usleep(50000);
+	// Actualizamos el innerModel y la ventada del viewer
+	QMutexLocker locker(mutex);
 	if (imv) imv->update();
 	osgView->frame();
 }
 
 
-void SpecificWorker::actualizarInnerModel()
-{
-// 	innerModel->
-}
-
 void SpecificWorker::init()
 {
+	QMutexLocker locker(mutex);
+
 	//Dynamixel bus
 	try
 	{
@@ -102,6 +100,8 @@ void SpecificWorker::init()
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	QMutexLocker locker(mutex);
+
 	timer.start(Period);
 
 	innerModel = new InnerModel(params["InnerModel"].value);
@@ -136,12 +136,18 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	for (auto a: meshes)
 	{
-		for (auto b: meshes)
+		if (innerModel->collidable(a))
 		{
-			if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
+			for (auto b: meshes)
 			{
-				pairs.push_back(std::pair<QString,QString>(a, b));
-				printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
+				if (innerModel->collidable(b))
+				{
+					if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
+					{
+						pairs.push_back(std::pair<QString,QString>(a, b));
+						printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
+					}
+				}
 			}
 		}
 	}
@@ -153,6 +159,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 /// SERVANT METHODS /////////////////////////////////////////////////////////////////////7
 bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret)
 {
+	QMutexLocker locker(mutex);
+
 	MotorGoalPositionList backPoses = goals;
 	for (uint i=0; i<goals.size(); i++)
 	{
@@ -163,7 +171,7 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	{
 		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position);
 	}
-/*
+
 	innerModel->cleanupTables();
 	for (auto p: pairs)
 	{
@@ -175,15 +183,18 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 			}
 			innerModel->cleanupTables();
 			ret = p;
+			printf("%s %s\n", p.first.toStdString().c_str(), p.second.toStdString().c_str());
 			return true;
 		}
 	}
-*/
+
 	return false;
 }
 
 void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 {
+	QMutexLocker locker(mutex);
+
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal);
 	std::pair<QString, QString> ret;
@@ -198,18 +209,24 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 
 void SpecificWorker::setVelocity(const MotorGoalVelocity& goal)
 {
+	QMutexLocker locker(mutex);
+
 	try { prxMap.at(goal.name)->setVelocity(goal); }
 	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
 
 void SpecificWorker::setZeroPos(const string& name)
 {
+	QMutexLocker locker(mutex);
+
 	try { prxMap.at(name)->setZeroPos(name); }
 	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << name << " not found in proxy list" << std::endl; };
 }
 
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
+	QMutexLocker locker(mutex);
+
 	std::pair<QString, QString> ret;
 	if (checkFuturePosition(listGoals, ret))
 	{
@@ -234,6 +251,8 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 
 void SpecificWorker::setSyncVelocity(const MotorGoalVelocityList& listGoals)
 {
+	QMutexLocker locker(mutex);
+
 	RoboCompJointMotor::MotorGoalVelocityList l0,l1;
 	for (uint i=0;i<listGoals.size();i++)
 	{
@@ -256,6 +275,8 @@ void SpecificWorker::setSyncZeroPos()
 
 MotorParams SpecificWorker::getMotorParams(const string& motor)
 {
+	QMutexLocker locker(mutex);
+
 	MotorParams mp;
 	try { mp = prxMap.at(motor)->getMotorParams(motor); }
 	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl; };
@@ -264,6 +285,8 @@ MotorParams SpecificWorker::getMotorParams(const string& motor)
 
 MotorState SpecificWorker::getMotorState(const string& motor)
 {
+	QMutexLocker locker(mutex);
+
 	MotorState ms;
 	try { ms = prxMap.at(motor)->getMotorState(motor); }
 	catch(std::exception &ex) { std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << motor << " not found in initial proxy list" << std::endl; };
@@ -272,6 +295,8 @@ MotorState SpecificWorker::getMotorState(const string& motor)
 
 MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 {
+	QMutexLocker locker(mutex);
+
 	MotorList l0,l1;
 	MotorStateMap m0, m1;
 	
@@ -315,6 +340,8 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 
 void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 {
+	QMutexLocker locker(mutex);
+
 	MotorStateMap map1;
 	try
 	{
@@ -339,6 +366,8 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
+	QMutexLocker locker(mutex);
+
 	MotorParamsList par1, par;
 
 	try
@@ -358,6 +387,8 @@ MotorParamsList SpecificWorker::getAllMotorParams()
 
 BusParams SpecificWorker::getBusParams()
 {
+	QMutexLocker locker(mutex);
+
 	RoboCompJointMotor::BusParams bus;
 	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
 	return bus;
@@ -366,6 +397,8 @@ BusParams SpecificWorker::getBusParams()
 
 void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
 {
+	QMutexLocker locker(mutex);
+
 	InnerModelMesh *mesh;
 	InnerModelPlane *plane;
 	InnerModelTransform *transformation;
