@@ -13,6 +13,10 @@
 			<plane id="caja_mesh" size="350,250,150" texture="#662222"/>
 		</transform>
 
+		<transform id="poseCameraCeiling" ty="920" tz="-220">
+			<camera id="RGBCeiling" focal="400" />
+		</transform>
+
 
 		<transform  id="base_trans" >
 
