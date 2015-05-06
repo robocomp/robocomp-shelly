@@ -1,0 +1,13 @@
+import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
+import "/robocomp/interfaces/IDSLs/DifferentialRobot.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+
+Component BaseUrsusComp
+{
+	Communications
+	{
+		implements OmniRobot, DifferentialRobot;
+		requires JointMotor;
+	};
+	language Cpp;
+};

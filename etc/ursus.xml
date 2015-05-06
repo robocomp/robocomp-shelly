@@ -302,7 +302,7 @@
 
 																										<!--  Metemos un error en la marca -->
 																										<transform id="errorMarcaPruebas" ty="0" rx="0" ry="0" rz="0">
-																											<plane id="handMesh1" ny="1" size="71.25,71.25,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00011.png" collide="1"/>
+																											<plane id="handMesh1" ny="1" size="71.25,71.25,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
 																										</transform>
 
 																										<transform id="ThandMesh1_5" tz="-50" ty="-20" tx="0">
