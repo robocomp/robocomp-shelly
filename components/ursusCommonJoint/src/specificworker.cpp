@@ -53,13 +53,16 @@ void SpecificWorker::compute( )
 	usleep(50000);
 	// Actualizamos el innerModel y la ventada del viewer
 	QMutexLocker locker(mutex);
+#ifdef USE_QTGUI
 	if (imv) imv->update();
 	osgView->frame();
+#endif
 }
 
 
 void SpecificWorker::init()
 {
+#ifdef USE_QTGUI
 	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
 	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
 	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
@@ -67,6 +70,7 @@ void SpecificWorker::init()
 	tb->setHomePosition(eye, center, up, true);
 	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
  	osgView->setCameraManipulator(tb);
+#endif
 
 	QMutexLocker locker(mutex);
 
