@@ -218,7 +218,8 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
-		throw RoboCompJointMotor::OutOfRangeException("collision");
+		//throw RoboCompJointMotor::OutOfRangeException("collision");
+		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	try { prxMap.at(goal.name)->setPosition(goal); }
 	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
