@@ -86,6 +86,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	M_wheels_2_vels(2,2) = +ill;
 	M_wheels_2_vels(2,3) = -ill;
 	M_wheels_2_vels = M_wheels_2_vels.operator*(R); // R instead of 2*pi*R because we use rads/s instead of rev/s
+	M_wheels_2_vels.print("M_wheels_2_vels");
 
 	// forward kinematics matrix
 	const float ll = (l1 + l2)/2.;
@@ -114,20 +115,47 @@ void SpecificWorker::SpecificWorker::compute()
 	computeOdometry(false);
 }
 
-void SpecificWorker::SpecificWorker::computeOdometry(bool forced)
+double SpecificWorker::getElapsedSeconds()
+{
+	static timeval *a = new timeval;
+	static timeval *b = new timeval;
+	static bool first = true;
+	
+	if (first)
+	{
+		first = false;
+		gettimeofday(a, NULL);
+		gettimeofday(b, NULL);
+		return 0.;
+	}
+
+	gettimeofday(b, NULL);
+	double ret = (double(b->tv_sec)-double(a->tv_sec)) + (double(b->tv_usec)-double(a->tv_usec))/1000000.;
+	timeval *swap = a;
+	a = b;
+	b = swap;
+	return ret;
+}
+
+void SpecificWorker::computeOdometry(bool forced)
 {
 	QMutexLocker locker(dataMutex);
-	const float elapsedTime = 0.001*float(lastOdometryUpdate.elapsed());
+	const double elapsedTime = getElapsedSeconds();
 	lastOdometryUpdate = QTime::currentTime();
 	
-	if (forced or lastOdometryUpdate.elapsed() > 0.1)
+	
+	if (forced or lastOdometryUpdate.elapsed() > 8)
 	{
 		QVec newP;
-		QVec deltaPos = (M_wheels_2_vels * wheelVels).operator*(elapsedTime);
+		QVec wheelsInc = wheelVels.operator*(elapsedTime);
+		wheelsInc.print("wheelsinc");
+		QVec deltaPos = M_wheels_2_vels * wheelsInc;
+		wheelVels.print("wheelsvels");
+		printf("elapsedTime=%g\n", elapsedTime*1000);
 		deltaPos.print("delta");
 
 		// Raw odometry
-		innermodel->updateTransformValues("newPose",     deltaPos(0), 0, deltaPos(1),       0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("newPose",     deltaPos(1), 0, deltaPos(0),       0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "newPose");
 		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("newPose",               0, 0,           0,       0,                 0, 0);
@@ -136,7 +164,7 @@ void SpecificWorker::SpecificWorker::computeOdometry(bool forced)
 		angle += deltaPos(2);
 
 		// Corrected odometry
-		innermodel->updateTransformValues("corrNewPose",    deltaPos(0), 0, deltaPos(1),    0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("corrNewPose",    deltaPos(1), 0, deltaPos(0),    0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "corrNewPose");
 		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("corrNewPose",              0, 0,           0,    0,                 0, 0);
@@ -149,18 +177,18 @@ void SpecificWorker::SpecificWorker::computeOdometry(bool forced)
 
 void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
 {
-	printf("--------------------\n");
+// 	printf("--------------------\n");
 	QMutexLocker locker(dataMutex);
 
 	state.x = x;
 	state.z = z;
 	state.alpha = angle;
-	printf("raw  (%f, %f @ %f)\n", state.x, state.z, state.alpha);
+// 	printf("raw  (%f, %f @ %f)\n", state.x, state.z, state.alpha);
 
 	state.correctedX = corrX;
 	state.correctedZ = corrZ;
 	state.correctedAlpha = corrAngle;
-	printf("corr (%f, %f @ %f)\n", state.correctedX, state.correctedZ, state.correctedAlpha);
+// 	printf("corr (%f, %f @ %f)\n", state.correctedX, state.correctedZ, state.correctedAlpha);
 }
 
 void SpecificWorker::getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alpha)
