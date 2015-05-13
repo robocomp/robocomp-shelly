@@ -136,7 +136,7 @@ void Reflexx::run()
 	//Deactivate motors
 	for(int i=0; i<NUMBER_OF_DOFS; i++)
 	{
-		IP->SelectionVector = false;
+		IP->SelectionVector[0] = false;
 	}
 	
 }
