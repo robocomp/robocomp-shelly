@@ -66,6 +66,8 @@ private:
 	void setOdometer(const ::RoboCompOmniRobot::TBaseState &state);
 	void setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	void correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
+	
+	double getElapsedSeconds();
 };
 
 #endif
