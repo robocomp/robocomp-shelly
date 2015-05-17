@@ -137,9 +137,9 @@ void SpecificWorker::init()
 
 	actualizarInnermodel(listaMotores);
 
-/* 	innerModel->transform("world", QVec::zeros(3),tipRight).print("RightTip in World");
- 	innerModel->transform("world", QVec::zeros(3),tipLeft).print("LeftTip in World");
- 	innerModel->transform("world", QVec::zeros(3),"mugTag").print("mug in World");*/
+/* 	innerModel->transform("root", QVec::zeros(3),tipRight).print("RightTip in World");
+ 	innerModel->transform("root", QVec::zeros(3),tipLeft).print("LeftTip in World");
+ 	innerModel->transform("root", QVec::zeros(3),"mugTag").print("mug in World");*/
 
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
@@ -364,7 +364,7 @@ bool SpecificWorker::targetHasAPlan(InnerModel &innerModel,  Target& target)
 {
 	//Convert to ROBOT referece frame to facilitate SAMPLING procedure
 	QVec origin = innerModel.transform("robot","grabPositionHandR");
-	QVec targetR = innerModel.transform("robot", target.getPose(), "world");
+	QVec targetR = innerModel.transform("robot", target.getPose(), "root");
 
 	qDebug() << __FUNCTION__ << "Origin:" << origin << ". Target:" << target.getTranslation() << target.getHasPlan();
 
@@ -399,7 +399,7 @@ bool SpecificWorker::targetHasAPlan(InnerModel &innerModel,  Target& target)
 
 	//Convert back to world reference system
 	for(int i= 0; i<path.size(); i++)
-		path[i] = innerModel.transform("world",path[i],"robot");
+		path[i] = innerModel.transform("root", path[i], "robot");
 
 	//draw(innermodelmanager_proxy,path);
 
@@ -445,12 +445,12 @@ void SpecificWorker::doReflexxes( const QList<QVec> &jointValues, const QStringL
  */
 void SpecificWorker::createInnerModelTarget(Target &target)
 {
-	InnerModelNode *nodeParent = innerModel->getNode("world");
+	InnerModelNode *nodeParent = innerModel->getNode("root");
 	target.setNameInInnerModel(QString::number(correlativeID++));
 	InnerModelTransform *node = innerModel->newTransform(target.getNameInInnerModel(), "static", nodeParent, 0, 0, 0, 0, 0, 0, 0);
 	nodeParent->addChild(node);
 	QVec p = target.getPose();
-	innerModel->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), p.rx(), p.ry(), p.rz(), "world");
+	innerModel->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), p.rx(), p.ry(), p.rz(), "root");
 
 }
 
@@ -831,11 +831,11 @@ void SpecificWorker::setNewTip(const std::string &part, const std::string &trans
 
 		mutex->lock();
 		//bodyParts[partName].setNewVisualTip(pose);
-		//innerModel->transform("world", QVec::zeros(3),part).print("antes setNewTip");
+		//innerModel->transform("root", QVec::zeros(3),part).print("antes setNewTip");
 		innerModel->updateTransformValues(transformName, pose.x/1000., pose.y/1000., pose.z/1000., pose.rx, pose.ry, pose.rz);
 		//innerModel->updateTransformValues( "grabPositionHandR", pose.x/1000., pose.y/1000., pose.z/1000., 0,0,0);
 
-		//innerModel->transform("world", QVec::zeros(3), part).print("despues setNewTipo");
+		//innerModel->transform("root", QVec::zeros(3), part).print("despues setNewTipo");
 		mutex->unlock();
 	}
 }
@@ -1040,8 +1040,8 @@ bool SpecificWorker::draw(InnerModelManagerPrx innermodelmanager_proxy, const QL
  */
 // QVec SpecificWorker::getRotacionMano (QString puntaMano)
 // {
-// 	QMat matriz = innerModel->getRotationMatrixTo("world", puntaMano);
-// 	QVec ManoEnMundo = innerModel->getTransformationMatrix("world", puntaMano).extractAnglesR3(matriz);
+// 	QMat matriz = innerModel->getRotationMatrixTo("root", puntaMano);
+// 	QVec ManoEnMundo = innerModel->getTransformationMatrix("root", puntaMano).extractAnglesR3(matriz);
 // 	QVec angulos1 = QVec::vec3(ManoEnMundo[0], ManoEnMundo[1], ManoEnMundo[2]);
 // 	QVec angulos2 = QVec::vec3(ManoEnMundo[3], ManoEnMundo[4], ManoEnMundo[5]);
 // 	QVec rot;
@@ -1073,7 +1073,7 @@ bool SpecificWorker::draw(InnerModelManagerPrx innermodelmanager_proxy, const QL
 //
 // // 			p.x = ptarget[0]; p.y = ptarget[1]; p.z = ptarget[2];
 // // 			p.rx = ptarget[3]; p.ry = ptarget[4]; p.rz = ptarget[5];
-// 			innerModel->transform("world", QVec::zeros(3), "tip");
+// 			innerModel->transform("root", QVec::zeros(3), "tip");
 // 			p.x = 0.35; p.y = 0.8; p.z = 0.2;
 // 			p.rx = 0; p.ry = 0; p.rz = 0; //rot a 0
 //
