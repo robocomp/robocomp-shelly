@@ -56,7 +56,6 @@ private:
 	InnerModel *innermodel;
 	InnerModelTransform *backPose, *newPose;
 	InnerModelTransform *corrBackPose, *corrNewPose;
-	QTime lastOdometryUpdate;
 	
 	void getBaseState(::RoboCompOmniRobot::TBaseState &state);
 	void getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alpha);

@@ -44,8 +44,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	corrNewPose = innermodel->newTransform("corrNewPose", "static", corrBackPose, 0,0,0, 0,0,0, 0);
 	corrBackPose->addChild(corrNewPose);
 	
-	
-	lastOdometryUpdate = QTime::currentTime();
 }
 
 /**
@@ -141,10 +139,8 @@ void SpecificWorker::computeOdometry(bool forced)
 {
 	QMutexLocker locker(dataMutex);
 	const double elapsedTime = getElapsedSeconds();
-	lastOdometryUpdate = QTime::currentTime();
 	
-	
-	if (forced or lastOdometryUpdate.elapsed() > 8)
+	if (forced or elapsedTime > 0.08)
 	{
 		QVec newP;
 		QVec wheelsInc = wheelVels.operator*(elapsedTime);
@@ -153,9 +149,10 @@ void SpecificWorker::computeOdometry(bool forced)
 		wheelVels.print("wheelsvels");
 		printf("elapsedTime=%g\n", elapsedTime*1000);
 		deltaPos.print("delta");
+			
 
 		// Raw odometry
-		innermodel->updateTransformValues("newPose",     deltaPos(1), 0, deltaPos(0),       0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("newPose",     deltaPos(0), 0, deltaPos(1),       0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "newPose");
 		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("newPose",               0, 0,           0,       0,                 0, 0);
@@ -164,7 +161,7 @@ void SpecificWorker::computeOdometry(bool forced)
 		angle += deltaPos(2);
 
 		// Corrected odometry
-		innermodel->updateTransformValues("corrNewPose",    deltaPos(1), 0, deltaPos(0),    0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("corrNewPose",    deltaPos(0), 0, deltaPos(1),    0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "corrNewPose");
 		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("corrNewPose",              0, 0,           0,    0,                 0, 0);
