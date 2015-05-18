@@ -176,7 +176,7 @@
 
 																									<!--  Colocamos la marca -->
 																									<transform id="handMesh2_t" ty="0" tz="0" rx="0" ry="0,0" rz="0">
-																										<plane id="handMesh2" ny="1" size="71.25,71.25,2" repeat="1" texture="/home/robocomp/robocomp/files/innermodel/tar36h11-11.png" collide="1"/>
+																										<plane id="handMesh2" ny="1" size="71.25,-71.25,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
 																									</transform>
 																									<transform id="ThandMesh2_5" tz="-55" ty="25" tx="0"> 	<!--  Deshacemos la translacion -->
 																										<!--		<transform id="grabPositionHandR"  tz="55" ty="-25"> -->
@@ -302,16 +302,13 @@
 
 																										<!--  Metemos un error en la marca -->
 																										<transform id="errorMarcaPruebas" ty="0" rx="0" ry="0" rz="0">
-																											<plane id="handMesh1" ny="1" size="71.25,71.25,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
+																											<plane id="handMesh1" ny="1" size="71.25,-71.25,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00024.png" collide="1"/>
 																										</transform>
 
 																										<transform id="ThandMesh1_5" tz="-50" ty="-20" tx="0">
 
 																											<transform id="grabPositionHandL_pre" tz="0" rx="3.14159265359">
 																												<transform id="grabPositionHandL"  tz="-100">
-																													<plane id="axis2x" px="50" nx="1" size="1,1,100" repeat="1" texture="#550000" collide="0" />
-																													<plane id="axis2y" py="50" nx="1" size="1,100,1" repeat="1" texture="#005500" collide="0" />
-																													<plane id="axis2z" pz="50" nx="1" size="100,1,1" repeat="1" texture="#000055" collide="0" />
 																												</transform>
 																											</transform>
 

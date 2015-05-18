@@ -187,8 +187,8 @@ bool Sampler::isStateValid(const ompl::base::State *state) //in robot RS
 	
 	if( innerModel->getNode("munon_t") != NULL)
 	{
-		QVec p = innerModel->transform("world", QVec::vec3(x,y,z), "robot");
-		innerModel->updateTranslationValues("munon_t", p.x(), p.y(), p.z(), "world");
+		QVec p = innerModel->transform("root", QVec::vec3(x,y,z), "robot");
+		innerModel->updateTranslationValues("munon_t", p.x(), p.y(), p.z(), "root");
 		//innerModel->transform("robot","munon_t").print("munon_t");
 	}
 	
@@ -216,7 +216,7 @@ bool Sampler::isStateValidQ(const QVec &rState) //in robot RS
 	
 	if( innerModel->getNode("munon_t") != NULL)
 	{
-		innerModel->updateTranslationValues("munon_t", rState.x(), rState.y(), rState.z(), "world");
+		innerModel->updateTranslationValues("munon_t", rState.x(), rState.y(), rState.z(), "root");
 	}
 	else
 	{
@@ -343,7 +343,7 @@ bool Sampler::checkRobotValidDirectionToTargetBinarySearch(const QVec & origin ,
 	innerModel->updateTransformValues("robot", origin.x(), origin.y(), origin.z(), 0., alfa1, 0.);
 	
 	// Compute rotation matrix between robot and world. Should be the same as alfa
-	QMat r1q = innerModel->getRotationMatrixTo("world", "robot");	
+	QMat r1q = innerModel->getRotationMatrixTo("root", "robot");	
 
 	// Create a tall box for robot body with center at zero and sides:
 	boost::shared_ptr<fcl::Box> robotBox(new fcl::Box(wRob, hRob, wRob));
@@ -361,7 +361,7 @@ bool Sampler::checkRobotValidDirectionToTargetBinarySearch(const QVec & origin ,
 	robotBox->side = fcl::Vec3f(wRob, hRob, hitDistance);
 		
 	//Compute the coord of the tip of a "nose" going away from the robot (Z dir) up to hitDistance/2
-	const QVec boxBack = innerModel->transform("world", QVec::vec3(0, hRob/2, hitDistance/2.), "robot");
+	const QVec boxBack = innerModel->transform("root", QVec::vec3(0, hRob/2, hitDistance/2.), "robot");
 	
 	//move the big box so it is aligned with the robot and placed along the nose
 	robotBoxCol.setTransform(R1, fcl::Vec3f(boxBack(0), boxBack(1), boxBack(2)));
@@ -386,7 +386,7 @@ bool Sampler::checkRobotValidDirectionToTargetBinarySearch(const QVec & origin ,
 			hitDistance = (max+min)/2.;
 			// Stretch and create the stick
 			robotBox->side = fcl::Vec3f(wRob,hRob,hitDistance);
-			const QVec boxBack = innerModel->transform("world", QVec::vec3(0, hRob/2, hitDistance/2.), "robot");
+			const QVec boxBack = innerModel->transform("root", QVec::vec3(0, hRob/2, hitDistance/2.), "robot");
 			robotBoxCol.setTransform(R1, fcl::Vec3f(boxBack(0), boxBack(1), boxBack(2)));
 			
 			//qDebug() << "checking ang" << r1q.extractAnglesR_min().y() << "and size " << boxBack << hitDistance;
@@ -411,7 +411,7 @@ bool Sampler::checkRobotValidDirectionToTargetBinarySearch(const QVec & origin ,
 		if( hitDistance < 50) 
 			lastPoint = origin;
 		else
-			lastPoint = innerModel->transform("world", QVec::vec3(0, 0, hitDistance-10), "robot");
+			lastPoint = innerModel->transform("root", QVec::vec3(0, 0, hitDistance-10), "robot");
 		return false;;
 	}
 	else  //we made it up to the Target!
@@ -450,9 +450,9 @@ bool Sampler::checkRobotValidDirectionToTargetOneShot(const QVec & origin , cons
 	innerModel->updateTransformValues("robot", origin.x(), origin.y(), origin.z(), 0., alfa1, 0.);
 	
 	// Compute rotation matrix between robot and world. Should be the same as alfa
-	QMat r1q = innerModel->getRotationMatrixTo("world", "robot");	
+	QMat r1q = innerModel->getRotationMatrixTo("root", "robot");	
 	
-	//qDebug()<< "alfa1" << alfa1 << r1q.extractAnglesR_min().y() << "robot" << innerModel->transform("world","robot"); 
+	//qDebug()<< "alfa1" << alfa1 << r1q.extractAnglesR_min().y() << "robot" << innerModel->transform("root","robot"); 
 	
 	// Create a tall box for robot body with center at zero and sides:
 	boost::shared_ptr<fcl::Box> robotBox(new fcl::Box(wRob, hRob, wRob));
@@ -470,7 +470,7 @@ bool Sampler::checkRobotValidDirectionToTargetOneShot(const QVec & origin , cons
 	robotBox->side = fcl::Vec3f(wRob, hRob, hitDistance);
 	
 	//Compute the coord of the tip of a "nose" going away from the robot (Z dir) up to hitDistance/2
-	const QVec boxBack = innerModel->transform("world", QVec::vec3(0, hRob/2, hitDistance/2), "robot");
+	const QVec boxBack = innerModel->transform("root", QVec::vec3(0, hRob/2, hitDistance/2), "robot");
 	
 	//move the big box so it is aligned with the robot and placed along the nose
 	robotBoxCol.setTransform(R1, fcl::Vec3f(boxBack(0), boxBack(1), boxBack(2)));
