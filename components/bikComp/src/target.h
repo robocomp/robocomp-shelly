@@ -105,13 +105,13 @@ public:
 	
 	void annotateInitialTipPose()
 	{
-      initialTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
-      initialTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR_min(),3);
+      initialTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
+      initialTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
 	};
 	void annotateFinalTipPose()
 	{
-        finalTipPose.inject(inner->transform("world", QVec::zeros(3), getTipName()),0);
-        finalTipPose.inject(inner->getRotationMatrixTo("world",getTipName()).extractAnglesR_min(),3);
+        finalTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
+        finalTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
 	};
 	void setInitialAngles(const QStringList &motors)
 	{

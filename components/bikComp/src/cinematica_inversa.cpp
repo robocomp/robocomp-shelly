@@ -82,18 +82,18 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 		QVec axis = target.getAxis() * target.getStep();
 		//axis.print("axis scaled");
 		
-		QVec p = inner->transform("world", axis, this->endEffector);
+		QVec p = inner->transform("root", axis, this->endEffector);
 		//p.print("target to reach in world");
-		inner->transform("world", QVec::zeros(3), this->endEffector).print("position of tip");
+		inner->transform("root", QVec::zeros(3), this->endEffector).print("position of tip");
 		
-		QMat mat = inner->getRotationMatrixTo("world", this->endEffector);
+		QMat mat = inner->getRotationMatrixTo("root", this->endEffector);
 		QVec rot = mat.extractAnglesR();
 		QVec r(3);
 		if(rot.subVector(0,2).norm2() < rot.subVector(3,5).norm2())
 			r = rot.subVector(0,2);
 		else
 			r = rot.subVector(3,5);
-		inner->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), r.x(), r.y(), r.z(), "world");
+		inner->updateTransformValues(target.getNameInInnerModel(),p.x(), p.y(), p.z(), r.x(), r.y(), r.z(), "root");
 
 		levenbergMarquardt(target);
 	}
@@ -152,8 +152,8 @@ void Cinematica_Inversa::chopPath(Target &target)
 		T landa = 1./nPuntos;
 		QVec R(6);
 		QVec P(6);
-		P.inject(inner->transform("world", QVec::zeros(3), this->endEffector),0);
-		P.inject(inner->getRotationMatrixTo("world", this->endEffector).extractAnglesR_min(),3);
+		P.inject(inner->transform("root", QVec::zeros(3), this->endEffector),0);
+		P.inject(inner->getRotationMatrixTo("root", this->endEffector).extractAnglesR_min(),3);
 		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);	
 		
 		
@@ -163,11 +163,11 @@ void Cinematica_Inversa::chopPath(Target &target)
 		R2 = (targetTotal * (T)(landa));	
 		//qDebug() << "Error total visto desde end effector" << targetTotal << " R2" << R2;
 				
-		QMat matTipInWorld = inner->getRotationMatrixTo("world", this->endEffector);
+		QMat matTipInWorld = inner->getRotationMatrixTo("root", this->endEffector);
 		Rot3D matErrorInTip(R2[3], R2[4], R2[5]);
 		QMat matResul = matTipInWorld * matErrorInTip;
 		
-		R.inject(inner->transform("world", R2.subVector(0,2), this->endEffector),0) ;
+		R.inject(inner->transform("root", R2.subVector(0,2), this->endEffector),0) ;
 		R.inject(matResul.extractAnglesR_min(),3);
 		qDebug() << "P" << P << " Rnueva" << R;
 		
