@@ -47,7 +47,7 @@
  <node alias="base" endpoint="omnirobot:tcp -h robonuc1.local -p 12238">
   <dependence alias="dunker" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local base /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/baseursus/bin/ ./baseursuscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/base.conf" />
+  <upCommand command="rcremote robonuc1.local base /home/robocomp/robocomp/components/robocomp-ursus/components/baseursus/ ./bin/baseursuscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/base.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 baseursuscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="-36.748931357" />
