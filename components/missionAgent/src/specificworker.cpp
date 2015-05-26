@@ -127,7 +127,7 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 	return true;
 }
 
-void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
+void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modification)
 {
 // 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
 	{
@@ -138,7 +138,7 @@ void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modificat
 	}
 }
 
-void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
+void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	{
 		QMutexLocker dd(&modelMutex);
@@ -146,6 +146,15 @@ void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modificatio
 		refresh = true;
 	}
 }
+void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
+{
+	{
+		QMutexLocker dd(&modelMutex);
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		refresh = true;
+	}
+}
+
 
 void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &pl)
 {
