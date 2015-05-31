@@ -187,11 +187,10 @@ bool Sampler::isStateValid(const ompl::base::State *state) //in robot RS
 
 	if( innerModel->getNode("munon_t") != NULL)
 	{
-		QVec p = innerModel->transform("robot", QVec::vec3(x,y,z), "robot");
-		innerModel->updateTranslationValues("munon_t", p.x(), p.y(), p.z(), "robot");
+		QVec p = innerModel->transform("root", QVec::vec3(x,y,z), "robot");
+		innerModel->updateTranslationValues("munon_t", p.x(), p.y(), p.z(), "root");
 		//innerModel->transform("robot","munon_t").print("munon_t");
 	}
-
 	else
 	{
 		qDebug() << __FUNCTION__ << "go through else";

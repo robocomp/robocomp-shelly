@@ -73,8 +73,9 @@ public:
 	virtual void  killAgent() = 0;
 	virtual int uptimeAgent() = 0;
 	virtual bool reloadConfigAgent() = 0;
-	virtual void  modelModified(const RoboCompAGMWorldModel::Event& modification) = 0;
-	virtual void  modelUpdated(const RoboCompAGMWorldModel::Node& modification) = 0;
+	virtual void  structuralChange(const RoboCompAGMWorldModel::Event& modification) = 0;
+	virtual void  symbolUpdated(const RoboCompAGMWorldModel::Node& modification) = 0;
+	virtual void  edgeUpdated(const RoboCompAGMWorldModel::Edge& modification) = 0;
 
 	virtual void  update(const RoboCompAGMWorldModel::World& world, const RoboCompAGMWorldModel::World& target, const RoboCompPlanning::Plan& plan) = 0;
 

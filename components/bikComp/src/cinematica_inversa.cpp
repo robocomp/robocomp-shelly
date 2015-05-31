@@ -155,8 +155,6 @@ void Cinematica_Inversa::chopPath(Target &target)
 		P.inject(inner->transform("root", QVec::zeros(3), this->endEffector),0);
 		P.inject(inner->getRotationMatrixTo("root", this->endEffector).extractAnglesR_min(),3);
 		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);
-
-
 		// Añadido por Mercedes y Agustín
 		// Target visto desde end effector
 		QVec R2(6);

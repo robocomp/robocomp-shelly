@@ -399,8 +399,9 @@ bool SpecificWorker::targetHasAPlan(InnerModel &innerModel,  Target& target)
 
 	//Convert back to world reference system
 	for(int i= 0; i<path.size(); i++)
+	{
 		path[i] = innerModel.transform("root", path[i], "robot");
-
+	}
 	//draw(innermodelmanager_proxy,path);
 
 	//qFatal("fary");

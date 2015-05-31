@@ -16,7 +16,7 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 #include "specificworker.h"
 #include <boost/graph/graph_concepts.hpp>
 
@@ -53,6 +53,24 @@ void SpecificWorker::compute( )
 	usleep(50000);
 	// Actualizamos el innerModel y la ventada del viewer
 	QMutexLocker locker(mutex);
+
+try
+{
+	RoboCompJointMotor::MotorStateMap mMap;
+	jointmotor0_proxy->getAllMotorState(mMap);
+	for (auto j : mMap)
+		innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+}
+catch (const Ice::Exception &ex){ cout<<"--> Excepción en actualizar InnerModel: 0";}
+try
+{
+	RoboCompJointMotor::MotorStateMap mMap;
+	jointmotor1_proxy->getAllMotorState(mMap);
+	for (auto j : mMap)
+		innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+}
+catch (const Ice::Exception &ex){ cout<<"--> Excepción en actualizar InnerModel: 1";}
+
 #ifdef USE_QTGUI
 	if (imv) imv->update();
 	osgView->frame();
@@ -93,7 +111,7 @@ void SpecificWorker::init()
 	{
 			cout << __FUNCTION__ << __FUNCTION__ << __LINE__ << "Error communicating with jointmotor0_proxy " << ex << endl;
 	};
-	
+
 	//Faulhaber bus
 	try
 	{
@@ -134,7 +152,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	{
 		qFatal("Couldn't read ExclusionList\n");
 		return false;
-	}	
+	}
 	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
 	{
 		QStringList parejaLista = parejaTexto.split(",");
@@ -169,7 +187,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		}
 	}
 
-	
+
 	return true;
 }
 
@@ -218,8 +236,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
-		//throw RoboCompJointMotor::OutOfRangeException("collision");
-		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+// 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	try { prxMap.at(goal.name)->setPosition(goal); }
 	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
@@ -249,7 +266,7 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
-		throw RoboCompJointMotor::OutOfRangeException("collision");
+// 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for (uint i=0; i<listGoals.size(); i++)
@@ -278,7 +295,7 @@ void SpecificWorker::setSyncVelocity(const MotorGoalVelocityList& listGoals)
 			l0.push_back(listGoals[i]);
 		else if (prxMap.at( listGoals[i].name) == jointmotor1_proxy )
 			l1.push_back(listGoals[i]);
-		else 
+		else
 			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << listGoals[i].name << " not found in initial proxy list\n";
 	}
 	try { jointmotor0_proxy->setSyncVelocity(l0); }
@@ -317,7 +334,7 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 
 	MotorList l0,l1;
 	MotorStateMap m0, m1;
-	
+
 	for (uint i=0; i<mList.size(); i++)
 	{
 		if (prxMap.at( mList[i]) == jointmotor0_proxy )
@@ -328,12 +345,12 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 		{
 			l1.push_back(mList[i]);
 		}
-		else 
+		else
 		{
 			std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Motor " << mList[i] << " not found in initial proxy list\n";
 		}
 	}
-	
+
 
 	try
 	{
@@ -399,7 +416,7 @@ MotorParamsList SpecificWorker::getAllMotorParams()
 	{ std::cout << ex.what() << __FILE__ << __FUNCTION__ << __LINE__ << "Error reading getAllMotorParams from Faulhaber bus" << std::endl; };
 
 	par.insert(par.end(), par1.begin(), par1.end());
-	
+
 	return par;
 }
 

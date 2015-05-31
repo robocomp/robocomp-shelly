@@ -108,11 +108,13 @@ public:
       initialTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
       initialTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
 	}
+
 	void annotateFinalTipPose()
 	{
         finalTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
         finalTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
 	}
+
 	void setInitialAngles(const QStringList &motors)
 	{
 				initialAngles.clear();

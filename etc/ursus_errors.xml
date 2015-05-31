@@ -89,10 +89,12 @@
 							<!--Gira en Z -->
 							<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
 							<joint id="rightShoulder1" port="10068" axis="z" min="-3.14" max="0.54" home="-0.1">
+							<rotation id="rightShoulder1_error" rz="0.05">
 								<mesh id="shoulder_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000" collide="1" />
 								<transform id="arm_right_2" tz="41" rx="1.5707963267948966">
 									<!-- 									Gira en X -->
 									<joint id="rightShoulder2" port="10068"  axis="x" min="-3.14" max="0.34" home="-0.1" >
+									<rotation id="rightShoulder2_error" rz="-0.05">
 										<mesh id="shoulder_right_2_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" rx="0" scale="1000" collide="1" />
 										<transform id="arm_right_3" tz="234" rz="-1.5707963267948966" >
 											<!-- 											Gira en Z -->
@@ -105,6 +107,7 @@
 														<transform id="arm_right_5" ty="28" tz="166"    > <!--Giro1 muñeca-->
 															<!-- 															Gira en Z-->
 															<joint id="rightForeArm" port="10068" axis="z" min="-1.8" max="1.8" home="0.1">
+															<rotation id="rightForeArm_error" rz="0.05">
 																<mesh id="wrist_right_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="2"  collide="1"  />
 
 
@@ -177,7 +180,7 @@
 																										<transform id="grabPositionHandR"  tz="95" ty="-20" >
 																											<plane id="handMesh2" ny="1" size="60,-60,2" texture="/home/robocomp/robocomp/components/robocomp-ursus/files/tag_hand.png" />
 																											<plane id="handMesh2a" ny="1" size="75,-75,1" texture="#ffffff" />
-<!-- 																											<axes id="internal_axes" length="300" width="3" /> -->
+																											<axes id="internal_axes" length="300" width="3" />
 																										</transform>
 																									</transform>
 																								</transform>
@@ -191,14 +194,17 @@
 
 																	</joint>
 																</transform>
+															</rotation>
 															</joint>
 														</transform>
 													</joint>
 												</transform>
 											</joint>
 										</transform>
+									</rotation>
 									</joint>
 								</transform>
+							</rotation>
 							</joint>
 						</transform>
 						<!-- Right Arm End -->
