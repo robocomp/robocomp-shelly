@@ -163,31 +163,25 @@
 																							</transform>
 																						</transform>
 
-																						<transform id="tip" tx="-10" tz="80"  >
-
-																						</transform>
 																					</joint>
 																				</transform>
 
 																				<!-- El siguiente transform es para que coincidan los ejes de la marca con los del mundo	 -->
 																				<transform	id="ThandMesh2_pre"  ty="-25" tz= "55" rx="-1.5707963267948966" rz="3.14159265359">
-																					<transform	id="ThandMesh2" >
-																						<!-- Deshacemos la transformación anterior, primero giramos en z, luego y y luego en X. -->
-																						<transform id="ThandMesh2_2" rz="-3.14159265359">
-																							<transform id="ThandMesh2_3" ry="0">
-																								<transform id="ThandMesh2_4" rx="1.5707963267948966">
-																									<transform id="ThandMesh2_5" tz="-55" ty="25" tx="0"> 	<!--  Deshacemos la translacion -->
-																										<transform id="grabPositionHandR"  tz="95" ty="-20" >
-																											<plane id="handMesh2" ny="1" size="60,-60,2" texture="/home/robocomp/robocomp/components/robocomp-ursus/files/tag_hand.png" />
-																											<plane id="handMesh2a" ny="1" size="75,-75,1" texture="#ffffff" />
-																											<axes id="internal_axes" length="300" width="3" />
-																										</transform>
+																					<!-- Deshacemos la transformación anterior, primero giramos en z, luego y y luego en X. -->
+																					<transform id="ThandMesh2_2" rz="-3.14159265359">
+																						<transform id="ThandMesh2_4" rx="1.5707963267948966">
+																							<transform id="ThandMesh2_5" tz="-55" ty="25" tx="0"> 	<!--  Deshacemos la translacion -->
+																								<rotation id="error_tag" ry="0.09">
+																									<transform id="grabPositionHandR"  tz="95" ty="-20" >
+																										<plane id="handMesh2" ny="1" size="60,-60,2" texture="/home/robocomp/robocomp/components/robocomp-ursus/files/tag_hand.png" />
+																										<plane id="handMesh2a" ny="1" size="75,-75,1" texture="#ffffff" />
+																										<axes id="internal_axes" length="300" width="3" />
 																									</transform>
-																								</transform>
+																								</rotation>
 																							</transform>
 																						</transform>
 																					</transform>
-
 																				</transform>
 																			</joint>
 																		</transform>
