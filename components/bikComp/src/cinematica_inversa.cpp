@@ -406,8 +406,8 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 		
 		
 		QString frameBase; // Frame where the errors will be referred
-		//frameBase = "sensor_transform2";
-		frameBase = this->listaJoints.last();
+		//frameBase = "sensor_transform2"; 
+		frameBase = this->listaJoints.last(); //con el first no funciona ni a tres tirones.
 		
 		QVec targetTInFrameBase = inner->transform(frameBase, QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tipTInFrameBase = inner->transform(frameBase, QVec::zeros(3), this->endEffector);			
@@ -561,7 +561,8 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
 			
 // 			if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))   ///Too small increments
-			if(incrementos.norm2() <= e2)   ///Too small increments	
+//			if(incrementos.norm2()<=e2)   ///Too small increments	
+			if(QVec::vec3(incrementos.x(), incrementos.y(), incrementos.z()).norm2()<=e2 and QVec::vec3(incrementos.rx(), incrementos.ry(), incrementos.rz()).norm2()<=0.00001)   ///Too small increments	
 			{
 				stop = true;
 				smallInc = true; 

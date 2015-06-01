@@ -215,7 +215,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal);
 	std::pair<QString, QString> ret;
-	if (checkFuturePosition(listGoals, ret))
+	if (checkFuturePosition(listGoals, ret) and false)
 	{
 		printf("%s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 		//throw RoboCompJointMotor::OutOfRangeException("collision");

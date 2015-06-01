@@ -94,14 +94,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot --------------- OJO CON EL ORDEN!!!!!!!!!!!!!!!!!!!!!!!!!!
-	listaBrazoIzquierdo	<< "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2";
+	listaBrazoIzquierdo	<<  "leftShoulder1" <<  "leftShoulder2" << "leftShoulder3" <<  "leftElbow" /*<< "leftForeArm" <<  "leftWrist1" <<  "leftWrist2"*/;
 	listaBrazoDerecho 	<< "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"<< "rightForeArm" << "rightWrist1" << "rightWrist2";
-
-
 	listaCabeza 		<< "head_yaw_joint" << "head_pitch_joint";
-	listaMotores 		<< "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2"
-						<< "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"<< "rightForeArm" << "rightWrist1" << "rightWrist2"
-						<< "head_yaw_joint" << "head_pitch_joint";
+	listaMotores 		= listaBrazoIzquierdo + listaBrazoDerecho + listaCabeza;
 
 	qDebug()<<"HOLA----------->"<<listaMotores<<" "<<listaMotores.size();
 
@@ -316,7 +312,7 @@ void SpecificWorker::compute( )
 					target.setInitialAngles(iterador.value().getMotorList());
 					createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 					target.print("BEFORE PROCESSING");
-
+					
 					iterador.value().getInverseKinematics()->resolverTarget(target);
 
 					if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
@@ -535,10 +531,10 @@ void SpecificWorker::setTargetPose6D(const string& bodyPart, const Pose6D& targe
 	//Weights vector
 	QVec w(6);
 	w[0]  = weights.x; 	w[1]  = weights.y; w[2]  = weights.z; w[3]  = weights.rx; w[4] = weights.ry; w[5] = weights.rz;
-
-   Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, radius);
-   t.setRadius(radius/1000.f);
-	 t.setHasPlan(!radius);  //Ñapa para que no planifique si este campo viene a false
+	
+	Target t(Target::POSE6D, innerModel, bodyParts[partName].getTip(), tar, w, radius);
+	t.setRadius(radius/1000.f);
+	t.setHasPlan(!radius);  //Ñapa para que no planifique si este campo viene a false
 
     mutex->lock();
         bodyParts[partName].addTargetToList(t);
@@ -709,6 +705,7 @@ void SpecificWorker::goHome(const string& part)
 
 		} catch (const Ice::Exception &ex) {
 			cout<<"Excepción en mover Brazo: "<<ex<<endl;
+			throw ex;
 		}
 	}
 	//goHomePosition( bodyParts[partName].getMotorList());
@@ -763,7 +760,7 @@ TargetState SpecificWorker::getState(const std::string &part)
  		qDebug() << "New COMMAND arrived "<< __FUNCTION__ << partName;
 
 		mutex->lock();
-		if( bodyParts[partName].getTargets().isEmpty() )
+		if(bodyParts[partName].getTargets().isEmpty() )
 			state.finish = true;
 		else
 		{
@@ -885,15 +882,15 @@ void SpecificWorker::actualizarInnermodel(const QStringList &listaJoints)
 		for (i=0; i<listaJoints.size(); i++)
 		{
 			mList.push_back(listaJoints[i].toStdString());
-			qDebug() << listaJoints[i];
+			//qDebug() << listaJoints[i];
 		}
 
-		qDebug()<<"ANTES";
+		//qDebug()<<"ANTES";
 		/*RoboCompJointMotor::MotorParamsList lis = jointmotor0_proxy->getAllMotorParams();
 		for( auto l : lis)
 			std::cout << l.name << std::cout;*/
 		RoboCompJointMotor::MotorStateMap mMap = jointmotor0_proxy->getMotorStateMap(mList);
-		qDebug()<<"DESPUES";
+		//qDebug()<<"DESPUES";
 
 		for (/*int*/ j=0; j<listaJoints.size(); j++)
 		{
@@ -950,6 +947,7 @@ void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 			proxy->setPosition(nodo);
 		} catch (const Ice::Exception &ex) {
 			cout<<"Excepción en mover Brazo: "<<ex<<endl;
+			throw ex;
 		}
 	}
 }

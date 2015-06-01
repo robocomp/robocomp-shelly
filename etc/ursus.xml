@@ -160,9 +160,6 @@
 																							</transform>
 																						</transform>
 
-																						<transform id="tip" tx="-10" tz="80"  >
-
-																						</transform>
 																					</joint>
 																				</transform>
 
@@ -175,25 +172,20 @@
 																								<transform id="ThandMesh2_4" rx="1.5707963267948966">
 
 																									<!--  Colocamos la marca -->
-																									<transform id="handMesh2_t" ty="0" tz="0" rx="0" ry="0,0" rz="0">
-																										<plane id="handMesh2" ny="1" size="71.25,-71.25,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
-																									</transform>
-																									<transform id="ThandMesh2_5" tz="-55" ty="25" tx="0"> 	<!--  Deshacemos la translacion -->
-																										<!--		<transform id="grabPositionHandR"  tz="55" ty="-25"> -->
-																										<transform id="grabPositionHandR"  tz="95" >
-<!-- 																											<axes id="de" /> -->
-																										</transform>
-																									</transform>
-																								</transform>
-																							</transform>
-																						</transform>
-																					</transform>
+																									<transform id="grabPositionHandR" ty="0" tz="0" rx="0" ry="0,0" rz="0">
+																										<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
+																										<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
+																									</transform> <!-- handmesh2_t-->
+																								</transform><!-- Thandmesh2_4-->
+																							</transform><!-- Thandmesh2_3-->
+																						</transform><!-- Thandmesh2_2-->
+																					</transform><!-- Thandmesh2-->
+																				</transform><!-- Thandmesh2_Pre-->
+																				
+																			</joint> <!-- rightWrist2 -->
+																		</transform><!-- arm_right_7-->
 
-																				</transform>
-																			</joint>
-																		</transform>
-
-																	</joint>
+																	</joint><!---rightWrist1-->
 																</transform>
 															</joint>
 														</transform>
@@ -230,7 +222,8 @@
 
 													<transform id="arm_left_4"  ty="28"  tz="20" > <!--Codo-->
 														<!-- 													Gira en X -->
-														<joint id="leftElbow" port="10068"  axis="x" min="-2.6" max="0" home="-0.1" >
+<!--														<joint id="leftElbow" port="10068"  axis="x" min="-2.6" max="0" home="-0.1" >-->
+														<joint id="leftElbow" port="10068"  axis="x" home="-0.1" >
 
 															<mesh id="elbow_left_mesh"  file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive"  ty="0" scale="1000" collide="1"  />
 
