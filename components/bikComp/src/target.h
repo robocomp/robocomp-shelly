@@ -34,7 +34,7 @@
  * 		- Un vector POSE que le indique cuál es su traslación y su rotación.
  * 		- El tip o endEffector al que está asignado.
  * 		- El innerModel parapoder trocear la trayectoria desde el endEffector hasta el target.
- */ 
+ */
 #include <innermodel/innermodel.h>
 #include <qt4/QtCore/qstring.h>
 #include <qt4/QtCore/QTime>
@@ -45,20 +45,20 @@ using namespace std;
 
 class Target
 {
-	
+
 public:
-	
+
 	enum TargetType {POSE6D, ALIGNAXIS, ADVANCEAXIS};
 	enum FinishStatus { LOW_ERROR, KMAX, LOW_INCS, NAN_INCS, START };
-	
+
 	Target();
 	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &weights, bool chop=true);											// For Pose6D
 	Target(TargetType tt, InnerModel *inner, const QString &tip, const QVec &pose6D, const QVec &axis, const QVec &weights);		// For AlingAxis
 	Target(TargetType tt, InnerModel* inner, const QString &tip, const QVec& axis, float step);																	// For ADVANCEALONGAXIS
 	~Target();
 	Target operator=( Target tmp );
-	
-	
+
+
 	// MÉTODOS GET:
 	QString getTipName() const           { return this->tip; }            		 	// Devuelve el nombre del TIP.
 	QVec getPose() const                 { return this->pose6D; }          			// Devuelve el vector pose del target
@@ -66,7 +66,7 @@ public:
 	QVec getRotation() const			 { return this->pose6D.subVector(3,5);}  	//Returns the rotation component of Pose6D
 	QTime getStartTime() const           { return this->start; }           			// Devuelve el tiempo del target.
 	bool isActive() const          	     { return this->activo; }          			// Devuelve el estado del target
-	QVec getWeights() const              { return this->weights; } 
+	QVec getWeights() const              { return this->weights; }
 	TargetType getType() const           { return targetType; }
 	bool getAxisConstraint() const       { return axisConstraint; }
 	float getAxisAngleConstraint() const { return axisAngleConstraint; }
@@ -102,17 +102,19 @@ public:
 	void setFinalAngles(const QVec &f)  			{ finalAngles = f; }
 	void setExecuted(bool e)             			{ executed = e; }
 	void setChopped(bool c)							{ chopped = c; }
-	
+
 	void annotateInitialTipPose()
 	{
       initialTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
       initialTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
-	};
+	}
+
 	void annotateFinalTipPose()
 	{
         finalTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
         finalTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
-	};
+	}
+
 	void setInitialAngles(const QStringList &motors)
 	{
 				initialAngles.clear();
@@ -123,12 +125,12 @@ public:
 	void setRadius(float r)       					{ radius = r; };
 	void setAtTarget(bool a)  						{ atTarget = a; };
 	void setHasPlan(bool a)							{ hasPlan = a;};
-	
+
 	// OTROS MÉTODOS
 	void print(const QString &msg = QString());
-	
+
 private:
-	
+
     QString tip;                     		// Nombre del efector final al que está asociado el target
     QTime start;							// Tiempo en que comenzó a trabajar el robot con el target original.
     bool activo;							// Bandera para indicar si el target es válido y el robot debe trabajar con él o no.
@@ -156,7 +158,7 @@ private:
     bool executed;                    		// true if finally executed in real arm
 	bool chopped;							// true if the target  has been chopped
 	float radius; 							// if > 0 the robot stops when reaching a ball of radius "radius" with center in Pose6D
-	bool removal;           		         // 
+	bool removal;           		         //
 	bool atTarget;
 	bool hasPlan;							//if false a plan has to be computed and stored
 };
