@@ -105,21 +105,21 @@ public:
 
 	void annotateInitialTipPose()
 	{
-      initialTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
-      initialTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
-	}
+		initialTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
+		initialTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
+	};
 
 	void annotateFinalTipPose()
 	{
-        finalTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
-        finalTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
-	}
+		finalTipPose.inject(inner->transform("root", QVec::zeros(3), getTipName()),0);
+		finalTipPose.inject(inner->getRotationMatrixTo("root",getTipName()).extractAnglesR_min(),3);
+	};
 
 	void setInitialAngles(const QStringList &motors)
 	{
-				initialAngles.clear();
-        foreach( QString motor, motors)
-            initialAngles.append(inner->getJoint(motor)->getAngle());
+		initialAngles.clear();
+		foreach( QString motor, motors)
+    			initialAngles.append(inner->getJoint(motor)->getAngle());
 	}
 	void markForRemoval( bool m) 					{ removal = m; };
 	void setRadius(float r)       					{ radius = r; };

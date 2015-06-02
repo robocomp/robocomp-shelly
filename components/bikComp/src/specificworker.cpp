@@ -94,8 +94,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::init()
 {
 	// RECONFIGURABLE PARA CADA ROBOT: Listas de motores de las distintas partes del robot --------------- OJO CON EL ORDEN!!!!!!!!!!!!!!!!!!!!!!!!!!
-	listaBrazoIzquierdo	<<  "leftShoulder1" <<  "leftShoulder2" << "leftShoulder3" <<  "leftElbow" /*<< "leftForeArm" <<  "leftWrist1" <<  "leftWrist2"*/;
+	listaBrazoIzquierdo	<< "leftShoulder1" << "leftShoulder2" << "leftShoulder3" << "leftElbow" << "leftForeArm" << "leftWrist1" << "leftWrist2";
 	listaBrazoDerecho 	<< "rightShoulder1" << "rightShoulder2" << "rightShoulder3" << "rightElbow"<< "rightForeArm" << "rightWrist1" << "rightWrist2";
+
+
 	listaCabeza 		<< "head_yaw_joint" << "head_pitch_joint";
 	listaMotores 		= listaBrazoIzquierdo + listaBrazoDerecho + listaCabeza;
 
@@ -133,9 +135,7 @@ void SpecificWorker::init()
 
 	actualizarInnermodel(listaMotores);
 
-/* 	innerModel->transform("root", QVec::zeros(3),tipRight).print("RightTip in World");
- 	innerModel->transform("root", QVec::zeros(3),tipLeft).print("LeftTip in World");
- 	innerModel->transform("root", QVec::zeros(3),"mugTag").print("mug in World");*/
+
 
 	//Open file to write errors
 	fichero.open("errores.txt", ios::out);
@@ -312,7 +312,7 @@ void SpecificWorker::compute( )
 					target.setInitialAngles(iterador.value().getMotorList());
 					createInnerModelTarget(target);  	//Crear "target" online y borrarlo al final para no tener que meterlo en el xml
 					target.print("BEFORE PROCESSING");
-					
+
 					iterador.value().getInverseKinematics()->resolverTarget(target);
 
 					if(target.getError() <= 0.9 and target.isAtTarget() == false) //local goal achieved: execute the solution
@@ -396,8 +396,9 @@ bool SpecificWorker::targetHasAPlan(InnerModel &innerModel,  Target& target)
 	//Convert back to world reference system
 	for(int i= 0; i<path.size(); i++)
 	{
-		path[i] = innerModel.transform("root", path[i], "robot");
+		path[i] = innerModel.transform("root", path[i],"robot");
 	}
+
 	//draw(innermodelmanager_proxy,path);
 
 	//qFatal("fary");
@@ -948,7 +949,7 @@ void SpecificWorker::moveRobotPart(QVec angles, const QStringList &listaJoints)
 			proxy->setPosition(nodo);
 		} catch (const Ice::Exception &ex) {
 			cout<<"Excepción en mover Brazo: "<<ex<<endl;
-			throw ex;
+			//throw ex;
 		}
 	}
 }

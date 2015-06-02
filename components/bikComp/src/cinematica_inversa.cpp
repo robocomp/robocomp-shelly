@@ -80,7 +80,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	{
 		//Scale the unitary vector along direction by distance
 		QVec axis = target.getAxis() * target.getStep();
-		//axis.print("axis scaled");
 
 		QVec p = inner->transform("root", axis, this->endEffector);
 		//p.print("target to reach in world");
@@ -99,7 +98,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 	}
 	else  //POSE6D
 	{
-
 	//	chopPath(target);
 		// Si el target no ha sido resuelto llamamos Levenberg-Marquardt
 		if( target.isAtTarget() == false )
@@ -117,7 +115,6 @@ void Cinematica_Inversa::resolverTarget(Target& target)
 			firstTime=0;
 		}
 	}
-
 	target.setElapsedTime(target.getRunTime().elapsed());
 }
 
@@ -155,6 +152,7 @@ void Cinematica_Inversa::chopPath(Target &target)
 		P.inject(inner->transform("root", QVec::zeros(3), this->endEffector),0);
 		P.inject(inner->getRotationMatrixTo("root", this->endEffector).extractAnglesR_min(),3);
 		R = (P * (T)(1.0-landa)) + (target.getPose() * landa);
+
 		// Añadido por Mercedes y Agustín
 		// Target visto desde end effector
 		QVec R2(6);
@@ -289,8 +287,6 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			jacob(4,j) = axis2.y();
 			jacob(5,j) = axis2.z();*/
 
-
-
 			QString frameBase;
 			//frameBase = "sensor_transform2";
 			frameBase = this->listaJoints.last();
@@ -317,9 +313,6 @@ QMat Cinematica_Inversa::jacobian(QVec motores)
 			jacob(4,j) = axis2.y();
 			jacob(5,j) = axis2.z();
 
-
-
-
 		}
  		j++;
  	}
@@ -342,10 +335,7 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 
 	if(target.getType() == Target::POSE6D or target.getType() == Target::ADVANCEAXIS)
 	{
-
 // 		// ORIGINAL
-//
-//
 // 		// ---> TRASLACIONES: Al punto objetivo le restamos las coordenadas del nodo final endEffector
 // 		QVec errorTraslaciones = QVec::zeros(3);
 //
@@ -404,19 +394,11 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 
 
 		QString frameBase; // Frame where the errors will be referred
-<<<<<<< HEAD
-		//frameBase = "sensor_transform2"; 
+		//frameBase = "sensor_transform2";
 		frameBase = this->listaJoints.last(); //con el first no funciona ni a tres tirones.
 		
 		QVec targetTInFrameBase = inner->transform(frameBase, QVec::zeros(3), target.getNameInInnerModel());	
 		QVec tipTInFrameBase = inner->transform(frameBase, QVec::zeros(3), this->endEffector);			
-=======
-		//frameBase = "sensor_transform2";
-		frameBase = this->listaJoints.last();
-
-		QVec targetTInFrameBase = inner->transform(frameBase, QVec::zeros(3), target.getNameInInnerModel());
-		QVec tipTInFrameBase = inner->transform(frameBase, QVec::zeros(3), this->endEffector);
->>>>>>> 3ab91e6ab2883a9b910276f621e169d19d2e2011
 		QVec errorTInFrameBase = targetTInFrameBase - tipTInFrameBase;
 
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
@@ -444,10 +426,6 @@ QVec Cinematica_Inversa::computeErrorVector(const Target &target)
 
 		errorTotal.inject(errorTInFrameBase,0);
 		errorTotal.inject(errorRInFrameBase, 3);
-
-
-
-
 	}
 
 	if(target.getType() == Target::ALIGNAXIS)
@@ -567,12 +545,7 @@ void Cinematica_Inversa::levenbergMarquardt(Target &target)
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
 
 // 			if(incrementos.norm2() <= (e2*(angulos.norm2()+e2)))   ///Too small increments
-<<<<<<< HEAD
-//			if(incrementos.norm2()<=e2)   ///Too small increments	
-			if(QVec::vec3(incrementos.x(), incrementos.y(), incrementos.z()).norm2()<=e2 and QVec::vec3(incrementos.rx(), incrementos.ry(), incrementos.rz()).norm2()<=0.00001)   ///Too small increments	
-=======
 			if(incrementos.norm2() <= e2)   ///Too small increments
->>>>>>> 3ab91e6ab2883a9b910276f621e169d19d2e2011
 			{
 				stop = true;
 				smallInc = true;
