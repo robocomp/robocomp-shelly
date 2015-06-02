@@ -170,7 +170,6 @@
 																						<transform id="ThandMesh2_2" rz="-3.14159265359">
 																							<transform id="ThandMesh2_3" ry="0">
 																								<transform id="ThandMesh2_4" rx="1.5707963267948966">
-<<<<<<< HEAD
 
 																									<!--  Colocamos la marca -->
 																									<transform id="grabPositionHandR" ty="0" tz="0" rx="0" ry="0,0" rz="0">
@@ -187,25 +186,6 @@
 																		</transform><!-- arm_right_7-->
 
 																	</joint><!---rightWrist1-->
-=======
-																									<transform id="ThandMesh2_5" tz="-55" ty="25" tx="0"> 	<!--  Deshacemos la translacion -->
-																										<transform id="grabPositionHandR"  tz="95" ty="-20" >
-																											<plane id="handMesh2" ny="1" size="60,-60,2" texture="/home/robocomp/robocomp/components/robocomp-ursus/files/tag_hand.png" />
-																											<plane id="handMesh2a" ny="1" size="75,-75,1" texture="#ffffff" />
-<!-- 																											<axes id="internal_axes" length="300" width="3" /> -->
-																										</transform>
-																									</transform>
-																								</transform>
-																							</transform>
-																						</transform>
-																					</transform>
-
-																				</transform>
-																			</joint>
-																		</transform>
-
-																	</joint>
->>>>>>> 3ab91e6ab2883a9b910276f621e169d19d2e2011
 																</transform>
 															</joint>
 														</transform>
