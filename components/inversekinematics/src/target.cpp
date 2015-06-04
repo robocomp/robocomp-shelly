@@ -105,6 +105,18 @@ Target::TargetState Target::getTargetState()
 	return state;
 }
 /**
+ * \brief This method returns the finalstate of the target if it is finised.
+ * @return Target::TargetFinalState finalstate
+ */ 
+Target::TargetFinalState Target::getTargetFinalState()
+{
+	if(state == Target::TargetState::FINISH)
+		return finalstate;
+	else
+		throw ("El target aun no ha terminado");
+}
+
+/**
  * \brief This method returns the pose 6D of the target.
  * @return QVec pose
  */ 
@@ -136,6 +148,28 @@ float Target::getTargetStep()
 {
 	return step;
 }
+/**
+ * \brief This method returns the vector error, the traslation error norm and the rotation 
+ * error norm.
+ * @param errorT traslation error norm
+ * @param errorR rotation error norm.
+ * @return QVec error
+ */ 
+QVec Target::getTargetError(float& errorT, float& errorR)
+{
+	errorT = QVec::vec3(errorvector.x(),  errorvector.y(),  errorvector.z()).norm2();
+	errorR = QVec::vec3(errorvector.rx(), errorvector.ry(), errorvector.rz()).norm2();
+	
+	return errorvector;
+}
+/**
+ * \brief This method returns the final angles with the target ends his execution.
+ * @return QVec finalangles
+ */ 
+QVec Target::getTargetFinalAngles()
+{
+	return finalangles;
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -154,7 +188,15 @@ void Target::setTargetNameInInnerModel(QString nameInInnerModel_)
 void Target::setTargetState(Target::TargetState state_)
 {
 	state = state_;
-	qDebug()<<"HEy!: "<<state;
+}
+/**
+ * \brief This method changes the finalstate of the target, when it is finish
+ * @param finalstate_
+ */ 
+void Target::setTargetFinalState(Target::TargetFinalState finalstate_)
+{
+	if(state == Target::TargetState::FINISH)
+		finalstate = finalstate_;
 }
 /**
  * \brief this method stores the error with that the target end his execution.
@@ -163,7 +205,6 @@ void Target::setTargetState(Target::TargetState state_)
 void Target::setTargetError(QVec errors_)
 {
 	errorvector = errors_;
-	error 		= errors_.norm2();
 }
 /**
  * \brief this method stores the final angles of the robot.

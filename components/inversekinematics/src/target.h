@@ -19,8 +19,9 @@ using namespace std;
 class Target
 {
 public:
-	enum	TargetType 		{POSE6D, ALIGNAXIS, ADVANCEAXIS};
-	enum	TargetState		{IDLE, IN_PROCESS, FINISH, LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
+	enum	TargetType 			{POSE6D, ALIGNAXIS, ADVANCEAXIS};
+	enum	TargetState			{IDLE, IN_PROCESS, FINISH};
+	enum 	TargetFinalState	{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
 	
 	Target	();
 	Target(const QVec &pose_, const QVec &weights_, const float radius_,TargetType type_=TargetType::POSE6D, 	bool chop=false);	/// CONSTRUCTOR FOR POSE6D TARGET
@@ -28,29 +29,33 @@ public:
 	Target(const QVec& axis_, float step_,								TargetType type_=TargetType::ADVANCEAXIS);					/// CONSTRUCTOR FOR ADVANCE AXIS					
 	~Target	();
 	
-	Target 			operator=(Target target);
+	Target 				operator=(Target target);
 	
-	QString			getTargetNameInInnerModel	();
-	TargetType		getTargetType				();
-	TargetState		getTargetState				();
-	QVec			getTargetPose				();
-	QVec			getTargetWeight				();
-	QVec			getTargetAxis				();
-	float			getTargetStep				();
+	QString				getTargetNameInInnerModel	();
+	TargetType			getTargetType				();
+	TargetState			getTargetState				();
+	TargetFinalState	getTargetFinalState			();
+	QVec				getTargetPose				();
+	QVec				getTargetWeight				();
+	QVec				getTargetAxis				();
+	float				getTargetStep				();
+	QVec				getTargetError				(float &errorT, float &errorR);
+	QVec				getTargetFinalAngles		();
 	
-	void			setTargetNameInInnerModel	(QString nameInInnerModel_);
-	void			setTargetState				(Target::TargetState state_);
-	void			setTargetError				(QVec errors_);
-	void			setTargetFinalAngles		(QVec finalangles_);
+	void				setTargetNameInInnerModel	(QString nameInInnerModel_);
+	void				setTargetState				(Target::TargetState state_);
+	void				setTargetFinalState			(Target::TargetFinalState finalstate_);
+	void				setTargetError				(QVec errors_);
+	void				setTargetFinalAngles		(QVec finalangles_);
 	
 private:
 	/// GENERAL ATTRIBUTES
-	QString			nameInInnerModel;
-	QVec			finalangles;
-	QVec			errorvector;
-	float			error;
-	TargetType		type;
-	TargetState		state;
+	QString				nameInInnerModel;
+	QVec				finalangles;
+	QVec				errorvector;
+	TargetType			type;
+	TargetState			state;
+	TargetFinalState 	finalstate;
 	/// ATTRIBUTES OF POSE6D TARGET
 	QVec			pose;
 	QVec			weight;

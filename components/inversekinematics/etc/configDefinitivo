@@ -9,9 +9,9 @@ InnerModelManagerProxy = innermodelmanager:tcp  -p 11175 -h localhost
 
 
 
-InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/etc/brazo.xml
+InnerModel=/home/robocomp/robocomp/files/innermodel/robots/robexBetaArm.xml
 
-RIGHTARM=basej
+RIGHTARM=shoulder_right_1;shoulder_right_2;shoulder_right_3;elbow_right;wrist_right_1;wrist_right_2
 RIGHTTIP=tip
 LEFTARM=EMPTY
 LETFTIP=EMPTY

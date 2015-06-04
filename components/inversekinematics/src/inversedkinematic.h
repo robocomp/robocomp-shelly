@@ -19,7 +19,7 @@ public:
 			InversedKinematic	();
 			~InversedKinematic	();
 	
-	void 	solveTarget			(BodyPart &bodypart_, 	InnerModel *innermodel_);
+	void 	solveTarget			(BodyPart *bodypart_, 	InnerModel *innermodel_);
 	
 private:
 	QMat 	jacobian			(QVec motors);				
