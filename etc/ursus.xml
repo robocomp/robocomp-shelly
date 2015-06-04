@@ -1,5 +1,9 @@
 ﻿<innerModel>
 <!-- 	<axes id="sl3" /> -->
+	<transform id="target">
+		<axes id="target_axes" length="200" width="8" />
+	</transform>
+
 
 	<omnirobot id="robot" port="12238" >
 		<transform id="laserPose" tx="0" ty="240" tz="100" rx="-0.4" >

@@ -146,7 +146,7 @@ void SpecificWorker::compute()
 				float errorT, errorR;
 				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
 				showInformation(partsIterator.value());
-				if(errorT < 0.9)
+				if(abs(errorT) < 0.9)
 				{
 					updateRCIS(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 					qDebug()<<"--------------> FINISH TARGET    OK\n";
@@ -224,9 +224,8 @@ void SpecificWorker::updateRCIS(QVec newAngles, BodyPart part)
 			nodo.position = newAngles[i]; // posición en radianes
 			nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
 			jointmotor_proxy->setPosition(nodo);
-		} catch (const Ice::Exception &ex) {
-			cout<<"Excepción en mover Brazo: "<<ex<<endl;
-		}
+		} 
+		catch (const Ice::Exception &ex) {	cout<<"Exception in updateRCIS: "<<ex<<endl;}
 	}
 }
 /**
@@ -428,8 +427,8 @@ void SpecificWorker::pointAxisTowardsTarget(const string &bodyPart, const Pose6D
 		ex.text = "Not recognized body part or incorrect axis";
 		throw ex;
 	}
-
-	QVec pose_	 	 = QVec::vec6(target.x /(T)1000, target.y/(T)1000, target.z/(T)1000, target.rx, target.ry, target.rz);	
+	//NOTE: POR QUE ESTAN DEL REVES???
+	QVec pose_	 	 = QVec::vec6(-target.x /(T)1000, -target.y/(T)1000, -target.z/(T)1000, target.rx, target.ry, target.rz);	
 	QVec weights_ 	 = QVec::vec6(                0,                0,                0,         1,         1,         1); //Weights vector ONLY ROTATION
 	QVec axis_ 		 = QVec::vec3(ax.x , ax.y, ax.z);
 	Target newTarget = Target(pose_, weights_, axis_,Target::TargetType::ALIGNAXIS);

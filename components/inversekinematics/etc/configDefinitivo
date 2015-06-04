@@ -9,21 +9,14 @@ InnerModelManagerProxy = innermodelmanager:tcp  -p 11175 -h localhost
 
 
 
-InnerModel=/home/robocomp/robocomp/files/innermodel/robots/robexBetaArm.xml
+InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml
 
-RIGHTARM=shoulder_right_1;shoulder_right_2;shoulder_right_3;elbow_right;wrist_right_1;wrist_right_2
-RIGHTTIP=tip
-LEFTARM=EMPTY
-LETFTIP=EMPTY
-HEAD=EMPTY
-HEADTIP=EMPTY
-
-#RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
-#RIGHTTIP=grabPositionHandR
-#LEFTARM=leftShoulder1;leftShoulder2;leftShoulder3;leftElbow;leftForeArm;leftWrist1;leftWrist2
-#LETFTIP=grabPositionHandL
-#HEAD=head_yaw_joint;head_pitch_joint
-#HEADTIP=rgbd_transform
+RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
+RIGHTTIP=grabPositionHandR
+LEFTARM=leftShoulder1;leftShoulder2;leftShoulder3;leftElbow;leftForeArm;leftWrist1;leftWrist2
+LETFTIP=grabPositionHandL
+HEAD=head_yaw_joint;head_pitch_joint
+HEADTIP=rgbd_transform
 
 
 TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
