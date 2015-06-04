@@ -1,0 +1,22 @@
+<innerModel>
+	<transform id="axes">
+		<axes id="_axes" length="200" width="8" />
+	</transform>
+	
+	<transform id="target">
+		<axes id="_target" length="400" width="20" />
+	</transform>
+	
+	<transform  id="base" >
+			<joint id="basej" port="10067" axis="z" home="0">
+ 				<plane id="axisx" px="450" nx="1" size="20,20,900" repeat="1" texture="#ffffff" /> 
+				<transform id="tip" tx="900">
+					<plane id="axisArm1x" px="50" nx="1" size="2,2,100" repeat="1" texture="#ff0000" />
+					<plane id="axisArm1y" py="50" nx="1" size="2,100,2" repeat="1" texture="#00ff00" />
+					<plane id="axisArm1z" pz="50" nx="1" size="100,2,2" repeat="1" texture="#0000ff" />
+				</transform>
+
+			</joint>
+	</transform>
+
+</innerModel>
