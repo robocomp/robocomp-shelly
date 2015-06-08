@@ -33,13 +33,7 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
 	
 	Target target = bodypart->getTargetList().head();
 
-	
-	if(target.getTargetType()== Target::ALIGNAXIS)
-	{
-		levenbergMarquardt(target);
-		return;
-	}
-	if(target.getTargetType()==Target::ADVANCEAXIS)
+	if(target.getTargetType()==Target::ADVANCEAXIS and target.getTargetState()==Target::IN_PROCESS)
 	{
 		QVec axis = target.getTargetAxis() * target.getTargetStep(); 				//Scale the unitary vector along direction by distance
 		QVec pose = innermodel->transform("root", axis, bodypart->getTipName());	//We go from tip to root
@@ -52,7 +46,8 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
 		levenbergMarquardt(target);
 		return;
 	}
-	if(target.getTargetType()==Target::POSE6D and target.getTargetState()==Target::IN_PROCESS)
+	if((target.getTargetType()== Target::ALIGNAXIS or target.getTargetType()==Target::POSE6D)
+		and target.getTargetState()==Target::IN_PROCESS)
 	{
 		levenbergMarquardt(target);
 		return;
@@ -104,24 +99,26 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 	}
 	if(target.getTargetType()==Target::ALIGNAXIS)
 	{
-		QVec targetInTip = innermodel->transform(bodypart->getTipName(),QVec::zeros(3),target.getTargetNameInInnerModel()).normalize(); 		// compute a vector going from tip to target
+		// compute a vector going from tip to target
+		QVec targetInTip = innermodel->transform(bodypart->getTipName(),QVec::zeros(3),target.getTargetNameInInnerModel()).normalize();
+		
 		QVec a = target.getTargetAxis();
 		QVec o = a^targetInTip; // axis to rotate
-
+		
 		float co = (a * targetInTip);
 		float si = (o.norm2());  //Angle to rotate
-		float ang = atan2(si,co);
+		float ang = atan2(si,co);	
 		QMat c = o.crossProductMatrix();
 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));  ///Rodrigues formula to compute R from <vector-angle>
-
+		
 		QVec erroRotaciones = r.extractAnglesR_min();
-
+		
 		// 4) Pasamos los errores de rotación del tip al last joint.
 		QString frameBase; // Frame where the errors will be referred
 		frameBase = bodypart->getMotorList().last();
 		QVec errorRInTip = erroRotaciones;
 		QMat matTipInFrameBase = innermodel->getRotationMatrixTo(frameBase, bodypart->getTipName());
-		// Calculamos el equivalente de rotar en X el Tip pero en el sistema de referencia del lastJoint (frameBase)
+		// Calculamos el equivalente de rotar en X el Tip pero en el sistema de referencia del lastJoint (frameBase)	
 		QVec firstRot = matTipInFrameBase * QVec::vec3(errorRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
 		// Hacemos lo mismo con la rotación en Y
@@ -133,9 +130,9 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		// Creamos la matríz resultante de las rotaciones calculadas multipiclando las matrices calculasdas anteriormente (ojo al orden correcto)
 		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
 		// Extraemos los ángulos de la matriz calculada que ya equivalen a las rotaciones del tip vistas desde el frameBase
-		QVec error_Rotations_in_FrameBase = matResulInFrameBase.extractAnglesR_min();
-
-		finalError.inject(error_Rotations_in_FrameBase,3);
+		QVec errorRInFrameBase = matResulInFrameBase.extractAnglesR_min();
+		
+		finalError.inject(errorRInFrameBase,3);
 	}
 	return finalError;
 }

@@ -76,7 +76,7 @@ private:
 	void	init 						();
 	void	createInnerModelTarget		(Target &target);
 	void	removeInnerModelTarget		(Target &target);
-	void	showInformation				(BodyPart part);
+	void	showInformation				(BodyPart part, Target target);
 
 private:
 	int 						correlativeID;

@@ -145,8 +145,13 @@ void SpecificWorker::compute()
 			{
 				float errorT, errorR;
 				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
-				showInformation(partsIterator.value());
-				if(abs(errorT) < 0.9)
+				showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
+				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.9)
+				{
+					updateRCIS(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
+					qDebug()<<"--------------> FINISH TARGET    OK\n";
+				}
+				else if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorR) < 0.09)
 				{
 					updateRCIS(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 					qDebug()<<"--------------> FINISH TARGET    OK\n";
@@ -259,28 +264,29 @@ void SpecificWorker::removeInnerModelTarget(Target& target)
  * \brief this method show all the information about one target of one body part
  * @param part
  */ 
-void SpecificWorker::showInformation(BodyPart part)
+void SpecificWorker::showInformation(BodyPart part, Target target)
 {
 	qDebug()<<"-------------------> TARGET INFORMATION:";
 	qDebug()<<"Part name:		"    <<part.getPartName();
-	qDebug()<<"Pose Target:		"    <<part.getTargetList()[0].getTargetPose();
-	qDebug()<<"Weights Target:		"<<part.getTargetList()[0].getTargetWeight();
+	qDebug()<<"Pose Target:		"    <<target.getTargetPose();
+	qDebug()<<"Weights Target:		"<<target.getTargetWeight();
 
 	QString state, finalState;
-	if(part.getTargetList()[0].getTargetState() == Target::TargetState::IDLE)		state = "IDLE";
-	if(part.getTargetList()[0].getTargetState() == Target::TargetState::IN_PROCESS)	state = "IN_PROCESS";
-	if(part.getTargetList()[0].getTargetState() == Target::TargetState::FINISH)		state = "FINISH";
+	if(target.getTargetState() == Target::TargetState::IDLE)		state = "IDLE";
+	if(target.getTargetState() == Target::TargetState::IN_PROCESS)	state = "IN_PROCESS";
+	if(target.getTargetState() == Target::TargetState::FINISH)		state = "FINISH";
 
-	if(part.getTargetList()[0].getTargetFinalState() == Target::TargetFinalState::LOW_ERROR)finalState = "LOW_ERROR";
-	if(part.getTargetList()[0].getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	finalState = "LOW_INCS";
-	if(part.getTargetList()[0].getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	finalState = "NAN_INCS";
-	if(part.getTargetList()[0].getTargetFinalState() == Target::TargetFinalState::KMAX)		finalState = "KMAX";
+	if(target.getTargetFinalState() == Target::TargetFinalState::LOW_ERROR)finalState = "LOW_ERROR";
+	if(target.getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	finalState = "LOW_INCS";
+	if(target.getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	finalState = "NAN_INCS";
+	if(target.getTargetFinalState() == Target::TargetFinalState::KMAX)		finalState = "KMAX";
 
 	qDebug()<<"State Target:		"<<state<<" (final: "<<finalState<<")";
-	qDebug()<<"Final angles:		"<<part.getTargetList()[0].getTargetFinalAngles();
+	qDebug()<<"Final angles:		"<<target.getTargetFinalAngles();
 	
 	float errorT, errorR;
-	qDebug()<<"Vector error:		"<<part.getTargetList()[0].getTargetError(errorT, errorR) <<"("<<errorT<<" , "<<errorR<<")";
+	qDebug()<<"Vector error:		"<<target.getTargetError(errorT, errorR)<<"\\";
+	qDebug()<<"(T: "<<abs(errorT)<<" , R: "<<abs(errorR)<<")";
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -428,7 +434,7 @@ void SpecificWorker::pointAxisTowardsTarget(const string &bodyPart, const Pose6D
 		throw ex;
 	}
 	//NOTE: POR QUE ESTAN DEL REVES???
-	QVec pose_	 	 = QVec::vec6(-target.x /(T)1000, -target.y/(T)1000, -target.z/(T)1000, target.rx, target.ry, target.rz);	
+	QVec pose_	 	 = QVec::vec6(target.x /(T)1000, target.y/(T)1000, target.z/(T)1000, target.rx, target.ry, target.rz);	
 	QVec weights_ 	 = QVec::vec6(                0,                0,                0,         1,         1,         1); //Weights vector ONLY ROTATION
 	QVec axis_ 		 = QVec::vec3(ax.x , ax.y, ax.z);
 	Target newTarget = Target(pose_, weights_, axis_,Target::TargetType::ALIGNAXIS);
