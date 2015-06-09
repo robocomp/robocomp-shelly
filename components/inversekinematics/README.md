@@ -1,15 +1,15 @@
 inversekinematics
 ===============================
 
-## New component for inverse kinematics
-``` 
+##New component for inverse kinematics
+
 This is the new version for the BIK component. This component includes new enhancements such as:
 
 1) Executes more than once a target. The inverse kinematic result is not the same if the start point of the effector is the home or a pointB near tho the goal point.
 2) Executes the traslations without the motors of the wrisht (only for Ursus).
 
 
-## Configuration parameters
+##Configuration parameters
 We can connect this component with other components through the port 10220.
 
 Like all the components of Robocomp, inversekinematics needs a configuration file to start. You can see one example in
@@ -46,7 +46,7 @@ We can find there the following lines:
 	Ice.ACM.Server=10
 
     
-## Starting the component
+##Starting the component
 To avoid changing the *config* file in the repository, we can copy it to the component's home directory, so changes will remain untouched by future git pulls:
 
     cd
