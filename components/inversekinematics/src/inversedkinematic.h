@@ -7,6 +7,8 @@
 
 #include <innermodel/innermodel.h>
 #include <iostream>
+#include <QtCore>
+
 
 #include "bodypart.h"
 #include "target.h"
@@ -20,22 +22,25 @@ public:
 			~InversedKinematic	();
 	
 	void 	solveTarget			(BodyPart *bodypart_, 	InnerModel *innermodel_);
+	bool	deleteTarget		();
 	
 private:
-	QMat 	jacobian			(QVec motors);				
-	QVec 	computeErrorVector	(Target &target);	
-	void 	levenbergMarquardt	(Target &target);
+	QMat 		jacobian			(QVec motors);				
+	QVec 		computeErrorVector	(Target &target);	
+	void 		levenbergMarquardt	(Target &target);
 	
-	QVec	computeAngles		();
-	void	computeFloatModule	(QVec &angles, float mod);
+	QVec		computeAngles		();
+	void		computeFloatModule	(QVec &angles, float mod);
+	void 		updateAngles		(QVec new_angles);
 	
-	void 	updateAngles		(QVec new_angles);
-	bool	outLimits			(QVec &angles, QVec &motors);
+	bool		outLimits			(QVec &angles, QVec &motors);
+	QStringList	checkMotors		();
 
 	
 private:
 	InnerModel	*innermodel;
 	BodyPart	*bodypart;
 	
+	int 		repetitions;	
 };
 #endif

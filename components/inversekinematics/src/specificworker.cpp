@@ -134,11 +134,17 @@ void SpecificWorker::compute()
 	QMap<QString, BodyPart>::iterator partsIterator;
 	for(partsIterator = bodyParts.begin(); partsIterator != bodyParts.end(); ++partsIterator)
 	{
+		for(int i=0; i<partsIterator.value().getTargetList().size(); i++)
+		{
+			qDebug()<<"target["<<i<<"]: "<<partsIterator.value().getTargetList()[i].getTargetPose();
+		}
+			
 		QMutexLocker locker(mutex);
 		if(!partsIterator.value().getTargetList().isEmpty())
 		{			
 			partsIterator.value().getTargetList()[0].setTargetState(Target::IN_PROCESS);						
 			createInnerModelTarget(partsIterator.value().getTargetList()[0]);
+			
 			inversedkinematic->solveTarget(&partsIterator.value(), innermodel);
 			
 			if(partsIterator.value().getTargetList()[0].getTargetState() == Target::FINISH) /// The inversedkinematic has finished
@@ -158,8 +164,12 @@ void SpecificWorker::compute()
 				}
 				else
 					qDebug()<<"--------------> FINISH TARGET    NOT OK\n";
-				removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
-				partsIterator.value().getTargetList().dequeue();
+				
+				if(inversedkinematic->deleteTarget() == true)
+				{
+					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
+					partsIterator.value().getTargetList().dequeue();
+				}
 			}
 		}
 	}
@@ -246,7 +256,6 @@ void SpecificWorker::createInnerModelTarget(Target &target)
 	
 	QVec p = target.getTargetPose();
 	innermodel->updateTransformValues(target.getTargetNameInInnerModel(),p.x(), p.y(), p.z(), p.rx(), p.ry(), p.rz(), "root");
-	innermodel->updateTransformValues("target", p.x(), p.y(), p.z(), p.rx(), p.ry(), p.rz(), "root");
 }
 /**
  * \brief this method removes dynamically the target node created before in createInnerModelTarget
@@ -303,6 +312,36 @@ void SpecificWorker::setRobot(const int type)
 
 TargetState SpecificWorker::getState(const string &part)
 {
+	RoboCompBodyInverseKinematics::TargetState state;
+	state.finish = false;
+	state.elapsedTime = 0;
+	state.estimatedEndTime = -1;
+
+	QString partName = QString::fromStdString(part);
+
+	if ( bodyParts.contains(partName) == false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompBodyInverseKinematics::BIKException ex;
+		ex.text = "Not recognized body part";
+		throw ex;
+	}
+	else
+	{
+ 		qDebug() << "----------------------------------------";
+ 		qDebug() << "New COMMAND arrived "<< __FUNCTION__ << partName;
+
+		mutex->lock();
+		if(bodyParts[partName].getTargetList().isEmpty() )
+			state.finish = true;
+		else
+		{
+			//state.elapsedTime = bodyParts[partName].getTargetList().head().getElapsedTime();
+			state.finish = false;
+		}
+		mutex->unlock();
+	}
+	return state;
 }
 
 void SpecificWorker::setNewTip(const string &part, const string &transform, const Pose6D &pose)
