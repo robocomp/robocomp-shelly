@@ -74,8 +74,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	this->innerViewer = new InnerModelViewer(this->innermodel, "root", this->osgView->getRootGroup(), true);
 #endif
 
-	
-	
 	QString 	tipR, 				tipL, 		tipH;
 	QString 	motorsR, 			motorsL,	motorsH;
 	QStringList	auxiliar_motor_list;
