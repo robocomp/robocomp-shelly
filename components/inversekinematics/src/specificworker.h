@@ -73,7 +73,6 @@ public slots:
 private:
 	void 	updateInnerModel			();
 	void	updateRCIS					(QVec newAngles, BodyPart part);
-	void	init 						();
 	void	createInnerModelTarget		(Target &target);
 	void	removeInnerModelTarget		(Target &target);
 	void	showInformation				(BodyPart part, Target target);

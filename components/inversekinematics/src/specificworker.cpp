@@ -26,6 +26,12 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
+	innermodel = NULL;
+#ifdef USE_QTGUI
+	innerViewer = NULL;
+	this->osgView = new OsgView(this);
+	show();
+#endif
 	inversedkinematic = new InversedKinematic();
 	correlativeID = 0;
 }
@@ -59,7 +65,17 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			qFatal("Exiting now.");
 	}
 	catch(std::exception e) { qFatal("Error reading Innermodel param");}
-		
+#ifdef USE_QTGUI
+	if (innerViewer)
+	{
+		this->osgView->getRootGroup()->removeChild(innerViewer);
+		delete innerViewer;
+	}
+	this->innerViewer = new InnerModelViewer(this->innermodel, "root", this->osgView->getRootGroup(), true);
+#endif
+
+	
+	
 	QString 	tipR, 				tipL, 		tipH;
 	QString 	motorsR, 			motorsL,	motorsH;
 	QStringList	auxiliar_motor_list;
@@ -99,16 +115,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		bodyParts.insert("HEAD", BodyPart("HEAD",tipH, auxiliar_motor_list));			/// PUT THE LIST INTO THE BODY'S PART
 	}	
 	timer.start(Period);
+
+
 	return true;
-}
-/** ÑAPA PARA INICIALIZAR EL OSGVIEWER **/
-void SpecificWorker::init()
-{
-#ifdef USE_QTGUI
-	this->osgView = new OsgView(this);
-	this->innerViewer = new InnerModelViewer(this->innermodel, "root", this->osgView->getRootGroup(), true);
-	show();
-#endif
+
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -120,15 +130,6 @@ void SpecificWorker::init()
  */ 
 void SpecificWorker::compute()
 {
-	static bool primera_vez = true;
-	if(primera_vez)
-	{
-		init();
-		primera_vez = false;
-	}
-	/*---------------- FIN DE ÑAPA --------------*/
-	
-
 	updateInnerModel();
 		
 	QMap<QString, BodyPart>::iterator partsIterator;
