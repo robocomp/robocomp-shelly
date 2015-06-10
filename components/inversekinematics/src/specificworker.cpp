@@ -113,10 +113,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		bodyParts.insert("HEAD", BodyPart("HEAD",tipH, auxiliar_motor_list));			/// PUT THE LIST INTO THE BODY'S PART
 	}	
 	timer.start(Period);
-
-
 	return true;
-
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////
