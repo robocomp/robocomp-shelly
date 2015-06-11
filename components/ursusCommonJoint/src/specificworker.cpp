@@ -450,5 +450,3 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 		in.push_back(node->id);
 	}
 }
-
-

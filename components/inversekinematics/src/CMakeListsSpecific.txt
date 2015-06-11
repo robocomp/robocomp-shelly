@@ -9,9 +9,9 @@ SET ( SOURCES
   target.cpp
   inversedkinematic.cpp
   ##############
-  plannerompl.cpp
-  sampler.cpp
-  reflexx.cpp
+ # plannerompl.cpp
+ # sampler.cpp
+ # reflexx.cpp
 )
 
 # Headers set
@@ -24,9 +24,9 @@ SET ( HEADERS
   target.h
   inversedkinematic.h
   #############
-  plannerompl.h
-  sampler.h
-  reflexx.h
+ # plannerompl.h
+ # sampler.h
+ # reflexx.h
 )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)

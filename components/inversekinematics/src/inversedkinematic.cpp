@@ -292,7 +292,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
 				}
-
 				updateAngles(aux); // Metemos los nuevos angles LUEGO HAY QUE DESHACER EL CAMBIO.
 				ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
 				

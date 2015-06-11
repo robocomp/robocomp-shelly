@@ -11,7 +11,7 @@
 #include <iostream>
 #include <innermodel/innermodel.h>
 #include <osgDB/ReadFile>
-#include "sampler.h"
+//#include "sampler.h"
 
 using namespace std;
 

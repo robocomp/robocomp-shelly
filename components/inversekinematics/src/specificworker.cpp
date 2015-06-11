@@ -130,6 +130,12 @@ void SpecificWorker::compute()
 	QMap<QString, BodyPart>::iterator partsIterator;
 	for(partsIterator = bodyParts.begin(); partsIterator != bodyParts.end(); ++partsIterator)
 	{
+		// COMPROBAR SI ES LA PRIMERA VEZ QUE ENTRA EL TARGET--> 
+		// CREAR PLAN PARA ALCANZAR EL TARGET USANDO GRAFO. ESE PLANNER TENDRA GRAFO (LO CREA O LO LEE), EL INNER Y EL TARGET
+		// 1) BUSCA DE DONDE ESTAMOS AL GRAFO
+		// 2) BUSCA DEL TARGET AL GRAFO
+		// 3) BUSCAR CAMINO POR EL GRAFO DEVUELVE EL CAMINO COMO LISTA DE TARGET INYECTADOS AL PRINCIPIO.
+		
 		for(int i=0; i<partsIterator.value().getTargetList().size(); i++)
 		{
 			qDebug()<<"target["<<i<<"]: "<<partsIterator.value().getTargetList()[i].getTargetPose();

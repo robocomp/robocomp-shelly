@@ -36,9 +36,9 @@
 #include "bodypart.h"
 #include "metric.h"
 #include "inversedkinematic.h"
-#include "plannerompl.h"
-#include "reflexx.h"
-#include "sampler.h"
+//#include "plannerompl.h"
+//#include "reflexx.h"
+//#include "sampler.h"
 
 #ifdef USE_QTGUI
 	#include <osgviewer/osgview.h>
@@ -83,8 +83,8 @@ private:
 	QMap<QString, BodyPart> 	bodyParts;
 	QStringList					availableParts;
 	InnerModel					*innermodel;
-	PlannerOMPL 				*planner;
-	Sampler 					sampler;
+	//PlannerOMPL 				*planner;
+	//Sampler 					sampler;
 	InversedKinematic			*inversedkinematic;
 	
 #ifdef USE_QTGUI
