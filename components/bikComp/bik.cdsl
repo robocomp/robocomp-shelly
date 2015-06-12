@@ -1,0 +1,18 @@
+import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
+import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
+import "/robocomp/interfaces/IDSLs/InnerModelManager.idsl";
+import "/robocomp/interfaces/IDSLs/BodyInverseKinematics.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/JoystickAdapter.idsl";
+
+Component BIK
+{
+	Communications
+	{
+		requires  JointMotor, JointMotor, OmniRobot, InnerModelManager;
+		implements BodyInverseKinematics;
+		subscribesTo JoystickAdapter;
+	};
+	gui Qt(QWidget);
+	language Cpp;
+};

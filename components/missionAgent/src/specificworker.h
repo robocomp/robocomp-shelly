@@ -38,8 +38,9 @@ Q_OBJECT
 public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
-	void modelModified(const RoboCompAGMWorldModel::Event& modification);
-	void modelUpdated(const RoboCompAGMWorldModel::Node& modification);
+	void structuralChange(const RoboCompAGMWorldModel::Event& modification);
+	void symbolUpdated(const RoboCompAGMWorldModel::Node& modification);
+	void edgeUpdated(const RoboCompAGMWorldModel::Edge& modification);
 	void update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &p);
 
 	bool setParams(RoboCompCommonBehavior::ParameterList params) { return true; }
@@ -62,6 +63,7 @@ public slots:
 	void deactivateClicked();
 	void resetClicked();
 
+// 	void broadcastButtonClicked();
 	void broadcastPlanButtonClicked();
 	void broadcastModelButtonClicked();
 

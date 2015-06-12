@@ -1,0 +1,31 @@
+BodyInverseKinematics.Endpoints=tcp -p 10220
+CommonBehavior.Endpoints=tcp -p 12207
+JoystickAdapterTopic=tcp -p 12226
+
+JointMotorProxy = jointmotor:tcp -p 20000 
+DifferentialRobotProxy = differentialrobot:tcp  -p 10004 -h localhost
+OmniRobotProxy = omnirobot:tcp  -p 12238 -h localhost
+InnerModelManagerProxy = innermodelmanager:tcp  -p 11175 -h localhost
+
+
+
+#InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml
+InnerModel=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/ficheros_Test_VisualBIK/ursus_errors.xml
+
+
+RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
+RIGHTTIP=grabPositionHandR
+LEFTARM=leftShoulder1;leftShoulder2;leftShoulder3;leftElbow;leftForeArm;leftWrist1;leftWrist2
+LETFTIP=grabPositionHandL
+HEAD=head_yaw_joint;head_pitch_joint
+HEADTIP=rgbd_transform
+
+
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+
+Ice.Warn.Connections=0
+Ice.Trace.Network=0
+Ice.Trace.Protocol=0
+
+Ice.ACM.Client=10
+Ice.ACM.Server=10

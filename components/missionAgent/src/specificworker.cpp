@@ -49,15 +49,16 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 
 	set3DViewer();
 
-	connect(quitButton,             SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
-	connect(broadcastPlanButton,    SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
-	connect(broadcastModelButton,   SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
+	connect(quitButton,           SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
+	connect(broadcastModelButton, SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
+	connect(broadcastPlanButton,  SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
 
-	connect(activateButton,         SIGNAL(clicked()), this, SLOT(activateClicked()));
-	connect(deactivateButton,       SIGNAL(clicked()), this, SLOT(deactivateClicked()));
-	connect(resetButton,            SIGNAL(clicked()), this, SLOT(resetClicked()));
+	connect(activateButton,       SIGNAL(clicked()), this, SLOT(activateClicked()));
+	connect(deactivateButton,     SIGNAL(clicked()), this, SLOT(deactivateClicked()));
+	connect(resetButton,          SIGNAL(clicked()), this, SLOT(resetClicked()));
 
-	connect(setMissionButton,       SIGNAL(clicked()), this, SLOT(setMission()));
+	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
+
 
 	timer.start(90);
 }
@@ -126,7 +127,7 @@ bool SpecificWorker::setAgentParameters(const ParameterMap& params)
 	return true;
 }
 
-void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modification)
+void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modification)
 {
 // 	printf("MODEL MODIFIED (%s)\n", modification.sender.c_str());
 	{
@@ -137,7 +138,7 @@ void SpecificWorker::modelModified(const RoboCompAGMWorldModel::Event& modificat
 	}
 }
 
-void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modification)
+void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	{
 		QMutexLocker dd(&modelMutex);
@@ -145,6 +146,15 @@ void SpecificWorker::modelUpdated(const RoboCompAGMWorldModel::Node& modificatio
 		refresh = true;
 	}
 }
+void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
+{
+	{
+		QMutexLocker dd(&modelMutex);
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		refresh = true;
+	}
+}
+
 
 void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCompAGMWorldModel::World &b, const RoboCompPlanning::Plan &pl)
 {
@@ -164,7 +174,7 @@ void SpecificWorker::quitButtonClicked()
 
 void SpecificWorker::broadcastModelButtonClicked()
 {
-	printf("broadcast button\n");
+	printf("broadcast model button\n");
 	try
 	{
 		agmexecutive_proxy->broadcastModel();
@@ -175,10 +185,9 @@ void SpecificWorker::broadcastModelButtonClicked()
 	}
 }
 
-
 void SpecificWorker::broadcastPlanButtonClicked()
 {
-	printf("broadcast button\n");
+	printf("broadcast plan button\n");
 	try
 	{
 		agmexecutive_proxy->broadcastPlan();
