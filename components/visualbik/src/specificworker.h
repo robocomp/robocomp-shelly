@@ -26,6 +26,7 @@
 #define SPECIFICWORKER_H
 
 #include <iostream>
+#include <fstream>
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
 #include <target.h>
@@ -42,7 +43,7 @@ class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);	
+	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
@@ -70,13 +71,15 @@ private:
 	VisualHand *rightHand, *leftHand; //CONSULTE LOS FICHEROS src/visualhand.h Y src/visualhand.cpp
 	// VARIABLES QUE GUARDAN EL TARGET QUE SE ESTA EJECUTANDO Y EL SIGUIENTE A EJECUTAR.
 	Target trueTarget;
-	Target corregir;
-	Target nextTarget;
-	// MUTEX PARA ZONAS CRITICAS
-	QMutex mutex;
-	// EL MODELO INTERNO DEL ROBOT
-	InnerModel *innerModel;
-
+	Target correctedTarget;
+	QQueue<Target> nextTargets;
+	QMutex 		mutex;					// MUTEX PARA ZONAS CRITICAS
+	InnerModel 	*innerModel;			// EL MODELO INTERNO DEL ROBOT
+	ofstream 	file;					// EL FICHERO DONDE GUARDAR DATOS
+	bool 		abortatraslacion;		// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
+	bool 		abortarotacion;			// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
+	bool 		INITIALIZED;
+	
 #ifdef USE_QTGUI
 	OsgView *osgView;
 	InnerModelViewer *innerViewer;
@@ -84,8 +87,14 @@ private:
 
 	// METODOS PRIVADOS
 	bool correctTraslation();
+	bool correctTraslation_con_vision();
+	bool correctTraslation_sin_vision();
+	
 	bool correctRotation();
-	void actualizarInnermodel();
+	bool correctRotation_con_vision();
+	bool correctRotation_sin_vision();
+	
+	void actualizarTodo();
 
 };
 

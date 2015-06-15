@@ -27,28 +27,36 @@ public:
 	
  private:
 	//Atributos privados:
-	State state;
-	string bodyPart;
-	RoboCompBodyInverseKinematics::Pose6D pose6D; //vector con la pose del target.
-	RoboCompBodyInverseKinematics::WeightVector weights; //vector con los pesos del target.
+	State 	state;
+	string 	bodyPart;
+	QVec	pose;
+	QVec	weights;
 	
 public:
 	//CONSTRUCTORES Y DESTRUCTORES DE LA CLASE:
-	Target(); //por defecto
-	Target(const string bodyPart_, const RoboCompBodyInverseKinematics::Pose6D &pose6D_, const RoboCompBodyInverseKinematics::WeightVector &weights_); //parametrizado
-	~Target();
+	Target	(); //por defecto
+	Target	(const string bodyPart_, const RoboCompBodyInverseKinematics::Pose6D &pose6D_, const RoboCompBodyInverseKinematics::WeightVector &weights_); //parametrizado
+	~Target	();
 	
 	//METODOS PUT
-	void changeState(Target::State state_);
-	void changeBodyPart(string bodyPart_);
-	void changePose6D(RoboCompBodyInverseKinematics::Pose6D pose6D_);
-	void changeWeights(RoboCompBodyInverseKinematics::WeightVector weights_);
+	void 	setState	(Target::State state_);
+	void 	setBodyPart	(string bodyPart_);
+	void 	setPose		(QVec pose_);
+	void	setWeights	(QVec weights_);
+	void 	setPose		(RoboCompBodyInverseKinematics::Pose6D       pose6D_);
+	void 	setWeights	(RoboCompBodyInverseKinematics::WeightVector weights_);
 	
+	void setRX(float rx) {pose[3] = rx;};
+	void setRY(float ry) {pose[4] = ry;};
+	void setRZ(float rz) {pose[5] = rz;};
+
 	//METODOS GET:
-	Target::State getState();
-	string getBodyPart();
-	RoboCompBodyInverseKinematics::Pose6D getPose6D();
-	RoboCompBodyInverseKinematics::WeightVector getWeights();
+	Target::State 	getState	();
+	string 			getBodyPart	();
+	QVec			getPose		();
+	QVec			getWeights	();
+	RoboCompBodyInverseKinematics::Pose6D 		getPose6D	();
+	RoboCompBodyInverseKinematics::WeightVector getWeights6D();
 
 };
 
