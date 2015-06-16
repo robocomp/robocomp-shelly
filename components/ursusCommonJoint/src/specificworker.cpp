@@ -143,7 +143,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	init();
 #ifdef USE_QTGUI
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
-	show();
+// 	show();
 #endif
 
 	std::vector<std::pair<QString, QString> > exclusionList;

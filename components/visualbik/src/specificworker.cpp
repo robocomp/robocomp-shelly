@@ -26,7 +26,7 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	file.open("datosObtenidos.txt", ios::out);
+	file.open("datosObtenidos.txt", ios::app);
 
 	QMutexLocker im(&mutex);
 	INITIALIZED			= false;
@@ -37,7 +37,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI	
 	innerViewer 		= NULL;
 	osgView 			= new OsgView(this);
-	show();
+// 	show();
 #endif
 }
 
@@ -114,7 +114,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute()
 {
 	static int i = 0;
-	if (i++%20 != 0)
+	if (i%20 != 0)
 	{
 #ifdef USE_QTGUI
 		if (innerViewer)
@@ -126,6 +126,7 @@ void SpecificWorker::compute()
 		}
 #endif
 	}
+	
 	actualizarTodo();
 	QMutexLocker ml(&mutex);
 	switch(stateMachine)
@@ -196,6 +197,7 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
+			std::cout<<"ESTOY CORRIGIENDO TARGET    "<<i<<std::endl;
 			if (bodyinversekinematics_proxy->getState(trueTarget.getBodyPart()).finish != true) return;
 			if (correctRotation()==true or abortarotacion==true)
 			{
@@ -419,7 +421,16 @@ void SpecificWorker::setRobot(const int type)
 
 TargetState SpecificWorker::getState(const string &part)
 {
-	return bodyinversekinematics_proxy->getState(part);
+	RoboCompBodyInverseKinematics::TargetState state;
+	state.finish = false;
+	state.elapsedTime = 0;
+	state.estimatedEndTime = -1;
+	
+	QMutexLocker lm (&mutex);
+	if(nextTargets.isEmpty()==true)
+		state.finish=true;
+	
+	return state;
 }
 
 void SpecificWorker::setNewTip(const string &part, const string &transform, const Pose6D &pose)

@@ -30,7 +30,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI
 	innerViewer = NULL;
 	this->osgView = new OsgView(this);
-	show();
+// 	show();
 #endif
 	inversedkinematic = new InversedKinematic();
 	correlativeID = 0;
