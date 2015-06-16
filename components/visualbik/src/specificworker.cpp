@@ -26,7 +26,9 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	file.open("datosObtenidos.txt", ios::app);
+	file.open("datosObtenidos.txt", ios::out | ios::app);
+	if (file.is_open()==false)
+		qFatal("ARCHIVO NO ABIERTO");
 
 	QMutexLocker im(&mutex);
 	INITIALIZED			= false;
@@ -197,7 +199,6 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
-			std::cout<<"ESTOY CORRIGIENDO TARGET    "<<i<<std::endl;
 			if (bodyinversekinematics_proxy->getState(trueTarget.getBodyPart()).finish != true) return;
 			if (correctRotation()==true or abortarotacion==true)
 			{
