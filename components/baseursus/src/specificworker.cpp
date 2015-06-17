@@ -113,7 +113,7 @@ void SpecificWorker::SpecificWorker::compute()
 	computeOdometry(false);
 }
 
-double SpecificWorker::getElapsedSeconds()
+double SpecificWorker::getElapsedSeconds(bool clear)
 {
 	static timeval *a = new timeval;
 	static timeval *b = new timeval;
@@ -126,12 +126,14 @@ double SpecificWorker::getElapsedSeconds()
 		gettimeofday(b, NULL);
 		return 0.;
 	}
+	if (clear)
+	{
+		*a = *b;
+	}
 
 	gettimeofday(b, NULL);
 	double ret = (double(b->tv_sec)-double(a->tv_sec)) + (double(b->tv_usec)-double(a->tv_usec))/1000000.;
-	timeval *swap = a;
-	a = b;
-	b = swap;
+
 	return ret;
 }
 
@@ -142,6 +144,7 @@ void SpecificWorker::computeOdometry(bool forced)
 	
 	if (forced or elapsedTime > 0.08)
 	{
+		getElapsedSeconds(true);
 		QVec newP;
 		QVec wheelsInc = wheelVels.operator*(elapsedTime);
 		wheelsInc.print("wheelsinc");
@@ -152,7 +155,7 @@ void SpecificWorker::computeOdometry(bool forced)
 			
 
 		// Raw odometry
-		innermodel->updateTransformValues("newPose",     deltaPos(0), 0, deltaPos(1),       0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("newPose",     deltaPos(1), 0, deltaPos(0),       0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "newPose");
 		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("newPose",               0, 0,           0,       0,                 0, 0);
@@ -161,7 +164,7 @@ void SpecificWorker::computeOdometry(bool forced)
 		angle += deltaPos(2);
 
 		// Corrected odometry
-		innermodel->updateTransformValues("corrNewPose",    deltaPos(0), 0, deltaPos(1),    0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("corrNewPose",    deltaPos(1), 0, deltaPos(0),    0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "corrNewPose");
 		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("corrNewPose",              0, 0,           0,    0,                 0, 0);
