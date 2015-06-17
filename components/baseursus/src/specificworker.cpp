@@ -193,9 +193,9 @@ void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
 
 void SpecificWorker::getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alpha)
 {
-	x = x;
-	z = z;
-	alpha = angle;
+	x     = this->x;
+	z     = this->z;
+	alpha = this->angle;
 }
 
 void SpecificWorker::setSpeedBase(::Ice::Float advx, ::Ice::Float advz, ::Ice::Float rotv)

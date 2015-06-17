@@ -165,12 +165,32 @@
   <radius value="10.0" />
  </node>
 
+ <node alias="GoogleASR" endpoint="rgbd:tcp -h robonuc1.local -p 19299">
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote robonuc1.local googleASR /home/robocomp/robocomp/components/robocomp-robolab/components/googleASR src/GoogleASR.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASR.conf" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 googleASR" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASR.conf" />
+  <xpos value="209.427598197" />
+  <ypos value="-22.7622201252" />
+  <radius value="10.0" />
+ </node>
+ <node alias="GoogleASRClientUrsus" endpoint="rgbd:tcp -h robonuc1.local -p 11000">
+  <dependence alias="GoogleASR" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote robonuc1.local googleASRClientUrsus /home/robocomp/robocomp/components/robocomp-robolab/components/googleASRClientUrsus src/GoogleASRClientUrsus.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASRClientUrsus.conf" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 googleASRClientUrsus" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASRClientUrsus.conf" />
+  <xpos value="209.427598197" />
+  <ypos value="-22.7622201252" />
+  <radius value="10.0" />
+ </node>
+
  <node alias="apriltags" endpoint="commonbehavior:tcp -h robonuc1.local -p 14358">
   <dependence alias="primesense" />
   <dependence alias="icestorm" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote robonuc1.local primesense /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 apriltagsComp" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 apriltagscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="136.482372998" />
   <ypos value="-90.1324566679" />
