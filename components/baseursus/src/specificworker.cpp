@@ -219,6 +219,7 @@ void SpecificWorker::resetOdometer()
 	QMutexLocker locker(dataMutex);
 	setOdometerPose(0,0,0);
 	correctOdometer(0,0,0);
+        innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
 }
 
 void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
