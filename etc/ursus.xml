@@ -175,6 +175,9 @@
 																									<transform id="grabPositionHandR" ty="0" tz="0" rx="0" ry="0,0" rz="0">
 																										<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
 																										<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
+																										<transform id="nhhh" ty="10">
+																											<axes id="targetAxes" length="120" width="2" />
+																										</transform>
 																									</transform> <!-- handmesh2_t-->
 																								</transform><!-- Thandmesh2_4-->
 																							</transform><!-- Thandmesh2_3-->
