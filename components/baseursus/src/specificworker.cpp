@@ -147,11 +147,11 @@ void SpecificWorker::computeOdometry(bool forced)
 		getElapsedSeconds(true);
 		QVec newP;
 		QVec wheelsInc = wheelVels.operator*(elapsedTime);
-		wheelsInc.print("wheelsinc");
+// 		wheelsInc.print("wheelsinc");
 		QVec deltaPos = M_wheels_2_vels * wheelsInc;
-		wheelVels.print("wheelsvels");
-		printf("elapsedTime=%g\n", elapsedTime*1000);
-		deltaPos.print("delta");
+// 		wheelVels.print("wheelsvels");
+// 		printf("elapsedTime=%g\n", elapsedTime*1000);
+// 		deltaPos.print("delta");
 			
 
 		// Raw odometry
@@ -202,10 +202,8 @@ void SpecificWorker::setSpeedBase(::Ice::Float advx, ::Ice::Float advz, ::Ice::F
 {
 	computeOdometry(true);
 	QMutexLocker locker(dataMutex);
-// 	printf("Me llega: %f %f %f\n", advx, advz, rotv);
 	const QVec v = QVec::vec3(advz, advx, rotv);
 	const QVec wheels = M_vels_2_wheels * v;
-// 	printf("Mandamos: %f %f %f %f\n", wheels(0), wheels(1), wheels(2), wheels(3));
 	setWheels(wheels);
 }
 
@@ -219,7 +217,7 @@ void SpecificWorker::resetOdometer()
 	QMutexLocker locker(dataMutex);
 	setOdometerPose(0,0,0);
 	correctOdometer(0,0,0);
-        innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
+	innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
 }
 
 void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
@@ -243,29 +241,30 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrX = x;
 	this->corrZ = z;
 	this->corrAngle = alpha;
-	
-// 	("%f %f    @ %f\n", corrX, corrZ, corrAngle);
 }
 
 void SpecificWorker::setWheels(QVec wheelVels_)
 {
-	QMutexLocker locker(dataMutex);
-	wheelVels = wheelVels_;
-	static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
+	{
+		QMutexLocker locker(dataMutex);
+		wheelVels = wheelVels_;
 
-	goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+		static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
 
-	goalFL.name = "frontLeft";
-	goalFL.velocity = wheelVels(0);
-	
-	goalFR.name = "frontRight";
-	goalFR.velocity = wheelVels(1);
-	
-	goalBL.name = "backLeft";
-	goalBL.velocity = wheelVels(2);
-	
-	goalBR.name = "backRight";
-	goalBR.velocity = wheelVels(3);
+		goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+
+		goalFL.name = "frontLeft";
+		goalFL.velocity = wheelVels(0);
+		
+		goalFR.name = "frontRight";
+		goalFR.velocity = wheelVels(1);
+		
+		goalBL.name = "backLeft";
+		goalBL.velocity = wheelVels(2);
+		
+		goalBR.name = "backRight";
+		goalBR.velocity = wheelVels(3);
+	}
 
 	try 
 	{
