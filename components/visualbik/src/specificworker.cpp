@@ -212,7 +212,8 @@ void SpecificWorker::compute()
 				else
 					trueTarget.setState(Target::State::IDLE);
 				stateMachine = State::IDLE;
-				bodyinversekinematics_proxy->goHome("RIGHTARM");
+				goHome("RIGHTARM");
+				//bodyinversekinematics_proxy->goHome("RIGHTARM");
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -445,8 +446,49 @@ void SpecificWorker::stop(const string &part)
 }
 
 void SpecificWorker::goHome(const string &part)
-{
-	bodyinversekinematics_proxy->goHome(part);
+{	
+	try
+	{
+		RoboCompJointMotor::MotorGoalPosition nodo;
+		
+		nodo.name = "rightShoulder1";
+		nodo.position = -2.05; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightShoulder2";
+		nodo.position = -0.2; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightShoulder3";
+		nodo.position = 0.5; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightElbow";
+		nodo.position = 0.8; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightForeArm";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightWrist1";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightWrist2";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+	} 
+	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
+
+	//bodyinversekinematics_proxy->goHome(part);
 }
 
 void SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights, const float radius)
