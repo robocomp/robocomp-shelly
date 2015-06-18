@@ -154,7 +154,7 @@ void SpecificWorker::compute()
 				float errorT, errorR;
 				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
 				showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
-				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.9)
+				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.05)
 				{
 					updateRCIS(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 					qDebug()<<"--------------> FINISH TARGET    OK\n";
