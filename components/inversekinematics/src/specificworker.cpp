@@ -30,7 +30,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI
 	innerViewer = NULL;
 	this->osgView = new OsgView(this);
-	show();
+// 	show();
 #endif
 	inversedkinematic = new InversedKinematic();
 	correlativeID = 0;
@@ -154,7 +154,7 @@ void SpecificWorker::compute()
 				float errorT, errorR;
 				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
 				showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
-				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.9)
+				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.05)
 				{
 					updateRCIS(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 					qDebug()<<"--------------> FINISH TARGET    OK\n";

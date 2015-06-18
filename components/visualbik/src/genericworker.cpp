@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
+ *    Copyright (C) 2015 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,14 +28,18 @@ QObject()
 #endif
 
 {
-	jointmotor0_proxy = (*(JointMotorPrx*)mprx["JointMotor0Proxy"]);
-	jointmotor1_proxy = (*(JointMotorPrx*)mprx["JointMotor1Proxy"]);
+	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
+	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
+	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
+
 
 	mutex = new QMutex();
-	#ifdef USE_QTGUI
+
+#ifdef USE_QTGUI
 		setupUi(this);
 // 		show();
-	#endif
+#endif
+		
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 }
