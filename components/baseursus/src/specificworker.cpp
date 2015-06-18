@@ -175,6 +175,10 @@ void SpecificWorker::computeOdometry(bool forced)
 }
 
 
+//////////////////////////////////////////
+///  SERVANTS FOR OMNIROBOT
+//////////////////////////////////////////
+
 void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
 {
 // 	printf("--------------------\n");
@@ -243,29 +247,27 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrAngle = alpha;
 }
 
+//////////////////////////////////////////
+///  TALKING TO JOINTMOTOR
+//////////////////////////////////////////
+
 void SpecificWorker::setWheels(QVec wheelVels_)
 {
+	static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
+	goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+	goalFL.name = "frontLeft";
+	goalFR.name = "frontRight";
+	goalBL.name = "backLeft";
+	goalBR.name = "backRight";
+
 	{
 		QMutexLocker locker(dataMutex);
 		wheelVels = wheelVels_;
-
-		static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
-
-		goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
-
-		goalFL.name = "frontLeft";
 		goalFL.velocity = wheelVels(0);
-		
-		goalFR.name = "frontRight";
 		goalFR.velocity = wheelVels(1);
-		
-		goalBL.name = "backLeft";
 		goalBL.velocity = wheelVels(2);
-		
-		goalBR.name = "backRight";
 		goalBR.velocity = wheelVels(3);
 	}
-
 	try 
 	{
 		jointmotor_proxy->setVelocity(goalFL);
