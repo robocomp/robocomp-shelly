@@ -47,12 +47,13 @@ void OmniRobotI::setSpeedBase(Ice::Float advx, Ice::Float advz, Ice::Float rot, 
 	static QTime reloj = QTime::currentTime();
 	RoboCompOmniRobot::HardwareFailedException ex;
 	
-	if( reloj.elapsed() > 200)
+	if( reloj.elapsed() > 300)
 		worker->setSpeedBase(advx,advz,rot);
 	else
 	{
 		ex.what = "Too many requests in setSpeedBase";
 		throw ex;
+		reloj.restart();
 	}
 }
 
