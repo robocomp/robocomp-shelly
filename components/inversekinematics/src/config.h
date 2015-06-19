@@ -5,7 +5,7 @@
 #define USE_QTGUI
 
 
-#define PROGRAM_NAME    " inversekinematics"
+#define PROGRAM_NAME    "inversekinematics"
 #define SERVER_FULL_NAME   "RoboComp inversekinematics:: inversekinematics"
 
 #endif

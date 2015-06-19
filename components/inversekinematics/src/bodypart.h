@@ -33,14 +33,18 @@ public:
 	QString			getTipName		();
 	QStringList		getMotorList	();
 	QQueue<Target>	&getTargetList	();
+	QQueue<Target>	&getSolvedList	();
 	
-	void			addTargetToList	(Target target);
+	void			addTargetToList	(Target &target);
+	void			addSolvedToList	();
 	
 private:
 	QString			partName;
 	QString			tipName;
 	QStringList		motorList;
 	QQueue<Target>	targetList;
+	QQueue<Target>	solvedList;
+	int				counter;
 	
 };
 

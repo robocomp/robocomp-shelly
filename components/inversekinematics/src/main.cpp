@@ -78,11 +78,11 @@
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
 
-#include <bodyinversekinematicsI.h>
+#include <inversekinematicsI.h>
 #include <joystickadapterI.h>
 
 #include <InnerModelManager.h>
-#include <BodyInverseKinematics.h>
+#include <InverseKinematics.h>
 #include <JointMotor.h>
 #include <JoystickAdapter.h>
 
@@ -94,7 +94,7 @@ using namespace std;
 using namespace RoboCompCommonBehavior;
 
 using namespace RoboCompInnerModelManager;
-using namespace RoboCompBodyInverseKinematics;
+using namespace RoboCompInverseKinematics;
 using namespace RoboCompJointMotor;
 using namespace RoboCompJoystickAdapter;
 
@@ -197,20 +197,20 @@ IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(
 
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "BodyInverseKinematics.Endpoints", tmp, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematics.Endpoints", tmp, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy BodyInverseKinematics";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematics";
 		}
-		Ice::ObjectAdapterPtr adapterBodyInverseKinematics = communicator()->createObjectAdapterWithEndpoints("BodyInverseKinematics", tmp);
-		BodyInverseKinematicsI *bodyinversekinematics = new BodyInverseKinematicsI(worker);
-		adapterBodyInverseKinematics->add(bodyinversekinematics, communicator()->stringToIdentity("bodyinversekinematics"));
-		adapterBodyInverseKinematics->activate();
+		Ice::ObjectAdapterPtr adapterInverseKinematics = communicator()->createObjectAdapterWithEndpoints("InverseKinematics", tmp);
+		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
+		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
+		adapterInverseKinematics->activate();
 
 
 
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "JoystickAdapterTopic", tmp, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "JoystickAdapterTopic.Endpoints", tmp, ""))
 		{
 			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy JoystickAdapterProxy";
 		}

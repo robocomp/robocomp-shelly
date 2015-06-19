@@ -18,8 +18,8 @@ using namespace std;
 class InversedKinematic 
 {
 public:
-			InversedKinematic	();
-			~InversedKinematic	();
+	InversedKinematic	();
+	~InversedKinematic	();
 	
 	void 	solveTarget			(BodyPart *bodypart_, 	InnerModel *innermodel_);
 	bool	deleteTarget		();

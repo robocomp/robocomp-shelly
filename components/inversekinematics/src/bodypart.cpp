@@ -9,6 +9,7 @@
  */ 
 BodyPart::BodyPart(QString partName_, QString tipName_,  QStringList	motorList_)
 {
+	counter 	= 0;
 	partName 	= partName_;
 	tipName  	= tipName_;
 	motorList 	= motorList_;
@@ -61,6 +62,14 @@ QQueue<Target> &BodyPart::getTargetList()
 {
 	return targetList;
 }
+/**
+ * \brief this method returns the queue of the solved targets
+ * @return QQueue solvedList
+ */ 
+QQueue<Target> &BodyPart::getSolvedList()
+{
+	return solvedList;
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -68,8 +77,20 @@ QQueue<Target> &BodyPart::getTargetList()
  * \brief This method insert the new target into the list (queue) of targets.
  * @param target the new target.
  */ 
-void BodyPart::addTargetToList(Target target)
+void BodyPart::addTargetToList(Target &target)
 {
+	target.setTargetIdentifier(counter);
 	targetList.enqueue(target);
+	counter++;
+}
+/**
+ * \brief This method insert the solved target into the solved list (queue) of solved targets,
+ * and delete it from the targetList.
+ * @param target the new target.
+ */ 
+void BodyPart::addSolvedToList()
+{
+	qDebug()<<"Resuelto";
+	solvedList.enqueue(targetList.dequeue());
 }
 
