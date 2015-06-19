@@ -26,7 +26,9 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	file.open("datosObtenidos.txt", ios::out);
+	file.open("datosObtenidos.txt", ios::out | ios::app);
+	if (file.is_open()==false)
+		qFatal("ARCHIVO NO ABIERTO");
 
 	QMutexLocker im(&mutex);
 	INITIALIZED			= false;
@@ -37,7 +39,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI	
 	innerViewer 		= NULL;
 	osgView 			= new OsgView(this);
-	show();
+// 	show();
 #endif
 }
 
@@ -114,7 +116,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute()
 {
 	static int i = 0;
-	if (i++%20 != 0)
+	if (i%20 != 0)
 	{
 #ifdef USE_QTGUI
 		if (innerViewer)
@@ -126,6 +128,7 @@ void SpecificWorker::compute()
 		}
 #endif
 	}
+	
 	actualizarTodo();
 	QMutexLocker ml(&mutex);
 	switch(stateMachine)
@@ -209,7 +212,8 @@ void SpecificWorker::compute()
 				else
 					trueTarget.setState(Target::State::IDLE);
 				stateMachine = State::IDLE;
-				bodyinversekinematics_proxy->goHome("RIGHTARM");
+				goHome("RIGHTARM");
+				//bodyinversekinematics_proxy->goHome("RIGHTARM");
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -419,7 +423,16 @@ void SpecificWorker::setRobot(const int type)
 
 TargetState SpecificWorker::getState(const string &part)
 {
-	return bodyinversekinematics_proxy->getState(part);
+	RoboCompBodyInverseKinematics::TargetState state;
+	state.finish = false;
+	state.elapsedTime = 0;
+	state.estimatedEndTime = -1;
+	
+	QMutexLocker lm (&mutex);
+	if(nextTargets.isEmpty()==true)
+		state.finish=true;
+	
+	return state;
 }
 
 void SpecificWorker::setNewTip(const string &part, const string &transform, const Pose6D &pose)
@@ -433,8 +446,49 @@ void SpecificWorker::stop(const string &part)
 }
 
 void SpecificWorker::goHome(const string &part)
-{
-	bodyinversekinematics_proxy->goHome(part);
+{	
+	try
+	{
+		RoboCompJointMotor::MotorGoalPosition nodo;
+		
+		nodo.name = "rightShoulder1";
+		nodo.position = -2.05; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightShoulder2";
+		nodo.position = -0.2; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightShoulder3";
+		nodo.position = 0.5; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightElbow";
+		nodo.position = 0.8; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightForeArm";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightWrist1";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightWrist2";
+		nodo.position = 0.1; // posición en radianes
+		nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+	} 
+	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
+
+	//bodyinversekinematics_proxy->goHome(part);
 }
 
 void SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights, const float radius)

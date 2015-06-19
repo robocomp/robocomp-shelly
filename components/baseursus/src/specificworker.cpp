@@ -113,7 +113,7 @@ void SpecificWorker::SpecificWorker::compute()
 	computeOdometry(false);
 }
 
-double SpecificWorker::getElapsedSeconds()
+double SpecificWorker::getElapsedSeconds(bool clear)
 {
 	static timeval *a = new timeval;
 	static timeval *b = new timeval;
@@ -126,12 +126,14 @@ double SpecificWorker::getElapsedSeconds()
 		gettimeofday(b, NULL);
 		return 0.;
 	}
+	if (clear)
+	{
+		*a = *b;
+	}
 
 	gettimeofday(b, NULL);
 	double ret = (double(b->tv_sec)-double(a->tv_sec)) + (double(b->tv_usec)-double(a->tv_usec))/1000000.;
-	timeval *swap = a;
-	a = b;
-	b = swap;
+
 	return ret;
 }
 
@@ -142,17 +144,18 @@ void SpecificWorker::computeOdometry(bool forced)
 	
 	if (forced or elapsedTime > 0.08)
 	{
+		getElapsedSeconds(true);
 		QVec newP;
 		QVec wheelsInc = wheelVels.operator*(elapsedTime);
-		wheelsInc.print("wheelsinc");
+// 		wheelsInc.print("wheelsinc");
 		QVec deltaPos = M_wheels_2_vels * wheelsInc;
-		wheelVels.print("wheelsvels");
-		printf("elapsedTime=%g\n", elapsedTime*1000);
-		deltaPos.print("delta");
+// 		wheelVels.print("wheelsvels");
+// 		printf("elapsedTime=%g\n", elapsedTime*1000);
+// 		deltaPos.print("delta");
 			
 
 		// Raw odometry
-		innermodel->updateTransformValues("newPose",     deltaPos(0), 0, deltaPos(1),       0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("newPose",     deltaPos(1), 0, deltaPos(0),       0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "newPose");
 		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("newPose",               0, 0,           0,       0,                 0, 0);
@@ -161,7 +164,7 @@ void SpecificWorker::computeOdometry(bool forced)
 		angle += deltaPos(2);
 
 		// Corrected odometry
-		innermodel->updateTransformValues("corrNewPose",    deltaPos(0), 0, deltaPos(1),    0,       deltaPos(2), 0);
+		innermodel->updateTransformValues("corrNewPose",    deltaPos(1), 0, deltaPos(0),    0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "corrNewPose");
 		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, deltaPos(2)+angle, 0);
 		innermodel->updateTransformValues("corrNewPose",              0, 0,           0,    0,                 0, 0);
@@ -190,19 +193,17 @@ void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
 
 void SpecificWorker::getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alpha)
 {
-	x = x;
-	z = z;
-	alpha = angle;
+	x     = this->x;
+	z     = this->z;
+	alpha = this->angle;
 }
 
 void SpecificWorker::setSpeedBase(::Ice::Float advx, ::Ice::Float advz, ::Ice::Float rotv)
 {
 	computeOdometry(true);
 	QMutexLocker locker(dataMutex);
-// 	printf("Me llega: %f %f %f\n", advx, advz, rotv);
 	const QVec v = QVec::vec3(advz, advx, rotv);
 	const QVec wheels = M_vels_2_wheels * v;
-// 	printf("Mandamos: %f %f %f %f\n", wheels(0), wheels(1), wheels(2), wheels(3));
 	setWheels(wheels);
 }
 
@@ -216,6 +217,7 @@ void SpecificWorker::resetOdometer()
 	QMutexLocker locker(dataMutex);
 	setOdometerPose(0,0,0);
 	correctOdometer(0,0,0);
+	innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
 }
 
 void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
@@ -239,29 +241,30 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrX = x;
 	this->corrZ = z;
 	this->corrAngle = alpha;
-	
-// 	("%f %f    @ %f\n", corrX, corrZ, corrAngle);
 }
 
 void SpecificWorker::setWheels(QVec wheelVels_)
 {
-	QMutexLocker locker(dataMutex);
-	wheelVels = wheelVels_;
-	static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
+	{
+		QMutexLocker locker(dataMutex);
+		wheelVels = wheelVels_;
 
-	goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+		static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
 
-	goalFL.name = "frontLeft";
-	goalFL.velocity = wheelVels(0);
-	
-	goalFR.name = "frontRight";
-	goalFR.velocity = wheelVels(1);
-	
-	goalBL.name = "backLeft";
-	goalBL.velocity = wheelVels(2);
-	
-	goalBR.name = "backRight";
-	goalBR.velocity = wheelVels(3);
+		goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+
+		goalFL.name = "frontLeft";
+		goalFL.velocity = wheelVels(0);
+		
+		goalFR.name = "frontRight";
+		goalFR.velocity = wheelVels(1);
+		
+		goalBL.name = "backLeft";
+		goalBL.velocity = wheelVels(2);
+		
+		goalBR.name = "backRight";
+		goalBR.velocity = wheelVels(3);
+	}
 
 	try 
 	{

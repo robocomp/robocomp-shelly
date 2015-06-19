@@ -66,7 +66,7 @@ private:
 	void setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	void correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	
-	double getElapsedSeconds();
+	double getElapsedSeconds(bool clear = false);
 };
 
 #endif
