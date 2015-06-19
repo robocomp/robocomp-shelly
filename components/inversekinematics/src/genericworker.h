@@ -28,9 +28,10 @@
 
 #include <CommonBehavior.h>
 #include <JoystickAdapter.h>
-#include <BodyInverseKinematics.h>
+#include <InverseKinematics.h>
 #include <InnerModelManager.h>
 #include <JointMotor.h>
+
 
 
 #define CHECK_PERIOD 5000
@@ -41,9 +42,12 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 using namespace std;
 
 using namespace RoboCompJoystickAdapter;
-using namespace RoboCompBodyInverseKinematics;
+using namespace RoboCompInverseKinematics;
 using namespace RoboCompInnerModelManager;
 using namespace RoboCompJointMotor;
+
+
+
 
 class GenericWorker : 
 #ifdef USE_QTGUI
@@ -61,26 +65,25 @@ public:
 	
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;
+	
 
 	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
 
-	virtual void setFingers(const float d) = 0;
-	virtual void setRobot(const int type) = 0;
-	virtual TargetState getState(const string &part) = 0;
-	virtual void setNewTip(const string &part, const string &transform, const Pose6D &pose) = 0;
-	virtual void stop(const string &part) = 0;
-	virtual void goHome(const string &part) = 0;
-	virtual void setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights, const float radius) = 0;
-	virtual void advanceAlongAxis(const string &bodyPart, const Axis &ax, const float dist) = 0;
-	virtual void pointAxisTowardsTarget(const string &bodyPart, const Pose6D &target, const Axis &ax, const bool &axisConstraint, const float axisAngleConstraint) = 0;
-	virtual void setJoint(const string &joint, const float position, const float maxSpeed) = 0;
+	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
+	virtual int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist) = 0;
+	virtual void goHome(const string &bodyPart) = 0;
+	virtual void stop(const string &bodyPart) = 0;
+	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
+	virtual bool getPartState(const string &bodyPart) = 0;
+	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
 	virtual void sendData(const TData &data) = 0;
 
 
 protected:
 	QTimer timer;
 	int Period;
+
 public slots:
 	virtual void compute() = 0;
 signals:

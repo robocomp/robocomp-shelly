@@ -7,23 +7,25 @@
  */ 
 Target::Target()
 {
-	state = TargetState::IDLE;
+	state 		= TargetState::IDLE;
+	identifier 	= 0;
+	runTime 	= QTime::currentTime();
 }
 /**
  * \brief Cosntructor for POSE6D targets.
+ * @param id_
  * @param type_ target type --> POSE6D
  * @param pose_ qvec 6 with the target pose
  * @param weights_ qvec 6 with the weights of each traslation and rotation component.
- * @param chop
  */ 
-Target::Target(const QVec &pose_, const QVec &weights_, const float radius_, TargetType type_, bool chop)
+Target::Target(int id_, const QVec &pose_, const QVec &weights_, TargetType type_)
 {
-	nameInInnerModel = "target";
-	state 	= TargetState::IDLE;
-	type 	= type_;
-	pose 	= pose_;
-	weight	= weights_;
-	radius 	= radius_;
+	identifier			= id_;
+	state 				= TargetState::IDLE;
+	type 				= type_;
+	pose 				= pose_;
+	weight				= weights_;
+	runTime  			= QTime::currentTime();
 }
 /**
  * \brief Constructor for ADVANCEAXIS Targets.
@@ -31,12 +33,14 @@ Target::Target(const QVec &pose_, const QVec &weights_, const float radius_, Tar
  * @param axis_ Target axis to be aligned with
  * @param step_ step to advance along axis
  */ 
-Target::Target(const QVec& axis_, float step_, TargetType type_)
+Target::Target(int id_, const QVec& axis_, float step_, TargetType type_)
 {
-	state 	= TargetState::IDLE;
-	type 	= type_;
-	axis 	= axis_;
-	step	= step_;
+	identifier	= id_;
+	state 		= TargetState::IDLE;
+	type 		= type_;
+	axis 		= axis_;
+	step		= step_;
+	runTime		= QTime::currentTime();
 }
 /**
  * \brief Constructor for ALIGNAXIS targets.
@@ -45,13 +49,15 @@ Target::Target(const QVec& axis_, float step_, TargetType type_)
  * @param weights_ qvec 6 with the weights of each traslation and rotation component.
  * @param axis_ Target axis to be aligned with
  */ 
-Target::Target(const QVec &pose_, const QVec &weights_, const QVec &axis_, 	TargetType type_)
+Target::Target(int id_, const QVec &pose_, const QVec &weights_, const QVec &axis_, TargetType type_)
 {
-	state 	= TargetState::IDLE;
-	type 	= type_;
-	pose 	= pose_;
-	weight	= weights_;
-	axis 	= axis_;
+	identifier	= id_;
+	state 		= TargetState::IDLE;
+	type 		= type_;
+	pose 		= pose_;
+	weight		= weights_;
+	axis 		= axis_;
+	runTime 	= QTime::currentTime();
 }
 
 /**
@@ -80,6 +86,14 @@ Target Target::operator=( Target target )
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief This method returns the identifier of the target.
+ * @return int identifier
+ */ 
+int Target::getTargetIdentifier()
+{
+	return identifier;
+}
 /**
  * \brief This method returns the name of the target in innermodel.
  * @return QString nameInInnerModel
@@ -170,9 +184,28 @@ QVec Target::getTargetFinalAngles()
 {
 	return finalangles;
 }
+/**
+ * \brief This method calculates the seconds that the target is being executed.
+ * @return float seconds
+ */ 
+float Target::getTargetTimeExecution()
+{
+	if(state == TargetState::IDLE)
+		return 0;
+	else
+		return runTime.elapsed()/1000;
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief this method changes the value of the target identifier
+ * @param id_ the new value of the target's identifier.
+ */ 
+void Target::setTargetIdentifier(int id_)
+{
+	identifier = id_;
+}
 /**
  * \brief This method changes the value of the target name in innermodel
  * @param nameInInnerModel_ the new name of the target in innermodel
@@ -188,6 +221,8 @@ void Target::setTargetNameInInnerModel(QString nameInInnerModel_)
 void Target::setTargetState(Target::TargetState state_)
 {
 	state = state_;
+	if(state == TargetState::IN_PROCESS)
+		runTime.start();
 }
 /**
  * \brief This method changes the finalstate of the target, when it is finish
@@ -195,7 +230,7 @@ void Target::setTargetState(Target::TargetState state_)
  */ 
 void Target::setTargetFinalState(Target::TargetFinalState finalstate_)
 {
-	if(state == Target::TargetState::FINISH)
+	if(state == TargetState::FINISH)
 		finalstate = finalstate_;
 }
 /**

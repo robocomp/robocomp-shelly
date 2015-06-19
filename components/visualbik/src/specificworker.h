@@ -87,13 +87,8 @@ private:
 
 	// METODOS PRIVADOS
 	bool correctTraslation();
-	bool correctTraslation_con_vision();
-	bool correctTraslation_sin_vision();
-	
 	bool correctRotation();
-	bool correctRotation_con_vision();
-	bool correctRotation_sin_vision();
-	
+		
 	void actualizarTodo();
 
 };

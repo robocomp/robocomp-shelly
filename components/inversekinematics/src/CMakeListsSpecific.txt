@@ -1,32 +1,23 @@
-
 # Sources set
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
-  ##############
-  bodypart.cpp
+  
   metric.cpp
   target.cpp
+  bodypart.cpp
   inversedkinematic.cpp
-  ##############
- # plannerompl.cpp
- # sampler.cpp
- # reflexx.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  #############
-  bodypart.h
+  
   metric.h
   target.h
+  bodypart.h
   inversedkinematic.h
-  #############
- # plannerompl.h
- # sampler.h
- # reflexx.h
 )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)

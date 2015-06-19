@@ -32,11 +32,11 @@ QObject()
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
 
 
-	mutex = new QMutex();
+	mutex = new QMutex(QMutex::Recursive);
 
-#ifdef USE_QTGUI
+	#ifdef USE_QTGUI
 		setupUi(this);
-// 		show();
+		show();
 	#endif
 		
 	Period = BASIC_PERIOD;
@@ -65,3 +65,4 @@ void GenericWorker::setPeriod(int p)
 	Period = p;
 	timer.start(Period);
 }
+
