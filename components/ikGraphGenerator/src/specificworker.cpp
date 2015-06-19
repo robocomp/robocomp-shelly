@@ -45,49 +45,58 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	
+
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	printf("params: %ld\n", params.size());
+	for (auto p : params)
+	{
+		std::cout << p.first.c_str() << std::endl;
+	}
+	if (params.size() == 0)
+		return true;
+
+	RoboCompCommonBehavior::Parameter par;
 	try
 	{
-		RoboCompCommonBehavior::Parameter par = params.at("InnerModel");
-		if( QFile::exists(QString::fromStdString(par.value)) )
-		{
-			innerModel = new InnerModel(par.value);
-#ifdef USE_QTGUI
-			innerVisual = new InnerModel(par.value);
-			innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
-			show();
-#endif
-		}
-		else
-		{
-			std::cout << "Innermodel path " << par.value << " not found. ";
-			qFatal("Abort");
-		}
+		par = params.at("InnerModel");
 	}
 	catch(std::exception e)
 	{
-		qFatal("Error reading config params");
+		qFatal("Error reading config param InnerModel (%s)", e.what());
+	}
+	if( QFile::exists(QString::fromStdString(par.value)) )
+	{
+		innerModel = new InnerModel(par.value);
+#ifdef USE_QTGUI
+		innerVisual = new InnerModel(par.value);
+		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
+		show();
+#endif
+	}
+	else
+	{
+		std::cout << "Innermodel path " << par.value << " not found. ";
+		qFatal("Abort");
 	}
 
-	
+
 	uint32_t included=0;
 	while (included<100)
 	{
 		QVec xm = QVec::uniformVector(1, -200, 450);
 		QVec ym = QVec::uniformVector(1, 500, 1500);
 		QVec zm = QVec::uniformVector(1, 100, 500);
-		
+
 		QString id = QString("node_") + QString::number(included);
 		if (true)
 		{
-			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "world", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8));
+			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8));
 		}
 	}
-	
+
 	timer.start(Period);
 
 	return true;
@@ -105,6 +114,14 @@ void SpecificWorker::compute()
 // 	{
 // 		std::cout << "Error reading from Camera" << e << std::endl;
 // 	}
+
+
+#ifdef USE_QTGUI
+	printf("d\n");
+	if (innerViewer) innerViewer->update();
+	osgView->autoResize();
+	osgView->frame();
+#endif
 
 
 }
