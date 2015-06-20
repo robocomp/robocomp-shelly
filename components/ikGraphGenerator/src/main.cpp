@@ -18,11 +18,11 @@
  */
 
 
-/** \mainpage RoboComp::inversekinematics
+/** \mainpage RoboComp::ikGraphGenerator
  *
  * \section intro_sec Introduction
  *
- * The inversekinematics component...
+ * The ikGraphGenerator component...
  *
  * \section interface_sec Interface
  *
@@ -34,7 +34,7 @@
  * ...
  *
  * \subsection install2_ssec Compile and install
- * cd inversekinematics
+ * cd ikGraphGenerator
  * <br>
  * cmake . && make
  * <br>
@@ -52,7 +52,7 @@
  *
  * \subsection execution_ssec Execution
  *
- * Just: "${PATH_TO_BINARY}/inversekinematics --Ice.Config=${PATH_TO_CONFIG_FILE}"
+ * Just: "${PATH_TO_BINARY}/ikGraphGenerator --Ice.Config=${PATH_TO_CONFIG_FILE}"
  *
  * \subsection running_ssec Once running
  *
@@ -78,13 +78,9 @@
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
 
-#include <inversekinematicsI.h>
-#include <joystickadapterI.h>
 
-#include <InnerModelManager.h>
-#include <InverseKinematics.h>
+#include <BodyInverseKinematics.h>
 #include <JointMotor.h>
-#include <JoystickAdapter.h>
 
 
 // User includes here
@@ -93,17 +89,15 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 
-using namespace RoboCompInnerModelManager;
-using namespace RoboCompInverseKinematics;
+using namespace RoboCompBodyInverseKinematics;
 using namespace RoboCompJointMotor;
-using namespace RoboCompJoystickAdapter;
 
 
 
-class inversekinematics : public RoboComp::Application
+class ikGraphGenerator : public RoboComp::Application
 {
 public:
-	inversekinematics (QString prfx) { prefix = prfx.toStdString(); }
+	ikGraphGenerator (QString prfx) { prefix = prfx.toStdString(); }
 private:
 	void initialize();
 	std::string prefix;
@@ -113,14 +107,14 @@ public:
 	virtual int run(int, char*[]);
 };
 
-void inversekinematics::initialize()
+void ikGraphGenerator::initialize()
 {
 	// Config file properties read example
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
 
-int inversekinematics::run(int argc, char* argv[])
+int ikGraphGenerator::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
 	QApplication a(argc, argv);  // GUI application
@@ -129,7 +123,7 @@ int inversekinematics::run(int argc, char* argv[])
 #endif
 	int status=EXIT_SUCCESS;
 
-	InnerModelManagerPrx innermodelmanager_proxy;
+	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 
 	string proxy, tmp;
@@ -138,19 +132,19 @@ int inversekinematics::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "InnerModelManagerProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "BodyInverseKinematicsProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InnerModelManagerProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy BodyInverseKinematicsProxy\n";
 		}
-		innermodelmanager_proxy = InnerModelManagerPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		bodyinversekinematics_proxy = BodyInverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("InnerModelManagerProxy initialized Ok!");
-	mprx["InnerModelManagerProxy"] = (::IceProxy::Ice::Object*)(&innermodelmanager_proxy);//Remote server proxy creation example
+	rInfo("BodyInverseKinematicsProxy initialized Ok!");
+	mprx["BodyInverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&bodyinversekinematics_proxy);//Remote server proxy creation example
 
 
 	try
@@ -169,7 +163,6 @@ int inversekinematics::run(int argc, char* argv[])
 	rInfo("JointMotorProxy initialized Ok!");
 	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);//Remote server proxy creation example
 
-IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 
 
 	GenericWorker *worker = new SpecificWorker(mprx);
@@ -196,46 +189,7 @@ IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(
 
 
 
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematics.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematics";
-		}
-		Ice::ObjectAdapterPtr adapterInverseKinematics = communicator()->createObjectAdapterWithEndpoints("InverseKinematics", tmp);
-		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
-		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
-		adapterInverseKinematics->activate();
 
-
-
-
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "JoystickAdapterTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy JoystickAdapterProxy";
-		}
-		Ice::ObjectAdapterPtr JoystickAdapter_adapter = communicator()->createObjectAdapterWithEndpoints("joystickadapter", tmp);
-		JoystickAdapterPtr joystickadapterI_ = new JoystickAdapterI(worker);
-		Ice::ObjectPrx joystickadapter = JoystickAdapter_adapter->addWithUUID(joystickadapterI_)->ice_oneway();
-		IceStorm::TopicPrx joystickadapter_topic;
-		if(!joystickadapter_topic){
-		try {
-			joystickadapter_topic = topicManager->create("JoystickAdapter");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			joystickadapter_topic = topicManager->retrieve("JoystickAdapter");
-		}
-		catch(const IceStorm::NoSuchTopic&)
-		{
-			//Error. Topic does not exist
-			}
-		}
-		IceStorm::QoS qos;
-		joystickadapter_topic->subscribeAndGetPublisher(qos, joystickadapter);
-		}
-		JoystickAdapter_adapter->activate();
 
 		// Server adapter creation and publication
 		cout << SERVER_FULL_NAME " started" << endl;
@@ -300,7 +254,7 @@ int main(int argc, char* argv[])
 			printf("Configuration prefix: <%s>\n", prefix.toStdString().c_str());
 		}
 	}
-	inversekinematics app(prefix);
+	ikGraphGenerator app(prefix);
 
 	return app.main(argc, argv, configFile.c_str());
 }

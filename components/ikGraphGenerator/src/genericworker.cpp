@@ -28,13 +28,13 @@ QObject()
 #endif
 
 {
-	innermodelmanager_proxy = (*(InnerModelManagerPrx*)mprx["InnerModelManagerProxy"]);
+	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
 
 
 	mutex = new QMutex(QMutex::Recursive);
 
-	#ifdef USE_QTGUI
+#ifdef USE_QTGUI
 		setupUi(this);
 		show();
 	#endif

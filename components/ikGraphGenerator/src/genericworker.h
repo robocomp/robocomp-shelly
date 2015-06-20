@@ -27,9 +27,7 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <JoystickAdapter.h>
-#include <InverseKinematics.h>
-#include <InnerModelManager.h>
+#include <BodyInverseKinematics.h>
 #include <JointMotor.h>
 
 
@@ -41,9 +39,7 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
-using namespace RoboCompJoystickAdapter;
-using namespace RoboCompInverseKinematics;
-using namespace RoboCompInnerModelManager;
+using namespace RoboCompBodyInverseKinematics;
 using namespace RoboCompJointMotor;
 
 
@@ -67,17 +63,9 @@ public:
 	QMutex *mutex;
 	
 
-	InnerModelManagerPrx innermodelmanager_proxy;
+	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 
-	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
-	virtual int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist) = 0;
-	virtual void goHome(const string &bodyPart) = 0;
-	virtual void stop(const string &bodyPart) = 0;
-	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
-	virtual bool getPartState(const string &bodyPart) = 0;
-	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
-	virtual void sendData(const TData &data) = 0;
 
 
 protected:

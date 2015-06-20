@@ -1,6 +1,6 @@
 
 cmake_minimum_required(VERSION 2.6)
-PROJECT(  inversekinematics )
+PROJECT(  ikGraphGenerator )
 
  
 IF ( "$ENV{ROBOCOMP}" STREQUAL "")
@@ -26,8 +26,6 @@ SET ( SOURCES
   commonbehaviorI.cpp
   genericworker.cpp
   specificworker.cpp
-  inversekinematicsI.cpp
-  joystickadapterI.cpp
 )
 
 # Headers set
@@ -38,12 +36,10 @@ SET ( HEADERS
   commonbehaviorI.h
   genericworker.h
   specificworker.h
-  inversekinematicsI.h
-  joystickadapterI.h
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior InnerModelManager InverseKinematics JointMotor JoystickAdapter )
+ROBOCOMP_WRAP_ICE( CommonBehavior BodyInverseKinematics JointMotor )
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4
@@ -61,6 +57,6 @@ QT4_WRAP_CPP( MOC_SOURCES ${HEADERS} )
 
 
 # Specify construction and link process
-ADD_EXECUTABLE( inversekinematics ${SOURCES} ${MOC_SOURCES} ${RC_SOURCES} ${UI_HEADERS} )
-TARGET_LINK_LIBRARIES( inversekinematics ${QT_LIBRARIES} ${LIBS} ${STATIC_LIBS} ${SPECIFIC_LIBS})
-INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/inversekinematics DESTINATION /opt/robocomp/bin/ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+ADD_EXECUTABLE( ikGraphGenerator ${SOURCES} ${MOC_SOURCES} ${RC_SOURCES} ${UI_HEADERS} )
+TARGET_LINK_LIBRARIES( ikGraphGenerator ${QT_LIBRARIES} ${LIBS} ${STATIC_LIBS} ${SPECIFIC_LIBS})
+INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/ikGraphGenerator DESTINATION /opt/robocomp/bin/ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )

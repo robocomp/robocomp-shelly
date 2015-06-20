@@ -322,8 +322,7 @@ bool SpecificWorker::correctRotation()
 	if(iteraciones > maxIteraciones)
 	{
 		abortarotacion = true;
-		QVec pose = trueTarget.getPose();
-		file<<"P: ("      <<pose.x()<<","<<pose.y()<<","<<pose.z()<<","<<pose.rx()<<","<<pose.ry()<<","<<pose.rz();
+		file<<"P: ("      <<trueTarget.getPose();
 		file<<") ERROR_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<" ERROR_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		file<<" END: "    <<iteraciones<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;;
@@ -336,8 +335,7 @@ bool SpecificWorker::correctRotation()
 	{
 		trueTarget.setState(Target::State::RESOLVED);
 		printf("done!\n");
-		QVec pose = trueTarget.getPose();
-		file<<"P: ("      <<pose.x()<<","<<pose.y()<<","<<pose.z()<<","<<pose.rx()<<","<<pose.ry()<<","<<pose.rz();
+		file<<"P: ("      <<trueTarget.getPose();
 		file<<") ERROR_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<" ERROR_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		file<<" END: "    <<iteraciones<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;
@@ -367,8 +365,6 @@ bool SpecificWorker::correctRotation()
 	return false;
 }
 	
-
-
 /**
  * \brief Metodo ACTUALIZAR TODO
  * Se encarga de actualizar la posicion de los motores del robot (el innerModel),
@@ -408,6 +404,7 @@ void SpecificWorker::actualizarTodo()
  	innerModel->updateTransformValues("visual_hand", pR.x(), pR.y(), pR.z(), pR.rx(), pR.ry(), pR.rz());
 	
 }
+
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 								METODOS DE LA INTERFAZ DEL COMPONENTE										   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/

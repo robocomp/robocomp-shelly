@@ -22,35 +22,12 @@ public:
 	enum	TargetType 			{POSE6D, ALIGNAXIS, ADVANCEAXIS};
 	enum	TargetState			{IDLE, IN_PROCESS, FINISH};
 	enum 	TargetFinalState	{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
-	
-	Target	();
-	Target(const QVec &pose_, const QVec &weights_, const float radius_,TargetType type_=TargetType::POSE6D, 	bool chop=false);	/// CONSTRUCTOR FOR POSE6D TARGET
-	Target(const QVec &pose_, const QVec &weights_, const QVec &axis_, 	TargetType type_=TargetType::ALIGNAXIS);					/// CONSTRUCTOR FOR ALING AXIS
-	Target(const QVec& axis_, float step_,								TargetType type_=TargetType::ADVANCEAXIS);					/// CONSTRUCTOR FOR ADVANCE AXIS					
-	~Target	();
-	
-	Target 				operator=(Target target);
-	
-	QString				getTargetNameInInnerModel	();
-	TargetType			getTargetType				();
-	TargetState			getTargetState				();
-	TargetFinalState	getTargetFinalState			();
-	QVec				getTargetPose				();
-	QVec				getTargetWeight				();
-	QVec				getTargetAxis				();
-	float				getTargetStep				();
-	QVec				getTargetError				(float &errorT, float &errorR);
-	QVec				getTargetFinalAngles		();
-	
-	void				setTargetNameInInnerModel	(QString nameInInnerModel_);
-	void				setTargetState				(Target::TargetState state_);
-	void				setTargetFinalState			(Target::TargetFinalState finalstate_);
-	void				setTargetError				(QVec errors_);
-	void				setTargetFinalAngles		(QVec finalangles_);
-	
+
 private:
 	/// GENERAL ATTRIBUTES
+	int					identifier;
 	QString				nameInInnerModel;
+	QTime 				runTime;
 	QVec				finalangles;
 	QVec				errorvector;
 	TargetType			type;
@@ -59,10 +36,40 @@ private:
 	/// ATTRIBUTES OF POSE6D TARGET
 	QVec			pose;
 	QVec			weight;
-	float 			radius;
 	/// ATTRIBUTES ADVANCEAXIS TARGET
     QVec 			axis;
 	float 			step;
+
+public:
+	Target	();
+	Target(int id_,const QVec &pose_, const QVec &weights_,						 TargetType type_=TargetType::POSE6D);		/// CONSTRUCTOR FOR POSE6D TARGET
+	Target(int id_,const QVec &pose_, const QVec &weights_, const QVec &axis_, 	TargetType type_=TargetType::ALIGNAXIS);	/// CONSTRUCTOR FOR ALING AXIS
+	Target(int id_,const QVec& axis_, float step_,								TargetType type_=TargetType::ADVANCEAXIS);	/// CONSTRUCTOR FOR ADVANCE AXIS					
+	~Target	();
+	
+	Target 				operator=(Target target);
+	int					getTargetIdentifier			();
+	QString				getTargetNameInInnerModel	();
+	TargetType			getTargetType				();
+	TargetState			getTargetState				();
+	TargetFinalState	getTargetFinalState			();
+	QVec				getTargetPose				();
+	QVec				getTargetWeight				();
+	QVec				getTargetAxis				();
+	float				getTargetStep				();
+	float 			 	getTargetTimeExecution		();
+	QVec				getTargetError				(float &errorT, float &errorR);
+	QVec				getTargetFinalAngles		();
+	
+	void				setTargetIdentifier			(int id_);
+	void				setTargetNameInInnerModel	(QString nameInInnerModel_);
+	void				setTargetState				(Target::TargetState state_);
+	void				setTargetFinalState			(Target::TargetFinalState finalstate_);
+	void				setTargetError				(QVec errors_);
+	void				setTargetFinalAngles		(QVec finalangles_);
+	
+
+	
 
 };
 #endif // TARGET_H
