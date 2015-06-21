@@ -12,6 +12,8 @@ SET ( HEADERS
   specificmonitor.h
 )
 
+include_directories( "/usr/include/eigen3" )
+
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
 
 find_package(OMPL)

@@ -87,9 +87,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 	uint32_t included=0;
-	while (included<1000)
+	while (included<400)
 	{
-		QVec xm = QVec::uniformVector(1, -200, 450);
+		printf("inc: %d\n", included);
+		QVec xm = QVec::uniformVector(1, -100, 500);
 		QVec ym = QVec::uniformVector(1, 500, 1500);
 		QVec zm = QVec::uniformVector(1, 100, 700);
 
@@ -123,15 +124,48 @@ void SpecificWorker::compute()
 		
 		while (first and current != last)
 		{
+			RoboCompInverseKinematics::Pose6D target;
+// 			target.x = current->pose.x();
+// 			target.y = current->pose.y();
+// 			target.z = current->pose.z();
+			target.rx = target.ry = target.rz = 0;
+			RoboCompInverseKinematics::WeightVector weights;
+			weights.x  = weights.y  = weights.z  = 1;
+			weights.rx = weights.ry = weights.rz = 1;
+			inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 			
+			first = false;
+			sleep(2);
+
 #ifdef USE_QTGUI
-	if (innerViewer) innerViewer->update();
-	osgView->autoResize();
-	osgView->frame();
+			if (innerViewer)
+				innerViewer->update();
+			osgView->autoResize();
+			osgView->frame();
+			break;
 #endif
 		}
+		return;
 	}
+	
 
+// 	mt19937 gen;
+// 	auto v = graph_traits<Graph>::vertex_descriptor(graph, gen);
+
+	
+	typedef property_map<Graph, vertex_index_t>::type IndexMap;
+	IndexMap index = get(vertex_index, graph);
+
+	std::cout << "vertices(g) = ";
+	typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
+	std::pair<vertex_iter, VertexIterator> vp;
+	for (vp = vertices(g); vp.first != vp.second; ++vp.first)
+	{
+		std::cout << index[*vp.first] <<  " ";
+	}
+	std::cout << std::endl;
+
+	
 #ifdef USE_QTGUI
 	if (innerViewer) innerViewer->update();
 	osgView->autoResize();

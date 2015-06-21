@@ -23,7 +23,7 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	file.open("/home/robocomp/robocomp/components/robocomp-ursus/inversekinematics/data.txt", ios::out | ios::app);
+	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
 	
@@ -75,21 +75,21 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	this->innerViewer = new InnerModelViewer(this->innermodel, "root", this->osgView->getRootGroup(), true);
 #endif
 
-	QString 	tipR, 				tipL, 		tipH;
-	QString 	motorsR, 			motorsL,	motorsH;
+	QString tipR, tipL, tipH;
+	QString motorsR, motorsL, motorsH;
 	QStringList	auxiliar_motor_list;
 
-	tipR = QString::fromStdString(params["RIGHTTIP"].value);	/// READ THE RIGHT ARM'S TIP
-	tipL = QString::fromStdString(params["LEFTTIP"].value);		/// READ THE LEFT ARM'S TIP
-	tipH = QString::fromStdString(params["HEADTIP"].value);		/// READ THE HEAD'S TIP
+	tipR = QString::fromStdString(params["RIGHTTIP"].value); /// READ THE RIGHT ARM'S TIP
+	tipL = QString::fromStdString(params["LEFTTIP"].value);  /// READ THE LEFT ARM'S TIP
+	tipH = QString::fromStdString(params["HEADTIP"].value);  /// READ THE HEAD'S TIP
 	
-	motorsR = QString::fromStdString(params["RIGHTARM"].value);	/// READ THE RIGHT ARM'S MOTORS
-	motorsL = QString::fromStdString(params["LEFTARM"].value);	/// READ THE LEFT ARM'S MOTORS
-	motorsH = QString::fromStdString(params["HEAD"].value);		/// READ THE HEAD'S MOTORS
-					
+	motorsR = QString::fromStdString(params["RIGHTARM"].value); /// READ THE RIGHT ARM'S MOTORS
+	motorsL = QString::fromStdString(params["LEFTARM"].value);  /// READ THE LEFT ARM'S MOTORS
+	motorsH = QString::fromStdString(params["HEAD"].value);     /// READ THE HEAD'S MOTORS
+
 	if(motorsR.size()>2 and motorsR!="EMPTY" and tipR.size()>2 and tipR!="EMPTY")
 	{
-		for (auto motor : motorsR.split(";", QString::SkipEmptyParts)) 					/// WE DIVIDE THE STRING BY THE ";"
+		for (auto motor : motorsR.split(";", QString::SkipEmptyParts)) /// WE DIVIDE THE STRING BY THE ";"
 			auxiliar_motor_list.push_back(motor);
 		
 		availableParts.push_back("RIGHTARM");
@@ -214,17 +214,17 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 
 int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist)
 {
-
+	return 0;
 }
 
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
-
+	return 0;
 }
 
 bool SpecificWorker::getPartState(const string &bodyPart)
 {
-
+	return false;
 }
 /**
  * \brief this method returns the state of a determinate target.

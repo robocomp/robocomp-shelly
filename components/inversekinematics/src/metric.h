@@ -18,9 +18,9 @@ using namespace std;
 class Metric
 {
 public:
-	Metric	();
-	~Metric	();
-	
+	Metric();
+	~Metric();
+
 	static void moveInnerModelFromMillimetersToMeters(InnerModelNode* node);
 };
 #endif
