@@ -245,11 +245,11 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 
 void SpecificWorker::setWheels(QVec wheelVels_)
 {
+	static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
+
 	{
 		QMutexLocker locker(dataMutex);
 		wheelVels = wheelVels_;
-
-		static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
 
 		goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
 
