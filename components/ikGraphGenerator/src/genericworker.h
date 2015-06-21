@@ -27,7 +27,7 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <BodyInverseKinematics.h>
+#include <InverseKinematics.h>
 #include <JointMotor.h>
 
 
@@ -39,7 +39,7 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
-using namespace RoboCompBodyInverseKinematics;
+using namespace RoboCompInverseKinematics;
 using namespace RoboCompJointMotor;
 
 
@@ -63,7 +63,7 @@ public:
 	QMutex *mutex;
 	
 
-	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 
 

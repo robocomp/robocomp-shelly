@@ -79,7 +79,7 @@
 #include "commonbehaviorI.h"
 
 
-#include <BodyInverseKinematics.h>
+#include <InverseKinematics.h>
 #include <JointMotor.h>
 
 
@@ -89,7 +89,7 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 
-using namespace RoboCompBodyInverseKinematics;
+using namespace RoboCompInverseKinematics;
 using namespace RoboCompJointMotor;
 
 
@@ -123,7 +123,7 @@ int ikGraphGenerator::run(int argc, char* argv[])
 #endif
 	int status=EXIT_SUCCESS;
 
-	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 
 	string proxy, tmp;
@@ -132,19 +132,19 @@ int ikGraphGenerator::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "BodyInverseKinematicsProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematicsProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy BodyInverseKinematicsProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematicsProxy\n";
 		}
-		bodyinversekinematics_proxy = BodyInverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		inversekinematics_proxy = InverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("BodyInverseKinematicsProxy initialized Ok!");
-	mprx["BodyInverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&bodyinversekinematics_proxy);//Remote server proxy creation example
+	rInfo("InverseKinematicsProxy initialized Ok!");
+	mprx["InverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&inversekinematics_proxy);//Remote server proxy creation example
 
 
 	try

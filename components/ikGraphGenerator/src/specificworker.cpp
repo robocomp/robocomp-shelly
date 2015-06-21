@@ -23,6 +23,8 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
+	show();
+	printf("ss\n");
 #ifdef USE_QTGUI
 	innerViewer = NULL;
 	osgView = new OsgView(this);
@@ -33,11 +35,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	tb->setHomePosition(eye, center, up, true);
 	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
  	osgView->setCameraManipulator(tb);
-#else
-	hide();
 #endif
-
-
+	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+	mutex = new QMutex(QMutex::Recursive);
 }
 
 /**
@@ -70,11 +70,14 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if( QFile::exists(QString::fromStdString(par.value)) )
 	{
 		innerModel = new InnerModel(par.value);
-#ifdef USE_QTGUI
+
+// #ifdef USE_QTGUI
+		printf("ddd\n");
 		innerVisual = new InnerModel(par.value);
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
+		osgView->getRootGroup()->addChild(innerViewer);
 		show();
-#endif
+// #endif
 	}
 	else
 	{
@@ -84,40 +87,52 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 	uint32_t included=0;
-	while (included<100)
+	while (included<1000)
 	{
 		QVec xm = QVec::uniformVector(1, -200, 450);
 		QVec ym = QVec::uniformVector(1, 500, 1500);
-		QVec zm = QVec::uniformVector(1, 100, 500);
+		QVec zm = QVec::uniformVector(1, 100, 700);
 
 		QString id = QString("node_") + QString::number(included);
 		if (true)
 		{
-			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8));
+			Vertex vertex = boost::add_vertex(graph);
+			graph[vertex].pose = QVec::vec3(xm(0), ym(0), zm(0));
+			graph[vertex].configurations.clear();
+			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(5,5,5));
+			included++;
 		}
 	}
 
-	timer.start(Period);
+	timer.start(10);
+
+// 	bodyinversekinematics_proxy 
 
 	return true;
 }
 
 void SpecificWorker::compute()
 {
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
-
+	static VertexIterator current;
+	static bool first = true;
+	
+	if (first)
+	{
+		VertexIterator last;
+		tie(current, last) = vertices(graph);
+		
+		while (first and current != last)
+		{
+			
+#ifdef USE_QTGUI
+	if (innerViewer) innerViewer->update();
+	osgView->autoResize();
+	osgView->frame();
+#endif
+		}
+	}
 
 #ifdef USE_QTGUI
-	printf("d\n");
 	if (innerViewer) innerViewer->update();
 	osgView->autoResize();
 	osgView->frame();

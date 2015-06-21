@@ -59,18 +59,18 @@
 struct VertexPayload
 {	
 	QVec pose; // 3D
-	std::map<std::string, float> configuration;
+	std::vector < std::map < std::string, float > > configurations;
 	std::size_t vertex_id;
 	VertexPayload()
 	{
 	}
-	VertexPayload(std::size_t i, const QVec &p, const std::map<std::string, float> &cfg)
+	VertexPayload(std::size_t i, const QVec &p)
 	{
 		vertex_id = i;
-		configuration = cfg;
 		pose = p;
 	}
-};	
+};
+
 struct EdgePayload
 {
 	float dist;

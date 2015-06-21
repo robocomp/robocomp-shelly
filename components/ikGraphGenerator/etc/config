@@ -1,12 +1,10 @@
-CommonBehavior.Endpoints=tcp -p 11001
-
-BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10030
-JointMotorProxy = jointmotor:tcp -h localhost -p 20000
-
-InnerModel = /home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml
+CommonBehavior.Endpoints=tcp -p 1
 
 
-TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+# Proxies for required interfaces
+InverseKinematicsProxy = inversekinematics:tcp -h localhost -p 0
+JointMotorProxy = jointmotor:tcp -h localhost -p 0
+
 
 
 Ice.Warn.Connections=0

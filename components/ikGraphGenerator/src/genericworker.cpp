@@ -28,13 +28,13 @@ QObject()
 #endif
 
 {
-	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
+	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
 
 
 	mutex = new QMutex(QMutex::Recursive);
 
-#ifdef USE_QTGUI
+	#ifdef USE_QTGUI
 		setupUi(this);
 		show();
 	#endif
