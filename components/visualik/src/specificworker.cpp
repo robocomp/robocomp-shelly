@@ -131,6 +131,9 @@ void SpecificWorker::compute()
 				abortatraslacion 	= false;
 				abortarotacion 		= false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
+				RoboCompInverseKinematics::Axis axis;
+				axis.x = 0; axis.y = 0; axis.z = 1;
+				setTargetAlignaxis(currentTarget.getBodyPart(), currentTarget.getPose6D(), axis);
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -181,6 +184,8 @@ void SpecificWorker::compute()
 					}
 					else
 						currentTarget.setState(Target::State::IDLE);
+					stateMachine = State::IDLE;
+					goHome("RIGHTARM");
 				}
 			}
 		break;
@@ -253,7 +258,10 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
-	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+	return id;
 }
 
 void SpecificWorker::goHome(const string &bodyPart)
@@ -264,41 +272,43 @@ void SpecificWorker::goHome(const string &bodyPart)
 		RoboCompJointMotor::MotorGoalPosition nodo;
 		
 		nodo.name = "rightShoulder1";
-		nodo.position = -2.05; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = -2.3; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightShoulder2";
-		nodo.position = -0.2; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = -0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightShoulder3";
-		nodo.position = 0.5; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightElbow";
 		nodo.position = 0.8; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightForeArm";
-		nodo.position = 0.1; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightWrist1";
-		nodo.position = 0.1; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 		
 		nodo.name = "rightWrist2";
-		nodo.position = 0.1; // posición en radianes
-		nodo.maxSpeed = 0.95; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 	} 
 	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
+	
+	sleep(2);
 }
 
 void SpecificWorker::stop(const string &bodyPart)
@@ -308,7 +318,8 @@ void SpecificWorker::stop(const string &bodyPart)
 
 bool SpecificWorker::getPartState(const string &bodyPart)
 {
-	return inversekinematics_proxy->getPartState(bodyPart);
+	//return inversekinematics_proxy->getPartState(bodyPart);
+	return (nextTargets.isEmpty() and currentTarget.getState()==Target::State::IDLE);;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -322,7 +333,9 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 		for (auto tag : tags)
 		{
 			if (tag.id == 25)
+			{
 				rightHand->setVisualPose(tag);
+			}
 		}
 	}
 }
@@ -345,7 +358,7 @@ bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
 	static int iteraciones = 0, 	maxIteraciones = 10;    // Para evitar que se quede atascado.
-	float umbralElapsedTime = 0.2, 	umbralError = 2;
+	float umbralElapsedTime = 2, 	umbralError = 2;
 
 	if(iteraciones > maxIteraciones)
 	{
@@ -403,7 +416,7 @@ bool SpecificWorker::correctRotation()
 {
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static int iteraciones = 0, maxIteraciones = 10;    // Para evitar que se quede atascado.
-	float umbralElapsedTime = 0.5, umbralErrorT = 5, umbralErrorR=0.17;
+	float umbralElapsedTime = 2, umbralErrorT = 5, umbralErrorR=0.17;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -474,9 +487,9 @@ void SpecificWorker::updateAll()
 		for (auto j : mMap)
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
 	}catch (const Ice::Exception &ex){ 
-		cout<<"--> Excepción en actualizar InnerModel: (i)";
+		cout<<"--> Excepción en actualizar InnerModel";
 	}
-	try
+	/*try
 	{
 		RoboCompOmniRobot::TBaseState bState;
 		omnirobot_proxy->getBaseState(bState);
@@ -488,7 +501,7 @@ void SpecificWorker::updateAll()
 		}
 	}catch (const Ice::Exception &ex){
 		cout<<"--> Excepción reading OmniRobot: "<<ex<<endl;
-	}
+	}*/
 	
 	const Pose6D tt = currentTarget.getPose6D();
 	innerModel->updateTransformValues("target", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
