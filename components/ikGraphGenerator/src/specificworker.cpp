@@ -107,7 +107,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	timer.start(10);
 
-// 	bodyinversekinematics_proxy 
+// 	bodyinversekinematics_proxy
 
 	return true;
 }
@@ -116,12 +116,12 @@ void SpecificWorker::compute()
 {
 	static VertexIterator current;
 	static bool first = true;
-	
+
 	if (first)
 	{
 		VertexIterator last;
 		tie(current, last) = vertices(graph);
-		
+
 		while (first and current != last)
 		{
 			RoboCompInverseKinematics::Pose6D target;
@@ -133,7 +133,7 @@ void SpecificWorker::compute()
 			weights.x  = weights.y  = weights.z  = 1;
 			weights.rx = weights.ry = weights.rz = 1;
 			inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
-			
+
 			first = false;
 			sleep(2);
 
@@ -147,25 +147,24 @@ void SpecificWorker::compute()
 		}
 		return;
 	}
-	
+
 
 // 	mt19937 gen;
 // 	auto v = graph_traits<Graph>::vertex_descriptor(graph, gen);
 
-	
-	typedef property_map<Graph, vertex_index_t>::type IndexMap;
-	IndexMap index = get(vertex_index, graph);
 
-	std::cout << "vertices(g) = ";
-	typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-	std::pair<vertex_iter, VertexIterator> vp;
-	for (vp = vertices(g); vp.first != vp.second; ++vp.first)
-	{
-		std::cout << index[*vp.first] <<  " ";
-	}
-	std::cout << std::endl;
+// 	typedef boost::property_map<Graph, VertexIndex>::type IndexMap;
+// 	IndexMap index = get(vertex_index, graph);
+//
+// 	std::cout << "vertices(g) = ";
+// 	std::pair<VertexIterator, VertexIterator> vp;
+// 	for (vp = vertices(g); vp.first != vp.second; ++vp.first)
+// 	{
+// 		std::cout << index[*vp.first] <<  " ";
+// 	}
+// 	std::cout << std::endl;
 
-	
+
 #ifdef USE_QTGUI
 	if (innerViewer) innerViewer->update();
 	osgView->autoResize();

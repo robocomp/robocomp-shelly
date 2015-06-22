@@ -49,42 +49,42 @@
 #include <boost/graph/connected_components.hpp>
 #include <boost/pending/disjoint_sets.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <boost/property_map/dynamic_property_map.hpp> 
+#include <boost/property_map/dynamic_property_map.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/iteration_macros.hpp>
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
 
-struct VertexPayload
-{	
+struct VertexData
+{
 	QVec pose; // 3D
 	std::vector < std::map < std::string, float > > configurations;
 	std::size_t vertex_id;
-	VertexPayload()
+	VertexData()
 	{
 	}
-	VertexPayload(std::size_t i, const QVec &p)
+	VertexData(std::size_t i, const QVec &p)
 	{
 		vertex_id = i;
 		pose = p;
 	}
 };
 
-struct EdgePayload
+struct EdgeData
 {
 	float dist;
-	EdgePayload()
+	EdgeData()
 	{
 		dist = -1;
 	}
-	EdgePayload(float d)
+	EdgeData(float d)
 	{
 		dist = d;
 	}
 };
 
-typedef boost::adjacency_list<boost::listS,boost::listS, boost::undirectedS, VertexPayload, EdgePayload, boost::listS> Graph;
+typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, VertexData, EdgeData, boost::listS> Graph;
 typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
 typedef boost::graph_traits<Graph>::edge_descriptor Edge;
 typedef boost::graph_traits<Graph>::vertices_size_type VertexIndex;
@@ -95,7 +95,7 @@ typedef std::vector<Graph::edge_descriptor> PathType;
 typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
 typedef std::pair<EdgeIterator, EdgeIterator> EdgePair;
 typedef std::pair<int, std::vector<Vertex> > CComponent;
-typedef std::map<Vertex, int32_t> ComponentMap; 
+typedef std::map<Vertex, int32_t> ComponentMap;
 typedef std::vector<CComponent> ConnectedComponents;
 
 
@@ -104,13 +104,13 @@ class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);	
+	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
 
 public slots:
-	void compute(); 	
+	void compute();
 
 private:
 	Graph graph;
