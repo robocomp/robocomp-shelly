@@ -71,7 +71,7 @@ public:
 	TargetState 	getTargetState		(const string &bodyPart, const int targetID);
 	void 			goHome				(const string &bodyPart);
 	void 			sendData			(const TData &data);
-
+	
 public slots:
 	void compute(); 	
 

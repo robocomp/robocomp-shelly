@@ -101,7 +101,7 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 	configGetString("", "LEFTARM", aux.value,"");
 	params["LEFTARM"] = aux;
 	configGetString("", "LEFTTIP", aux.value,"");
-	params["LETFTIP"] = aux;
+	params["LEFTTIP"] = aux;
 	
 	configGetString("", "HEAD", aux.value,"");
 	params["HEAD"] = aux;

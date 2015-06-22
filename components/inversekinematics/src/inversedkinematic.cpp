@@ -60,16 +60,25 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
  */ 
 bool InversedKinematic::deleteTarget()
 {
-	static QVec angles = QVec::zeros(checkMotors().size());
+	static QVec angles 	= QVec::zeros(checkMotors().size());
+	QMat We 			= QMat::makeDiagonal(bodypart->getTargetList().head().getTargetWeight());
+	QVec error 			= We*computeErrorVector(bodypart->getTargetList().head());
+	QVec errorT 		= QVec::vec3(error.x(), error.y(), error.z());
+	QVec errorR 		= QVec::vec3(error.rx(), error.ry(), error.rz());
+	
+	qDebug()<<"-----------------------------------------------------------------";
+	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
+	qDebug()<<"Repeticiones: "<<repetitions;
+	qDebug()<<"Error T: "<<errorT.norm2();
+	qDebug()<<"Error R: "<<errorR.norm2();
+	qDebug()<<"-----------------------------------------------------------------";
 	
 	QVec restaAngles (checkMotors().size());
-	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
-	qDebug()<<"REpeticiones: "<<repetitions;
 	for(int i=0; i<bodypart->getTargetList().head().getTargetFinalAngles().size(); i++)
 		restaAngles[i] = fabs(angles[i]-bodypart->getTargetList().head().getTargetFinalAngles()[i]);
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 	
-	if(bodypart->getTargetList().head().getTargetTimeExecution()<6 or computeErrorVector(bodypart->getTargetList().head()).norm2()<0.009 or restaAngles.norm2()<0.009)
+	if(bodypart->getTargetList().head().getTargetTimeExecution()>6 or (errorT.norm2()<0.001 and errorR.norm2()<0.001) or restaAngles.norm2()<0.0001)
 	{
 		repetitions = 0;
 		return true;

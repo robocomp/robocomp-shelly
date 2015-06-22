@@ -90,7 +90,7 @@ void BodyPart::addTargetToList(Target &target)
  */ 
 void BodyPart::addSolvedToList()
 {
-	qDebug()<<"Resuelto";
+	qDebug()<<"Target resuelto";
 	solvedList.enqueue(targetList.dequeue());
 }
 
