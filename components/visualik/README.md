@@ -24,11 +24,11 @@ In the `visualik` configuration whe must put the next data:
 
 So we need a config like this:
 
-    BodyInverseKinematics.Endpoints=tcp -p 10240
+    InverseKinematics.Endpoints=tcp -p 10240
     CommonBehavior.Endpoints=tcp -p 10000
     
     AprilTagsTopic=tcp -p 12938
-    BodyInverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
+    InverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
     JointMotorProxy = jointmotor:tcp -p 20000 
     OmniRobotProxy = omnirobot:tcp -p 12238
 
