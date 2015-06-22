@@ -27,13 +27,13 @@ So we need a config like this:
     InverseKinematics.Endpoints=tcp -p 10240
     CommonBehavior.Endpoints=tcp -p 10000
     
-    AprilTagsTopic=tcp -p 12938
-    InverseKinematicsProxy = bodyinversekinematics:tcp -h localhost -p 10220
+    AprilTagsTopic.Endpoints=tcp -p 12938
+    InverseKinematicsProxy =inversekinematics:tcp -h localhost -p 10220
     JointMotorProxy = jointmotor:tcp -p 20000 
     OmniRobotProxy = omnirobot:tcp -p 12238
-
-    InnerModel=robofile.xml
-
+    
+    InnerModel=robotfile.xml
+    
     # This property is used by the clients to connect to IceStorm.
     TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
     Ice.Warn.Connections=0

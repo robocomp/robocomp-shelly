@@ -23,40 +23,70 @@
 */
 
 
-
-
-
-
-
 #ifndef SPECIFICWORKER_H
 #define SPECIFICWORKER_H
 
+#include <iostream>
+#include <fstream>
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
+#include <target.h>
+#include <visualhand.h>
 
+
+#ifdef USE_QTGUI
+	#include <osgviewer/osgview.h>
+	#include <innermodel/innermodelviewer.h>
+
+#endif
+
+using namespace std;
 
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);	
-	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
-
-	TargetState getTargetState(const string &bodyPart, const int targetID);
-	int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist);
-	void goHome(const string &bodyPart);
-	void stop(const string &bodyPart);
-	int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights);
-	bool getPartState(const string &bodyPart);
-	int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax);
-	void newAprilTag(const tagsList &tags);
+	SpecificWorker					(MapPrx& mprx);	
+	~SpecificWorker					();
+	bool 		setParams			(RoboCompCommonBehavior::ParameterList params);
+	
+	TargetState	getTargetState		(const string &bodyPart, const int targetID);
+	int 		setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist);
+	void 		goHome				(const string &bodyPart);
+	void 		stop				(const string &bodyPart);
+	int 		setTargetPose6D		(const string &bodyPart, const Pose6D &target, const WeightVector &weights);
+	bool		getPartState		(const string &bodyPart);
+	int 		setTargetAlignaxis	(const string &bodyPart, const Pose6D &target, const Axis &ax);
+	void 		newAprilTag			(const tagsList &tags);
 
 public slots:
-	void compute(); 	
+	void 		compute				(); 	
 
 private:
+	enum class State {IDLE, INIT_BIK, WAIT_BIK, CORRECT_TRASLATION, CORRECT_ROTATION}; // ESTADOS POR LOS QUE PASA LA MAQUINA DE ESTADOS DEL VISUAL BIK:
+	State 				stateMachine; 	// LA VARIABLE QUE GUARDA EL ESTADO DEL VISUAL BIK
+	VisualHand 			*rightHand; // VARIABLE QUE GUARDA LA POSE VISUAL DE LA MARCA DE LA MANO DERECHA DEL ROBOT
+	// VARIABLES QUE GUARDAN EL TARGET QUE SE ESTA EJECUTANDO Y LOS SIGUIENTES A EJECUTAR.
+	Target 				currentTarget;
+	Target 				correctedTarget;
+	QQueue<Target>		nextTargets;
+	QMutex 				mutex;					// MUTEX PARA ZONAS CRITICAS
+	InnerModel 			*innerModel;			// EL MODELO INTERNO DEL ROBOT
+	ofstream 			file;					// EL FICHERO DONDE GUARDAR DATOS
+	bool 				abortatraslacion;		// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
+	bool 				abortarotacion;			// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
+	bool 				INITIALIZED;			// PARA QUE NO SE ADELANTE AL SETPARAMS
 	
+#ifdef USE_QTGUI
+	OsgView 			*osgView;
+	InnerModelViewer 	*innerViewer;
+#endif
+
+	// METODOS PRIVADOS
+	bool 	correctTraslation	();
+	bool 	correctRotation		();
+	void 	updateAll			();
+	void	updateMotors		(RoboCompInverseKinematics::MotorList motors);
 };
 
 #endif

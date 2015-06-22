@@ -488,7 +488,6 @@ struct TargetState
 {
     bool finish;
     ::Ice::Int elapsedTime;
-    ::Ice::Int estimatedEndTime;
     ::Ice::Float errorT;
     ::Ice::Float errorR;
     ::RoboCompInverseKinematics::MotorList motors;
@@ -504,10 +503,6 @@ struct TargetState
             return false;
         }
         if(elapsedTime != __rhs.elapsedTime)
-        {
-            return false;
-        }
-        if(estimatedEndTime != __rhs.estimatedEndTime)
         {
             return false;
         }
@@ -545,14 +540,6 @@ struct TargetState
             return true;
         }
         else if(__rhs.elapsedTime < elapsedTime)
-        {
-            return false;
-        }
-        if(estimatedEndTime < __rhs.estimatedEndTime)
-        {
-            return true;
-        }
-        else if(__rhs.estimatedEndTime < estimatedEndTime)
         {
             return false;
         }
@@ -745,7 +732,7 @@ template<>
 struct StreamableTraits< ::RoboCompInverseKinematics::TargetState>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryStruct;
-    static const int minWireSize = 18;
+    static const int minWireSize = 14;
     static const bool fixedLength = false;
 };
 
@@ -756,7 +743,6 @@ struct StreamWriter< ::RoboCompInverseKinematics::TargetState, S>
     {
         __os->write(v.finish);
         __os->write(v.elapsedTime);
-        __os->write(v.estimatedEndTime);
         __os->write(v.errorT);
         __os->write(v.errorR);
         __os->write(v.motors);
@@ -770,7 +756,6 @@ struct StreamReader< ::RoboCompInverseKinematics::TargetState, S>
     {
         __is->read(v.finish);
         __is->read(v.elapsedTime);
-        __is->read(v.estimatedEndTime);
         __is->read(v.errorT);
         __is->read(v.errorR);
         __is->read(v.motors);

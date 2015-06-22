@@ -46,6 +46,7 @@ Q_OBJECT
 
 private:
 	int 						correlativeID;
+	bool						INITIALIZE_READY;
 	QMap<QString, BodyPart> 	bodyParts;
 	QStringList					availableParts;
 	InnerModel					*innermodel;
