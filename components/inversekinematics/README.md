@@ -134,4 +134,4 @@ After editing the new config file (ourConfig) we can run the component:
 
     ./bin/inversekinematics ourConfig
     
-It's not necessary put --Ice.Config=.
+It's not necessary put `--Ice.Config=`.

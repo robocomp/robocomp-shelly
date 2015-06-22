@@ -78,7 +78,10 @@ bool InversedKinematic::deleteTarget()
 		restaAngles[i] = fabs(angles[i]-bodypart->getTargetList().head().getTargetFinalAngles()[i]);
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 	
-	if(bodypart->getTargetList().head().getTargetTimeExecution()>6 or (errorT.norm2()<0.001 and errorR.norm2()<0.001) or restaAngles.norm2()<0.0001)
+	if(/*bodypart->getTargetList().head().getTargetState()==Target::ABORTED or*/
+	    bodypart->getTargetList().head().getTargetTimeExecution()>6 or 
+		            (errorT.norm2()<0.001 and errorR.norm2()<0.001) or 
+		                                    restaAngles.norm2()<0.0001)
 	{
 		repetitions = 0;
 		return true;

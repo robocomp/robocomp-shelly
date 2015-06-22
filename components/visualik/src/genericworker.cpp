@@ -28,17 +28,17 @@ QObject()
 #endif
 
 {
-	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
+	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
 	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
 
 
-	mutex = new QMutex();
+	mutex = new QMutex(QMutex::Recursive);
 
-#ifdef USE_QTGUI
+	#ifdef USE_QTGUI
 		setupUi(this);
-// 		show();
-#endif
+		show();
+	#endif
 		
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
@@ -66,3 +66,4 @@ void GenericWorker::setPeriod(int p)
 	Period = p;
 	timer.start(Period);
 }
+

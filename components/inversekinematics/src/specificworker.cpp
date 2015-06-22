@@ -180,15 +180,33 @@ void SpecificWorker::compute()
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-void SpecificWorker::stop(const string &part)
+/**
+ * \brief This method of the interface stops the part of the robot and reset the queue of Targets 
+ * @param bodyPart the name of the part. 
+ */
+void SpecificWorker::stop(const string &bodyPart)
 {
+	QString partName = QString::fromStdString(bodyPart);
+	if(bodyParts.contains(partName)==false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompInverseKinematics::IKException ex;
+		ex.text = "Not recognized body part: "+bodyPart;
+		throw ex;
+	}
+	qDebug() << "-------------------------------------------------------------------";
+	qDebug() << "New COMMAND arrived " << __FUNCTION__ << partName;
+	qDebug() << "-------------------------------------------------------------------";
 
+	QMutexLocker locker(mutex);
+	bodyParts[partName].reset();
 }
 /**
  * \brief Method of the interface that stores a new POSE6D target into the correspondig part of the robot.
  * @param bodyPart name of the body part.
  * @param target   pose of the goal point.
  * @param weights  weights of each traslation and rotation components.
+ * @return the identifier of the target (an int)
  */ 
 int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
 {	
@@ -211,13 +229,45 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		
 	QMutexLocker locker(mutex);
 	bodyParts[partName].addTargetToList(newTarget);
-	//qDebug()<<"ID: "<<newTarget.getTargetIdentifier();
 	return newTarget.getTargetIdentifier();
 }
-
+/**
+ * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
+ * @param bodyPart  name of the body part.
+ * @param ax the direction 
+ * @param dist step to advance un milimeters
+ * @return the identifier of the target (an int)
+ */
 int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist)
 {
-	return 0;
+	QString partName = QString::fromStdString(bodyPart);
+	if (!bodyParts.contains(partName))
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompInverseKinematics::IKException ex;
+		ex.text = "Not recognized body part: "+bodyPart;
+		throw ex;
+	}
+
+	QVec axis_ = QVec::vec3(ax.x, ax.y,	ax.z).normalize(); 	//Code axis as a dist norm vector in tip reference frame
+	//Bigger jump admisible
+	float step_;
+	if(dist > 300) 	step_ = 300;
+	if(dist < -300) step_ = -300;
+	step_ = dist / 1000.;   //PASANDO A METROS
+	Target newTarget  = Target(0, axis_, step_, Target::TargetType::ADVANCEAXIS);
+
+	qDebug() << "----------------------------------------------------------------------------------";
+	qDebug() <<  __FILE__ << __FUNCTION__ << "New target arrived: " << partName << "dist" << step_ << "axis" << axis_;
+	qDebug() << "----------------------------------------------------------------------------------";
+	
+	QMutexLocker locker(mutex);
+	if( bodyParts[partName].getTargetList().size() < 2 )
+	{
+		bodyParts[partName].addTargetToList(newTarget);
+		return newTarget.getTargetIdentifier();
+	}
+	return -1;
 }
 /**
  * \brief This method  of the interface stores a new ALIGNAXIS target into the correspondig part of the robot.
@@ -227,18 +277,18 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  */ 
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
-	/*QString partName = QString::fromStdString(bodyPart);
+	QString partName = QString::fromStdString(bodyPart);
 	if (!bodyParts.contains(partName))
 	{
 		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
-		RoboCompBodyInverseKinematics::BIKException ex;
+		RoboCompInverseKinematics::IKException ex;
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
 	QVec pose_	 	 = QVec::vec6(target.x /(T)1000, target.y/(T)1000, target.z/(T)1000, target.rx, target.ry, target.rz);	
 	QVec weights_ 	 = QVec::vec6(                0,                0,                0,         1,         1,         1); //Weights vector ONLY ROTATION
 	QVec axis_ 		 = QVec::vec3(ax.x , ax.y, ax.z);
-	Target newTarget = Target(pose_, weights_, axis_,Target::TargetType::ALIGNAXIS);
+	Target newTarget = Target(0, pose_, weights_, axis_,Target::TargetType::ALIGNAXIS);
 	
 	qDebug() << "----------------------------------------------------------------------------------";
 	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
@@ -246,7 +296,7 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 
 	QMutexLocker locker(mutex);
 	bodyParts[partName].addTargetToList(newTarget);
-	return newTarget.getTargetIdentifier();*/
+	return newTarget.getTargetIdentifier();
 }
 
 bool SpecificWorker::getPartState(const string &bodyPart)
@@ -297,7 +347,7 @@ TargetState SpecificWorker::getTargetState(const string &part, const int targetI
 	return state;
 }
 
-void SpecificWorker::goHome(const string &part)
+void SpecificWorker::goHome(const string &bodyPart)
 {
 	try
 	{

@@ -3,20 +3,15 @@
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
-  target.cpp
-  visualhand.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  target.h
-  visualhand.h
 )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
 
-SET (LIBS ${LIBS} -losgViewer )
-ADD_DEFINITIONS( -std=c++14 )
+ADD_DEFINITIONS( -std=c++11 )
 

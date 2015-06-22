@@ -20,7 +20,7 @@ class Target
 {
 public:
 	enum	TargetType 			{POSE6D, ALIGNAXIS, ADVANCEAXIS};
-	enum	TargetState			{IDLE, IN_PROCESS, FINISH};
+	enum	TargetState			{IDLE, IN_PROCESS, ABORTED, FINISH};
 	enum 	TargetFinalState	{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
 
 private:
