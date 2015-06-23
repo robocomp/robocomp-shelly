@@ -321,6 +321,12 @@ bool SpecificWorker::getPartState(const string &bodyPart)
 	//return inversekinematics_proxy->getPartState(bodyPart);
 	return (nextTargets.isEmpty() and currentTarget.getState()==Target::State::IDLE);;
 }
+
+void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
+{
+	inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////

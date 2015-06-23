@@ -788,6 +788,9 @@ typedef ::IceUtil::Handle< Callback_InverseKinematics_goHome_Base> Callback_Inve
 class Callback_InverseKinematics_stop_Base : virtual public ::IceInternal::CallbackBase { };
 typedef ::IceUtil::Handle< Callback_InverseKinematics_stop_Base> Callback_InverseKinematics_stopPtr;
 
+class Callback_InverseKinematics_setJoint_Base : virtual public ::IceInternal::CallbackBase { };
+typedef ::IceUtil::Handle< Callback_InverseKinematics_setJoint_Base> Callback_InverseKinematics_setJointPtr;
+
 }
 
 namespace IceProxy
@@ -1588,6 +1591,118 @@ private:
     ::Ice::AsyncResultPtr begin_stop(const ::std::string&, const ::Ice::Context*, const ::IceInternal::CallbackBasePtr&, const ::Ice::LocalObjectPtr& __cookie = 0);
     
 public:
+
+    void setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed)
+    {
+        setJoint(joint, angle, maxSpeed, 0);
+    }
+    void setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx)
+    {
+        setJoint(joint, angle, maxSpeed, &__ctx);
+    }
+#ifdef ICE_CPP11
+    ::Ice::AsyncResultPtr
+    begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::IceInternal::Function<void ()>& __response, const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = ::IceInternal::Function<void (const ::Ice::Exception&)>(), const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>())
+    {
+        return __begin_setJoint(joint, angle, maxSpeed, 0, __response, __exception, __sent);
+    }
+    ::Ice::AsyncResultPtr
+    begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __completed, const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+    {
+        return begin_setJoint(joint, angle, maxSpeed, 0, ::Ice::newCallback(__completed, __sent), 0);
+    }
+    ::Ice::AsyncResultPtr
+    begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx, const ::IceInternal::Function<void ()>& __response, const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception = ::IceInternal::Function<void (const ::Ice::Exception&)>(), const ::IceInternal::Function<void (bool)>& __sent = ::IceInternal::Function<void (bool)>())
+    {
+        return __begin_setJoint(joint, angle, maxSpeed, &__ctx, __response, __exception, __sent);
+    }
+    ::Ice::AsyncResultPtr
+    begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx, const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __completed, const ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>& __sent = ::IceInternal::Function<void (const ::Ice::AsyncResultPtr&)>())
+    {
+        return begin_setJoint(joint, angle, maxSpeed, &__ctx, ::Ice::newCallback(__completed, __sent));
+    }
+    
+private:
+
+    ::Ice::AsyncResultPtr __begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context* __ctx, const ::IceInternal::Function<void ()>& __response, const ::IceInternal::Function<void (const ::Ice::Exception&)>& __exception, const ::IceInternal::Function<void (bool)>& __sent)
+    {
+        class Cpp11CB : public ::IceInternal::Cpp11FnCallbackNC
+        {
+        public:
+
+            Cpp11CB(const ::std::function<void ()>& responseFunc, const ::std::function<void (const ::Ice::Exception&)>& exceptionFunc, const ::std::function<void (bool)>& sentFunc) :
+                ::IceInternal::Cpp11FnCallbackNC(exceptionFunc, sentFunc),
+                _response(responseFunc)
+            {
+                CallbackBase::checkCallback(true, responseFunc || exceptionFunc != nullptr);
+            }
+
+            virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+            {
+                ::RoboCompInverseKinematics::InverseKinematicsPrx __proxy = ::RoboCompInverseKinematics::InverseKinematicsPrx::uncheckedCast(__result->getProxy());
+                try
+                {
+                    __proxy->end_setJoint(__result);
+                }
+                catch(::Ice::Exception& ex)
+                {
+                    Cpp11FnCallbackNC::__exception(__result, ex);
+                    return;
+                }
+                if(_response != nullptr)
+                {
+                    _response();
+                }
+            }
+        
+        private:
+            
+            ::std::function<void ()> _response;
+        };
+        return begin_setJoint(joint, angle, maxSpeed, __ctx, new Cpp11CB(__response, __exception, __sent));
+    }
+    
+public:
+#endif
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, 0, ::IceInternal::__dummyCallback, 0);
+    }
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, &__ctx, ::IceInternal::__dummyCallback, 0);
+    }
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::CallbackPtr& __del, const ::Ice::LocalObjectPtr& __cookie = 0)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, 0, __del, __cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx, const ::Ice::CallbackPtr& __del, const ::Ice::LocalObjectPtr& __cookie = 0)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, &__ctx, __del, __cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::RoboCompInverseKinematics::Callback_InverseKinematics_setJointPtr& __del, const ::Ice::LocalObjectPtr& __cookie = 0)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, 0, __del, __cookie);
+    }
+
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context& __ctx, const ::RoboCompInverseKinematics::Callback_InverseKinematics_setJointPtr& __del, const ::Ice::LocalObjectPtr& __cookie = 0)
+    {
+        return begin_setJoint(joint, angle, maxSpeed, &__ctx, __del, __cookie);
+    }
+
+    void end_setJoint(const ::Ice::AsyncResultPtr&);
+    
+private:
+
+    void setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Context*);
+    ::Ice::AsyncResultPtr begin_setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Context*, const ::IceInternal::CallbackBasePtr&, const ::Ice::LocalObjectPtr& __cookie = 0);
+    
+public:
     
     ::IceInternal::ProxyHandle<InverseKinematics> ice_context(const ::Ice::Context& __context) const
     {
@@ -1725,6 +1840,8 @@ public:
     virtual void goHome(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
 
     virtual void stop(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
+
+    virtual void setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Context*, ::IceInternal::InvocationObserver&) = 0;
 };
 
 }
@@ -1755,6 +1872,8 @@ public:
     virtual void goHome(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
 
     virtual void stop(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+
+    virtual void setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
 };
 
 }
@@ -1785,6 +1904,8 @@ public:
     virtual void goHome(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
 
     virtual void stop(const ::std::string&, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
+
+    virtual void setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Context*, ::IceInternal::InvocationObserver&);
 };
 
 }
@@ -1826,6 +1947,9 @@ public:
 
     virtual void stop(const ::std::string&, const ::Ice::Current& = ::Ice::Current()) = 0;
     ::Ice::DispatchStatus ___stop(::IceInternal::Incoming&, const ::Ice::Current&);
+
+    virtual void setJoint(const ::std::string&, ::Ice::Float, ::Ice::Float, const ::Ice::Current& = ::Ice::Current()) = 0;
+    ::Ice::DispatchStatus ___setJoint(::IceInternal::Incoming&, const ::Ice::Current&);
 
     virtual ::Ice::DispatchStatus __dispatch(::IceInternal::Incoming&, const ::Ice::Current&);
 
@@ -2595,6 +2719,128 @@ template<class T, typename CT> Callback_InverseKinematics_stopPtr
 newCallback_InverseKinematics_stop(T* instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
 {
     return new Callback_InverseKinematics_stop<T, CT>(instance, 0, excb, sentcb);
+}
+
+template<class T>
+class CallbackNC_InverseKinematics_setJoint : public Callback_InverseKinematics_setJoint_Base, public ::IceInternal::TwowayCallbackNC<T>
+{
+public:
+
+    typedef IceUtil::Handle<T> TPtr;
+
+    typedef void (T::*Exception)(const ::Ice::Exception&);
+    typedef void (T::*Sent)(bool);
+    typedef void (T::*Response)();
+
+    CallbackNC_InverseKinematics_setJoint(const TPtr& obj, Response cb, Exception excb, Sent sentcb)
+        : ::IceInternal::TwowayCallbackNC<T>(obj, cb != 0, excb, sentcb), response(cb)
+    {
+    }
+
+    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    {
+        ::RoboCompInverseKinematics::InverseKinematicsPrx __proxy = ::RoboCompInverseKinematics::InverseKinematicsPrx::uncheckedCast(__result->getProxy());
+        try
+        {
+            __proxy->end_setJoint(__result);
+        }
+        catch(::Ice::Exception& ex)
+        {
+            ::IceInternal::CallbackNC<T>::__exception(__result, ex);
+            return;
+        }
+        if(response)
+        {
+            (::IceInternal::CallbackNC<T>::callback.get()->*response)();
+        }
+    }
+
+    Response response;
+};
+
+template<class T> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(const IceUtil::Handle<T>& instance, void (T::*cb)(), void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_InverseKinematics_setJoint<T>(instance, cb, excb, sentcb);
+}
+
+template<class T> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(const IceUtil::Handle<T>& instance, void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_InverseKinematics_setJoint<T>(instance, 0, excb, sentcb);
+}
+
+template<class T> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(T* instance, void (T::*cb)(), void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_InverseKinematics_setJoint<T>(instance, cb, excb, sentcb);
+}
+
+template<class T> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(T* instance, void (T::*excb)(const ::Ice::Exception&), void (T::*sentcb)(bool) = 0)
+{
+    return new CallbackNC_InverseKinematics_setJoint<T>(instance, 0, excb, sentcb);
+}
+
+template<class T, typename CT>
+class Callback_InverseKinematics_setJoint : public Callback_InverseKinematics_setJoint_Base, public ::IceInternal::TwowayCallback<T, CT>
+{
+public:
+
+    typedef IceUtil::Handle<T> TPtr;
+
+    typedef void (T::*Exception)(const ::Ice::Exception& , const CT&);
+    typedef void (T::*Sent)(bool , const CT&);
+    typedef void (T::*Response)(const CT&);
+
+    Callback_InverseKinematics_setJoint(const TPtr& obj, Response cb, Exception excb, Sent sentcb)
+        : ::IceInternal::TwowayCallback<T, CT>(obj, cb != 0, excb, sentcb), response(cb)
+    {
+    }
+
+    virtual void __completed(const ::Ice::AsyncResultPtr& __result) const
+    {
+        ::RoboCompInverseKinematics::InverseKinematicsPrx __proxy = ::RoboCompInverseKinematics::InverseKinematicsPrx::uncheckedCast(__result->getProxy());
+        try
+        {
+            __proxy->end_setJoint(__result);
+        }
+        catch(::Ice::Exception& ex)
+        {
+            ::IceInternal::Callback<T, CT>::__exception(__result, ex);
+            return;
+        }
+        if(response)
+        {
+            (::IceInternal::Callback<T, CT>::callback.get()->*response)(CT::dynamicCast(__result->getCookie()));
+        }
+    }
+
+    Response response;
+};
+
+template<class T, typename CT> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(const IceUtil::Handle<T>& instance, void (T::*cb)(const CT&), void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_InverseKinematics_setJoint<T, CT>(instance, cb, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(const IceUtil::Handle<T>& instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_InverseKinematics_setJoint<T, CT>(instance, 0, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(T* instance, void (T::*cb)(const CT&), void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_InverseKinematics_setJoint<T, CT>(instance, cb, excb, sentcb);
+}
+
+template<class T, typename CT> Callback_InverseKinematics_setJointPtr
+newCallback_InverseKinematics_setJoint(T* instance, void (T::*excb)(const ::Ice::Exception&, const CT&), void (T::*sentcb)(bool, const CT&) = 0)
+{
+    return new Callback_InverseKinematics_setJoint<T, CT>(instance, 0, excb, sentcb);
 }
 
 }

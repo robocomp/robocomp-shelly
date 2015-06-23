@@ -54,6 +54,8 @@ const ::std::string __RoboCompInverseKinematics__InverseKinematics__goHome_name 
 
 const ::std::string __RoboCompInverseKinematics__InverseKinematics__stop_name = "stop";
 
+const ::std::string __RoboCompInverseKinematics__InverseKinematics__setJoint_name = "setJoint";
+
 }
 
 namespace
@@ -718,6 +720,86 @@ IceProxy::RoboCompInverseKinematics::InverseKinematics::end_stop(const ::Ice::As
     }
 }
 
+void
+IceProxy::RoboCompInverseKinematics::InverseKinematics::setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context* __ctx)
+{
+    ::IceInternal::InvocationObserver __observer(this, __RoboCompInverseKinematics__InverseKinematics__setJoint_name, __ctx);
+    int __cnt = 0;
+    while(true)
+    {
+        ::IceInternal::Handle< ::IceDelegate::Ice::Object> __delBase;
+        try
+        {
+            __checkTwowayOnly(__RoboCompInverseKinematics__InverseKinematics__setJoint_name);
+            __delBase = __getDelegate(false);
+            ::IceDelegate::RoboCompInverseKinematics::InverseKinematics* __del = dynamic_cast< ::IceDelegate::RoboCompInverseKinematics::InverseKinematics*>(__delBase.get());
+            __del->setJoint(joint, angle, maxSpeed, __ctx, __observer);
+            return;
+        }
+        catch(const ::IceInternal::LocalExceptionWrapper& __ex)
+        {
+            __handleExceptionWrapper(__delBase, __ex, __observer);
+        }
+        catch(const ::Ice::LocalException& __ex)
+        {
+            __handleException(__delBase, __ex, true, __cnt, __observer);
+        }
+    }
+}
+
+::Ice::AsyncResultPtr
+IceProxy::RoboCompInverseKinematics::InverseKinematics::begin_setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context* __ctx, const ::IceInternal::CallbackBasePtr& __del, const ::Ice::LocalObjectPtr& __cookie)
+{
+    __checkAsyncTwowayOnly(__RoboCompInverseKinematics__InverseKinematics__setJoint_name);
+    ::IceInternal::OutgoingAsyncPtr __result = new ::IceInternal::OutgoingAsync(this, __RoboCompInverseKinematics__InverseKinematics__setJoint_name, __del, __cookie);
+    try
+    {
+        __result->__prepare(__RoboCompInverseKinematics__InverseKinematics__setJoint_name, ::Ice::Normal, __ctx);
+        ::IceInternal::BasicStream* __os = __result->__startWriteParams(::Ice::DefaultFormat);
+        __os->write(joint);
+        __os->write(angle);
+        __os->write(maxSpeed);
+        __result->__endWriteParams();
+        __result->__send(true);
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        __result->__exceptionAsync(__ex);
+    }
+    return __result;
+}
+
+void
+IceProxy::RoboCompInverseKinematics::InverseKinematics::end_setJoint(const ::Ice::AsyncResultPtr& __result)
+{
+    ::Ice::AsyncResult::__check(__result, this, __RoboCompInverseKinematics__InverseKinematics__setJoint_name);
+    bool __ok = __result->__wait();
+    try
+    {
+        if(!__ok)
+        {
+            try
+            {
+                __result->__throwUserException();
+            }
+            catch(const ::RoboCompInverseKinematics::IKException&)
+            {
+                throw;
+            }
+            catch(const ::Ice::UserException& __ex)
+            {
+                throw ::Ice::UnknownUserException(__FILE__, __LINE__, __ex.ice_name());
+            }
+        }
+        __result->__readEmptyParams();
+    }
+    catch(const ::Ice::LocalException& ex)
+    {
+        __result->__getObserver().failed(ex.ice_name());
+        throw;
+    }
+}
+
 const ::std::string&
 IceProxy::RoboCompInverseKinematics::InverseKinematics::ice_staticId()
 {
@@ -1019,6 +1101,49 @@ IceDelegateM::RoboCompInverseKinematics::InverseKinematics::stop(const ::std::st
     {
         ::IceInternal::BasicStream* __os = __og.startWriteParams(::Ice::DefaultFormat);
         __os->write(bodyPart);
+        __og.endWriteParams();
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        __og.abort(__ex);
+    }
+    bool __ok = __og.invoke();
+    try
+    {
+        if(!__ok)
+        {
+            try
+            {
+                __og.throwUserException();
+            }
+            catch(const ::RoboCompInverseKinematics::IKException&)
+            {
+                throw;
+            }
+            catch(const ::Ice::UserException& __ex)
+            {
+                ::Ice::UnknownUserException __uue(__FILE__, __LINE__, __ex.ice_name());
+                throw __uue;
+            }
+        }
+        __og.readEmptyParams();
+    }
+    catch(const ::Ice::LocalException& __ex)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(__ex, false);
+    }
+}
+
+void
+IceDelegateM::RoboCompInverseKinematics::InverseKinematics::setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context* __context, ::IceInternal::InvocationObserver& __observer)
+{
+    ::IceInternal::Outgoing __og(__handler.get(), __RoboCompInverseKinematics__InverseKinematics__setJoint_name, ::Ice::Normal, __context, __observer);
+    try
+    {
+        ::IceInternal::BasicStream* __os = __og.startWriteParams(::Ice::DefaultFormat);
+        __os->write(joint);
+        __os->write(angle);
+        __os->write(maxSpeed);
         __og.endWriteParams();
     }
     catch(const ::Ice::LocalException& __ex)
@@ -1606,6 +1731,86 @@ IceDelegateD::RoboCompInverseKinematics::InverseKinematics::stop(const ::std::st
     }
 }
 
+void
+IceDelegateD::RoboCompInverseKinematics::InverseKinematics::setJoint(const ::std::string& joint, ::Ice::Float angle, ::Ice::Float maxSpeed, const ::Ice::Context* __context, ::IceInternal::InvocationObserver&)
+{
+    class _DirectI : public ::IceInternal::Direct
+    {
+    public:
+
+        _DirectI(const ::std::string& __p_joint, ::Ice::Float __p_angle, ::Ice::Float __p_maxSpeed, const ::Ice::Current& __current) : 
+            ::IceInternal::Direct(__current),
+            _m_joint(__p_joint),
+            _m_angle(__p_angle),
+            _m_maxSpeed(__p_maxSpeed)
+        {
+        }
+        
+        virtual ::Ice::DispatchStatus
+        run(::Ice::Object* object)
+        {
+            ::RoboCompInverseKinematics::InverseKinematics* servant = dynamic_cast< ::RoboCompInverseKinematics::InverseKinematics*>(object);
+            if(!servant)
+            {
+                throw ::Ice::OperationNotExistException(__FILE__, __LINE__, _current.id, _current.facet, _current.operation);
+            }
+            try
+            {
+                servant->setJoint(_m_joint, _m_angle, _m_maxSpeed, _current);
+                return ::Ice::DispatchOK;
+            }
+            catch(const ::Ice::UserException& __ex)
+            {
+                setUserException(__ex);
+                return ::Ice::DispatchUserException;
+            }
+        }
+        
+    private:
+        
+        const ::std::string& _m_joint;
+        ::Ice::Float _m_angle;
+        ::Ice::Float _m_maxSpeed;
+    };
+    
+    ::Ice::Current __current;
+    __initCurrent(__current, __RoboCompInverseKinematics__InverseKinematics__setJoint_name, ::Ice::Normal, __context);
+    try
+    {
+        _DirectI __direct(joint, angle, maxSpeed, __current);
+        try
+        {
+            __direct.getServant()->__collocDispatch(__direct);
+        }
+        catch(...)
+        {
+            __direct.destroy();
+            throw;
+        }
+        __direct.destroy();
+    }
+    catch(const ::RoboCompInverseKinematics::IKException&)
+    {
+        throw;
+    }
+    catch(const ::Ice::SystemException&)
+    {
+        throw;
+    }
+    catch(const ::IceInternal::LocalExceptionWrapper&)
+    {
+        throw;
+    }
+    catch(const ::std::exception& __ex)
+    {
+        ::IceInternal::LocalExceptionWrapper::throwWrapper(__ex);
+    }
+    catch(...)
+    {
+        throw ::IceInternal::LocalExceptionWrapper(::Ice::UnknownException(__FILE__, __LINE__, "unknown c++ exception"), false);
+    }
+}
+
 ::Ice::Object* RoboCompInverseKinematics::upCast(::RoboCompInverseKinematics::InverseKinematics* p) { return p; }
 
 namespace
@@ -1805,6 +2010,31 @@ RoboCompInverseKinematics::InverseKinematics::___stop(::IceInternal::Incoming& _
     return ::Ice::DispatchUserException;
 }
 
+::Ice::DispatchStatus
+RoboCompInverseKinematics::InverseKinematics::___setJoint(::IceInternal::Incoming& __inS, const ::Ice::Current& __current)
+{
+    __checkMode(::Ice::Normal, __current.mode);
+    ::IceInternal::BasicStream* __is = __inS.startReadParams();
+    ::std::string joint;
+    ::Ice::Float angle;
+    ::Ice::Float maxSpeed;
+    __is->read(joint);
+    __is->read(angle);
+    __is->read(maxSpeed);
+    __inS.endReadParams();
+    try
+    {
+        setJoint(joint, angle, maxSpeed, __current);
+        __inS.__writeEmptyParams();
+        return ::Ice::DispatchOK;
+    }
+    catch(const ::RoboCompInverseKinematics::IKException& __ex)
+    {
+        __inS.__writeUserException(__ex, ::Ice::DefaultFormat);
+    }
+    return ::Ice::DispatchUserException;
+}
+
 namespace
 {
 const ::std::string __RoboCompInverseKinematics__InverseKinematics_all[] =
@@ -1816,6 +2046,7 @@ const ::std::string __RoboCompInverseKinematics__InverseKinematics_all[] =
     "ice_ids",
     "ice_isA",
     "ice_ping",
+    "setJoint",
     "setTargetAdvanceAxis",
     "setTargetAlignaxis",
     "setTargetPose6D",
@@ -1827,7 +2058,7 @@ const ::std::string __RoboCompInverseKinematics__InverseKinematics_all[] =
 ::Ice::DispatchStatus
 RoboCompInverseKinematics::InverseKinematics::__dispatch(::IceInternal::Incoming& in, const ::Ice::Current& current)
 {
-    ::std::pair< const ::std::string*, const ::std::string*> r = ::std::equal_range(__RoboCompInverseKinematics__InverseKinematics_all, __RoboCompInverseKinematics__InverseKinematics_all + 11, current.operation);
+    ::std::pair< const ::std::string*, const ::std::string*> r = ::std::equal_range(__RoboCompInverseKinematics__InverseKinematics_all, __RoboCompInverseKinematics__InverseKinematics_all + 12, current.operation);
     if(r.first == r.second)
     {
         throw ::Ice::OperationNotExistException(__FILE__, __LINE__, current.id, current.facet, current.operation);
@@ -1865,17 +2096,21 @@ RoboCompInverseKinematics::InverseKinematics::__dispatch(::IceInternal::Incoming
         }
         case 7:
         {
-            return ___setTargetAdvanceAxis(in, current);
+            return ___setJoint(in, current);
         }
         case 8:
         {
-            return ___setTargetAlignaxis(in, current);
+            return ___setTargetAdvanceAxis(in, current);
         }
         case 9:
         {
-            return ___setTargetPose6D(in, current);
+            return ___setTargetAlignaxis(in, current);
         }
         case 10:
+        {
+            return ___setTargetPose6D(in, current);
+        }
+        case 11:
         {
             return ___stop(in, current);
         }

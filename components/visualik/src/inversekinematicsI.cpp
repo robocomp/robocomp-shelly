@@ -59,6 +59,11 @@ bool InverseKinematicsI::getPartState(const string  &bodyPart, const Ice::Curren
 	return worker->getPartState(bodyPart);
 }
 
+void InverseKinematicsI::setJoint(const string  &joint, const float  angle, const float  maxSpeed, const Ice::Current&)
+{
+	worker->setJoint(joint, angle, maxSpeed);
+}
+
 int InverseKinematicsI::setTargetAlignaxis(const string  &bodyPart, const Pose6D  &target, const Axis  &ax, const Ice::Current&)
 {
 	return worker->setTargetAlignaxis(bodyPart, target, ax);
