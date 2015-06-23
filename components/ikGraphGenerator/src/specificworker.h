@@ -34,69 +34,57 @@
 	#include <innermodeldraw.h>
 #endif
 
-#include <iostream>
-#include <deque>
-#include <iterator>
-#include <iostream>
-#include <ostream>
-#include <vector>
-#include "boost/graph/adjacency_list.hpp"
-#include "boost/graph/topological_sort.hpp"
-#include <boost/property_map/property_map.hpp>
-#include <boost/foreach.hpp>
-#include <boost/graph/graph_utility.hpp>
-#include <boost/graph/incremental_components.hpp>
-#include <boost/graph/connected_components.hpp>
-#include <boost/pending/disjoint_sets.hpp>
-#include <boost/graph/graphviz.hpp>
-#include <boost/property_map/dynamic_property_map.hpp>
-#include <boost/graph/dijkstra_shortest_paths.hpp>
-#include <boost/graph/iteration_macros.hpp>
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
+using namespace boost;
 
-struct VertexData
+
+class ConnectivityGraph
 {
-	QVec pose; // 3D
-	std::vector < std::map < std::string, float > > configurations;
-	std::size_t vertex_id;
-	VertexData()
+public:
+	
+	ConnectivityGraph(int32_t size)
 	{
+		for (int32_t i=0;i<size; i++)
+		{
+			vertices.push_back(VertexData());
+			std::vector<float> eds;
+			for (int32_t j=0;j<size; j++)
+			{
+				eds.push_back(-1);
+			}
+			edges.push_back(eds);
+		}
 	}
-	VertexData(std::size_t i, const QVec &p)
+	
+	struct VertexData
 	{
-		vertex_id = i;
-		pose = p;
-	}
-};
+		float pose[3];
+		std::vector < std::map < std::string, float > > configurations;
+		std::size_t id;
+		VertexData()
+		{
+			id = -1;
+		}
+		VertexData(std::size_t i, const float *p)
+		{
+			id = i;
+			for (int j=0; j<3; j++)
+				pose[j] = p[0];
+		}
+		void setPose(const float *p)
+		{
+			for (int j=0; j<3; j++)
+				pose[j] = p[0];
+		}
+	};
 
-struct EdgeData
-{
-	float dist;
-	EdgeData()
-	{
-		dist = -1;
-	}
-	EdgeData(float d)
-	{
-		dist = d;
-	}
-};
 
-typedef boost::adjacency_list<boost::listS, boost::listS, boost::undirectedS, VertexData, EdgeData, boost::listS> Graph;
-typedef boost::graph_traits<Graph>::vertex_descriptor Vertex;
-typedef boost::graph_traits<Graph>::edge_descriptor Edge;
-typedef boost::graph_traits<Graph>::vertices_size_type VertexIndex;
+	std::vector<VertexData> vertices;
+	std::vector< std::vector< float > > edges;
+}
 
-typedef boost::graph_traits<Graph>::vertex_iterator VertexIterator;
-typedef boost::component_index<VertexIndex> Components;
-typedef std::vector<Graph::edge_descriptor> PathType;
-typedef boost::graph_traits<Graph>::edge_iterator EdgeIterator;
-typedef std::pair<EdgeIterator, EdgeIterator> EdgePair;
-typedef std::pair<int, std::vector<Vertex> > CComponent;
-typedef std::map<Vertex, int32_t> ComponentMap;
-typedef std::vector<CComponent> ConnectedComponents;
 
 
 

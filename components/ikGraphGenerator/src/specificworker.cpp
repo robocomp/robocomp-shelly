@@ -87,7 +87,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 	uint32_t included=0;
-	while (included<400)
+	while (included<10)
 	{
 		printf("inc: %d\n", included);
 		QVec xm = QVec::uniformVector(1, -100, 500);
@@ -100,15 +100,35 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			Vertex vertex = boost::add_vertex(graph);
 			graph[vertex].pose = QVec::vec3(xm(0), ym(0), zm(0));
 			graph[vertex].configurations.clear();
-			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(5,5,5));
+			InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(xm(0),ym(0),zm(0)), QVec::vec3(1,0,0), "#990000", QVec::vec3(15,15,15));
 			included++;
 		}
 	}
 
 	timer.start(10);
 
-// 	bodyinversekinematics_proxy
 
+	
+	
+	typedef boost::property_map<Graph, vertex_index_t>::type IndexMap;
+
+	
+    IndexMap index = get(vertex_index, graph);
+    std::cout << "vertices(g) = ";
+    std::pair<VertexIterator, VertexIterator> vp;
+    for (vp = vertices(graph); vp.first != vp.second; ++vp.first) {
+      Vertex v = *vp.first;
+      std::cout << index[v] <<  " ";
+    }
+    std::cout << std::endl;
+	
+	
+	
+	
+	
+	
+	
+	
 	return true;
 }
 
@@ -149,20 +169,6 @@ void SpecificWorker::compute()
 	}
 
 
-// 	mt19937 gen;
-// 	auto v = graph_traits<Graph>::vertex_descriptor(graph, gen);
-
-
-// 	typedef boost::property_map<Graph, VertexIndex>::type IndexMap;
-// 	IndexMap index = get(vertex_index, graph);
-//
-// 	std::cout << "vertices(g) = ";
-// 	std::pair<VertexIterator, VertexIterator> vp;
-// 	for (vp = vertices(g); vp.first != vp.second; ++vp.first)
-// 	{
-// 		std::cout << index[*vp.first] <<  " ";
-// 	}
-// 	std::cout << std::endl;
 
 
 #ifdef USE_QTGUI
