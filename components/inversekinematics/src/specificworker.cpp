@@ -398,6 +398,29 @@ void SpecificWorker::goHome(const string &bodyPart)
 		}
 	}
 }
+/**
+ * \brief this method changes the position of a determina joint.
+ * @param joint the joint to change
+ * @param angle the new angle of the joint.
+ * @param maxSpeed the speed of the joint
+ */ 
+void SpecificWorker::setJoint (const string &joint, const float angle, const float maxSpeed)
+{
+	try
+	{
+		RoboCompJointMotor::MotorGoalPosition nodo;
+		nodo.name = joint;
+		nodo.position = angle; 		// posición en radianes
+		nodo.maxSpeed = maxSpeed; 	// radianes por segundo
+		jointmotor_proxy->setPosition(nodo);
+	}
+	catch (const Ice::Exception &ex){	
+		cout<< ex << "Exception moving " << joint << endl;	
+		RoboCompInverseKinematics::IKException exep;
+		exep.text = "Not recognized joint: "+joint;
+		throw exep;
+	}
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////

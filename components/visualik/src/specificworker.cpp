@@ -357,7 +357,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
-	static float umbralMaxTime = 60, umbralMinTime = 6;
+	static float umbralMaxTime = 65, umbralMinTime = 6;
 	static float umbralElapsedTime = 2, umbralError = 5;
 
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
@@ -411,7 +411,7 @@ bool SpecificWorker::correctTraslation	()
 bool SpecificWorker::correctRotation()
 {
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
-	static float umbralMaxTime = 60, umbralMinTime = 6;
+	static float umbralMaxTime = 65, umbralMinTime = 6;
 	static float umbralElapsedTime = 2, umbralErrorT = 5, umbralErrorR=0.01;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct

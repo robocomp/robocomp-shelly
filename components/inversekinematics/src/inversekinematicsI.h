@@ -44,6 +44,7 @@ public:
 	void stop(const string  &bodyPart, const Ice::Current&);
 	int setTargetPose6D(const string  &bodyPart, const Pose6D  &target, const WeightVector  &weights, const Ice::Current&);
 	bool getPartState(const string  &bodyPart, const Ice::Current&);
+	void setJoint(const string  &joint, const float  angle, const float  maxSpeed, const Ice::Current&);
 	int setTargetAlignaxis(const string  &bodyPart, const Pose6D  &target, const Axis  &ax, const Ice::Current&);
 
 	QMutex *mutex;

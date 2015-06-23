@@ -76,6 +76,7 @@ public:
 	virtual void stop(const string &bodyPart) = 0;
 	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
 	virtual bool getPartState(const string &bodyPart) = 0;
+	virtual void setJoint(const string &joint, const float angle, const float maxSpeed) = 0;
 	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
 	virtual void sendData(const TData &data) = 0;
 
