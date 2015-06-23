@@ -37,6 +37,7 @@ public:
 	
 	void			addTargetToList	(Target &target);
 	void			addSolvedToList	();
+	void 			reset			();
 	
 private:
 	QString			partName;

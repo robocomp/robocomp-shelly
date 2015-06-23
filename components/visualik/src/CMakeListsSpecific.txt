@@ -3,6 +3,7 @@
 SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
+  
   target.cpp
   visualhand.cpp
 )
@@ -11,8 +12,9 @@ SET ( SOURCES
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
+  
   target.h
-  visualhand.h
+  visualhand.cpp
 )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)

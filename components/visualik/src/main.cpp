@@ -78,10 +78,10 @@
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
 
-#include <bodyinversekinematicsI.h>
+#include <inversekinematicsI.h>
 #include <apriltagsI.h>
 
-#include <BodyInverseKinematics.h>
+#include <InverseKinematics.h>
 #include <AprilTags.h>
 #include <JointMotor.h>
 #include <OmniRobot.h>
@@ -93,7 +93,7 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 
-using namespace RoboCompBodyInverseKinematics;
+using namespace RoboCompInverseKinematics;
 using namespace RoboCompAprilTags;
 using namespace RoboCompJointMotor;
 using namespace RoboCompOmniRobot;
@@ -129,7 +129,7 @@ int VisualBIK::run(int argc, char* argv[])
 #endif
 	int status=EXIT_SUCCESS;
 
-	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 	OmniRobotPrx omnirobot_proxy;
 
@@ -139,19 +139,19 @@ int VisualBIK::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "BodyInverseKinematicsProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematicsProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy BodyInverseKinematicsProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematicsProxy\n";
 		}
-		bodyinversekinematics_proxy = BodyInverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		inversekinematics_proxy = InverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("BodyInverseKinematicsProxy initialized Ok!");
-	mprx["BodyInverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&bodyinversekinematics_proxy);//Remote server proxy creation example
+	rInfo("InverseKinematicsProxy initialized Ok!");
+	mprx["InverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&inversekinematics_proxy);//Remote server proxy creation example
 
 
 	try
@@ -215,20 +215,20 @@ IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(
 
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "BodyInverseKinematics.Endpoints", tmp, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematics.Endpoints", tmp, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy BodyInverseKinematics";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematics";
 		}
-		Ice::ObjectAdapterPtr adapterBodyInverseKinematics = communicator()->createObjectAdapterWithEndpoints("BodyInverseKinematics", tmp);
-		BodyInverseKinematicsI *bodyinversekinematics = new BodyInverseKinematicsI(worker);
-		adapterBodyInverseKinematics->add(bodyinversekinematics, communicator()->stringToIdentity("bodyinversekinematics"));
-		adapterBodyInverseKinematics->activate();
+		Ice::ObjectAdapterPtr adapterInverseKinematics = communicator()->createObjectAdapterWithEndpoints("InverseKinematics", tmp);
+		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
+		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
+		adapterInverseKinematics->activate();
 
 
 
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "AprilTagsTopic", tmp, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "AprilTagsTopic.Endpoints", tmp, ""))
 		{
 			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AprilTagsProxy";
 		}

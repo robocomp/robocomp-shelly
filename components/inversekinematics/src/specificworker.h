@@ -46,6 +46,7 @@ Q_OBJECT
 
 private:
 	int 						correlativeID;
+	bool						INITIALIZE_READY;
 	QMap<QString, BodyPart> 	bodyParts;
 	QStringList					availableParts;
 	InnerModel					*innermodel;
@@ -70,6 +71,7 @@ public:
 	bool 			getPartState		(const string &bodyPart);
 	TargetState 	getTargetState		(const string &bodyPart, const int targetID);
 	void 			goHome				(const string &bodyPart);
+	void 			setJoint			(const string &joint, const float angle, const float maxSpeed);
 	void 			sendData			(const TData &data);
 	
 public slots:

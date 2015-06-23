@@ -93,4 +93,18 @@ void BodyPart::addSolvedToList()
 	qDebug()<<"Target resuelto";
 	solvedList.enqueue(targetList.dequeue());
 }
+/**
+ * \brief this method marks the first target like ABORTED and deleted the other targets in the 
+ * queue of pending  targets and in the queue of solved targets.
+ */ 
+void BodyPart::reset()
+{
+	for(int i=0; i<targetList.size(); i++)
+		targetList.dequeue();
+	
+	for(int i=0; i<solvedList.size(); i++)
+		solvedList.dequeue();
+	
+	counter = 0;
+}
 
