@@ -308,7 +308,7 @@ void SpecificWorker::goHome(const string &bodyPart)
 	} 
 	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
 	
-	sleep(2);
+	sleep(3);
 }
 
 void SpecificWorker::stop(const string &bodyPart)
@@ -357,13 +357,12 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
-	static int iteraciones = 0, 	maxIteraciones = 10;    // Para evitar que se quede atascado.
-	float umbralElapsedTime = 2, 	umbralError = 2;
+	static float umbralMaxTime = 60, umbralMinTime = 6;
+	static float umbralElapsedTime = 2, umbralError = 5;
 
-	if(iteraciones > maxIteraciones)
+	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
 		abortatraslacion = true;   
-		iteraciones = 0;
 		qDebug()<<"Abort traslation";
 		return false;
 	}
@@ -379,7 +378,6 @@ bool SpecificWorker::correctTraslation	()
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!";
-		iteraciones = 0;
 		return true;
 	}
 
@@ -403,8 +401,6 @@ bool SpecificWorker::correctTraslation	()
 	
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), weights);
 	correctedTarget.setID(identifier);
-
-	iteraciones++;
 	return false;
 }
 /**
@@ -415,8 +411,8 @@ bool SpecificWorker::correctTraslation	()
 bool SpecificWorker::correctRotation()
 {
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
-	static int iteraciones = 0, maxIteraciones = 10;    // Para evitar que se quede atascado.
-	float umbralElapsedTime = 2, umbralErrorT = 5, umbralErrorR=0.17;
+	static float umbralMaxTime = 60, umbralMinTime = 6;
+	static float umbralElapsedTime = 2, umbralErrorT = 5, umbralErrorR=0.01;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -426,16 +422,15 @@ bool SpecificWorker::correctRotation()
 	}
 	// COMPROBAMOS EL ERROR:
 	QVec errorInv = rightHand->getErrorInverse();
-	if(iteraciones > maxIteraciones)
+	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
 		abortarotacion = true;
 		qDebug()<<"Abort rotation";
 		file<<"P: ("      <<currentTarget.getPose();
 		file<<") ERROR_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<" ERROR_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		file<<" END: "    <<iteraciones<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;;
+		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;;
 		flush(file);
-		iteraciones = 0;
 		return false;
 	}
 	// Si el error es miserable no hacemos nada y acabamos la corrección. Para hacer la norma lo pasamos a vec6
@@ -446,9 +441,8 @@ bool SpecificWorker::correctRotation()
 		file<<"P: ("      <<currentTarget.getPose();
 		file<<") ERROR_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<" ERROR_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		file<<" END: "    <<iteraciones<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;
+		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;
 		flush(file);
-		iteraciones = 0;
 		return true;
 	}
 	
@@ -468,8 +462,6 @@ bool SpecificWorker::correctRotation()
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
 	correctedTarget.setID(identifier);
-
-	iteraciones++;
 	return false;
 }
 /**

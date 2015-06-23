@@ -223,9 +223,10 @@ void Target::setTargetNameInInnerModel(QString nameInInnerModel_)
  */ 
 void Target::setTargetState(Target::TargetState state_)
 {
-	state = state_;
-	if(state == TargetState::IN_PROCESS)
+	if(state==TargetState::IDLE and state_==TargetState::IN_PROCESS)
 		runTime.start();
+	
+	state = state_;
 }
 /**
  * \brief This method changes the finalstate of the target, when it is finish
