@@ -37,13 +37,16 @@
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
+
+#include <djk.h>
+
 using namespace boost;
 
 
 class ConnectivityGraph
 {
 public:
-	
+
 	ConnectivityGraph(int32_t size)
 	{
 		for (int32_t i=0;i<size; i++)
@@ -57,11 +60,17 @@ public:
 			edges.push_back(eds);
 		}
 	}
-	
+
+	int size()
+	{
+		return vertices.size();
+	}
+
+
 	struct VertexData
 	{
 		float pose[3];
-		std::vector < std::map < std::string, float > > configurations;
+		std::vector < MotorGoalPositionList > configurations;
 		std::size_t id;
 		VertexData()
 		{
@@ -78,15 +87,48 @@ public:
 			for (int j=0; j<3; j++)
 				pose[j] = p[0];
 		}
+		float distTo(const float *p)
+		{
+			return sqrt( (p[0]-pose[0])*(p[0]-pose[0]) + (p[1]-pose[1])*(p[1]-pose[1]) + (p[2]-pose[2])*(p[2]-pose[2]) );
+		}
 	};
 
 
 	std::vector<VertexData> vertices;
 	std::vector< std::vector< float > > edges;
-}
 
+	void add_edge(int a, int b, float dist)
+	{
+		edges[a][b] = dist;
+		edges[b][a] = dist;
+	}
 
+	void add_configurationToNode(int node, MotorGoalPositionList gpl)
+	{
+		vertices[node].configurations.push_back(gpl);
+	}
 
+	int path(int source, int dest, std::vector<int> &path)
+	{
+		Dijkstra d = Dijkstra(&edges);
+		d.calculateDistance(source);
+		return d.go(dest, path);
+	}
+};
+
+class WorkerThread : public QThread
+{
+Q_OBJECT
+public:
+	WorkerThread(void *data_)
+	{
+		data = data_;
+	}
+
+	void *data;
+
+	void run();
+};
 
 class SpecificWorker : public GenericWorker
 {
@@ -98,12 +140,20 @@ public:
 
 
 public slots:
+	void computeHard();
 	void compute();
 
 private:
-	Graph graph;
-	InnerModel *innerModel;
+	void updateFrame(uint wait_usecs=0);
+	bool goAndWait(int nodeId, MotorGoalPositionList &mpl);
+	bool goAndWaitDirect(const MotorGoalPositionList &mpl);
 
+
+	int getRandomNodeClose(int &current, float &dist);
+
+	float maxDist;
+	ConnectivityGraph *graph;
+	WorkerThread *workerThread;
 
 #ifdef USE_QTGUI
 	OsgView *osgView;

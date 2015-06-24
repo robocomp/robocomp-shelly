@@ -1,0 +1,36 @@
+CommonBehavior.Endpoints=tcp -p 43221
+
+
+# Endpoints for implemented interfaces
+InverseKinematics.Endpoints=tcp -p 30000
+
+
+# Endpoints for subscriptions
+JoystickAdapterTopic.Endpoints=tcp -p 3492
+
+
+# Proxies for required interfaces
+InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 0
+JointMotorProxy = jointmotor:tcp -h localhost -p 20000
+
+InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml
+
+RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
+RIGHTTIP=grabPositionHandR
+
+LEFTARM=leftShoulder1;leftShoulder2;leftShoulder3;leftElbow;leftForeArm;leftWrist1;leftWrist2
+LEFTTIP=grabPositionHandL
+
+HEAD=head_yaw_joint;head_pitch_joint
+HEADTIP=rgbd
+
+This property is used by the clients to connect to IceStorm.
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+
+Ice.Warn.Connections=0
+Ice.Trace.Network=0
+Ice.Trace.Protocol=0
+Ice.ACM.Client=10
+Ice.ACM.Server=10
+
+

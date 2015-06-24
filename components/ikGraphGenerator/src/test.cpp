@@ -17,7 +17,7 @@ int main()
 		}
 		edges.push_back(eds);
 	}
-	
+
 	edges[0][1] = 1;
 	edges[1][0] = 1;
 
@@ -35,13 +35,13 @@ int main()
 	d.calculateDistance(0);
 
 	std::vector<int> path;
-	int ret = d.go(2, path);
-	
-	
-	printf("RET: %d\n", ret);
+	float ret = d.go(2, path);
+
+
+	printf("RET: %f\n", ret);
 	for (int i=0; i<path.size(); i++)
 	{
 		printf("%d\n", path[i]);
 	}
-	
+
 }

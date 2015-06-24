@@ -1,10 +1,10 @@
 #include <vector>
 #include <iostream>
 
-#define INFINITY 999.
- 
+#define DJ_INFINITY 999999.
+
 using namespace std;
- 
+
 class Dijkstra
 {
 public:
@@ -29,12 +29,12 @@ public:
 		{
 			mark[i] = false;
 			predecessor[i] = -1;
-			distance[i] = INFINITY;
+			distance[i] = DJ_INFINITY;
 		}
 		distance[source]= 0;
 	}
 
-	int go(int node, std::vector <int> &path)
+	float go(int node, std::vector <int> &path)
 	{
 
 		if (node == source)
@@ -46,7 +46,7 @@ public:
 		if (predecessor[node] == -1) return -1;
 
 		go(predecessor[node], path);
-		
+
 		path.push_back(node);
 
 		return distance[node];
@@ -54,7 +54,7 @@ public:
 
 	int getClosestUnmarkedNode()
 	{
-		int minDistance = INFINITY;
+		int minDistance = DJ_INFINITY;
 		int closestUnmarkedNode;
 		for(int i=0;i<numOfVertices;i++)
 		{
@@ -72,7 +72,6 @@ public:
 	{
 		source = source_;
 		initialize();
-		int minDistance = INFINITY;
 		int closestUnmarkedNode;
 		int count = 0;
 		while(count < numOfVertices)
