@@ -29,6 +29,11 @@ InverseKinematicsI::~InverseKinematicsI()
 {
 }
 
+void InverseKinematicsI::setFingers(const float  d, const Ice::Current&)
+{
+	worker->setFingers(d);
+}
+
 TargetState InverseKinematicsI::getTargetState(const string  &bodyPart, const int  targetID, const Ice::Current&)
 {
 	return worker->getTargetState(bodyPart, targetID);

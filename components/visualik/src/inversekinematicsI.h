@@ -38,6 +38,7 @@ public:
 	InverseKinematicsI( GenericWorker *_worker, QObject *parent = 0 );
 	~InverseKinematicsI();
 	
+	void setFingers(const float  d, const Ice::Current&);
 	TargetState getTargetState(const string  &bodyPart, const int  targetID, const Ice::Current&);
 	int setTargetAdvanceAxis(const string  &bodyPart, const Axis  &ax, const float  dist, const Ice::Current&);
 	void goHome(const string  &bodyPart, const Ice::Current&);

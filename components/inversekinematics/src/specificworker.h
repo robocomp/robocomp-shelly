@@ -72,6 +72,7 @@ public:
 	TargetState 	getTargetState		(const string &bodyPart, const int targetID);
 	void 			goHome				(const string &bodyPart);
 	void 			setJoint			(const string &joint, const float angle, const float maxSpeed);
+	void 			setFingers			(const float d);
 	void 			sendData			(const TData &data);
 	
 public slots:

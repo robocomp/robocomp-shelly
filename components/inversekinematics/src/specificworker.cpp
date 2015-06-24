@@ -421,6 +421,44 @@ void SpecificWorker::setJoint (const string &joint, const float angle, const flo
 		throw exep;
 	}
 }
+/**
+ * @brief Set the fingers of the right hand position so there is d mm between them
+ *
+ * @param d millimeters between fingers
+ * @return void
+ */
+void SpecificWorker::setFingers(const float d)
+{
+	qDebug() << __FUNCTION__;
+
+	float len = innermodel->transform("rightFinger1", QVec::zeros(3), "finger_right_1_1_tip").norm2();
+	float D = (d/1000)/2.; 			// half distnace in meters
+	float s = D/len;
+	if( s > 1) s = 1;
+	if( s < -1) s = -1;
+	float ang = asin(s); 	// 1D inverse kinematics
+	QVec angles = QVec::vec2( ang - 1, -ang + 1);
+
+	/// NOTE!!! DO THAT WITH innerModel->getNode("rightFinger1")->min
+	QStringList joints;
+	joints << "rightFinger1" << "rightFinger2";
+	for(int i=0; i<joints.size(); i++)
+	{
+		try
+			{
+				RoboCompJointMotor::MotorGoalPosition nodo;
+				nodo.name = joints.at(i).toStdString();
+				nodo.position = angles[i]; // posición en radianes
+				nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+				jointmotor_proxy->setPosition(nodo);
+			} catch (const Ice::Exception &ex) {
+				cout<<"EXECEPTION IN setFingers"<<ex<<endl;
+				RoboCompInverseKinematics::IKException exep;
+				exep.text = "Not recognized joint: "+joints.at(i).toStdString();
+				throw exep;
+			}
+	}
+}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////

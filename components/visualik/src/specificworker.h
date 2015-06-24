@@ -58,6 +58,7 @@ public:
 	bool		getPartState		(const string &bodyPart);
 	int 		setTargetAlignaxis	(const string &bodyPart, const Pose6D &target, const Axis &ax);
 	void 		setJoint			(const string &joint, const float angle, const float maxSpeed);
+	void 		setFingers			(const float d);
 	void 		newAprilTag			(const tagsList &tags);
 
 public slots:

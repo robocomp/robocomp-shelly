@@ -70,6 +70,7 @@ public:
 	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
 
+	virtual void setFingers(const float d) = 0;
 	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
 	virtual int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist) = 0;
 	virtual void goHome(const string &bodyPart) = 0;
