@@ -87,14 +87,20 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 	uint32_t included=0;
-	uint32_t size_f = 500;
+	uint32_t size_f = 200;
+
+
+	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
+
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
+
 	graph = new ConnectivityGraph(size_f);
 	while (included<size_f)
 	{
 		printf("inc: %d\n", included);
 		QVec xm = QVec::uniformVector(size_f, -100, 500);
-		QVec ym = QVec::uniformVector(size_f, 600, 1200);
-		QVec zm = QVec::uniformVector(size_f, 100, 600);
+		QVec ym = QVec::uniformVector(size_f, 500, 1300);
+		QVec zm = QVec::uniformVector(size_f, 150, 450);
 
 		QString id = QString("node_") + QString::number(included);
 		if (true)
@@ -160,7 +166,7 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 	target.rz = -3.14;
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = weights.ry = weights.rz = 1;
+	weights.rx = weights.ry = weights.rz = 0;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -180,6 +186,11 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 		return false;
 	}
 
+	{
+		QMutexLocker l(mutex);
+		innerVisual->updateTransformValues("target", target.x, target.y, target.z, 0,0,0);
+	}
+
 	mpl.resize(0);
 	for (auto gp : stt.motors)
 	{
@@ -189,9 +200,7 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 		mgp.name = gp.name;
 		mpl.push_back(mgp);
 	}
-printf("goAndWait 4\n");
 	goAndWaitDirect(mpl);
-printf("goAndWait 9\n");
 
 	return true;
 }
@@ -221,11 +230,11 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 			{
 				if (d.distance[i] < DJ_INFINITY)
 				{
-					printf("distancia %f\n", d.distance[i]);
+// 					printf("distancia %f\n", d.distance[i]);
 					dist = graph->vertices[i].distTo(graph->vertices[some].pose);
 					if (dist < maxDist and graph->vertices[i].configurations.size()>0)
 					{
-						printf("configs pa ese punto %d\n", int(graph->vertices[i].configurations.size()));
+// 						printf("configs pa ese punto %d\n", int(graph->vertices[i].configurations.size()));
 						goAndWaitDirect(graph->vertices[i].configurations[0]);
 						usleep(500000);
 						current = i;
@@ -281,11 +290,8 @@ void SpecificWorker::computeHard()
 			const QString id = QString("edge_") + QString::number(edId++);
 			float *p1 = graph->vertices[currentNode].pose;
 			float *p2 = graph->vertices[nextNode].pose;
-			printf("wl1\n");
 			QMutexLocker l(mutex);
-			printf("wl2 %s\n", id.toStdString().c_str());
-			InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#ffffff");
-			printf("wl3\n");
+			InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88");
 		}
 
 		currentConfiguration = configuration;
