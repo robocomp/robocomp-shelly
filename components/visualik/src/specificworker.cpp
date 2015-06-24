@@ -471,7 +471,8 @@ bool SpecificWorker::correctRotation()
 		file<<"P: ("      <<currentTarget.getPose();
 		file<<") ERROR_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<" ERROR_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion<<endl;;
+		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
+		file<<" WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getPartState(), correctedTarget.getID()).state;
 		flush(file);
 		return false;
 	}

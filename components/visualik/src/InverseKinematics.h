@@ -487,6 +487,7 @@ typedef ::std::vector< ::RoboCompInverseKinematics::Motor> MotorList;
 struct TargetState
 {
     bool finish;
+    ::std::string state;
     ::Ice::Int elapsedTime;
     ::Ice::Float errorT;
     ::Ice::Float errorR;
@@ -499,6 +500,10 @@ struct TargetState
             return true;
         }
         if(finish != __rhs.finish)
+        {
+            return false;
+        }
+        if(state != __rhs.state)
         {
             return false;
         }
@@ -532,6 +537,14 @@ struct TargetState
             return true;
         }
         else if(__rhs.finish < finish)
+        {
+            return false;
+        }
+        if(state < __rhs.state)
+        {
+            return true;
+        }
+        else if(__rhs.state < state)
         {
             return false;
         }
@@ -732,7 +745,7 @@ template<>
 struct StreamableTraits< ::RoboCompInverseKinematics::TargetState>
 {
     static const StreamHelperCategory helper = StreamHelperCategoryStruct;
-    static const int minWireSize = 14;
+    static const int minWireSize = 15;
     static const bool fixedLength = false;
 };
 
@@ -742,6 +755,7 @@ struct StreamWriter< ::RoboCompInverseKinematics::TargetState, S>
     static void write(S* __os, const ::RoboCompInverseKinematics::TargetState& v)
     {
         __os->write(v.finish);
+        __os->write(v.state);
         __os->write(v.elapsedTime);
         __os->write(v.errorT);
         __os->write(v.errorR);
@@ -755,6 +769,7 @@ struct StreamReader< ::RoboCompInverseKinematics::TargetState, S>
     static void read(S* __is, ::RoboCompInverseKinematics::TargetState& v)
     {
         __is->read(v.finish);
+        __is->read(v.state);
         __is->read(v.elapsedTime);
         __is->read(v.errorT);
         __is->read(v.errorR);

@@ -340,7 +340,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	RoboCompInverseKinematics::Motor 		m;
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
-	state.state = "NO"
+	state.state = "NO";
 	state.elapsedTime = 0;
 	
 	if(bodyParts[partName].getSolvedList().isEmpty()==false)
@@ -351,6 +351,10 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 			{
 				state.finish = true;
 				state.elapsedTime = bodyParts[partName].getSolvedList()[i].getTargetTimeExecution();
+				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_ERROR) state.state = "LOW_ERROR";
+				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	state.state = "LOW_INCS";
+				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	state.state = "NAN_INCS";
+				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::KMAX)		state.state = "KMAX";
 				
 				for(int j=0; j<bodyParts[partName].getSolvedList()[i].getTargetFinalAngles().size(); j++)
 				{
