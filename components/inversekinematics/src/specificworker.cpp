@@ -340,6 +340,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	RoboCompInverseKinematics::Motor 		m;
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
+	state.state = "NO"
 	state.elapsedTime = 0;
 	
 	if(bodyParts[partName].getSolvedList().isEmpty()==false)
