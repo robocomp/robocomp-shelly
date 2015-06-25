@@ -1,3 +1,4 @@
+
 /*
     <one line to give the library's name and an idea of what it does.>
     Copyright (C) 2013  pbustos <email>
@@ -190,7 +191,6 @@ bool InnerModelDraw::addPlane_ignoreExisting(InnerModelViewer *innerViewer, cons
 
 bool InnerModelDraw::addPlane_notExisting(InnerModelViewer *innerViewer, const QString &item, const QString &base, const QVec &p, const QVec &n, const QString &texture, const QVec &size)
 {
-			printf("%s %d\n",__FUNCTION__, __LINE__);
 	InnerModelNode *parent = innerViewer->innerModel->getNode(base);
 	if (parent == NULL)
 	{

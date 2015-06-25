@@ -37,7 +37,7 @@
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
-
+#define MAX_ERROR_IK 40.
 #include <djk.h>
 
 using namespace boost;
@@ -55,7 +55,7 @@ public:
 			std::vector<float> eds;
 			for (int32_t j=0;j<size; j++)
 			{
-				eds.push_back(-1);
+				eds.push_back(DJ_INFINITY);
 			}
 			edges.push_back(eds);
 		}
@@ -148,6 +148,7 @@ private:
 	bool goAndWait(int nodeId, MotorGoalPositionList &mpl);
 	bool goAndWaitDirect(const MotorGoalPositionList &mpl);
 
+	std::pair<float, float> xrange, yrange, zrange;
 
 	int getRandomNodeClose(int &current, float &dist);
 

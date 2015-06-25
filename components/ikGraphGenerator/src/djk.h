@@ -1,7 +1,7 @@
 #include <vector>
 #include <iostream>
 
-#define DJ_INFINITY 999999.
+#define DJ_INFINITY 9999999.
 
 using namespace std;
 
@@ -36,21 +36,38 @@ public:
 
 	float go(int node, std::vector <int> &path)
 	{
-
 		if (node == source)
 		{
 			path.push_back(node);
-			return 0;
 		}
-
-		if (predecessor[node] == -1) return -1;
-
-		go(predecessor[node], path);
-
-		path.push_back(node);
-
+		else if(predecessor[node] == -1)
+		{
+			return -1;
+		}
+		else
+		{
+			go(predecessor[node], path);
+			path.push_back(node);
+		}
 		return distance[node];
 	}
+
+	void printPath(int node)
+	{
+		if(node == source)
+		{
+			cout<< node << " ";
+		}
+		else if(predecessor[node] == -1)
+			cout<<"No path from “<<source<<”to "<< node <<endl;
+		else
+		{
+			printPath(predecessor[node]);
+			cout << node <<" ";
+		}
+	}
+
+
 
 	int getClosestUnmarkedNode()
 	{
@@ -93,18 +110,6 @@ public:
 		}
 	}
 
-
-	void printPath(int node)
-	{
-		if(node == source)
-			cout<< node <<" .. ";
-		else if(predecessor[node] == -1)
-			cout<<"No path from “<<source<<”to "<< node <<endl;
-		else {
-			printPath(predecessor[node]);
-			cout << node <<" .. ";
-		}
-	}
 
 
 	void output()

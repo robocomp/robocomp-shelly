@@ -73,7 +73,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if( QFile::exists(QString::fromStdString(par.value)) )
 	{
 #ifdef USE_QTGUI
-		printf("ddd\n");
 		innerVisual = new InnerModel(par.value);
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
 		osgView->getRootGroup()->addChild(innerViewer);
@@ -94,13 +93,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
 
+	xrange = std::pair<float, float>(-100,  500);
+	yrange = std::pair<float, float>( 500, 1300);
+	zrange = std::pair<float, float>( 150,  450);
 	graph = new ConnectivityGraph(size_f);
 	while (included<size_f)
 	{
-		printf("inc: %d\n", included);
-		QVec xm = QVec::uniformVector(size_f, -100, 500);
-		QVec ym = QVec::uniformVector(size_f, 500, 1300);
-		QVec zm = QVec::uniformVector(size_f, 150, 450);
+		QVec xm = QVec::uniformVector(size_f, xrange.first, xrange.second);
+		QVec ym = QVec::uniformVector(size_f, yrange.first, yrange.second);
+		QVec zm = QVec::uniformVector(size_f, zrange.first, zrange.second);
 
 		QString id = QString("node_") + QString::number(included);
 		if (true)
@@ -143,7 +144,6 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 
 bool SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
-	jointmotor_proxy->setSyncPosition(mpl);
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)
@@ -151,22 +151,38 @@ bool SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
 		}
 	}
+	float err = innerVisual->transform("target", "grabPositionHandR").norm2();
+	printf("ERROR (%d)  %f\n", err>MAX_ERROR_IK, err);
+
+	jointmotor_proxy->setSyncPosition(mpl);
 	usleep(500000);
-	return true;
+
+	return (err < MAX_ERROR_IK);
 }
 
 bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 {
-	printf("goAndWait 1\n");
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = graph->vertices[nodeId].pose[0];
 	target.y = graph->vertices[nodeId].pose[1];
 	target.z = graph->vertices[nodeId].pose[2];
-	target.rx = target.ry = 0;
+	
+	float relx = (graph->vertices[nodeId].pose[0] - xrange.first) / (xrange.second - xrange.first);
+	printf("relx: %f\n", relx);
+	
+	if (relx < 0.33)
+		target.ry = -0.8;
+	else if (relx < 0.66)
+		target.ry = -0.8;
+	else
+		target.ry = 0.;
+
+	target.rx = 0;
 	target.rz = -3.14;
+	
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = weights.ry = weights.rz = 0;
+	weights.rx = weights.ry = weights.rz = 1;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -175,14 +191,13 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 	do
 	{
 		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
-		usleep(500000);
+		usleep(50000);
 		if (stt.finish == true)
 			break;
 	} while (initialTime.elapsed()<10000);
 
 	if (not stt.finish)
 	{
-		printf("goAndWait fails\n");
 		return false;
 	}
 
@@ -200,17 +215,16 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 		mgp.name = gp.name;
 		mpl.push_back(mgp);
 	}
-	goAndWaitDirect(mpl);
 
-	return true;
+	return goAndWaitDirect(mpl);
 }
 
 int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 {
-	printf("getRandomNodeClose A\n");
 	int some;
 	while (true)
 	{
+		printf("get random\n");
 		// Select random number
 		some = rand() % graph->size();
 		// If the selected number is the current node's index iterate again
@@ -221,22 +235,24 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 		// If the distance is small, we use such index
 		if (dist < maxDist) return some;
 
-		if (false)
+		if (rand()%100 < 30)
 		{
+			printf("get random Dijkstra\n");
+
 			// Otherwhise, check graph-based distance
 			Dijkstra d = Dijkstra(&(graph->edges));
 			d.calculateDistance(current);
 			for (int i=0; i<graph->size(); i++)
 			{
-				if (d.distance[i] < DJ_INFINITY)
+				std::vector<int> path;
+				if (d.go(i, path) != -1)
 				{
-// 					printf("distancia %f\n", d.distance[i]);
 					dist = graph->vertices[i].distTo(graph->vertices[some].pose);
 					if (dist < maxDist and graph->vertices[i].configurations.size()>0)
 					{
-// 						printf("configs pa ese punto %d\n", int(graph->vertices[i].configurations.size()));
+						printf("goAndWaitDirect Djk 1\n");
 						goAndWaitDirect(graph->vertices[i].configurations[0]);
-						usleep(500000);
+						printf("goAndWaitDirect Djk 2\n");
 						current = i;
 						return some;
 					}
@@ -244,43 +260,47 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 			}
 		}
 	}
-	printf("getRandomNodeClose Z\n");
 	return some;
 }
 
 void SpecificWorker::computeHard()
 {
-	static int currentNode = 0;
 	static bool first = true;
+	static int currentNode;
 	static MotorGoalPositionList currentConfiguration;
 
 	MotorGoalPositionList configuration;
 
-	if (first)
+	if (first or (rand()%100 < 5) )
 	{
-		first = false;
-		while (currentNode < graph->size())
+		while (true)
 		{
+			printf("random pose!\n");
+			currentNode = rand() % graph->size();
 			if (goAndWait(currentNode, configuration))
 			{
-				printf("initialized!\n");
+				if (first)
+					printf("initialized!\n");
+				else
+					printf("re-initialized!\n");
+				first = false;
 				currentConfiguration = configuration;
+				printf("si\n");
 				break;
 			}
-			printf("minitialized!\n");
-			currentNode++;
+			printf("no\n");
 		}
-		printf("dddeee\n");
 	}
 
 	float dist;
+	printf("aaa\n");
 	int nextNode = getRandomNodeClose(currentNode, dist);
-	printf("compute 5\n");
+	printf("bbb\n");
 
+	printf("goAndWait\n");
 	if (goAndWait(currentNode, configuration))
 	{
-		printf("add %d %d %f\n", currentNode, nextNode, dist);
-		printf("add %d %d %f\n", currentNode, nextNode, dist);
+		printf("goAndWait done\n");
 		printf("add %d %d %f\n", currentNode, nextNode, dist);
 		graph->add_edge(currentNode, nextNode, dist);
 		graph->add_configurationToNode(nextNode, configuration);
@@ -299,11 +319,10 @@ void SpecificWorker::computeHard()
 	}
 	else
 	{
-		printf("noooo00000000000000000000000000oooo");
-		goAndWaitDirect(currentConfiguration);
+		printf("Can't move to last target. Reinitializing...\n");
+		first = true;
+// 		goAndWaitDirect(currentConfiguration);
 	}
-
-	usleep(1000);
 }
 
 void SpecificWorker::compute()

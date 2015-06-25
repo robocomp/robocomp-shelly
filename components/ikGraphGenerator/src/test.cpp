@@ -7,13 +7,13 @@ int main()
 {
 	std::vector< std::vector< float > > edges;
 
-	int size = 4;
+	int size = 5;
 	for (int i=0;i<size; i++)
 	{
 		std::vector<float> eds;
 		for (int j=0;j<size; j++)
 		{
-			eds.push_back(99999);
+			eds.push_back(DJ_INFINITY);
 		}
 		edges.push_back(eds);
 	}
@@ -34,14 +34,16 @@ int main()
 
 	d.calculateDistance(0);
 
-	std::vector<int> path;
-	float ret = d.go(2, path);
-
-
-	printf("RET: %f\n", ret);
-	for (int i=0; i<path.size(); i++)
+	for (int goal=0; goal<size; goal++)
 	{
-		printf("%d\n", path[i]);
+		std::vector<int> path;
+		float ret = d.go(goal, path);
+		printf("RET: %f\n", ret);
+		for (int i=0; i<path.size(); i++)
+		{
+			printf("%d", path[i]);
+		}
+		printf("\n");
 	}
 
 }
