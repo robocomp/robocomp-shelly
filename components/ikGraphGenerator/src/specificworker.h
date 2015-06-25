@@ -146,11 +146,15 @@ public slots:
 private:
 	void updateFrame(uint wait_usecs=0);
 	bool goAndWait(int nodeId, MotorGoalPositionList &mpl);
-	bool goAndWaitDirect(const MotorGoalPositionList &mpl);
+	bool goAndWait(float x, float y, float z, MotorGoalPositionList &mpl);
+	bool goAndWaitDirect(const MotorGoalPositionList &mpl, bool ignoreTargetError=false);
 
 	std::pair<float, float> xrange, yrange, zrange;
 
 	int getRandomNodeClose(int &current, float &dist);
+
+	MotorGoalPositionList centerConfiguration;
+
 
 	float maxDist;
 	ConnectivityGraph *graph;

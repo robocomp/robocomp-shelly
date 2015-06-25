@@ -41,6 +41,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 	mutex = new QMutex(QMutex::Recursive);
+
+
 }
 
 /**
@@ -93,9 +95,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
 
-	xrange = std::pair<float, float>(-100,  500);
-	yrange = std::pair<float, float>( 500, 1300);
-	zrange = std::pair<float, float>( 150,  450);
+
+	xrange = std::pair<float, float>(-50,  450);
+	yrange = std::pair<float, float>( 600, 1300);
+	zrange = std::pair<float, float>( 150,  400);
+
 	graph = new ConnectivityGraph(size_f);
 	while (included<size_f)
 	{
@@ -124,6 +128,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		}
 	}
 
+
+	if (not goAndWait(200, 800, 300, centerConfiguration))
+		qFatal("Couldn't get initial position");
+
+
 	timer.start(10);
 
 	return true;
@@ -142,34 +151,46 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 	usleep(wait_usecs);
 }
 
-bool SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
+bool SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl, bool ignoreTargetError)
 {
+	jointmotor_proxy->setSyncPosition(mpl);
+	usleep(500000);
+
+	float err;
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)
 		{
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
+			printf("%s: %f\n", g.name.c_str(), g.position);
 		}
+
+		if (ignoreTargetError) return true;
+
+		err = innerVisual->transform("target", "grabPositionHandR").norm2();
 	}
-	float err = innerVisual->transform("target", "grabPositionHandR").norm2();
+
 	printf("ERROR (%d)  %f\n", err>MAX_ERROR_IK, err);
-
-	jointmotor_proxy->setSyncPosition(mpl);
-	usleep(500000);
-
 	return (err < MAX_ERROR_IK);
 }
 
 bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 {
+	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], mpl);
+}
+
+bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList &mpl)
+{
 	RoboCompInverseKinematics::Pose6D target;
-	target.x = graph->vertices[nodeId].pose[0];
-	target.y = graph->vertices[nodeId].pose[1];
-	target.z = graph->vertices[nodeId].pose[2];
-	
-	float relx = (graph->vertices[nodeId].pose[0] - xrange.first) / (xrange.second - xrange.first);
-	printf("relx: %f\n", relx);
-	
+	target.x = x;
+	target.y = y;
+	target.z = z;
+
+	float relx = (x - xrange.first) / (xrange.second - xrange.first);
+// 	printf("%f %f %f\n", x, y, z);
+// 	printf("%f %f\n", xrange.second, xrange.first);
+// 	printf("relx: %f\n", relx);
+
 	if (relx < 0.33)
 		target.ry = -0.8;
 	else if (relx < 0.66)
@@ -179,10 +200,10 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 
 	target.rx = 0;
 	target.rz = -3.14;
-	
+
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = weights.ry = weights.rz = 1;
+	weights.rx = weights.ry = weights.rz = 0;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -191,13 +212,16 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 	do
 	{
 		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
-		usleep(50000);
+		usleep(500000);
 		if (stt.finish == true)
 			break;
 	} while (initialTime.elapsed()<10000);
+	if (initialTime.elapsed()>=10000)
+		qFatal("10 seconds!");
 
 	if (not stt.finish)
 	{
+		printf("cant\'t go\n");
 		return false;
 	}
 
@@ -216,13 +240,18 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
 		mpl.push_back(mgp);
 	}
 
-	return goAndWaitDirect(mpl);
+	goAndWaitDirect(mpl);
+
+	bool ret = true;
+	if (stt.errorT > MAX_ERROR_IK)
+		ret = false;
+	return ret;
 }
 
 int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 {
 	int some;
-	while (true)
+	for (int iter=0; iter<100; iter++)
 	{
 		printf("get random\n");
 		// Select random number
@@ -233,7 +262,8 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 		// Compute direct distance
 		dist = graph->vertices[current].distTo(graph->vertices[some].pose);
 		// If the distance is small, we use such index
-		if (dist < maxDist) return some;
+		if (dist < maxDist)
+			return some;
 
 		if (rand()%100 < 30)
 		{
@@ -260,9 +290,97 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 			}
 		}
 	}
-	return some;
+	return -1;
 }
 
+void SpecificWorker::computeHard()
+{
+	bool stop=false;
+	static int nodeSrc=0;
+	static int nodeDst=-1;
+	static MotorGoalPositionList currentConfiguration;
+	MotorGoalPositionList configuration;
+	float dist;
+
+	if (stop) return;
+
+	if (nodeDst == -1)
+	{
+		if (not goAndWait(nodeSrc, configuration))
+		{
+			goAndWaitDirect(centerConfiguration, true);
+			printf("--------->  %f %f %f\n", graph->vertices[nodeSrc].pose[0], graph->vertices[nodeSrc].pose[1], graph->vertices[nodeSrc].pose[2]);
+			if (not goAndWait(nodeSrc, configuration))
+			{
+				qFatal("pdede");
+			}
+		}
+		currentConfiguration = configuration;
+		nodeDst=0;
+		return;
+	}
+
+	if (nodeDst == nodeSrc)
+	{
+		nodeDst++;
+		if (nodeDst == graph->size())
+		{
+			nodeDst = -1;
+			nodeSrc++;
+			if (nodeSrc == graph->size())
+			{
+				qDebug() << "fin";
+				stop = true;
+			}
+		}
+	}
+
+// 	printf("%d %d\n", nodeSrc, nodeDst);
+/*
+	dist = graph->vertices[nodeSrc].distTo(graph->vertices[nodeDst].pose);
+	if (dist < 100)
+	{
+		if (goAndWait(nodeDst, configuration))
+		{
+			printf("goAndWait done\n");
+			printf("add %d %d %f\n", nodeSrc, nodeDst, dist);
+			graph->add_edge(nodeSrc, nodeDst, dist*dist);
+			graph->add_configurationToNode(nodeDst, configuration);
+
+			{
+				static int edId = 0;
+				const QString id = QString("edge_") + QString::number(edId++);
+				float *p1 = graph->vertices[nodeSrc].pose;
+				float *p2 = graph->vertices[nodeDst].pose;
+				QMutexLocker l(mutex);
+				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88");
+			}
+
+			goAndWaitDirect(currentConfiguration);
+			nodeSrc = nodeDst;
+		}
+		else
+		{
+			qDebug() << "Can't move to last target. Reinitializing...";
+			stop = true;
+		}
+	}
+*/
+	nodeDst++;
+	if (nodeDst == graph->size())
+	{
+		nodeDst = -1;
+		nodeSrc++;
+		if (nodeSrc == graph->size())
+		{
+				qDebug() << "fin2";
+				stop = true;
+		}
+	}
+
+}
+
+/*
 void SpecificWorker::computeHard()
 {
 	static bool first = true;
@@ -295,6 +413,11 @@ void SpecificWorker::computeHard()
 	float dist;
 	printf("aaa\n");
 	int nextNode = getRandomNodeClose(currentNode, dist);
+	if (nextNode == -1)
+	{
+		first = true;
+		return;
+	}
 	printf("bbb\n");
 
 	printf("goAndWait\n");
@@ -324,6 +447,7 @@ void SpecificWorker::computeHard()
 // 		goAndWaitDirect(currentConfiguration);
 	}
 }
+*/
 
 void SpecificWorker::compute()
 {
@@ -334,7 +458,7 @@ void SpecificWorker::compute()
 		workerThread = new WorkerThread(this);
 		workerThread->start();
 	}
-	updateFrame(1000);
+	updateFrame(10);
 }
 
 
@@ -345,6 +469,6 @@ void WorkerThread::run()
 	while(true)
 	{
 		((SpecificWorker*)data)->computeHard();
-		usleep(10000);
+		usleep(100);
 	}
 }
