@@ -145,9 +145,9 @@ public slots:
 
 private:
 	void updateFrame(uint wait_usecs=0);
-	bool goAndWait(int nodeId, MotorGoalPositionList &mpl);
-	bool goAndWait(float x, float y, float z, MotorGoalPositionList &mpl);
-	bool goAndWaitDirect(const MotorGoalPositionList &mpl, bool ignoreTargetError=false);
+	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive=false);
+	bool goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive=false);
+	void goAndWaitDirect(const MotorGoalPositionList &mpl);
 
 	std::pair<float, float> xrange, yrange, zrange;
 

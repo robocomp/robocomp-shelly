@@ -62,11 +62,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
 		}
-		else 
-			qFatal("Exiting now.");
-	}
-	catch(std::exception e) { qFatal("Error reading Innermodel param");}
-
+		else  	qFatal("Exiting now.");
+	}catch(std::exception e) { qFatal("Error reading Innermodel param");}
+	
 #ifdef USE_QTGUI
 	if (innerViewer)
 	{
@@ -75,6 +73,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
 #endif
+	
 	InnerModelNode *nodeParent = innerModel->getNode("root");
 	if( innerModel->getNode("target") == NULL)
 	{
@@ -297,48 +296,51 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 void SpecificWorker::goHome(const string &bodyPart)
 {
 	//inversekinematics_proxy->goHome(bodyPart);
+	
+	RoboCompReflexxes::MotorAngleList motorsReflexx;
+	RoboCompReflexxes::Motor nodo;
+	
+	nodo.name = "rightShoulder1";
+	nodo.angle = -2.3; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+	
+	nodo.name = "rightShoulder2";
+	nodo.angle = -0.11; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+		
+	nodo.name = "rightShoulder3";
+	nodo.angle = 0.11; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+		
+	nodo.name = "rightElbow";
+	nodo.angle = 0.8; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+		
+	nodo.name = "rightForeArm";
+	nodo.angle = 0.11; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+		
+	nodo.name = "rightWrist1";
+	nodo.angle = 0.11; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+		
+	nodo.name = "rightWrist2";
+	nodo.angle = 0.11; // posición en radianes
+	nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+	motorsReflexx.push_back(nodo);
+
 	try
 	{
-		RoboCompJointMotor::MotorGoalPosition nodo;
-		
-		nodo.name = "rightShoulder1";
-		nodo.position = -2.3; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightShoulder2";
-		nodo.position = -0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightShoulder3";
-		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightElbow";
-		nodo.position = 0.8; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightForeArm";
-		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightWrist1";
-		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-		
-		nodo.name = "rightWrist2";
-		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
-		jointmotor_proxy->setPosition(nodo);
-	} 
-	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
+		reflexxes_proxy->setJointPosition(motorsReflexx);
+	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}
 	
-	sleep(3);
+	sleep(2);
 }
 
 void SpecificWorker::stop(const string &bodyPart)
@@ -469,12 +471,12 @@ bool SpecificWorker::correctRotation()
 		abortarotacion = true;
 		qDebug()<<"Abort rotation";
 		file<<"P: ("      <<currentTarget.getPose();
-		file<<") ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-		file<<" ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		file<<" ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
-		file<<" ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
-		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
-		file<<" WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
+		file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+		file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+		file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
+		file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
+		file<<"   END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
+		file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
 		flush(file);
 		return false;
 	}
@@ -484,12 +486,12 @@ bool SpecificWorker::correctRotation()
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!";
 		file<<"P: ("      <<currentTarget.getPose();
-		file<<") ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-		file<<" ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		file<<" ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
-		file<<" ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
-		file<<" END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
-		file<<" WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
+		file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+		file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+		file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
+		file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
+		file<<"   END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
+		file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
 		flush(file);
 		return true;
 	}
@@ -554,19 +556,22 @@ void SpecificWorker::updateAll()
  */ 
 void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 {
+	//Pasamos los datos al formato que nos indiquen:
+	RoboCompReflexxes::MotorAngleList motorsReflexx;
+	
 	for(auto motor : motors)
 	{
-		try
-		{
-			RoboCompJointMotor::MotorGoalPosition nodo;
-			nodo.name = motor.name;
-			nodo.position = motor.angle; // posición en radianes
-			nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
-			jointmotor_proxy->setPosition(nodo);
-		} catch (const Ice::Exception &ex) {
-			cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;
-		}
+		RoboCompReflexxes::Motor nodo;
+		nodo.name = motor.name;
+		nodo.angle = motor.angle; // posición en radianes
+		nodo.speed = 2; //radianes por segundo TODO Bajar velocidad.
+		motorsReflexx.push_back(nodo);
 	}
+	try
+	{
+		reflexxes_proxy->setJointPosition(motorsReflexx);
+	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}
+	
 	sleep(1);
 }
 

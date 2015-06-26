@@ -96,9 +96,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
 
 
-	xrange = std::pair<float, float>(-50,  450);
-	yrange = std::pair<float, float>( 600, 1300);
-	zrange = std::pair<float, float>( 150,  400);
+	xrange = std::pair<float, float>(-50,  400);
+	yrange = std::pair<float, float>( 650, 950);
+	zrange = std::pair<float, float>( 175,  400);
 
 	graph = new ConnectivityGraph(size_f);
 	while (included<size_f)
@@ -129,7 +129,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
-	if (not goAndWait(200, 800, 300, centerConfiguration))
+	if (not goAndWait(200, 800, 300, centerConfiguration, true))
 		qFatal("Couldn't get initial position");
 
 
@@ -151,59 +151,70 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 	usleep(wait_usecs);
 }
 
-bool SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl, bool ignoreTargetError)
+void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
 	jointmotor_proxy->setSyncPosition(mpl);
 	usleep(500000);
 
-	float err;
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)
 		{
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
-			printf("%s: %f\n", g.name.c_str(), g.position);
+// 			printf("%s: %f\n", g.name.c_str(), g.position);
 		}
-
-		if (ignoreTargetError) return true;
-
-		err = innerVisual->transform("target", "grabPositionHandR").norm2();
 	}
-
-	printf("ERROR (%d)  %f\n", err>MAX_ERROR_IK, err);
-	return (err < MAX_ERROR_IK);
+	return;
 }
 
-bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl)
+bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive)
 {
-	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], mpl);
+	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], mpl, recursive);
 }
 
-bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList &mpl)
+bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive)
 {
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = x;
 	target.y = y;
 	target.z = z;
 
-	float relx = (x - xrange.first) / (xrange.second - xrange.first);
-// 	printf("%f %f %f\n", x, y, z);
-// 	printf("%f %f\n", xrange.second, xrange.first);
-// 	printf("relx: %f\n", relx);
+	float rely = (y - yrange.first) / (yrange.second - yrange.first);
+	if (rely < 0.33)
+		target.rx = 0.3;
+	else if (rely < 0.66)
+		target.rx = 0;
+	else
+		target.rx = -0.3;
+	target.rx = 0; ////////////////////////////// WARNING
 
+	float relx = (x - xrange.first) / (xrange.second - xrange.first);
 	if (relx < 0.33)
-		target.ry = -0.8;
+		target.ry = -1.57;
 	else if (relx < 0.66)
 		target.ry = -0.8;
 	else
 		target.ry = 0.;
 
-	target.rx = 0;
+// 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
+// 	if (relz < 0.33)
+// 		target.ry -= -0.8;
+// 	else if (relz < 0.66)
+// 		target.ry -= -0.4;
+// 	else
+// 		target.ry -= 0.;
+// 	
+// 	if (target.ry < -1.57)
+// 		target.ry = -1.57;
+
+// 	target.ry = -1.57;
 	target.rz = -3.14;
 
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = weights.ry = weights.rz = 0;
+	weights.rx = 0.01;
+	weights.ry = 0.01;
+	weights.rz = 0.1;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -211,11 +222,12 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	QTime initialTime = QTime::currentTime();
 	do
 	{
-		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
 		usleep(500000);
+		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
 		if (stt.finish == true)
 			break;
 	} while (initialTime.elapsed()<10000);
+
 	if (initialTime.elapsed()>=10000)
 		qFatal("10 seconds!");
 
@@ -227,7 +239,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 
 	{
 		QMutexLocker l(mutex);
-		innerVisual->updateTransformValues("target", target.x, target.y, target.z, 0,0,0);
+		innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	}
 
 	mpl.resize(0);
@@ -241,11 +253,44 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	}
 
 	goAndWaitDirect(mpl);
+	
+	float err = innerVisual->transform("grabPositionHandR", "target").norm2();
+	printf("ERROR segun IM %f\n", err);
+	printf("ERROR segun IK %f\n", stt.errorT);
 
-	bool ret = true;
 	if (stt.errorT > MAX_ERROR_IK)
-		ret = false;
-	return ret;
+	{
+		if (not recursive)
+		{
+			printf("reseteando al mas parecido\n");
+			float minDist = -1;
+			MotorGoalPositionList minConfig;
+			for (int j=0; j<graph->size(); j++)
+			{
+				if (graph->vertices[j].configurations.size() > 0)
+				{
+					float p[3];
+					p[0] = x;
+					p[1] = y;
+					p[2] = z;
+					float dist = graph->vertices[j].distTo(p);
+					if (minDist < 0 or minDist > dist)
+					{
+						minDist = dist;
+						minConfig = graph->vertices[j].configurations[0];
+					}
+				}
+			}
+			goAndWaitDirect(minConfig);
+			printf("realizando la llamada recursiva\n");
+			return goAndWait(x, y, z, mpl);
+		}
+		else
+		{
+			return false;
+		}
+	}
+	return true;
 }
 
 int SpecificWorker::getRandomNodeClose(int &current, float &dist)
@@ -300,20 +345,15 @@ void SpecificWorker::computeHard()
 	static int nodeDst=-1;
 	static MotorGoalPositionList currentConfiguration;
 	MotorGoalPositionList configuration;
-	float dist;
 
 	if (stop) return;
 
 	if (nodeDst == -1)
 	{
+		qDebug() << nodeSrc;
 		if (not goAndWait(nodeSrc, configuration))
 		{
-			goAndWaitDirect(centerConfiguration, true);
-			printf("--------->  %f %f %f\n", graph->vertices[nodeSrc].pose[0], graph->vertices[nodeSrc].pose[1], graph->vertices[nodeSrc].pose[2]);
-			if (not goAndWait(nodeSrc, configuration))
-			{
-				qFatal("pdede");
-			}
+			qFatal("Couln't reach target");
 		}
 		currentConfiguration = configuration;
 		nodeDst=0;

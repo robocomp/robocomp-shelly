@@ -27,10 +27,10 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <OmniRobot.h>
 #include <InverseKinematics.h>
 #include <JointMotor.h>
 #include <AprilTags.h>
+#include <Reflexxes.h>
 
 
 
@@ -41,10 +41,10 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
-using namespace RoboCompOmniRobot;
 using namespace RoboCompInverseKinematics;
 using namespace RoboCompJointMotor;
 using namespace RoboCompAprilTags;
+using namespace RoboCompReflexxes;
 
 
 
@@ -69,7 +69,7 @@ public:
 
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
-	OmniRobotPrx omnirobot_proxy;
+	ReflexxesPrx reflexxes_proxy;
 
 	virtual void setFingers(const float d) = 0;
 	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
