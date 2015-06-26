@@ -129,7 +129,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
-	if (not goAndWait(200, 800, 300, centerConfiguration, true))
+	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, true))
 		qFatal("Couldn't get initial position");
 
 
@@ -169,10 +169,10 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 
 bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive)
 {
-	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], mpl, recursive);
+	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], nodeId, mpl, recursive);
 }
 
-bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive)
+bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive)
 {
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = x;
@@ -192,9 +192,9 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	if (relx < 0.33)
 		target.ry = -1.57;
 	else if (relx < 0.66)
-		target.ry = -0.8;
+		target.ry = -1.17;
 	else
-		target.ry = 0.;
+		target.ry = 0.77;
 
 // 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
 // 	if (relz < 0.33)
@@ -203,7 +203,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 // 		target.ry -= -0.4;
 // 	else
 // 		target.ry -= 0.;
-// 	
+//
 // 	if (target.ry < -1.57)
 // 		target.ry = -1.57;
 
@@ -212,9 +212,9 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = 0.01;
-	weights.ry = 0.01;
-	weights.rz = 0.1;
+	weights.rx = 0;
+	weights.ry = 0;
+	weights.rz = 0;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -253,7 +253,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	}
 
 	goAndWaitDirect(mpl);
-	
+
 	float err = innerVisual->transform("grabPositionHandR", "target").norm2();
 	printf("ERROR segun IM %f\n", err);
 	printf("ERROR segun IK %f\n", stt.errorT);
@@ -262,28 +262,62 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	{
 		if (not recursive)
 		{
+			bool ret = false;
 			printf("reseteando al mas parecido\n");
-			float minDist = -1;
+			float mustBeBiggerThan = -1;
 			MotorGoalPositionList minConfig;
-			for (int j=0; j<graph->size(); j++)
+			for (int jj=0; jj<10; jj++)
 			{
-				if (graph->vertices[j].configurations.size() > 0)
+				if (jj == 3 and node != -1)
 				{
-					float p[3];
-					p[0] = x;
-					p[1] = y;
-					p[2] = z;
-					float dist = graph->vertices[j].distTo(p);
-					if (minDist < 0 or minDist > dist)
+					QVec xm = QVec::uniformVector(graph->size(), xrange.first, xrange.second);
+					QVec ym = QVec::uniformVector(graph->size(), yrange.first, yrange.second);
+					QVec zm = QVec::uniformVector(graph->size(), zrange.first, zrange.second);
+					graph->vertices[node].pose[0] = xm(node);
+					graph->vertices[node].pose[1] = ym(node);
+					graph->vertices[node].pose[2] = zm(node);
+				}
+				float minDist = 99999999;
+				int minIndex = -1;
+				printf("%f %f\n", mustBeBiggerThan, minDist);
+				printf("(iter:%d) graph size %d\n", jj, graph->size());
+				for (int j=0; j<graph->size(); j++)
+				{
+					if (graph->vertices[j].configurations.size() > 0)
 					{
-						minDist = dist;
-						minConfig = graph->vertices[j].configurations[0];
+						float p[3];
+						p[0] = x;
+						p[1] = y;
+						p[2] = z;
+						float dist = graph->vertices[j].distTo(p);
+						printf("j:%d siiiiiiiiii d %f md %f mbb %f\n", j, dist, minDist, mustBeBiggerThan);
+						if ((dist > mustBeBiggerThan and dist < minDist) or minDist == -1)
+						{
+							printf("pillo (%d) con dist %f (que es menor que %f)\n", j, dist, minDist);
+							minDist = dist;
+							minIndex = j;
+						}
 					}
 				}
+				if (minIndex != -1)
+				{
+					minConfig = graph->vertices[minIndex].configurations[0];
+					mustBeBiggerThan = minDist;
+					printf("patras con %d\n", minIndex);
+					goAndWaitDirect(minConfig);
+					usleep(1000000);
+					printf("realizando la llamada recursiva\n");
+					ret = goAndWait(x, y, z, -1, mpl, true);
+					printf("got %d\n", ret);
+					if (ret)
+						return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
-			goAndWaitDirect(minConfig);
-			printf("realizando la llamada recursiva\n");
-			return goAndWait(x, y, z, mpl);
+			return false;
 		}
 		else
 		{
@@ -353,8 +387,9 @@ void SpecificWorker::computeHard()
 		qDebug() << nodeSrc;
 		if (not goAndWait(nodeSrc, configuration))
 		{
-			qFatal("Couln't reach target");
+			qFatal("Couldn't reach target");
 		}
+		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
 		return;

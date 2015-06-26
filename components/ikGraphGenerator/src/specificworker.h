@@ -37,7 +37,7 @@
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
-#define MAX_ERROR_IK 40.
+#define MAX_ERROR_IK 5.
 #include <djk.h>
 
 using namespace boost;
@@ -146,7 +146,7 @@ public slots:
 private:
 	void updateFrame(uint wait_usecs=0);
 	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive=false);
-	bool goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive=false);
+	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive=false);
 	void goAndWaitDirect(const MotorGoalPositionList &mpl);
 
 	std::pair<float, float> xrange, yrange, zrange;

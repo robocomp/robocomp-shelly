@@ -4,14 +4,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////
 /**
  * \brief default constructor
- */ 
+ */
 InversedKinematic::InversedKinematic()
 {
 	repetitions = 0;
 }
 /**
  * \brief default destructor
- */ 
+ */
 InversedKinematic::~InversedKinematic()
 {
 
@@ -20,25 +20,25 @@ InversedKinematic::~InversedKinematic()
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 /**
- * \brief This method prepares the target in order to execute correctly the method that 
+ * \brief This method prepares the target in order to execute correctly the method that
  * calculates the inverse kinematic, the levenbergMarquardt method.
- * @param bodypart_ 
+ * @param bodypart_
  * @param immermodel_
- */ 
+ */
 void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_)
-{	
-	bodypart 		= bodypart_;
-	innermodel 		= innermodel_;	
-	Target target 	= bodypart->getTargetList().head();
+{
+	bodypart       = bodypart_;
+	innermodel     = innermodel_;
+	Target target  = bodypart->getTargetList().head();
 
 	if(target.getTargetType()==Target::ADVANCEAXIS and target.getTargetState()==Target::IN_PROCESS)
 	{
 		QVec axis = target.getTargetAxis() * target.getTargetStep(); 				//Scale the unitary vector along direction by distance
 		QVec pose = innermodel->transform("root", axis, bodypart->getTipName());	//We go from tip to root
-		
+
 		QMat matrix_from_TIP_to_ROOT = innermodel->getRotationMatrixTo("root", bodypart->getTipName());
 		QVec angles_rot = matrix_from_TIP_to_ROOT.extractAnglesR_min();
-		
+
 		innermodel->updateTransformValues(target.getTargetNameInInnerModel(),pose.x(), pose.y(), pose.z(), angles_rot.x(), angles_rot.y(), angles_rot.z(), "root");
 
 		levenbergMarquardt(target);
@@ -57,32 +57,32 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
  * @return bool true (the target can be deleted if we have repeated his execution more than 8 times or when the error is very small) or
  * false (the target couldn't be deleted if we haven't repated yet his execution more than 8 times or when the error is bigger than the
  * threshold.
- */ 
+ */
 bool InversedKinematic::deleteTarget()
 {
-	static QVec angles 	= QVec::zeros(checkMotors().size());
-	QMat We 			= QMat::makeDiagonal(bodypart->getTargetList().head().getTargetWeight());
-	QVec error 			= We*computeErrorVector(bodypart->getTargetList().head());
-	QVec errorT 		= QVec::vec3(error.x(), error.y(), error.z());
-	QVec errorR 		= QVec::vec3(error.rx(), error.ry(), error.rz());
-	
+	static QVec angles  = QVec::zeros(checkMotors().size());
+	QMat We             = QMat::makeDiagonal(bodypart->getTargetList().head().getTargetWeight());
+	QVec error          = We*computeErrorVector(bodypart->getTargetList().head());
+	QVec errorT         = QVec::vec3(error.x(), error.y(), error.z());
+	QVec errorR         = QVec::vec3(error.rx(), error.ry(), error.rz());
+
 	qDebug()<<"-----------------------------------------------------------------";
 	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
 	qDebug()<<"Repeticiones: "<<repetitions;
 	qDebug()<<"Error T: "<<errorT.norm2();
 	qDebug()<<"Error R: "<<errorR.norm2();
 	qDebug()<<"-----------------------------------------------------------------";
-	
+
 	QVec restaAngles (checkMotors().size());
 	for(int i=0; i<bodypart->getTargetList().head().getTargetFinalAngles().size(); i++)
 		restaAngles[i] = fabs(angles[i]-bodypart->getTargetList().head().getTargetFinalAngles()[i]);
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
-	
+
 	if(
 	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
 	   and
 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
-	   
+
 	{
 		repetitions = 0;
 		return true;
@@ -107,8 +107,8 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 
 	if(target.getTargetType()==Target::POSE6D or target.getTargetType()==Target::ADVANCEAXIS)
 	{
-		QVec target_Traslations_in_FrameBase = innermodel->transform(frameBase, QVec::zeros(3), target.getTargetNameInInnerModel());	
-		QVec tip_Traslations_in_FrameBase 	 = innermodel->transform(frameBase, QVec::zeros(3), bodypart->getTipName());		
+		QVec target_Traslations_in_FrameBase = innermodel->transform(frameBase, QVec::zeros(3), target.getTargetNameInInnerModel());
+		QVec tip_Traslations_in_FrameBase 	 = innermodel->transform(frameBase, QVec::zeros(3), bodypart->getTipName());
 		QVec error_Traslations_in_FrameBase	 = target_Traslations_in_FrameBase - tip_Traslations_in_FrameBase;
 
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
@@ -141,22 +141,22 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 	{
 		// compute a vector going from tip to target
 		QVec targetInTip = innermodel->transform(bodypart->getTipName(),QVec::zeros(3),target.getTargetNameInInnerModel()).normalize();
-		
+
 		QVec a = target.getTargetAxis();
 		QVec o = a^targetInTip; // axis to rotate
-		
+
 		float co = (a * targetInTip);
 		float si = (o.norm2());  //Angle to rotate
-		float ang = atan2(si,co);	
+		float ang = atan2(si,co);
 		QMat c = o.crossProductMatrix();
 		QMat r = QMat::identity(3) + (c * (T)sin(ang)) + (c*c)*(T)(1.f-cos(ang));  ///Rodrigues formula to compute R from <vector-angle>
-		
+
 		QVec erroRotaciones = r.extractAnglesR_min();
-		
+
 		// 4) Pasamos los errores de rotación del tip al last joint.
 		QVec errorRInTip = erroRotaciones;
 		QMat matTipInFrameBase = innermodel->getRotationMatrixTo(frameBase, bodypart->getTipName());
-		// Calculamos el equivalente de rotar en X el Tip pero en el sistema de referencia del lastJoint (frameBase)	
+		// Calculamos el equivalente de rotar en X el Tip pero en el sistema de referencia del lastJoint (frameBase)
 		QVec firstRot = matTipInFrameBase * QVec::vec3(errorRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
 		// Hacemos lo mismo con la rotación en Y
@@ -169,7 +169,7 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
 		// Extraemos los ángulos de la matriz calculada que ya equivalen a las rotaciones del tip vistas desde el frameBase
 		QVec errorRInFrameBase = matResulInFrameBase.extractAnglesR_min();
-		
+
 		finalError.inject(errorRInFrameBase,3);
 	}
 	return finalError;
@@ -190,7 +190,7 @@ QMat InversedKinematic::jacobian(QVec motors)
 	// The number of motors from the list of joints : 6 rows by n columns. We also initialize a vector of zeros
 	QStringList considermotors = checkMotors();
 	//qDebug()<<"DESDE JACOBIAN: "<<considermotors;
-	
+
 	QMat jacob(6, considermotors.size(), 0.f); //QMat jacob(6, bodypart->getMotorList().size(), 0.f);  //6 output variables
  	QVec zero = QVec::zeros(3);
  	int j=0; //índice de columnas de la matriz: MOTORES
@@ -200,24 +200,24 @@ QMat InversedKinematic::jacobian(QVec motors)
 		if(motors[j] == 0)
 		{
 			QString frameBase = considermotors.last(); //QString frameBase = bodypart->getMotorList().last();
-			
+
 			// TRASLACIONES: con respecto al último NO traslada
-			QVec axisTip 	= innermodel->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
-			axisTip 		= innermodel->transform(frameBase, axisTip, linkName);
-			QVec axisBase 	= innermodel->transform(frameBase, zero, linkName);
-			QVec axis 		= axisBase - axisTip;
+			QVec axisTip    = innermodel->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios
+			axisTip         = innermodel->transform(frameBase, axisTip, linkName);
+			QVec axisBase   = innermodel->transform(frameBase, zero, linkName);
+			QVec axis       = axisBase - axisTip;
 			QVec toEffector = (axisBase -innermodel->transform(frameBase, zero, bodypart->getTipName()) );
-			QVec res 		= toEffector.crossProduct(axis);
+			QVec res        = toEffector.crossProduct(axis);
 
 			jacob(0,j) = res.x();
 			jacob(1,j) = res.y();
 			jacob(2,j) = res.z();
-			
+
 			// ROTACIONES
-			QVec axisTip2 	= innermodel->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios en el que gira
-			axisTip2 		= innermodel->transform(frameBase, axisTip2, linkName); //vector de giro pasado al hombro.
-			QVec axisBase2 	= innermodel->transform(frameBase, zero, linkName); //motor al hombro
-			QVec axis2 		= axisBase2 - axisTip2; //vector desde el eje de giro en el sist. hombro, hasta la punta del eje de giro en el sist. hombro.
+			QVec axisTip2   = innermodel->getJoint(linkName)->unitaryAxis(); //vector de ejes unitarios en el que gira
+			axisTip2        = innermodel->transform(frameBase, axisTip2, linkName); //vector de giro pasado al hombro.
+			QVec axisBase2  = innermodel->transform(frameBase, zero, linkName); //motor al hombro
+			QVec axis2      = axisBase2 - axisTip2; //vector desde el eje de giro en el sist. hombro, hasta la punta del eje de giro en el sist. hombro.
 
 			jacob(3,j) = axis2.x();
 			jacob(4,j) = axis2.y();
@@ -244,20 +244,20 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 	const int  kMax = 100;
 	const QMat Identidad = QMat::identity(checkMotors().size()); //matriz identidad
 
-	int k=0, v=2, auxInt; 										//iterador, variable para descenso y un entero auxiliar
-	QVec incrementos, aux; 										//vector de incrementos y vector auxiliar para guardar cambios
-	QVec motors (checkMotors().size());							// lista de motores para rellenar el jacobiano.
-	QVec angles = computeAngles(); 								// ángulos iniciales de los motores.
-	QMat We 	= QMat::makeDiagonal(target.getTargetWeight()); //matriz de pesos para compensar milímietros con radianes.
-	QVec error 	= We * computeErrorVector(target); 				//error de la posición actual con la deseada.
-	QMat J 		= jacobian(motors);								//JACOBIANO
-	QMat H 		= J.transpose()*(We*J);							// HESSIANO -->ERROR
-	QVec g 		= J.transpose()*(error);
-	bool stop		= false;
-	bool smallInc 	= false;
-	bool nanInc 	= false;
-	float ro 		= 0;
-	float n 		= pow(10, -3)*H.getDiagonal().max(auxInt);	//¿por que 0,01?
+	int k=0, v=2, auxInt;                                        //iterador, variable para descenso y un entero auxiliar
+	QVec incrementos, aux;                                       //vector de incrementos y vector auxiliar para guardar cambios
+	QVec motors (checkMotors().size());                          // lista de motores para rellenar el jacobiano.
+	QVec angles = computeAngles();                               // ángulos iniciales de los motores.
+	QMat We     = QMat::makeDiagonal(target.getTargetWeight());  //matriz de pesos para compensar milímietros con radianes.
+	QVec error  = We * computeErrorVector(target);               //error de la posición actual con la deseada.
+	QMat J      = jacobian(motors);                              //JACOBIANO
+	QMat H      = J.transpose()*(We*J);                          // HESSIANO -->ERROR
+	QVec g      = J.transpose()*(error);
+	bool stop   = false;
+	bool smallInc = false;
+	bool nanInc   = false;
+	float ro      = 0;
+	float n       = pow(10, -3)*H.getDiagonal().max(auxInt);	//¿por que 0,01?
 
 	qDebug()<<"Stop: "<<stop<<" k: "<<k<<" error:"<< error.norm2();
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
@@ -328,11 +328,11 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 	}
 	qDebug()<<"Stop: "<<stop<<" k: "<<k<<"  smallInc: "<<smallInc<<"nanInc: "<<nanInc<<" error:"<< error.norm2();
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
-	
-	if (stop == true) 			bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);
-	else if ( k>=kMax) 			bodypart->getTargetList()[0].setTargetFinalState(Target::KMAX);
+
+	if (stop == true)           bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);
+	else if ( k>=kMax)          bodypart->getTargetList()[0].setTargetFinalState(Target::KMAX);
 	else if ( smallInc == true) bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_INCS);
-	else if ( nanInc == true) 	bodypart->getTargetList()[0].setTargetFinalState(Target::NAN_INCS);
+	else if ( nanInc == true)   bodypart->getTargetList()[0].setTargetFinalState(Target::NAN_INCS);
 
 	bodypart->getTargetList()[0].setTargetError(error);
 	bodypart->getTargetList()[0].setTargetFinalAngles(angles);
@@ -342,8 +342,8 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 ///////////////////////////////////////////////////////////////////////////////////////
 /**
  * \brief This method gets the angles of all the cinematic motors.
- * @return QVec motors angles 
- */ 
+ * @return QVec motors angles
+ */
 QVec InversedKinematic::computeAngles()
 {
 	QVec angles;
@@ -360,7 +360,7 @@ QVec InversedKinematic::computeAngles()
  * \brief This method normalizes the angles in a range.
  * @param angles
  * @param mod
- */ 
+ */
 void InversedKinematic::computeFloatModule(QVec& angles, float mod)
 {
 	for(int i=0; i<angles.size(); i++)
@@ -379,7 +379,7 @@ void InversedKinematic::computeFloatModule(QVec& angles, float mod)
  * \brief This method prove if some motors are in their limit angles
  * @param angles
  * @param motors
- */ 
+ */
 bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 {
 	bool noSupera = true;
@@ -395,8 +395,8 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 			noSupera = false;
 			motors[i] = 1;
 
-			if(angles[i]<limiteMin)		angles[i] = limiteMin;
-			if(angles[i]>limiteMax)		angles[i] = limiteMax;
+			if(angles[i]<limiteMin) angles[i] = limiteMin;
+			if(angles[i]>limiteMax) angles[i] = limiteMax;
 
 			qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angles[i]<<" MOTORES: "<<bodypart->getMotorList()[i];
 		}
@@ -406,7 +406,7 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 /**
  * \brief This method update the angles values of the motors.
  * @param new_angles
- */ 
+ */
 void InversedKinematic::updateAngles(QVec new_angles)
 {
 	for(int i=0; i<checkMotors().size(); i++)//for(int i=0; i<bodypart->getMotorList().size(); i++)
@@ -417,20 +417,20 @@ void InversedKinematic::updateAngles(QVec new_angles)
 }
 /**
  * \brief this method looks the target weights. If the target is only for traslation, we delete the
- * wright motors of de bodyPart (the tree last) 
+ * wright motors of de bodyPart (the tree last)
  * @return the motors list
- */ 
+ */
 QStringList InversedKinematic::checkMotors()
 {
 	QStringList motors;
 	QVec weights = bodypart->getTargetList().head().getTargetWeight();
-// 	if(weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
-// 	{
-// 		for(int i=0; i<bodypart->getMotorList().size()-3; i++)
-// 			motors<<bodypart->getMotorList()[i];
-// 	}
-// 	else
+	if(weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
+	{
+		for(int i=0; i<bodypart->getMotorList().size()-3; i++)
+			motors<<bodypart->getMotorList()[i];
+	}
+	else
 		motors = bodypart->getMotorList();
-	
+
 	return motors;
 }
