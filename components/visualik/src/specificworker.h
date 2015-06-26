@@ -66,18 +66,20 @@ public slots:
 
 private:
 	enum class State {IDLE, INIT_BIK, WAIT_BIK, CORRECT_TRASLATION, CORRECT_ROTATION}; // ESTADOS POR LOS QUE PASA LA MAQUINA DE ESTADOS DEL VISUAL BIK:
-	State 				stateMachine; 	// LA VARIABLE QUE GUARDA EL ESTADO DEL VISUAL BIK
-	VisualHand 			*rightHand; // VARIABLE QUE GUARDA LA POSE VISUAL DE LA MARCA DE LA MANO DERECHA DEL ROBOT
+	State 						stateMachine; 			// LA VARIABLE QUE GUARDA EL ESTADO DEL VISUAL BIK
+	VisualHand 					*rightHand; 			// VARIABLE QUE GUARDA LA POSE VISUAL DE LA MARCA DE LA MANO DERECHA DEL ROBOT
+	QMap<QString, QStringList> 	motorchains;				// MAPA CON LAS CADENAS DE MOTORES
+	
 	// VARIABLES QUE GUARDAN EL TARGET QUE SE ESTA EJECUTANDO Y LOS SIGUIENTES A EJECUTAR.
-	Target 				currentTarget;
-	Target 				correctedTarget;
-	QQueue<Target>		nextTargets;
-	QMutex 				mutex;					// MUTEX PARA ZONAS CRITICAS
-	InnerModel 			*innerModel;			// EL MODELO INTERNO DEL ROBOT
-	ofstream 			file;					// EL FICHERO DONDE GUARDAR DATOS
-	bool 				abortatraslacion;		// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
-	bool 				abortarotacion;			// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
-	bool 				INITIALIZED;			// PARA QUE NO SE ADELANTE AL SETPARAMS
+	Target 						currentTarget;
+	Target 						correctedTarget;
+	QQueue<Target>				nextTargets;
+	QMutex 						mutex;					// MUTEX PARA ZONAS CRITICAS
+	InnerModel 					*innerModel;			// EL MODELO INTERNO DEL ROBOT
+	ofstream 					file;					// EL FICHERO DONDE GUARDAR DATOS
+	bool 						abortatraslacion;		// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
+	bool 						abortarotacion;			// PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
+	bool 						INITIALIZED;			// PARA QUE NO SE ADELANTE AL SETPARAMS
 	
 #ifdef USE_QTGUI
 	OsgView 			*osgView;

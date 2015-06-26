@@ -12,7 +12,7 @@ AprilTagsTopic.Endpoints=tcp -p 0
 # Proxies for required interfaces
 InverseKinematicsProxy = inversekinematics:tcp -h localhost -p 0
 JointMotorProxy = jointmotor:tcp -h localhost -p 0
-OmniRobotProxy = omnirobot:tcp -h localhost -p 0
+ReflexxesProxy = reflexxes:tcp -h localhost -p 0
 
 
 This property is used by the clients to connect to IceStorm.

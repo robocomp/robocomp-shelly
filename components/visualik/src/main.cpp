@@ -84,7 +84,7 @@
 #include <InverseKinematics.h>
 #include <AprilTags.h>
 #include <JointMotor.h>
-#include <OmniRobot.h>
+#include <Reflexxes.h>
 
 
 // User includes here
@@ -96,7 +96,7 @@ using namespace RoboCompCommonBehavior;
 using namespace RoboCompInverseKinematics;
 using namespace RoboCompAprilTags;
 using namespace RoboCompJointMotor;
-using namespace RoboCompOmniRobot;
+using namespace RoboCompReflexxes;
 
 
 
@@ -131,7 +131,7 @@ int VisualBIK::run(int argc, char* argv[])
 
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
-	OmniRobotPrx omnirobot_proxy;
+	ReflexxesPrx reflexxes_proxy;
 
 	string proxy, tmp;
 	initialize();
@@ -173,19 +173,19 @@ int VisualBIK::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "OmniRobotProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "ReflexxesProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy OmniRobotProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy ReflexxesProxy\n";
 		}
-		omnirobot_proxy = OmniRobotPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		reflexxes_proxy = ReflexxesPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("OmniRobotProxy initialized Ok!");
-	mprx["OmniRobotProxy"] = (::IceProxy::Ice::Object*)(&omnirobot_proxy);//Remote server proxy creation example
+	rInfo("ReflexxesProxy initialized Ok!");
+	mprx["ReflexxesProxy"] = (::IceProxy::Ice::Object*)(&reflexxes_proxy);//Remote server proxy creation example
 
 IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 

@@ -4,9 +4,11 @@ CommonBehavior.Endpoints=tcp -p 10000
 AprilTagsTopic.Endpoints=tcp -p 12938
 InverseKinematicsProxy =inversekinematics:tcp -h localhost -p 10220
 JointMotorProxy = jointmotor:tcp -p 20000 
-OmniRobotProxy = omnirobot:tcp -p 12238
+ReflexxesProxy = reflexxes:tcp -h localhost -p 10260
 
 InnerModel=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/ficheros_Test_VisualBIK/ursus_bik.xml
+RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
+
 
 # This property is used by the clients to connect to IceStorm.
 TopicManager.Proxy=IceStorm/TopicManager:default -p 9999

@@ -30,14 +30,14 @@ QObject()
 {
 	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
-	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
+	reflexxes_proxy = (*(ReflexxesPrx*)mprx["ReflexxesProxy"]);
 
 
 	mutex = new QMutex(QMutex::Recursive);
 
 	#ifdef USE_QTGUI
 		setupUi(this);
-		//show();
+		show();
 	#endif
 		
 	Period = BASIC_PERIOD;
