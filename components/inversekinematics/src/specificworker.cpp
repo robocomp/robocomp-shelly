@@ -83,17 +83,22 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	tipR = QString::fromStdString(params["RIGHTTIP"].value); /// READ THE RIGHT ARM'S TIP
 	tipL = QString::fromStdString(params["LEFTTIP"].value);  /// READ THE LEFT ARM'S TIP
+	qDebug() << "RIGHT TIP" << tipR;
 	tipH = QString::fromStdString(params["HEADTIP"].value);  /// READ THE HEAD'S TIP
 	
 	motorsR = QString::fromStdString(params["RIGHTARM"].value); /// READ THE RIGHT ARM'S MOTORS
 	motorsL = QString::fromStdString(params["LEFTARM"].value);  /// READ THE LEFT ARM'S MOTORS
 	motorsH = QString::fromStdString(params["HEAD"].value);     /// READ THE HEAD'S MOTORS
 
+	qDebug() << "RIGHT MOTORS" << motorsR;
+
 	if(motorsR.size()>2 and motorsR!="EMPTY" and tipR.size()>2 and tipR!="EMPTY")
 	{
 		for (auto motor : motorsR.split(";", QString::SkipEmptyParts)) /// WE DIVIDE THE STRING BY THE ";"
+		{
 			auxiliar_motor_list.push_back(motor);
-		
+			qDebug() << motor;
+		}
 		availableParts.push_back("RIGHTARM");
 		bodyParts.insert("RIGHTARM", BodyPart("RIGHTARM",tipR, auxiliar_motor_list));	/// PUT THE LIST INTO THE BODY'S PART
 		auxiliar_motor_list.clear();
