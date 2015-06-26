@@ -27,10 +27,9 @@ InversedKinematic::~InversedKinematic()
  */ 
 void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_)
 {	
-	bodypart = bodypart_;
-	innermodel = innermodel_;
-	
-	Target target = bodypart->getTargetList().head();
+	bodypart 		= bodypart_;
+	innermodel 		= innermodel_;	
+	Target target 	= bodypart->getTargetList().head();
 
 	if(target.getTargetType()==Target::ADVANCEAXIS and target.getTargetState()==Target::IN_PROCESS)
 	{
@@ -61,16 +60,29 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
  */ 
 bool InversedKinematic::deleteTarget()
 {
-	static QVec angles = QVec::zeros(checkMotors().size());
+	static QVec angles 	= QVec::zeros(checkMotors().size());
+	QMat We 			= QMat::makeDiagonal(bodypart->getTargetList().head().getTargetWeight());
+	QVec error 			= We*computeErrorVector(bodypart->getTargetList().head());
+	QVec errorT 		= QVec::vec3(error.x(), error.y(), error.z());
+	QVec errorR 		= QVec::vec3(error.rx(), error.ry(), error.rz());
+	
+	qDebug()<<"-----------------------------------------------------------------";
+	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
+	qDebug()<<"Repeticiones: "<<repetitions;
+	qDebug()<<"Error T: "<<errorT.norm2();
+	qDebug()<<"Error R: "<<errorR.norm2();
+	qDebug()<<"-----------------------------------------------------------------";
 	
 	QVec restaAngles (checkMotors().size());
-	qDebug()<<"REPES: "<<repetitions;
-	
 	for(int i=0; i<bodypart->getTargetList().head().getTargetFinalAngles().size(); i++)
 		restaAngles[i] = fabs(angles[i]-bodypart->getTargetList().head().getTargetFinalAngles()[i]);
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 	
-	if(repetitions>6 or computeErrorVector(bodypart->getTargetList().head()).norm2()<0.009 or restaAngles.norm2()<0.009)
+	if(
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+	   and
+	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
+	   
 	{
 		repetitions = 0;
 		return true;
@@ -229,31 +241,25 @@ QMat InversedKinematic::jacobian(QVec motors)
  */
 void InversedKinematic::levenbergMarquardt(Target& target)
 {
-	const float e1 = 0.0001 , e2 = 0.00000001, e3 = 0.0004, e4 = 0.f, t = pow(10, -3);
-	const int kMax = 100;;
-	const QMat Identidad = QMat::identity(checkMotors().size()); //const QMat Identidad = QMat::identity(bodypart->getMotorList().size())
+	const int  kMax = 100;
+	const QMat Identidad = QMat::identity(checkMotors().size()); //matriz identidad
 
-	// VARIABLES:
-	int k=0, v=2, auxInt; //iterador, variable para descenso y un entero auxiliar
-	QVec incrementos, aux; //vector de incrementos y vector auxiliar para guardar cambios
-	QVec motors (checkMotors().size());//QVec motors (bodypart->getMotorList().size()); // lista de motores para rellenar el jacobiano.
-	QVec angles = computeAngles(); // ángulos iniciales de los motores.
+	int k=0, v=2, auxInt; 										//iterador, variable para descenso y un entero auxiliar
+	QVec incrementos, aux; 										//vector de incrementos y vector auxiliar para guardar cambios
+	QVec motors (checkMotors().size());							// lista de motores para rellenar el jacobiano.
+	QVec angles = computeAngles(); 								// ángulos iniciales de los motores.
+	QMat We 	= QMat::makeDiagonal(target.getTargetWeight()); //matriz de pesos para compensar milímietros con radianes.
+	QVec error 	= We * computeErrorVector(target); 				//error de la posición actual con la deseada.
+	QMat J 		= jacobian(motors);								//JACOBIANO
+	QMat H 		= J.transpose()*(We*J);							// HESSIANO -->ERROR
+	QVec g 		= J.transpose()*(error);
+	bool stop		= false;
+	bool smallInc 	= false;
+	bool nanInc 	= false;
+	float ro 		= 0;
+	float n 		= pow(10, -3)*H.getDiagonal().max(auxInt);	//¿por que 0,01?
 
-	// Creamos la matriz de pesos: Si antes hubo incrementos pequeños cuando se ejecutó por vez primera
-	// ponemos TODAS las restricciones. Si no fue así, toma los pesos del usuario:
-	QMat We;
-	We = QMat::makeDiagonal(target.getTargetWeight());  //matriz de pesos para compensar milímietros con radianes.
-
-	QVec error = We * computeErrorVector(target); //error de la posición actual con la deseada.
-	QMat J = jacobian(motors);
-	QMat H = J.transpose()*(We*J);// ERROR
-	QVec g = J.transpose()*(error);
-	bool stop = (g.maxAbs(auxInt) <= e1);
-	bool smallInc = false;
-	bool nanInc = false;
-	float ro = 0;
-	float n = t*H.getDiagonal().max(auxInt);
-
+	qDebug()<<"Stop: "<<stop<<" k: "<<k<<" error:"<< error.norm2();
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
 		k++;
@@ -272,7 +278,7 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 			}
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
 
-			if(incrementos.norm2() <= e2)   ///Too small increments
+			if(incrementos.norm2() <= 0.0001)   ///Too small increments
 			{
 				stop = true;
 				smallInc = true;
@@ -293,35 +299,34 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 					g = J.transpose()*(error);
 				}
 				updateAngles(aux); // Metemos los nuevos angles LUEGO HAY QUE DESHACER EL CAMBIO.
-				ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()) /*/ (incrementos3*(incrementos3*n3 + g3))*/;
-				
-				if(ro > 0)
+				ro = ((error).norm2() - (We*computeErrorVector(target)).norm2()); //Check for sign of error derivative
+				if(ro > 0) //if sign is positive
 				{
 					motors.set((T)0);
 					// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo.
-					stop = ((error).norm2() - (We*computeErrorVector(target)).norm2()) < e4*(error).norm2();
+					stop = (We*computeErrorVector(target)).norm2() <= 0.001; //1 milimetro de error
 					angles = aux;
 					// Recalculamos con nuevos datos.
 					error = We*computeErrorVector(target);
 					J = jacobian(motors);
 					H = J.transpose()*(We*J);
 					g = J.transpose()*(error);
-
-					stop = (stop) or (g.maxAbs(auxInt)<=e1);
-					n = n * std::max(1.f/3.f, (float)(1.f-pow(2*ro - 1,3)));
+					//n = n * std::max(1.f/3.f, (float)(1.f-pow(2*ro - 1,3)));
+					n = n * 0.9;
 					v=2;
 				}
 				else
 				{
 					updateAngles(angles); //volvemos a los ángulos viejos.
+					//increase landa values in regularization matrix
 					n = n*v;
-					v= 2*v;
+					v = 2*v;
 				}
 			}//fin else incrementos no despreciables.
 		}while(ro<=0 and stop==false);
-		stop = error.norm2() <= e3;
+		stop = error.norm2() <= 0.001; //1 milimetro de error
 	}
-
+	qDebug()<<"Stop: "<<stop<<" k: "<<k<<"  smallInc: "<<smallInc<<"nanInc: "<<nanInc<<" error:"<< error.norm2();
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 	
 	if (stop == true) 			bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);

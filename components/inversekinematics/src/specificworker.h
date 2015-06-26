@@ -26,71 +26,64 @@
 #define SPECIFICWORKER_H
 
 #include <iostream>
+#include <fstream>
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
-
-#include <QtCore>
-#include <iterator>
-
-#include "target.h"
-#include "bodypart.h"
-#include "metric.h"
-#include "inversedkinematic.h"
-//#include "plannerompl.h"
-//#include "reflexx.h"
-//#include "sampler.h"
-
 #ifdef USE_QTGUI
 	#include <osgviewer/osgview.h>
 	#include <innermodel/innermodelviewer.h>
 #endif
 
-using namespace std;
+#include "metric.h"
+#include "target.h"
+#include "bodypart.h"
+#include "inversedkinematic.h"
+
 
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
-public:
-				SpecificWorker			(MapPrx& mprx);	
-				~SpecificWorker			();
-	bool 		setParams				(RoboCompCommonBehavior::ParameterList params);
-
-	void 		setFingers				(const float d);
-	void 		setRobot				(const int type);
-	TargetState getState				(const string &part);
-	void 		setNewTip				(const string &part, const string &transform, const Pose6D &pose);
-	void 		stop					(const string &part);
-	void 		goHome					(const string &part);
-	void 		setTargetPose6D			(const string &bodyPart, const Pose6D &target, const WeightVector &weights, const float radius);
-	void 		advanceAlongAxis		(const string &bodyPart, const Axis &ax, const float dist);
-	void 		pointAxisTowardsTarget	(const string &bodyPart, const Pose6D &target, const Axis &ax, const bool &axisConstraint, const float axisAngleConstraint);
-	void 		setJoint				(const string &joint, const float position, const float maxSpeed);
-	void 		sendData				(const TData &data);
-
-public slots:
-	void 		compute					(); 
-
-private:
-	void 	updateInnerModel			();
-	void	updateRCIS					(QVec newAngles, BodyPart part);
-	void	createInnerModelTarget		(Target &target);
-	void	removeInnerModelTarget		(Target &target);
-	void	showInformation				(BodyPart part, Target target);
 
 private:
 	int 						correlativeID;
-	
+	bool						INITIALIZE_READY;
 	QMap<QString, BodyPart> 	bodyParts;
 	QStringList					availableParts;
 	InnerModel					*innermodel;
-	//PlannerOMPL 				*planner;
-	//Sampler 					sampler;
 	InversedKinematic			*inversedkinematic;
+	ofstream 	file;					// EL FICHERO DONDE GUARDAR DATOS
+
 	
 #ifdef USE_QTGUI
 	OsgView *osgView;
 	InnerModelViewer *innerViewer;
 #endif
+	
+public:
+	SpecificWorker(MapPrx& mprx);	
+	~SpecificWorker();
+	bool setParams(RoboCompCommonBehavior::ParameterList params);	
+	
+	void 			stop				(const string &bodyPart);
+	int 			setTargetPose6D		(const string &bodyPart, const Pose6D &target, const WeightVector &weights);
+	int 			setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist);
+	int 			setTargetAlignaxis	(const string &bodyPart, const Pose6D &target, const Axis &ax);
+	bool 			getPartState		(const string &bodyPart);
+	TargetState 	getTargetState		(const string &bodyPart, const int targetID);
+	void 			goHome				(const string &bodyPart);
+	void 			setJoint			(const string &joint, const float angle, const float maxSpeed);
+	void 			setFingers			(const float d);
+	void 			sendData			(const TData &data);
+	
+public slots:
+	void compute(); 	
+
+private:
+	void 	updateInnerModel			();
+	void	updateAngles				(QVec newAngles, BodyPart part);
+	void	createInnerModelTarget		(Target &target);
+	void	removeInnerModelTarget		(Target &target);
+	void	showInformation				(BodyPart part, Target target);
 
 };
 

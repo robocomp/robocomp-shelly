@@ -1,0 +1,13 @@
+import "/robocomp/interfaces/IDSLs/InverseKinematics.idsl";
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+
+Component ikGraphGenerator
+{
+	Communications
+	{
+		requires InverseKinematics, JointMotor;
+	};
+	language cpp;
+	gui Qt(QWidget);
+};
+

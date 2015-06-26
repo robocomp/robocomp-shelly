@@ -1,5 +1,5 @@
 import "/robocomp/interfaces/IDSLs/InnerModelManager.idsl";
-import "/robocomp/interfaces/IDSLs/BodyInverseKinematics.idsl";
+import "/robocomp/interfaces/IDSLs/InverseKinematics.idsl";
 import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
 import "/robocomp/interfaces/IDSLs/JoystickAdapter.idsl";
 
@@ -8,10 +8,10 @@ Component inversekinematics
 	Communications
 	{
 		requires  JointMotor, InnerModelManager;
-		implements BodyInverseKinematics;
+		implements InverseKinematics;
 		subscribesTo JoystickAdapter;
 	};
-	gui Qt(QWidget);
 	language Cpp;
+	gui Qt(QWidget);
 };
 

@@ -1,2 +1,0 @@
-robocomp-ursus
-==============

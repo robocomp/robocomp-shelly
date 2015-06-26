@@ -47,7 +47,17 @@ This component can resolve three different types of targets:
 
 ##New component for inverse kinematics
 
-This is the new version for the BIK component. Its operation is simple, you only have to tell the component somo important things:
+This is the new version for the BIK component, that uses a new interface (before it used BodyInverseKinematics.idsl, now it uses InverseKinematics.idsl) with less useless method and more information. These are the new method of the interface:
+
+1. `TargetState getTargetState (string bodyPart, int targetID)`: This method returns in a 'TargetState` variable the state of a completed target. It has all the information that inverse kinematics calculated on the target (end state, the final angles of the motors, and translational and rotational errors). You only must indicate the part of the robot that executed the target and the identifier of the target.
+2. `int setTargetPose6D (string bodyPart, Pose6D target, WeightVector weights)throws IKException`: This method stores a new POSE6D target into the correspondig part of the robot and returns the identifier of the target. You must indicate the part of the robot that will execute the target, the pose of the target (`tx, ty, tz, rx, ry, rz`) and the weights of the translation and rotation coordinates. If the part name doesn't exit, this method throws an exception.
+3. `int setTargetAlignaxis (string bodyPart, Pose6D target, Axis ax) throws IKException`: This method stores a new ALIGNAXIS target into the correspondig part of the robot and returns the identifier of the target. You must indicate the part of the robot that will execute the target, the pose of the target (`tx, ty, tz, rx, ry, rz`) and the AXES vector with which we align ourselves. If the part name doesn't exit, this method throws an exception.
+4. `int setTargetAdvanceAxis (string bodyPart, Axis ax, float dist) throws IKException`: this method stores a new ADVANCEAXIS target into the correspondig part of the robot and returns the identifier of the target. You must indicate the part of the robot that will execute the target, the axis along we advance and the distance. If the part name doesn't exit, this method throws an exception.
+5. `bool getPartState (string bodyPart) throws IKException`: this method returns the state of one part of the robot (if it has targets into his queue of targets or not). If the part name doesn't exit, this method throws an exception.
+6. `void goHome (string bodyPart) throws IKException`: this methid moves the part of the robot to the home position of the motors. If the part name doesn't exit, this method throws an exception.
+7. `void stop (string bodyPart) throws IKException`; this method stops the movement of the part of the robot and reset the queue of the targets. If the part name doesn't exit, this method throws an exception.
+
+The operation of this new component is simple, you only have to tell the component some important things:
 
 1) the robot whicht will calculate the IK, for example, Ursus. You must put the path of the robot.xml file
 
@@ -65,15 +75,15 @@ This is the new version for the BIK component. Its operation is simple, you only
 
 4) And, finally, the tip or end effector of the chain, for example, 
     
-    LETFTIP=grabPositionHandL.
+    LEFTTIP=grabPositionHandL.
 
 When you send a target position (with his traslation and rotation), you must indicates the chain that will run the target, and the target traslations and rotations weights. 
 
 This revision of the component includes some new enhancements such as:
 
-1) Executes more than once a target. The inverse kinematic result is not the same if the start point of the effector is the robot's home or a point B near tho the goal point.
-
-2) Executes the traslations without the motors of the wrisht (only for Ursus). This makes possible to move the arm with stiff wrist, and then we can rotate easely the wrist when the end effectos is near the target.
+1. Executes more than once a target. The inverse kinematic result is not the same if the start point of the effector is the robot's home or a point B near tho the goal point.
+2. Executes the traslations without the motors of the wrisht (only for Ursus). This makes possible to move the arm with stiff wrist, and then we can rotate easely the wrist when the end effectos is near the target.
+3. The new cinverseKInematics component don't move the arm.
 
 
 ##Configuration parameters
@@ -124,4 +134,4 @@ After editing the new config file (ourConfig) we can run the component:
 
     ./bin/inversekinematics ourConfig
     
-It's not necessary put --Ice.Config=.
+It's not necessary put `--Ice.Config=`.
