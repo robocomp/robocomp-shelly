@@ -351,6 +351,8 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 			{
 				state.finish = true;
 				state.elapsedTime = bodyParts[partName].getSolvedList()[i].getTargetTimeExecution();
+				bodyParts[partName].getSolvedList()[i].getTargetError(state.errorT, state.errorR);
+				state.errorT = state.errorT*1000; //a milimetros
 				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_ERROR) state.state = "LOW_ERROR";
 				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	state.state = "LOW_INCS";
 				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	state.state = "NAN_INCS";
