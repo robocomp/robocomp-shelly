@@ -424,12 +424,12 @@ QStringList InversedKinematic::checkMotors()
 {
 	QStringList motors;
 	QVec weights = bodypart->getTargetList().head().getTargetWeight();
-	if(weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
-	{
-		for(int i=0; i<bodypart->getMotorList().size()-3; i++)
-			motors<<bodypart->getMotorList()[i];
-	}
-	else
+// 	if(weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
+// 	{
+// 		for(int i=0; i<bodypart->getMotorList().size()-3; i++)
+// 			motors<<bodypart->getMotorList()[i];
+// 	}
+// 	else
 		motors = bodypart->getMotorList();
 	
 	return motors;
