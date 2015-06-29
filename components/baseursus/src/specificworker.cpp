@@ -218,6 +218,7 @@ void SpecificWorker::resetOdometer()
 	setOdometerPose(0,0,0);
 	correctOdometer(0,0,0);
 	innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
+	innermodel->updateTransformValues("corrBackPose",0, 0,0,0,0,0);
 }
 
 void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
@@ -233,6 +234,7 @@ void SpecificWorker::setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->x = x;
 	this->z = z;
 	this->angle = alpha;
+	innermodel->updateTransformValues("backPose", x, 0, z,     0, alpha, 0);
 }
 
 void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha)
@@ -241,6 +243,7 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrX = x;
 	this->corrZ = z;
 	this->corrAngle = alpha;
+	innermodel->updateTransformValues("corrBackPose", x, 0, z,     0, alpha, 0);
 }
 
 void SpecificWorker::setWheels(QVec wheelVels_)
