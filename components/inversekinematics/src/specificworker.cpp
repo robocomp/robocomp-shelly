@@ -23,19 +23,20 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	INITIALIZE_READY = false;
+	INITIALIZE_READY 	= false;
+	UPDATE_READY 		= true; 
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
 
-	innermodel = NULL;
+	innermodel 			= NULL;
 #ifdef USE_QTGUI
-	innerViewer = NULL;
-	this->osgView = new OsgView(this);
+	innerViewer 		= NULL;
+	this->osgView		= new OsgView(this);
 // 	show();
 #endif
-	inversedkinematic = new InversedKinematic();
-	correlativeID = 0;
+	inversedkinematic	= new InversedKinematic();
+	correlativeID 		= 0;
 }
 /**
 * \brief Default destructor
@@ -137,7 +138,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::compute()
 {
-	updateInnerModel();
+	if (UPDATE_READY == true)	updateInnerModel();
 
 	QMap<QString, BodyPart>::iterator partsIterator;
 	for(partsIterator = bodyParts.begin(); partsIterator != bodyParts.end(); ++partsIterator)
@@ -152,12 +153,14 @@ void SpecificWorker::compute()
 		if(!partsIterator.value().getTargetList().isEmpty())
 		{
 			partsIterator.value().getTargetList()[0].setTargetState(Target::IN_PROCESS);
+			
 			createInnerModelTarget(partsIterator.value().getTargetList()[0]);
 			inversedkinematic->solveTarget(&partsIterator.value(), innermodel);
+			UPDATE_READY = false;
 
 			if(partsIterator.value().getTargetList()[0].getTargetState() == Target::FINISH) /// The inversedkinematic has finished
 			{
-				float errorT, errorR;
+				/*float errorT, errorR;
 				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
 				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.001)
 					qDebug()<<"--------------> FINISH TARGET    OK\n";
@@ -165,12 +168,15 @@ void SpecificWorker::compute()
 					qDebug()<<"--------------> FINISH TARGET    OK\n";
 
 				else
-					qDebug()<<"--------------> FINISH TARGET    NOT OK\n";
+					qDebug()<<"--------------> FINISH TARGET    NOT OK\n";*/
 				updateAngles(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 
 				if(inversedkinematic->deleteTarget() == true)
 				{
 					showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
+					QVec weights = partsIterator.value().getTargetList()[0].getTargetWeight();
+					if(weights.rx()!=0 and weights.ry()!=0 and weights.rz()!=0)
+						UPDATE_READY = true;
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
 					partsIterator.value().addSolvedToList();
 				}
@@ -191,27 +197,7 @@ void SpecificWorker::compute()
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
-/**
- * \brief This method of the interface stops the part of the robot and reset the queue of Targets
- * @param bodyPart the name of the part.
- */
-void SpecificWorker::stop(const string &bodyPart)
-{
-	QString partName = QString::fromStdString(bodyPart);
-	if(bodyParts.contains(partName)==false)
-	{
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
-		RoboCompInverseKinematics::IKException ex;
-		ex.text = "Not recognized body part: "+bodyPart;
-		throw ex;
-	}
-	qDebug() << "-------------------------------------------------------------------";
-	qDebug() << "New COMMAND arrived " << __FUNCTION__ << partName;
-	qDebug() << "-------------------------------------------------------------------";
 
-	QMutexLocker locker(mutex);
-	bodyParts[partName].reset();
-}
 /**
  * \brief Method of the interface that stores a new POSE6D target into the correspondig part of the robot.
  * @param bodyPart name of the body part.
@@ -231,16 +217,21 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	}
 
 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
-	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
-	Target newTarget = Target(0, pose_, weights_, Target::TargetType::POSE6D);
+	//QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
+	QVec weights_1 = QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
+	QVec weights_2 = QVec::vec6(1, 1, 1,       1, 1, 1); //Con rotacion
+	Target newTarget_1 = Target(0, pose_, weights_1, Target::TargetType::POSE6D); //Sin rotacion
+	Target newTarget_2 = Target(0, pose_, weights_2, Target::TargetType::POSE6D); //Con rotacion
+
 
 	qDebug() << "----------------------------------------------------------------------------------";
-	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
+	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_2;
 	qDebug() << "----------------------------------------------------------------------------------";
 
 	QMutexLocker locker(mutex);
-	bodyParts[partName].addTargetToList(newTarget);
-	return newTarget.getTargetIdentifier();
+	bodyParts[partName].addTargetToList(newTarget_1);
+	bodyParts[partName].addTargetToList(newTarget_2);
+	return newTarget_2.getTargetIdentifier(); //devolvemos con rotacion
 }
 /**
  * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
@@ -374,6 +365,27 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 		}
 	}
 	return state;
+}
+/**
+ * \brief This method of the interface stops the part of the robot and reset the queue of Targets
+ * @param bodyPart the name of the part.
+ */
+void SpecificWorker::stop(const string &bodyPart)
+{
+	QString partName = QString::fromStdString(bodyPart);
+	if(bodyParts.contains(partName)==false)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+		RoboCompInverseKinematics::IKException ex;
+		ex.text = "Not recognized body part: "+bodyPart;
+		throw ex;
+	}
+	qDebug() << "-------------------------------------------------------------------";
+	qDebug() << "New COMMAND arrived " << __FUNCTION__ << partName;
+	qDebug() << "-------------------------------------------------------------------";
+
+	QMutexLocker locker(mutex);
+	bodyParts[partName].reset();
 }
 /**
  * \brief this method moves the motors to their home value

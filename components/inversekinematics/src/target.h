@@ -20,7 +20,7 @@ class Target
 {
 public:
 	enum	TargetType 			{POSE6D, ALIGNAXIS, ADVANCEAXIS};
-	enum	TargetState			{IDLE, IN_PROCESS, ABORTED, FINISH};
+	enum	TargetState			{IDLE, IN_PROCESS, FINISH};
 	enum 	TargetFinalState	{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
 
 private:
@@ -34,11 +34,11 @@ private:
 	TargetState			state;
 	TargetFinalState 	finalstate;
 	/// ATTRIBUTES OF POSE6D TARGET
-	QVec			pose;
-	QVec			weight;
+	QVec				pose;
+	QVec				weight;
 	/// ATTRIBUTES ADVANCEAXIS TARGET
-    QVec 			axis;
-	float 			step;
+    QVec 				axis;
+	float 				step;
 
 public:
 	Target	();

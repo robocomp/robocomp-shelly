@@ -259,7 +259,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 	float ro      = 0;
 	float n       = pow(10, -3)*H.getDiagonal().max(auxInt);	//¿por que 0,01?
 
-	qDebug()<<"Stop: "<<stop<<" k: "<<k<<" error:"<< error.norm2();
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
 		k++;
@@ -326,7 +325,7 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 		}while(ro<=0 and stop==false);
 		stop = error.norm2() <= 0.001; //1 milimetro de error
 	}
-	qDebug()<<"Stop: "<<stop<<" k: "<<k<<"  smallInc: "<<smallInc<<"nanInc: "<<nanInc<<" error:"<< error.norm2();
+	//qDebug()<<"Stop: "<<stop<<" k: "<<k<<"  smallInc: "<<smallInc<<"nanInc: "<<nanInc<<" error:"<< error.norm2();
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 
 	if (stop == true)           bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);
@@ -410,10 +409,7 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 void InversedKinematic::updateAngles(QVec new_angles)
 {
 	for(int i=0; i<checkMotors().size(); i++)//for(int i=0; i<bodypart->getMotorList().size(); i++)
-	{
 		innermodel->updateJointValue(bodypart->getMotorList()[i], new_angles[i]);
-		//qDebug()<<"Actualizando angulo "<<new_angles[i]<<" del motor "<<bodypart->getMotorList()[i];
-	}
 }
 /**
  * \brief this method looks the target weights. If the target is only for traslation, we delete the
