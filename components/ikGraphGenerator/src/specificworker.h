@@ -43,6 +43,9 @@
 using namespace boost;
 
 
+#define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
+
 class ConnectivityGraph
 {
 public:
@@ -152,9 +155,6 @@ private:
 	std::pair<float, float> xrange, yrange, zrange;
 
 	int getRandomNodeClose(int &current, float &dist);
-
-	MotorGoalPositionList centerConfiguration;
-
 
 	float maxDist;
 	ConnectivityGraph *graph;
