@@ -297,7 +297,7 @@ void SpecificWorker::goHome(const string &bodyPart)
 {
 	//inversekinematics_proxy->goHome(bodyPart);
 	
-	RoboCompReflexxes::MotorAngleList motorsReflexx;
+	/*RoboCompReflexxes::MotorAngleList motorsReflexx;
 	RoboCompReflexxes::Motor nodo;
 	
 	nodo.name = "rightShoulder1";
@@ -338,7 +338,48 @@ void SpecificWorker::goHome(const string &bodyPart)
 	try
 	{
 		reflexxes_proxy->setJointPosition(motorsReflexx);
+	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}*/
+	try
+	{
+		RoboCompJointMotor::MotorGoalPosition nodo;
+		
+		nodo.name = "rightShoulder1";
+		nodo.position = -2.3; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+		
+		nodo.name = "rightShoulder2";
+		nodo.position = -0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+			
+		nodo.name = "rightShoulder3";
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+			
+		nodo.name = "rightElbow";
+		nodo.position = 0.8; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+			
+		nodo.name = "rightForeArm";
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+			
+		nodo.name = "rightWrist1";
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+			
+		nodo.name = "rightWrist2";
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		jointmotor_proxy->setPosition(nodo);
+
 	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}
+	
 	
 	sleep(2);
 }
@@ -557,7 +598,7 @@ void SpecificWorker::updateAll()
 void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 {
 	//Pasamos los datos al formato que nos indiquen:
-	RoboCompReflexxes::MotorAngleList motorsReflexx;
+	/*RoboCompReflexxes::MotorAngleList motorsReflexx;
 	
 	for(auto motor : motors)
 	{
@@ -570,8 +611,18 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 	try
 	{
 		reflexxes_proxy->setJointPosition(motorsReflexx);
+	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}*/
+	RoboCompJointMotor::MotorGoalPosition nodo;
+	try
+	{
+		for(auto motor : motors)
+		{
+			nodo.name = motor.name;
+			nodo.position = motor.angle;
+			nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+			jointmotor_proxy->setPosition(nodo);
+		}	
 	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}
-	
 	sleep(1);
 }
 

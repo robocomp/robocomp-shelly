@@ -26,6 +26,7 @@ public:
 private:
 	/// GENERAL ATTRIBUTES
 	int					identifier;
+	bool				divided;
 	QString				nameInInnerModel;
 	QTime 				runTime;
 	QVec				finalangles;
@@ -42,7 +43,7 @@ private:
 
 public:
 	Target	();
-	Target(int id_,const QVec &pose_, const QVec &weights_,						 TargetType type_=TargetType::POSE6D);		/// CONSTRUCTOR FOR POSE6D TARGET
+	Target(int id_,const QVec &pose_, const QVec &weights_, bool divided_,		TargetType type_=TargetType::POSE6D);		/// CONSTRUCTOR FOR POSE6D TARGET
 	Target(int id_,const QVec &pose_, const QVec &weights_, const QVec &axis_, 	TargetType type_=TargetType::ALIGNAXIS);	/// CONSTRUCTOR FOR ALING AXIS
 	Target(int id_,const QVec& axis_, float step_,								TargetType type_=TargetType::ADVANCEAXIS);	/// CONSTRUCTOR FOR ADVANCE AXIS					
 	~Target	();
@@ -60,6 +61,7 @@ public:
 	float 			 	getTargetTimeExecution		();
 	QVec				getTargetError				(float &errorT, float &errorR);
 	QVec				getTargetFinalAngles		();
+	bool				getTargetDivided			();
 	
 	void				setTargetIdentifier			(int id_);
 	void				setTargetNameInInnerModel	(QString nameInInnerModel_);

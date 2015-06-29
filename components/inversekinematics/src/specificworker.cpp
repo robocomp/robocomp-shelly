@@ -174,8 +174,13 @@ void SpecificWorker::compute()
 				if(inversedkinematic->deleteTarget() == true)
 				{
 					showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
+					
 					QVec weights = partsIterator.value().getTargetList()[0].getTargetWeight();
-					if(weights.rx()!=0 and weights.ry()!=0 and weights.rz()!=0)
+					if(
+						(weights.rx()!=0 and weights.ry()!=0 and weights.rz()!=0 and partsIterator.value().getTargetList()[0].getTargetDivided()==true)
+						or
+						(weights.rx()==0 and weights.ry()==0 and weights.rz()==0 and partsIterator.value().getTargetList()[0].getTargetDivided()==false)
+					)
 						UPDATE_READY = true;
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
 					partsIterator.value().addSolvedToList();
@@ -215,23 +220,33 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
-
+	
 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
-	//QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
-	QVec weights_1 = QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
-	QVec weights_2 = QVec::vec6(1, 1, 1,       1, 1, 1); //Con rotacion
-	Target newTarget_1 = Target(0, pose_, weights_1, Target::TargetType::POSE6D); //Sin rotacion
-	Target newTarget_2 = Target(0, pose_, weights_2, Target::TargetType::POSE6D); //Con rotacion
-
-
+	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
+	
 	qDebug() << "----------------------------------------------------------------------------------";
-	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_2;
+	qDebug() << __FUNCTION__<< "New target arrived: "<<partName<<". For target:"<<pose_<<" With weights: "<< weights_;
 	qDebug() << "----------------------------------------------------------------------------------";
+	
+	
+	QMutexLocker locker(mutex);	
+	if(weights_.rx()==0 and weights_.ry()==0 and weights_.rz()==0)
+	{
+		Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //no esta dividido
+		bodyParts[partName].addTargetToList(newTarget_);
+		return newTarget_.getTargetIdentifier(); 
+	}
+	else
+	{
+		weights_ 			= QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
+		Target newTarget_1 	= Target(0, pose_, weights_, true, Target::TargetType::POSE6D); //Sin rotacion (esta dividido)
+		bodyParts[partName].addTargetToList(newTarget_1);
 
-	QMutexLocker locker(mutex);
-	bodyParts[partName].addTargetToList(newTarget_1);
-	bodyParts[partName].addTargetToList(newTarget_2);
-	return newTarget_2.getTargetIdentifier(); //devolvemos con rotacion
+		weights_ 			= QVec::vec6(1, 1, 1,       1, 1, 1); //Con rotacion
+		Target newTarget_2 	= Target(0, pose_, weights_, true, Target::TargetType::POSE6D); //Con rotacion (esta dividido)
+		bodyParts[partName].addTargetToList(newTarget_2);
+		return newTarget_2.getTargetIdentifier(); //devolvemos con rotacion
+	}
 }
 /**
  * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
@@ -600,7 +615,7 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 
 	float errorT, errorR;
 	qDebug()<<"Vector error:   "<<target.getTargetError(errorT, errorR)<<"\\";
-	qDebug()<<"(T: "<<abs(errorT)<<" , R: "<<abs(errorR)<<")";
+	qDebug()<<"(T: "<<abs(errorT)*1000<<" mm , R: "<<abs(errorR)<<" rad)";
 
 	file<<"P: ("      <<target.getTargetPose();
 	file<<")    ERROR_T:"<<abs(errorT);
