@@ -60,9 +60,9 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 	gettimeofday(lastUpdate, NULL);
 	
 	//TODO Calculo el error entre pose interna y pose visual.
-	const QVec errorInv = im->transform6D(tip, "visual_hand");
-	QVec errorInvP      = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
-	errorInternal_Visual = im->getRotationMatrixTo("root", tip)*errorInvP;
+	const QVec errorInv 	= im->transform6D(tip, "visual_hand");
+	QVec errorInvP      	= QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
+	errorInternal_Visual 	= im->getRotationMatrixTo("root", tip)*errorInvP;
 }
 /**
 * \brief Updates the hand's possition according to direct kinematics.

@@ -156,8 +156,7 @@ void SpecificWorker::compute()
 			{
 				qDebug()<<"---> El IK ha terminado.";
 				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID()).motors);
-				sleep(2);
-				stateMachine = State::CORRECT_TRASLATION;
+				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -172,6 +171,7 @@ void SpecificWorker::compute()
 				{
 					std::cout<<"--> Correccion completada.\nPasamos a corregir la rotacion.\n";
 					stateMachine = State::CORRECT_ROTATION;
+					currentTarget.setRunTime();
 				}
 				else
 				{
@@ -442,7 +442,8 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
-	static float umbralMaxTime = 80, umbralMinTime = 10, umbralElapsedTime = 2, umbralError = 4;
+	static float umbralMaxTime = 80, umbralMinTime = 10;
+	static float umbralElapsedTime = 2.0, umbralError = 5.0;
 
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
@@ -461,7 +462,7 @@ bool SpecificWorker::correctTraslation	()
 	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2() < umbralError)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		qDebug()<<"done!";
+		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		return true;
 	}
 
@@ -496,7 +497,7 @@ bool SpecificWorker::correctRotation()
 {
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 80, umbralMinTime = 10;
-	static float umbralElapsedTime = 2, umbralErrorT = 5, umbralErrorR=0.01;
+	static float umbralElapsedTime = 2.0, umbralErrorT = 5.0, umbralErrorR=0.01;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -515,7 +516,7 @@ bool SpecificWorker::correctRotation()
 		file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
 		file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
-		file<<"   END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
+		file<<"   END: "    <<currentTarget.getRunTime();
 		file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
 		flush(file);
 		return false;
@@ -524,13 +525,13 @@ bool SpecificWorker::correctRotation()
 	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		qDebug()<<"done!";
+		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		file<<"P: ("      <<currentTarget.getPose();
 		file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
 		file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
-		file<<"   END: "    <<currentTarget.getRunTime()<<"-->"<<abortatraslacion<<","<<abortarotacion;
+		file<<"   END: "    <<currentTarget.getRunTime();
 		file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
 		flush(file);
 		return true;
@@ -611,6 +612,9 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 	{
 		reflexxes_proxy->setJointPosition(motorsReflexx);
 	} catch (const Ice::Exception &ex) {	cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;	}*/
+	
+	
+	
 	RoboCompJointMotor::MotorGoalPosition nodo;
 	try
 	{

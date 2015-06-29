@@ -94,6 +94,13 @@ void Target::setWeights(RoboCompInverseKinematics::WeightVector weights_)
 {	
 	weights = QVec::vec6(weights_.x, weights_.y, weights_.z, weights_.rx, weights_.ry, weights_.rz); 
 }
+/**
+ * \brief Reinicia el tiempo de ejecución
+ */ 
+void Target::setRunTime()		
+{	
+	runTime.start();
+}
 /*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
  * 													METODOS GET												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 

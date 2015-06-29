@@ -159,11 +159,12 @@ void SpecificWorker::compute()
 				if(inversedkinematic->deleteTarget() == true)
 				{
 					showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
-					QVec weights = partsIterator.value().getTargetList()[0].getTargetWeight();
 					if(partsIterator.value().getTargetList()[0].getTargetDivided()==false)
 						UPDATE_READY = true;
+					
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
 					partsIterator.value().addSolvedToList();
+					qDebug()<<"BIEN";
 				}
 			}
 		}
@@ -595,5 +596,6 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 	file<<"     ERROR_R:" <<abs(errorR);
 	file<<"     END: "<<finalState.toStdString()<<endl;
 	flush(file);
+	qDebug()<<"HOLA";
 }
 
