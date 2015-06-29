@@ -162,7 +162,7 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_TRASLATION:
-			//la primera vez el ID de corrected es igual al de current así que enetra seguro.
+			//la primera vez el ID de corrected es igual al de current así que entra seguro.
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).finish == false) return;
 			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).motors);
 			if(correctTraslation()==true or abortatraslacion==true)
@@ -442,8 +442,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
-	static float umbralMaxTime = 80, umbralMinTime = 10;
-	static float umbralElapsedTime = 2, umbralError = 5;
+	static float umbralMaxTime = 80, umbralMinTime = 10, umbralElapsedTime = 2, umbralError = 4;
 
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{

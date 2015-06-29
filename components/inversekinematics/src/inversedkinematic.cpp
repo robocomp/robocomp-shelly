@@ -79,7 +79,7 @@ bool InversedKinematic::deleteTarget()
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 
 	if(
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>3 or (errorT.norm2()<0.001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
 	   and
 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
 
@@ -397,7 +397,7 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 			if(angles[i]<limiteMin) angles[i] = limiteMin;
 			if(angles[i]>limiteMax) angles[i] = limiteMax;
 
-			qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angles[i]<<" MOTORES: "<<bodypart->getMotorList()[i];
+			//qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angles[i]<<" MOTORES: "<<bodypart->getMotorList()[i];
 		}
 	}
 	return !noSupera;

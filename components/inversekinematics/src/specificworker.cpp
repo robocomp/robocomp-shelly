@@ -143,12 +143,6 @@ void SpecificWorker::compute()
 	QMap<QString, BodyPart>::iterator partsIterator;
 	for(partsIterator = bodyParts.begin(); partsIterator != bodyParts.end(); ++partsIterator)
 	{
-		// COMPROBAR SI ES LA PRIMERA VEZ QUE ENTRA EL TARGET-->
-		// CREAR PLAN PARA ALCANZAR EL TARGET USANDO GRAFO. ESE PLANNER TENDRA GRAFO (LO CREA O LO LEE), EL INNER Y EL TARGET
-		// 1) BUSCA DE DONDE ESTAMOS AL GRAFO
-		// 2) BUSCA DEL TARGET AL GRAFO
-		// 3) BUSCAR CAMINO POR EL GRAFO DEVUELVE EL CAMINO COMO LISTA DE TARGET INYECTADOS AL PRINCIPIO.
-
 		QMutexLocker locker(mutex);
 		if(!partsIterator.value().getTargetList().isEmpty())
 		{
@@ -160,27 +154,13 @@ void SpecificWorker::compute()
 
 			if(partsIterator.value().getTargetList()[0].getTargetState() == Target::FINISH) /// The inversedkinematic has finished
 			{
-				/*float errorT, errorR;
-				partsIterator.value().getTargetList()[0].getTargetError(errorT, errorR);
-				if(partsIterator.value().getTargetList()[0].getTargetType()!=Target::TargetType::ALIGNAXIS and abs(errorT) < 0.001)
-					qDebug()<<"--------------> FINISH TARGET    OK\n";
-				else if(partsIterator.value().getTargetList()[0].getTargetType()==Target::TargetType::ALIGNAXIS and abs(errorR) < 0.001)
-					qDebug()<<"--------------> FINISH TARGET    OK\n";
-
-				else
-					qDebug()<<"--------------> FINISH TARGET    NOT OK\n";*/
 				updateAngles(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 
 				if(inversedkinematic->deleteTarget() == true)
 				{
 					showInformation(partsIterator.value(), partsIterator.value().getTargetList()[0]);
-					
 					QVec weights = partsIterator.value().getTargetList()[0].getTargetWeight();
-					if(
-						(weights.rx()!=0 and weights.ry()!=0 and weights.rz()!=0 and partsIterator.value().getTargetList()[0].getTargetDivided()==true)
-						or
-						(weights.rx()==0 and weights.ry()==0 and weights.rz()==0 and partsIterator.value().getTargetList()[0].getTargetDivided()==false)
-					)
+					if(partsIterator.value().getTargetList()[0].getTargetDivided()==false)
 						UPDATE_READY = true;
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
 					partsIterator.value().addSolvedToList();
@@ -220,33 +200,26 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
-	
+
 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
 	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
-	
 	qDebug() << "----------------------------------------------------------------------------------";
-	qDebug() << __FUNCTION__<< "New target arrived: "<<partName<<". For target:"<<pose_<<" With weights: "<< weights_;
+	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
 	qDebug() << "----------------------------------------------------------------------------------";
 	
+	if(weights_.rx()!=0 and weights_.ry()!=0 and weights_.rz()!=0)
+	{
+		QVec weights_aux 		= QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
+		Target newTarget_aux	= Target(0, pose_, weights_aux, true, Target::TargetType::POSE6D); //Sin rotacion
+		
+		QMutexLocker locker(mutex);
+		bodyParts[partName].addTargetToList(newTarget_aux);
+	}
+	Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //Con rotacion o sin ella
 	
-	QMutexLocker locker(mutex);	
-	if(weights_.rx()==0 and weights_.ry()==0 and weights_.rz()==0)
-	{
-		Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //no esta dividido
-		bodyParts[partName].addTargetToList(newTarget_);
-		return newTarget_.getTargetIdentifier(); 
-	}
-	else
-	{
-		weights_ 			= QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
-		Target newTarget_1 	= Target(0, pose_, weights_, true, Target::TargetType::POSE6D); //Sin rotacion (esta dividido)
-		bodyParts[partName].addTargetToList(newTarget_1);
-
-		weights_ 			= QVec::vec6(1, 1, 1,       1, 1, 1); //Con rotacion
-		Target newTarget_2 	= Target(0, pose_, weights_, true, Target::TargetType::POSE6D); //Con rotacion (esta dividido)
-		bodyParts[partName].addTargetToList(newTarget_2);
-		return newTarget_2.getTargetIdentifier(); //devolvemos con rotacion
-	}
+	QMutexLocker locker(mutex);
+	bodyParts[partName].addTargetToList(newTarget_);
+	return newTarget_.getTargetIdentifier(); //devolvemos con rotacion
 }
 /**
  * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
@@ -615,13 +588,12 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 
 	float errorT, errorR;
 	qDebug()<<"Vector error:   "<<target.getTargetError(errorT, errorR)<<"\\";
-	qDebug()<<"(T: "<<abs(errorT)*1000<<" mm , R: "<<abs(errorR)<<" rad)";
+	qDebug()<<"(T: "<<abs(errorT)*1000<<"mm , R: "<<abs(errorR)<<"rad)";
 
 	file<<"P: ("      <<target.getTargetPose();
-	file<<")    ERROR_T:"<<abs(errorT);
+	file<<")    ERROR_T:"<<abs(errorT)*1000;
 	file<<"     ERROR_R:" <<abs(errorR);
 	file<<"     END: "<<finalState.toStdString()<<endl;
 	flush(file);
 }
-
 
