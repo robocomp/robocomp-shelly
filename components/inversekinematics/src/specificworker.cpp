@@ -401,7 +401,7 @@ void SpecificWorker::goHome(const string &bodyPart)
 			RoboCompJointMotor::MotorGoalPosition nodo;
 			nodo.name = lmotors.at(i).toStdString();
 			nodo.position = innermodel->getJoint(lmotors.at(i))->home;
-			nodo.maxSpeed = 1; //radianes por segundo
+			nodo.maxSpeed = 2; //radianes por segundo
 			mutex->lock();
 				jointmotor_proxy->setPosition(nodo);
 			mutex->unlock();

@@ -79,7 +79,7 @@ bool InversedKinematic::deleteTarget()
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 
 	if(
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>2 or (errorT.norm2()<0.001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
 	   and
 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
 
@@ -118,8 +118,6 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		QMat matTipInFrameBase = innermodel->getRotationMatrixTo(frameBase, bodypart->getTipName());
 		// 3) Calculamos el error de rotación entre el target y el tip:
 		QVec targetRInTip = matTargetInTip.extractAnglesR_min();
-		// 4) Pasamos los errores de rotación al last joint.
-		QVec anglesRot = matTipInFrameBase * targetRInTip;
 		// Calculamos el equivalente de rotar en X el Tip pero en el sistema de referencia del lastJoint (frameBase)
 		QVec firstRot = matTipInFrameBase * QVec::vec3(targetRInTip[0],0,0);
 		Rot3D matFirtRot(firstRot[0], firstRot[1], firstRot[2]);
