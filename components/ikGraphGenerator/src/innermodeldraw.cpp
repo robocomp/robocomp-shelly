@@ -216,7 +216,7 @@ void InnerModelDraw::drawLine2Points(InnerModelViewer *innerViewer, QString name
 {
 	const QVec resta = p2-p1;
 	const QVec media = (p1+p2).operator*(0.5);
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, name, parent, media, resta, texture, QVec::vec3(5, 5, resta.norm2()));
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, name, parent, media, resta, texture, QVec::vec3(2, 2, resta.norm2()));
 }
 
 

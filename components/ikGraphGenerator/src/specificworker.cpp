@@ -18,7 +18,7 @@
  */
 #include "specificworker.h"
 
-#define CLOSE_DISTANCE 200
+#define CLOSE_DISTANCE 70
 /**
 * \brief Default constructor
 */
@@ -94,15 +94,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
 
 
-	xrange = std::pair<float, float>( -80, 450);
-	yrange = std::pair<float, float>( 650, 1100);
-	zrange = std::pair<float, float>( 125, 450);
-	
+	xrange = std::pair<float, float>( -120, 360);
+	yrange = std::pair<float, float>( 600, 1200);
+	zrange = std::pair<float, float>( 160, 500);
+
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "centro", "root", center, QVec::vec3(1,0,0), "#994444", QVec::vec3(12,12,12));
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "centro", "root", center, QVec::vec3(1,0,0), "#1111cc", QVec::vec3(10,10,10));
 
-	
+
 	float XR = abs(xrange.second - xrange.first);
 	float YR = abs(yrange.second - yrange.first);
 	float ZR = abs(zrange.second - zrange.first);
@@ -112,7 +112,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	ZR = ZR/max;
 	float step = sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
 
-	
+
 	uint32_t included=0;
 //#define RANDOMGENERATION
 #ifdef RANDOMGENERATION
@@ -138,7 +138,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 				diff(0) = abs(diff(0))/XR;
 				diff(1) = abs(diff(1))/YR;
 				diff(2) = abs(diff(2))/ZR;
-				
+
 #ifndef RANDOMGENERATION
 				graph->addVertex(ConnectivityGraph::VertexData());
 #endif
@@ -154,7 +154,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 						InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root",
 							QVec::vec3(graph->vertices[included].pose[0],
 							graph->vertices[included].pose[1], graph->vertices[included].pose[2]),
-							QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8)
+							QVec::vec3(1,0,0), "#666666", QVec::vec3(6,6,6)
 						);
 					}
 					included++;
@@ -168,9 +168,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 #endif
 
 
+	printf("inc %d\n", included);
 
-
-	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, true))
+	int rec = 0;
+	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 
@@ -195,7 +196,7 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
 	static MotorGoalPositionList last;
-	
+
 	if (mpl == last)
 	{
 		printf("skipping same config\n");
@@ -209,18 +210,18 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 		for (auto g : mpl)
 		{
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
-			printf("%s: %f\n", g.name.c_str(), g.position);
+// 			printf("%s: %f\n", g.name.c_str(), g.position);
 		}
 	}
 	usleep(20000);
 }
 
-bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive)
+bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recursive)
 {
 	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], nodeId, mpl, recursive);
 }
 
-bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive)
+bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive)
 {
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = x;
@@ -238,19 +239,19 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	float relx = (x - xrange.first) / (xrange.second - xrange.first);
 	if (relx < 0.33)
-		target.ry = -1.57;
+		target.ry = -1.8;
 	else if (relx < 0.66)
-		target.ry = -1.17;
+		target.ry = -1.47;
 	else
-		target.ry = 0.77;
+		target.ry = -0.47;
 
 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
 	if (relz < 0.33)
-		target.ry -= 0.8;
-	else if (relz < 0.66)
-		target.ry -= 0.4;
+		target.ry += -0.8;
+	else if (relz < 0.5)
+		target.ry += -0.4;
 	else
-		target.ry -= 0.;
+		target.ry += 0.3;
 
 	if (target.ry < -1.57)
 		target.ry = -1.57;
@@ -259,9 +260,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	RoboCompInverseKinematics::WeightVector weights;
 	weights.x = weights.y = weights.z = 1;
-	weights.rx = 0.1;
-	weights.ry = 0.1;
-	weights.rz = 0.1;
+	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
+	else weights.rx = weights.ry = weights.rz = 0;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -293,7 +293,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	goAndWaitDirect(mpl);
 
 	float err = innerVisual->transform("grabPositionHandR", "target").norm2();
-	
+
 	printf("ERROR segun IM %f\n", err);
 	printf("ERROR segun IK %f\n", stt.errorT);
 	printf("IK message %s\n", stt.state.c_str());
@@ -301,9 +301,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	if (stt.errorT > MAX_ERROR_IK or initialTime.elapsed()>15000 or not stt.finish)
 	{
 		printf("cant\'t go\n");
-		sleep(60);
-		
-		if (not recursive)
+
+		if (recursive>0)
 		{
 			printf("recursive call\n");
 			bool ret = false;
@@ -350,7 +349,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 					printf("patras con %d\n", minIndex);
 					goAndWaitDirect(minConfig);
 					printf("realizando la llamada recursiva\n");
-					ret = goAndWait(x, y, z, -1, mpl, true);
+					recursive++;
+					ret = goAndWait(x, y, z, -1, mpl, recursive);
 					printf("got %d\n", ret);
 					if (ret)
 						return true;
@@ -418,34 +418,43 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 */
 void SpecificWorker::computeHard()
 {
-	bool stop=false;
+	static bool stop=false;
 	static int nodeSrc=-1;
 	static int nodeDst=-1;
 	static MotorGoalPositionList currentConfiguration;
+
 	if (stop) return;
-	
+
 	printf("=======================================\n");
 
 	if (nodeDst == graph->size() or nodeDst == -1)
 	{
 		nodeSrc++;
-		if (nodeSrc == graph->size())
+		QString id = QString("node_") + QString::number(graph->vertices[nodeSrc].id);
+		if (nodeSrc == graph->size()-1)
 		{
 				qDebug() << "fin feliz";
 				stop = true;
+				return;
 		}
 		MotorGoalPositionList configuration;
 		int de;
-		for (de=0; de < 5 and not goAndWait(nodeSrc, configuration); de++)
+		int recursive = 0;
+		for (de=0; de < 5 and not goAndWait(nodeSrc, configuration, recursive); de++)
 		{
-			goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, true);
+			int d=0;
+			goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, d);
 		}
 		if (de == 5)
 		{
 			qDebug() << "Couldn't reach target: skipping node" << nodeSrc;
 			nodeDst = -1;
+			InnerModelDraw::setPlaneTexture(innerViewer, id, "#ff0000");
 			return;
 		}
+
+		InnerModelDraw::setPlaneTexture(innerViewer, id, "#00ff00");
+
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
@@ -461,13 +470,16 @@ void SpecificWorker::computeHard()
 	printf("nodeSrc: %d\n", nodeSrc);
 	printf("nodeDst: %d\n", nodeDst);
 
+
+
 	float dist = graph->vertices[nodeSrc].distTo(graph->vertices[nodeDst].pose);
-	if (dist>0  and dist<CLOSE_DISTANCE)
+	if (dist>0 and dist<CLOSE_DISTANCE and graph->edges[nodeSrc][nodeDst] == DJ_INFINITY)
 	{
 		printf("***  nodeSrc: %d\n", nodeSrc);
 		printf("***  nodeDst: %d\n", nodeDst);
 		MotorGoalPositionList configuration;
-		if (goAndWait(nodeDst, configuration))
+		int rec=0;
+		if (goAndWait(nodeDst, configuration, rec))
 		{
 			printf("goAndWait done\n");
 			printf("add %d %d %f\n", nodeSrc, nodeDst, dist);

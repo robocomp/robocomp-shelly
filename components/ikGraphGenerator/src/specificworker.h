@@ -97,7 +97,7 @@ public:
 			edges.push_back(eds);
 		}
 	}
-	
+
 	void addVertex(const VertexData &v)
 	{
 		// Add vertex
@@ -176,8 +176,8 @@ public slots:
 
 private:
 	void updateFrame(uint wait_usecs=0);
-	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive=false);
-	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive=false);
+	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recursive);
+	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
 	void goAndWaitDirect(const MotorGoalPositionList &mpl);
 
 	std::pair<float, float> xrange, yrange, zrange;
