@@ -75,7 +75,7 @@ private:
 	Target           correctedTarget;
 	QQueue<Target>   nextTargets;
 	QQueue<Target>   solvedList;          // TARGETS RESUELTOS
-	QMutex           mutex;               // MUTEX PARA ZONAS CRITICAS
+	QMutex           *mutexSolved;               // MUTEX PARA ZONAS CRITICAS
 	InnerModel       *innerModel;         // EL MODELO INTERNO DEL ROBOT
 	ofstream         file;                // EL FICHERO DONDE GUARDAR DATOS
 	bool             abortatraslacion;    // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION

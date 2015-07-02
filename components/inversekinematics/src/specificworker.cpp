@@ -590,8 +590,6 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
  */ 
 void SpecificWorker::addTargetSolved(QString part, Target t)
 {
-	qDebug()<<"GUARDANDO ESTADO 1111111";
-
 	RoboCompInverseKinematics::MotorList 	ml;
 	RoboCompInverseKinematics::Motor 		m;
 	RoboCompInverseKinematics::TargetState 	state;
@@ -612,18 +610,12 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 		ml.push_back(m);
 	}
 	state.motors=ml;
-	
-	qDebug()<<"GUARDANDO ESTADO 222222";
-	
+		
 	stTargetsSolved ts;
 	ts.part   = part;
 	ts.target = t;
 	ts.state  = state;
 	
-	qDebug()<<"GUARDANDO ESTADO 333333: "<<ts.part<<" "<<ts.target.getTargetIdentifier()<<" "<<t.getTargetIdentifier();
-
 	QMutexLocker mm(mutexSolved);
 	targetsSolved.enqueue(ts);
-		qDebug()<<"GUARDANDO ESTADO 4444444";
-
 }

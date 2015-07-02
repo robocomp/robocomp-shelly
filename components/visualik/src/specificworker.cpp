@@ -26,6 +26,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
+	
+	mutexSolved			= new QMutex(QMutex::Recursive);
 
 	QMutexLocker ml(&mutex);
 	INITIALIZED			= false;
@@ -236,7 +238,6 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	//return inversekinematics_proxy->getTargetState(bodyPart, targetID);
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
-	state.state = "NO";
 }
 /**
  * \brief This method reimplements the interface method setTargetPose6D of the inversekinematics component
