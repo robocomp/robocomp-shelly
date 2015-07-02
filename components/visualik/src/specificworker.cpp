@@ -27,7 +27,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
 
-	mutexSolved			= new QMutex(QMutex::Recursive);
+	mutexSolved = new QMutex(QMutex::Recursive);
 
 	QMutexLocker ml(mutex);
 	INITIALIZED      = false;
