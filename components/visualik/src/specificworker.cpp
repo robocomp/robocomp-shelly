@@ -233,7 +233,10 @@ bool SpecificWorker::getPartState(const string &bodyPart)
  */
 TargetState SpecificWorker::getTargetState(const string &bodyPart, const int targetID)
 {
-	return inversekinematics_proxy->getTargetState(bodyPart, targetID);
+	//return inversekinematics_proxy->getTargetState(bodyPart, targetID);
+	RoboCompInverseKinematics::TargetState 	state;
+	state.finish = false;
+	state.state = "NO";
 }
 /**
  * \brief This method reimplements the interface method setTargetPose6D of the inversekinematics component
@@ -423,7 +426,7 @@ bool SpecificWorker::correctTraslation	()
 		return true;
 	}
 
-	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
+	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.75);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip())*errorInvP;
 	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(),errorInv.z()).norm2();
 

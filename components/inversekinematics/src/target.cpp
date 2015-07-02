@@ -80,11 +80,16 @@ Target::~Target()
  */ 
 Target Target::operator=( Target target ) 
 {
-	type 	= target.getTargetType();
-	state	= target.getTargetState();
-	
-	pose	=	target.getTargetPose();   //std::swap(pose, target.getTargetPose());
-	weight	=	target.getTargetWeight(); //std::swap(weight, target.getTargetWeight());
+	identifier       = target.getTargetIdentifier();
+	divided          = target.getTargetDivided();
+	type 	         = target.getTargetType();
+	state	         = target.getTargetState();
+	if(state==TargetState::FINISH)
+		finalstate   = target.getTargetFinalState();
+	nameInInnerModel = target.getTargetNameInInnerModel();
+	finalangles      = target.getTargetFinalAngles();
+	pose	         = target.getTargetPose();   //std::swap(pose, target.getTargetPose());
+	weight	         = target.getTargetWeight(); //std::swap(weight, target.getTargetWeight());
 	
 	return *this;
 }

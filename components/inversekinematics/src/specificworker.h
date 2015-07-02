@@ -45,10 +45,20 @@ class SpecificWorker : public GenericWorker
 Q_OBJECT
 
 private:
+	typedef struct
+	{
+		QString      part;
+		Target       target;
+		TargetState  state;
+	}stTargetsSolved;
+	//stTargetsSolved TargetsSolved;
+	
 	int 						correlativeID;
 	bool						INITIALIZE_READY;
-	bool						UPDATE_READY;
-	QMap<QString, BodyPart> 	bodyParts;
+	bool                        UPDATE_READY;
+	QMap<QString, BodyPart>     bodyParts;
+	QQueue<stTargetsSolved>     targetsSolved;
+	QMutex                      *mutexSolved;
 	QStringList					availableParts;
 	InnerModel					*innermodel;
 	InversedKinematic			*inversedkinematic;
@@ -85,7 +95,7 @@ private:
 	void	createInnerModelTarget		(Target &target);
 	void	removeInnerModelTarget		(Target &target);
 	void	showInformation				(BodyPart part, Target target);
-
+	void	addTargetSolved				(QString part, Target t);
 };
 
 #endif

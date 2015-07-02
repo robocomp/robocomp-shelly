@@ -25,6 +25,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	INITIALIZE_READY 	= false;
 	UPDATE_READY 		= true; 
+	mutexSolved         = new QMutex(QMutex::Recursive);
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
@@ -162,9 +163,14 @@ void SpecificWorker::compute()
 					if(partsIterator.value().getTargetList()[0].getTargetDivided()==false)
 						UPDATE_READY = true;
 					
+					addTargetSolved(partsIterator.value().getPartName(), partsIterator.value().getTargetList()[0]);
+					qDebug()<<"YEAH 1111";
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
-					partsIterator.value().addSolvedToList();
-					qDebug()<<"BIEN";
+					qDebug()<<"YEAH 2222";
+
+					partsIterator.value().removeTarget();
+					qDebug()<<"YEAH 33333";
+
 				}
 			}
 		}
@@ -321,37 +327,16 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
-	RoboCompInverseKinematics::MotorList 	ml;
-	RoboCompInverseKinematics::Motor 		m;
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
-	state.state = "NO";
-	state.elapsedTime = 0;
+	
 
-	if(bodyParts[partName].getSolvedList().isEmpty()==false)
+	QMutexLocker mm(mutexSolved);
+	for(int i=0; i<targetsSolved.size(); i++)
 	{
-		for(int i=0; i<bodyParts[partName].getSolvedList().size();i++)
-		{
-			if(bodyParts[partName].getSolvedList()[i].getTargetIdentifier() == targetID)
-			{
-				state.finish = true;
-				state.elapsedTime = bodyParts[partName].getSolvedList()[i].getTargetTimeExecution();
-				bodyParts[partName].getSolvedList()[i].getTargetError(state.errorT, state.errorR);
-				state.errorT = state.errorT*1000; //a milimetros
-				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_ERROR) state.state = "LOW_ERROR";
-				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	state.state = "LOW_INCS";
-				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	state.state = "NAN_INCS";
-				if(bodyParts[partName].getSolvedList()[i].getTargetFinalState() == Target::TargetFinalState::KMAX)		state.state = "KMAX";
-
-				for(int j=0; j<bodyParts[partName].getSolvedList()[i].getTargetFinalAngles().size(); j++)
-				{
-					m.name = bodyParts[partName].getMotorList()[j].toStdString();
-					m.angle = bodyParts[partName].getSolvedList()[i].getTargetFinalAngles()[j];
-					ml.push_back(m);
-				}
-				state.motors=ml;
-			}
-		}
+		//qDebug()<<"QUIERO: "<<partName<<" con "<<targetID<<"    PERO TENGO: "<<targetsSolved[i].part<<" con "<<targetsSolved[i].target.getTargetIdentifier();
+		if(targetsSolved[i].part==partName and targetsSolved[i].target.getTargetIdentifier()==targetID)
+			return targetsSolved[i].state;
 	}
 	return state;
 }
@@ -571,6 +556,7 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 {
 	qDebug()<<"-------------------> TARGET INFORMATION:";
 	qDebug()<<"Part name:      " <<part.getPartName();
+	qDebug()<<"Target ID:      " <<target.getTargetIdentifier();
 	qDebug()<<"Pose Target:    " <<target.getTargetPose();
 	qDebug()<<"Weights Target: " <<target.getTargetWeight();
 
@@ -596,6 +582,48 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 	file<<"     ERROR_R:" <<abs(errorR);
 	file<<"     END: "<<finalState.toStdString()<<endl;
 	flush(file);
-	qDebug()<<"HOLA";
 }
+/**
+ * \brief This method stores the target solved into a structure
+ * @param part  name of the part.
+ * @param t target
+ */ 
+void SpecificWorker::addTargetSolved(QString part, Target t)
+{
+	qDebug()<<"GUARDANDO ESTADO 1111111";
 
+	RoboCompInverseKinematics::MotorList 	ml;
+	RoboCompInverseKinematics::Motor 		m;
+	RoboCompInverseKinematics::TargetState 	state;
+	
+	state.finish = true;
+	state.elapsedTime = t.getTargetTimeExecution();
+	t.getTargetError(state.errorT, state.errorR);
+	state.errorT = state.errorT*1000; //a milimetros
+	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_ERROR)  state.state = "LOW_ERROR";
+	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	state.state = "LOW_INCS";
+	if(t.getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	state.state = "NAN_INCS";
+	if(t.getTargetFinalState() == Target::TargetFinalState::KMAX)		state.state = "KMAX";
+	
+	for(int j=0; j<t.getTargetFinalAngles().size(); j++)
+	{
+		m.name  = bodyParts[part].getMotorList()[j].toStdString();
+		m.angle = t.getTargetFinalAngles()[j];
+		ml.push_back(m);
+	}
+	state.motors=ml;
+	
+	qDebug()<<"GUARDANDO ESTADO 222222";
+	
+	stTargetsSolved ts;
+	ts.part   = part;
+	ts.target = t;
+	ts.state  = state;
+	
+	qDebug()<<"GUARDANDO ESTADO 333333: "<<ts.part<<" "<<ts.target.getTargetIdentifier()<<" "<<t.getTargetIdentifier();
+
+	QMutexLocker mm(mutexSolved);
+	targetsSolved.enqueue(ts);
+		qDebug()<<"GUARDANDO ESTADO 4444444";
+
+}

@@ -62,14 +62,6 @@ QQueue<Target> &BodyPart::getTargetList()
 {
 	return targetList;
 }
-/**
- * \brief this method returns the queue of the solved targets
- * @return QQueue solvedList
- */ 
-QQueue<Target> &BodyPart::getSolvedList()
-{
-	return solvedList;
-}
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -84,13 +76,12 @@ void BodyPart::addTargetToList(Target &target)
 	counter++;
 }
 /**
- * \brief This method insert the solved target into the solved list (queue) of solved targets,
- * and delete it from the targetList.
- * @param target the new target.
+ * \brief This method deleted the solved target from the targetList.
  */ 
-void BodyPart::addSolvedToList()
+void BodyPart::removeTarget()
 {
-	solvedList.enqueue(targetList.dequeue());
+	if(targetList.isEmpty()==false)
+		/*solvedList.enqueue(*/targetList.dequeue()/*)*/;
 }
 /**
  * \brief this method marks the first target like ABORTED and deleted the other targets in the 
@@ -100,9 +91,6 @@ void BodyPart::reset()
 {
 	for(int i=0; i<targetList.size(); i++)
 		targetList.dequeue();
-	
-	for(int i=0; i<solvedList.size(); i++)
-		solvedList.dequeue();
 	
 	counter = 0;
 }
