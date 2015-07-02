@@ -458,6 +458,8 @@ void SpecificWorker::computeHard()
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
+
+		graph->save("aqui");
 		return;
 	}
 

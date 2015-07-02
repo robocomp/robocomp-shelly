@@ -101,11 +101,18 @@ public:
 	ConnectivityGraph(char *path)
 	{
 	}
-	
-	save(char *path)
+
+	bool save(char *path)
 	{
-		QString filename(path);
-		
+		QFile file(path);
+		if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
+			return false;
+
+		QTextStream out(&file);
+		for (int vid=0; vid<vertices.size(); vid++)
+		{
+			out << "V_" << vertices[vid].id <<"_"<< vertices[vid].pose[0] << "_" << vertices[vid].pose[1] << "_" << vertices[vid].pose[2] << "\n";
+		}
 	}
 
 	void addVertex(const VertexData &v)
