@@ -18,7 +18,7 @@
  */
 #include "specificworker.h"
 
-#define CLOSE_DISTANCE 70
+#define CLOSE_DISTANCE 120
 /**
 * \brief Default constructor
 */

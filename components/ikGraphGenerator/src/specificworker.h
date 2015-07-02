@@ -98,6 +98,16 @@ public:
 		}
 	}
 
+	ConnectivityGraph(char *path)
+	{
+	}
+	
+	save(char *path)
+	{
+		QString filename(path);
+		
+	}
+
 	void addVertex(const VertexData &v)
 	{
 		// Add vertex
