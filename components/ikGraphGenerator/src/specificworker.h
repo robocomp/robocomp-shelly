@@ -115,9 +115,13 @@ public:
 	{
 		QFile file(path);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+		{
+			printf("Can't open file\n");
 			throw 1;
+		}
 
 		QTextStream in(&file);
+		int lineN = 0;
 		while (!in.atEnd())
 		{
 			QString line = in.readLine();
@@ -140,7 +144,7 @@ public:
 					vertices[size()-1].configurations[0].push_back(mgp);
 				}
 			}
-			else if (line[0] == 'E')
+			else
 			{
 				QStringList parts = line.split("_");
 				int a = parts[0].toInt();
@@ -148,10 +152,7 @@ public:
 				float peso = parts[2].toFloat();
 				edges[a][b] = peso;
 			}
-			else
-			{
-				throw 2;
-			}
+			lineN++;
 		}
 	}
 
