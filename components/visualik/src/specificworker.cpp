@@ -26,9 +26,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
-	
-	mutexSolved			= new QMutex(QMutex::Recursive);
 
+<<<<<<< HEAD
 	 QMutexLocker ml(mutex);
 	INITIALIZED			= false;
 	stateMachine		= State::IDLE;
@@ -39,6 +38,19 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI	
 	innerViewer 		= NULL;
 	osgView 			= new OsgView(this);
+=======
+	mutexSolved = new QMutex(QMutex::Recursive);
+
+	QMutexLocker ml(mutex);
+	INITIALIZED      = false;
+	stateMachine     = State::IDLE;
+	abortatraslacion = false;
+	abortarotacion   = false;
+	innerModel       = NULL;
+#ifdef USE_QTGUI
+	innerViewer      = NULL;
+	osgView          = new OsgView(this);
+>>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
  	show();
 #endif
 }
@@ -47,7 +59,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	
+
 }
 /**
  * \brief Metodo SET PARAM
@@ -65,7 +77,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
 		}
-		else 
+		else
 			qFatal("Exiting now.");
 	}
 	catch(std::exception e) { qFatal("Error reading Innermodel param");}
@@ -84,9 +96,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		InnerModelTransform *node = innerModel->newTransform("target", "static", nodeParent, 0, 0, 0,        0, 0., 0,      0.);
 		nodeParent->addChild(node);
 	}
+<<<<<<< HEAD
 	rightHand = new VisualHand(innerModel, "grabPositionHandR");	
 	timer.start(Period);		
 	 QMutexLocker ml(mutex);
+=======
+	rightHand = new VisualHand(innerModel, "grabPositionHandR");
+	timer.start(Period);
+	QMutexLocker ml(&mutex);
+>>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
 	INITIALIZED = true;
 	return true;
 }
@@ -130,9 +148,9 @@ void SpecificWorker::compute()
 		case State::IDLE:
 			if (currentTarget.getState() == Target::State::WAITING)
 			{
-				stateMachine 		= State::INIT_BIK;
-				abortatraslacion 	= false;
-				abortarotacion 		= false;
+				stateMachine     = State::INIT_BIK;
+				abortatraslacion = false;
+				abortarotacion   = false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
 				RoboCompInverseKinematics::Axis axis;
 				axis.x = 0; axis.y = 0; axis.z = 1;
@@ -171,7 +189,7 @@ void SpecificWorker::compute()
 			if(correctTraslation()==true or abortatraslacion==true)
 			{
 				const WeightVector weights = currentTarget.getWeights6D();
-				if (fabs(weights.rx)!=0 and fabs(weights.ry)!=0 and fabs(weights.rz)!=0)				
+				if (fabs(weights.rx)!=0 and fabs(weights.ry)!=0 and fabs(weights.rz)!=0)
 				{
 					std::cout<<"--> Correccion completada.\nPasamos a corregir la rotacion.\n";
 					stateMachine = State::CORRECT_ROTATION;
@@ -220,9 +238,9 @@ void SpecificWorker::compute()
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 /**
- *\brief This method returns the state of the part. 
+ *\brief This method returns the state of the part.
  * @return bool: If the part hasn't got more pending targets, it returns TRUE, else it returns FALSE
- */ 
+ */
 bool SpecificWorker::getPartState(const string &bodyPart)
 {
 	//return inversekinematics_proxy->getPartState(bodyPart);
@@ -259,7 +277,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
  * @param target   pose of the goal point.
  * @param weights  weights of each traslation and rotation components.
  * @return the identifier of the target (an int)
- */ 
+ */
 int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
 {
 	QMutexLocker ml(mutex);
@@ -279,8 +297,12 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		auxnextTargets.setPose		(target);
 		auxnextTargets.setWeights	(weights);
 		auxnextTargets.setState		(Target::State::WAITING);
+<<<<<<< HEAD
 		auxnextTargets.setID_VIK	(contador);
 		
+=======
+
+>>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
 		nextTargets.enqueue(auxnextTargets);
 	}
 	contador++;
@@ -290,7 +312,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 /**
  * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
  * @param bodyPart  name of the body part.
- * @param ax the direction 
+ * @param ax the direction
  * @param dist step to advance un milimeters
  * @return the identifier of the target (an int)
  */
@@ -303,7 +325,7 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  * @param bodypart part of the robot body
  * @param target pose of the goal position
  * @param ax axis to be aligned
- */ 
+ */
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
@@ -314,51 +336,51 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 /**
  * \brief this method moves the motors to their home value
  * @param bodyPart the part of the robot that we want to move to the home
- */ 
+ */
 void SpecificWorker::goHome(const string &bodyPart)
 {
 	inversekinematics_proxy->goHome(bodyPart);
 	/*try
 	{
 		RoboCompJointMotor::MotorGoalPosition nodo;
-		
+
 		nodo.name = "rightShoulder1";
 		nodo.position = -2.3; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightShoulder2";
 		nodo.position = -0.11; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightShoulder3";
 		nodo.position = 0.11; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightElbow";
 		nodo.position = 0.8; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightForeArm";
 		nodo.position = 0.11; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightWrist1";
 		nodo.position = 0.11; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-		
+
 		nodo.name = "rightWrist2";
 		nodo.position = 0.11; // posición en radianes
 		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
-	} 
+	}
 	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}*/
-	
+
 	sleep(1);
 }
 
@@ -371,7 +393,7 @@ void SpecificWorker::stop(const string &bodyPart)
  * @param joint the joint to change
  * @param angle the new angle of the joint.
  * @param maxSpeed the speed of the joint
- */ 
+ */
 void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
 {
 	inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
@@ -425,7 +447,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
-		abortatraslacion = true;   
+		abortatraslacion = true;
 		qDebug()<<"Abort traslation";
 		return false;
 	}
@@ -451,7 +473,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);	
+	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
 	qDebug()<<"Posicion  corregida: "<<correctedTarget.getPose();
 
@@ -459,7 +481,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 	WeightVector weights; //pesos a cero
 	weights.x = 1;     weights.y = 1;    weights.z = 1;
 	weights.rx = 0;    weights.ry = 0;   weights.rz = 0;
-	
+
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), weights);
 	correctedTarget.setID_IK(identifier);
 	return false;
@@ -520,7 +542,7 @@ bool SpecificWorker::correctRotation()
 		solvedList.enqueue(currentTarget);
 		return true;
 	}
-	
+
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.75);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
 	qDebug()<<"Error T: "<<errorInvP.norm2();
@@ -528,7 +550,7 @@ bool SpecificWorker::correctRotation()
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);	
+	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
 	qDebug()<<"Correccion final: "<<correctedTarget.getPose();
 
@@ -551,7 +573,7 @@ void SpecificWorker::updateAll()
 
 		for (auto j : mMap)
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
-	}catch (const Ice::Exception &ex){ 
+	}catch (const Ice::Exception &ex){
 		cout<<"--> Excepción en actualizar InnerModel";
 	}
 	/*try
@@ -561,13 +583,13 @@ void SpecificWorker::updateAll()
 		try
 		{
 			innerModel->updateTransformValues("robot", bState.x, 0, bState.z, 0, bState.alpha, 0);
-		}catch (const Ice::Exception &ex){ 
+		}catch (const Ice::Exception &ex){
 			cout<<"--> Exception updating transform values: "<<ex<<endl;
 		}
 	}catch (const Ice::Exception &ex){
 		cout<<"--> Excepción reading OmniRobot: "<<ex<<endl;
 	}*/
-	
+
 	const Pose6D tt = currentTarget.getPose6D();
 	innerModel->updateTransformValues("target", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
 
@@ -576,7 +598,7 @@ void SpecificWorker::updateAll()
 }
 /**
  * \brief Metodo UPDATE MOTORS
- */ 
+ */
 void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 {
 	for(auto motor : motors)

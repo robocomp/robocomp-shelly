@@ -139,11 +139,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 				diff(1) = abs(diff(1))/YR;
 				diff(2) = abs(diff(2))/ZR;
 
-#ifndef RANDOMGENERATION
-				graph->addVertex(ConnectivityGraph::VertexData());
-#endif
 				if (diff.norm2() < 300)
 				{
+#ifndef RANDOMGENERATION
+					graph->addVertex(ConnectivityGraph::VertexData());
+#endif
 					QString id = QString("node_") + QString::number(included);
 					graph->vertices[included].setPose(xpos, ypos, zpos);
 					graph->vertices[included].configurations.clear();
@@ -458,6 +458,8 @@ void SpecificWorker::computeHard()
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
+
+		graph->save("aqui");
 		return;
 	}
 
