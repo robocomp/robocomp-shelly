@@ -24,14 +24,12 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-// 	maxDist = 180;
-
-
-
 	show();
+	initBox->show();
+	commandBox->hide();
 #ifdef USE_QTGUI
 	innerViewer = NULL;
-	osgView = new OsgView(this);
+	osgView = new OsgView(widget);
 	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
 	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
 	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
@@ -43,6 +41,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 	mutex = new QMutex(QMutex::Recursive);
 
+	hasTarget = false;
 
 }
 
@@ -91,17 +90,46 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
 
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(12,12,12));
+
+	connect(fromFileButton, SIGNAL(clicked()), this, SLOT(initFile()));
+	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
+	timer.start(10);
+
+	return true;
+}
 
 
+void SpecificWorker::initFile()
+{
+	try
+	{
+		graph = new ConnectivityGraph("grafo.ikg");
+	}
+	catch(...)
+	{
+		printf("Can't create graph from file\n");
+		return;
+	}
+	for (uint i=0; i<graph->vertices.size(); i++)
+	{
+		QString id = QString("node_") + QString::number(i);
+		InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(graph->vertices[i].pose[0], graph->vertices[i].pose[1], graph->vertices[i].pose[2]),
+		QVec::vec3(1,0,0), "#22cc22", QVec::vec3(3,3,3));
+	}
+	initBox->hide();
+	commandBox->show();
+
+}
+
+
+void SpecificWorker::initGenerate()
+{
 	xrange = std::pair<float, float>( -120, 360);
 	yrange = std::pair<float, float>( 600, 1200);
 	zrange = std::pair<float, float>( 160, 500);
 
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
-
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "centro", "root", center, QVec::vec3(1,0,0), "#1111cc", QVec::vec3(10,10,10));
-
 
 	float XR = abs(xrange.second - xrange.first);
 	float YR = abs(yrange.second - yrange.first);
@@ -154,7 +182,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 						InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root",
 							QVec::vec3(graph->vertices[included].pose[0],
 							graph->vertices[included].pose[1], graph->vertices[included].pose[2]),
-							QVec::vec3(1,0,0), "#666666", QVec::vec3(6,6,6)
+							QVec::vec3(1,0,0), "#666666", QVec::vec3(3.5,3.5,3.5)
 						);
 					}
 					included++;
@@ -174,12 +202,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
+	workerThread = new WorkerThread(this);
+	workerThread->start();
 
-	timer.start(10);
-
-	return true;
 }
-
 
 void SpecificWorker::updateFrame(uint wait_usecs)
 {
@@ -370,52 +396,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	return true;
 }
 
-/*
-int SpecificWorker::getRandomNodeClose(int &current, float &dist)
-{
-	int some;
-	for (int iter=0; iter<100; iter++)
-	{
-		printf("get random\n");
-		// Select random number
-		some = rand() % graph->size();
-		// If the selected number is the current node's index iterate again
-		if (some == current) continue;
-
-		// Compute direct distance
-		dist = graph->vertices[current].distTo(graph->vertices[some].pose);
-		// If the distance is small, we use such index
-		if (dist < maxDist)
-			return some;
-
-		if (rand()%100 < 30)
-		{
-			printf("get random Dijkstra\n");
-
-			// Otherwhise, check graph-based distance
-			Dijkstra d = Dijkstra(&(graph->edges));
-			d.calculateDistance(current);
-			for (int i=0; i<graph->size(); i++)
-			{
-				std::vector<int> path;
-				if (d.go(i, path) != -1)
-				{
-					dist = graph->vertices[i].distTo(graph->vertices[some].pose);
-					if (dist < maxDist and graph->vertices[i].configurations.size()>0)
-					{
-						printf("goAndWaitDirect Djk 1\n");
-						goAndWaitDirect(graph->vertices[i].configurations[0]);
-						printf("goAndWaitDirect Djk 2\n");
-						current = i;
-						return some;
-					}
-				}
-			}
-		}
-	}
-	return -1;
-}
-*/
 void SpecificWorker::computeHard()
 {
 	static bool stop=false;
@@ -433,9 +413,10 @@ void SpecificWorker::computeHard()
 		QString id = QString("node_") + QString::number(graph->vertices[nodeSrc].id);
 		if (nodeSrc == graph->size()-1)
 		{
-				qDebug() << "fin feliz";
-				stop = true;
-				return;
+			initBox->hide();
+			commandBox->show();
+			stop = true;
+			return;
 		}
 		MotorGoalPositionList configuration;
 		int de;
@@ -455,6 +436,8 @@ void SpecificWorker::computeHard()
 
 		InnerModelDraw::setPlaneTexture(innerViewer, id, "#00ff00");
 
+		QVec elbowPose = innerVisual->transform("robot", "rightElbow");
+		graph->vertices[nodeSrc].setElbowPose(elbowPose(0), elbowPose(1), elbowPose(2));
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
@@ -508,95 +491,21 @@ void SpecificWorker::computeHard()
 
 }
 
-/*
-void SpecificWorker::computeHard()
-{
-	static bool first = true;
-	static int currentNode;
-	static MotorGoalPositionList currentConfiguration;
-
-	MotorGoalPositionList configuration;
-
-	if (first or (rand()%100 < 5) )
-	{
-		while (true)
-		{
-			printf("random pose!\n");
-			currentNode = rand() % graph->size();
-			if (goAndWait(currentNode, configuration))
-			{
-				if (first)
-					printf("initialized!\n");
-				else
-					printf("re-initialized!\n");
-				first = false;
-				currentConfiguration = configuration;
-				printf("si\n");
-				break;
-			}
-			printf("no\n");
-		}
-	}
-
-	float dist;
-	printf("aaa\n");
-	int nextNode = getRandomNodeClose(currentNode, dist);
-	if (nextNode == -1)
-	{
-		first = true;
-		return;
-	}
-	printf("bbb\n");
-
-	printf("goAndWait\n");
-	if (goAndWait(currentNode, configuration))
-	{
-		printf("goAndWait done\n");
-		printf("add %d %d %f\n", currentNode, nextNode, dist);
-		graph->add_edge(currentNode, nextNode, dist);
-		graph->add_configurationToNode(nextNode, configuration);
-
-		{
-			static int edId = 0;
-			const QString id = QString("edge_") + QString::number(edId++);
-			float *p1 = graph->vertices[currentNode].pose;
-			float *p2 = graph->vertices[nextNode].pose;
-			QMutexLocker l(mutex);
-			InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88");
-		}
-
-		currentConfiguration = configuration;
-		currentNode = nextNode;
-	}
-	else
-	{
-		printf("Can't move to last target. Reinitializing...\n");
-		first = true;
-// 		goAndWaitDirect(currentConfiguration);
-	}
-}
-*/
 
 void SpecificWorker::compute()
 {
-	static bool first = true;
-	if (first)
-	{
-		first = false;
-		workerThread = new WorkerThread(this);
-		workerThread->start();
-	}
 	updateFrame(10);
+	
+	if (hasTarget)
+	{
+	}
 }
-
-
-
 
 void WorkerThread::run()
 {
 	while(true)
 	{
 		((SpecificWorker*)data)->computeHard();
-		usleep(1000);
+		usleep(10000);
 	}
 }

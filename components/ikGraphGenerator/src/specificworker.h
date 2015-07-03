@@ -113,7 +113,7 @@ public:
 
 	ConnectivityGraph(char *path)
 	{
-		QFile(path);
+		QFile file(path);
 		if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
 			throw 1;
 
@@ -123,21 +123,21 @@ public:
 			QString line = in.readLine();
 			if (line[0] == 'V')
 			{
-				graph->addVertex(ConnectivityGraph::VertexData());
-				QStringList parts = line.split("_")
-				graph->vertices[graph->size()-1].id = parts[1].toInt();
-				graph->vertices[graph->size()-1].setPose(     parts[2].toFloat(), parts[3].toFloat(), parts[4].toFloat());
-				graph->vertices[graph->size()-1].setElbowPose(parts[5].toFloat(), parts[6].toFloat(), parts[7].toFloat());
+				addVertex(ConnectivityGraph::VertexData());
+				QStringList parts = line.split("_");
+				vertices[size()-1].id = parts[1].toInt();
+				vertices[size()-1].setPose(     parts[2].toFloat(), parts[3].toFloat(), parts[4].toFloat());
+				vertices[size()-1].setElbowPose(parts[5].toFloat(), parts[6].toFloat(), parts[7].toFloat());
 
-				graph->vertices[graph->size()-1].configurations.resize(1);
-				for (uint m=8; m<parts.size(); m++)
+				vertices[size()-1].configurations.resize(1);
+				for (int m=8; m<parts.size(); m++)
 				{
 					QStringList goal = parts[m].split(":");
 					MotorGoalPosition mgp;
 					mgp.position = goal[1].toFloat();
 					mgp.maxSpeed = 2.;
 					mgp.name = goal[0].toStdString();
-					graph->vertices[graph->size()-1].configurations[0].push_back(mgp);
+					vertices[size()-1].configurations[0].push_back(mgp);
 				}
 			}
 			else if (line[0] == 'E')
@@ -146,7 +146,7 @@ public:
 				int a = parts[0].toInt();
 				int b = parts[1].toInt();
 				float peso = parts[2].toFloat();
-				graph->edges[a][b] = peso;
+				edges[a][b] = peso;
 			}
 			else
 			{
@@ -254,13 +254,15 @@ public:
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
+
 public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
-
 public slots:
+	void initFile();
+	void initGenerate();
 	void computeHard();
 	void compute();
 
@@ -269,6 +271,7 @@ private:
 	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recursive);
 	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
 	void goAndWaitDirect(const MotorGoalPositionList &mpl);
+
 
 	std::pair<float, float> xrange, yrange, zrange;
 
@@ -284,6 +287,11 @@ private:
 	InnerModelViewer *innerViewer;
 	InnerModel *innerVisual;
 #endif
+	
+	bool hasTarget;
+	Pose6D target;
+	WeightVector weights;
+
 
 
 };
