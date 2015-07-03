@@ -26,33 +26,22 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
-
-<<<<<<< HEAD
-	 QMutexLocker ml(mutex);
-	INITIALIZED			= false;
+	
 	stateMachine		= State::IDLE;
 	abortatraslacion 	= false;
 	abortarotacion 		= false;
 	innerModel 			= NULL;
 	contador			= 0;
+	mutexSolved         = new QMutex(QMutex::Recursive);
+	
 #ifdef USE_QTGUI	
 	innerViewer 		= NULL;
 	osgView 			= new OsgView(this);
-=======
-	mutexSolved = new QMutex(QMutex::Recursive);
-
-	QMutexLocker ml(mutex);
-	INITIALIZED      = false;
-	stateMachine     = State::IDLE;
-	abortatraslacion = false;
-	abortarotacion   = false;
-	innerModel       = NULL;
-#ifdef USE_QTGUI
-	innerViewer      = NULL;
-	osgView          = new OsgView(this);
->>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
  	show();
 #endif
+	
+	QMutexLocker ml(mutex);
+	INITIALIZED			= false;
 }
 /**
 * \brief Default destructor
@@ -96,16 +85,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		InnerModelTransform *node = innerModel->newTransform("target", "static", nodeParent, 0, 0, 0,        0, 0., 0,      0.);
 		nodeParent->addChild(node);
 	}
-<<<<<<< HEAD
 	rightHand = new VisualHand(innerModel, "grabPositionHandR");	
 	timer.start(Period);		
 	 QMutexLocker ml(mutex);
-=======
-	rightHand = new VisualHand(innerModel, "grabPositionHandR");
-	timer.start(Period);
-	QMutexLocker ml(&mutex);
->>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
 	INITIALIZED = true;
+	
 	return true;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -142,7 +126,7 @@ void SpecificWorker::compute()
 #endif
 	}
 	updateAll();
-	 QMutexLocker ml(mutex);
+	QMutexLocker ml(mutex);
 	switch(stateMachine)
 	{
 		case State::IDLE:
@@ -297,12 +281,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		auxnextTargets.setPose		(target);
 		auxnextTargets.setWeights	(weights);
 		auxnextTargets.setState		(Target::State::WAITING);
-<<<<<<< HEAD
 		auxnextTargets.setID_VIK	(contador);
-		
-=======
-
->>>>>>> eb14e0784dd6faa2a96230456a354d6caff93037
 		nextTargets.enqueue(auxnextTargets);
 	}
 	contador++;
