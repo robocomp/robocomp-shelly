@@ -29,12 +29,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	mutexSolved			= new QMutex(QMutex::Recursive);
 
-	QMutexLocker ml(&mutex);
+	 QMutexLocker ml(mutex);
 	INITIALIZED			= false;
 	stateMachine		= State::IDLE;
 	abortatraslacion 	= false;
 	abortarotacion 		= false;
 	innerModel 			= NULL;
+	contador			= 0;
 #ifdef USE_QTGUI	
 	innerViewer 		= NULL;
 	osgView 			= new OsgView(this);
@@ -85,7 +86,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	rightHand = new VisualHand(innerModel, "grabPositionHandR");	
 	timer.start(Period);		
-	QMutexLocker ml(&mutex);
+	 QMutexLocker ml(mutex);
 	INITIALIZED = true;
 	return true;
 }
@@ -123,7 +124,7 @@ void SpecificWorker::compute()
 #endif
 	}
 	updateAll();
-	QMutexLocker ml(&mutex);
+	 QMutexLocker ml(mutex);
 	switch(stateMachine)
 	{
 		case State::IDLE:
@@ -143,7 +144,7 @@ void SpecificWorker::compute()
 			try
 			{
 				int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), currentTarget.getPose6D(), currentTarget.getWeights6D());
-				currentTarget.setID(identifier);
+				currentTarget.setID_IK(identifier);
 			}catch (const Ice::Exception &ex){
 				std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
 			}
@@ -155,18 +156,18 @@ void SpecificWorker::compute()
 		case State::WAIT_BIK:
 			// Esperamos a que el BIK termine de mover el brazo para comenzar con las correcciones.
 			// Dependiendo de si las rotaciones pesan o no tendremos dos metodos de correccion:
-			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID()).finish == true)
+			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
 			{
 				qDebug()<<"---> El IK ha terminado.";
-				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID()).motors);
+				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
-		case State::CORRECT_TRASLATION:
+		/*case State::CORRECT_TRASLATION:
 			//la primera vez el ID de corrected es igual al de current así que enetra seguro.
-			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).finish == false) return;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).motors);
+			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
+			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if(correctTraslation()==true or abortatraslacion==true)
 			{
 				const WeightVector weights = currentTarget.getWeights6D();
@@ -190,12 +191,12 @@ void SpecificWorker::compute()
 					goHome("RIGHTARM");
 				}
 			}
-		break;
+		break;*/
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
-			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).finish == false) return;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID()).motors);
+			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
+			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctRotation()==true or abortarotacion==true)
 			{
 				if(nextTargets.isEmpty()==false)
@@ -238,6 +239,18 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	//return inversekinematics_proxy->getTargetState(bodyPart, targetID);
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
+	
+	for(int i=0; i<solvedList.size(); i++)
+	{
+		if(bodyPart=="RIGHTARM" and targetID==solvedList[i].getID_VIK())
+		{
+			state.finish = true;
+			if(solvedList[i].getState()==Target::State::NOT_RESOLVED) state.state = "NOT_RESOLVED";
+			if(solvedList[i].getState()==Target::State::RESOLVED)     state.state = "RESOLVED";
+			qDebug()<<"ENCONTRADO!!";
+		}
+	}
+	return state;
 }
 /**
  * \brief This method reimplements the interface method setTargetPose6D of the inversekinematics component
@@ -249,7 +262,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
  */ 
 int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
 {
-	QMutexLocker ml(&mutex);
+	QMutexLocker ml(mutex);
 	cout<<"Recibido target"<<endl;
 	if(currentTarget.getState()==Target::State::IDLE)
 	{
@@ -257,6 +270,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		currentTarget.setPose		(target);
 		currentTarget.setWeights	(weights);
 		currentTarget.setState		(Target::State::WAITING);
+		currentTarget.setID_VIK		(contador);
 	}
 	else
 	{
@@ -265,10 +279,13 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		auxnextTargets.setPose		(target);
 		auxnextTargets.setWeights	(weights);
 		auxnextTargets.setState		(Target::State::WAITING);
+		auxnextTargets.setID_VIK	(contador);
 		
 		nextTargets.enqueue(auxnextTargets);
 	}
-	return -1;
+	contador++;
+	
+	return contador-1;
 }
 /**
  * @brief Make the body part advance along a given direction. It is meant to work as a simple translational joystick to facilitate grasping operations
@@ -373,7 +390,7 @@ void SpecificWorker::setFingers(const float d)
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
 	//Recibimos las marcas que la camara esta viendo: marca mano y marca target.
-	QMutexLocker ml(&mutex);
+	 QMutexLocker ml(mutex);
 	if(INITIALIZED == true)
 	{
 		for (auto tag : tags)
@@ -400,7 +417,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  * TODO ¿Que pasa cuando no ve la marca?
  *@return bool TRUE si el target esta perfecto o FALSE si no lo esta.
  */
-bool SpecificWorker::correctTraslation	()
+/*bool SpecificWorker::correctTraslation	()
 {
 	qDebug()<<"\nCORRIGIENDO TRASLACION...";
 	static float umbralMaxTime = 80, umbralMinTime = 10;
@@ -444,19 +461,23 @@ bool SpecificWorker::correctTraslation	()
 	weights.rx = 0;    weights.ry = 0;   weights.rz = 0;
 	
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), weights);
-	correctedTarget.setID(identifier);
+	correctedTarget.setID_IK(identifier);
 	return false;
-}
+}*/
 
+/**
+ * \brief Metodo auxiliar que guarda en el fichero el resultado de la correccion de un target.
+ * @param errorInv 
+ */ 
 void SpecificWorker::printXXX(QVec errorInv)
 {
 	file<<"P: ("      <<currentTarget.getPose();
 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 	file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorT;
-	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).errorR;
+	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
+	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
-	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID()).state<<endl;
+	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state<<endl;
 	flush(file);
 }
 
@@ -482,8 +503,11 @@ bool SpecificWorker::correctRotation()
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
 		abortarotacion = true;
+		currentTarget.setState(Target::State::NOT_RESOLVED);
 		qDebug()<<"Abort rotation";
 		printXXX(errorInv);
+		QMutexLocker ml(mutexSolved);
+		solvedList.enqueue(currentTarget);
 		return false;
 	}
 	// Si el error es miserable no hacemos nada y acabamos la corrección. Para hacer la norma lo pasamos a vec6
@@ -492,13 +516,14 @@ bool SpecificWorker::correctRotation()
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		printXXX(errorInv);
+		QMutexLocker ml(mutexSolved);
+		solvedList.enqueue(currentTarget);
 		return true;
 	}
 	
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.75);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
 	qDebug()<<"Error T: "<<errorInvP.norm2();
-	errorInvP.print("errorInvP");
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
@@ -509,7 +534,7 @@ bool SpecificWorker::correctRotation()
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
-	correctedTarget.setID(identifier);
+	correctedTarget.setID_IK(identifier);
 	return false;
 }
 /**

@@ -8,7 +8,7 @@
  */
 Target::Target()
 {
-	identifier	= 0;
+	idIK	= 0;
 	state 		= State::IDLE;
 	bodyPart 	= "";
 	pose 		= QVec::vec6(0,0,0,0,0,0);
@@ -24,7 +24,8 @@ Target::Target()
  */ 
 Target::Target(const string bodyPart_, const RoboCompInverseKinematics::Pose6D &pose_, const RoboCompInverseKinematics::WeightVector &weights_)
 {
-	identifier	= 0;
+	idIK        = 0;
+	idVIK       = 0;
 	state 		= State::IDLE;
 	bodyPart 	= bodyPart_;
 	pose 		= QVec::vec6(pose_.x, pose_.y, pose_.z, pose_.rx, pose_.ry, pose_.rz);
@@ -42,11 +43,17 @@ Target::~Target()
  * 													METODOS PUT												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 /**
- * \brief Metodo setID.
- * Cambia el valor del identificador numerico del target.
+ * \brief Metodo setID_IK.
+ * Cambia el valor del identificador numerico del target DADO POR LA IK.
  * @param id_ nuevo identificador numerico
  */ 
-void Target::setID(int id_)						{	identifier = id_; }
+void Target::setID_IK(int id_)			{	idIK = id_; }
+/**
+ * \brief Metodo setID_VIK.
+ * Cambia el valor del identificador numerico del target DADO POR EL VISUAL IK
+ * @param id_ nuevo identificador numerico
+ */ 
+void Target::setID_VIK(int id_)			{	idVIK = id_; }
 /**
  * \brief Metodo SET STATE:
  * Cambia el valor del atributo STATE por el valor del parametro de entrada. Si cambia de WAITING a IN_PROCESS
@@ -105,11 +112,17 @@ void Target::setRunTime()
  * 													METODOS GET												   *
  *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/ 
 /**
- * \brief Metodo getID.
- * Devuelve el valor del identificador numerico del target.
+ * \brief Metodo getID_IK.
+ * Devuelve el valor del identificador numerico del target DADO POR LA IK
  * @return  int el identificador numerico
  */ 
-int Target::getID()							{ return identifier; }
+int Target::getID_IK()							{ return idIK; }
+/**
+ * \brief Metodo getID_VIK.
+ * Devuelve el valor del identificador numerico del target DADO POR LA VIK
+ * @return  int el identificador numerico
+ */ 
+int Target::getID_VIK()							{ return idVIK; }
 /**
  * \brief Metodo GET STATE
  * Devuelve el valor del atributo STATE: IDLE, IN PROCESS, RESOLVED

@@ -81,6 +81,7 @@ private:
 	bool             abortatraslacion;    // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
 	bool             abortarotacion;      // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
+	int              contador;
 
 	#ifdef USE_QTGUI
 	OsgView           *osgView;
