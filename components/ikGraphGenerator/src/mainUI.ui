@@ -135,7 +135,7 @@
            <double>10.000000000000000</double>
           </property>
           <property name="value">
-           <double>200.000000000000000</double>
+           <double>250.000000000000000</double>
           </property>
          </widget>
         </item>
@@ -243,6 +243,13 @@
          <widget class="QCheckBox" name="checkBox">
           <property name="text">
            <string>ignore rotation</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QPushButton" name="homeButton">
+          <property name="text">
+           <string>go home</string>
           </property>
          </widget>
         </item>

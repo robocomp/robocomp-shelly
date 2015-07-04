@@ -26,6 +26,8 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
+	state = GIK_NoTarget;
+
 	show();
 	initBox->show();
 	commandBox->hide();
@@ -42,8 +44,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 	mutex = new QMutex(QMutex::Recursive);
-
-	hasTarget = false;
 
 }
 
@@ -103,6 +103,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	connect(fromFileButton, SIGNAL(clicked()), this, SLOT(initFile()));
 	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
+
 	timer.start(10);
 
 	return true;
@@ -132,7 +133,7 @@ void SpecificWorker::initFile()
 			color = "#cc2222";
 
 		InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(graph->vertices[i].pose[0], graph->vertices[i].pose[1], graph->vertices[i].pose[2]),
-		    QVec::vec3(1,0,0), color, QVec::vec3(1,1,1));
+		    QVec::vec3(1,0,0), color, QVec::vec3(2,2,2));
 	}
 	for (uint i=0; i<graph->edges.size(); i++)
 	{
@@ -141,15 +142,16 @@ void SpecificWorker::initFile()
 			if (graph->edges[i][j] < DJ_INFINITY)
 			{
 				QString id = QString("edge_") + QString::number(i) + QString("_") + QString::number(j);
-				float *p1 = graph->vertices[i].pose;
-				float *p2 = graph->vertices[j].pose;
-				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 0.05);
+// 				float *p1 = graph->vertices[i].pose;
+// 				float *p2 = graph->vertices[j].pose;
+// 				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 0.05);
 			}
 		}
 	}
 	commandBox->show();
 	connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
 	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
+	connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
 
 }
 
@@ -376,10 +378,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 						p[1] = y;
 						p[2] = z;
 						float dist = graph->vertices[j].distTo(p);
-						printf("j:%d siiiiiiiiii d %f md %f mbb %f\n", j, dist, minDist, mustBeBiggerThan);
 						if ((dist > mustBeBiggerThan and dist < minDist) or minDist == -1)
 						{
-							printf("pillo (%d) con dist %f (que es menor que %f)\n", j, dist, minDist);
 							minDist = dist;
 							minIndex = j;
 						}
@@ -433,6 +433,7 @@ void SpecificWorker::computeHard()
 			commandBox->show();
 			connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
 			connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
+			connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
 			graph->save("aqui.ikg");
 			stop = true;
 			return;
@@ -514,8 +515,65 @@ void SpecificWorker::compute()
 {
 	updateFrame(10);
 
-	if (hasTarget)
+	updateInnerModel();
+
+	static uint32_t pathIndex = 0;
+
+	switch(state)
 	{
+		case GIK_NoTarget:
+			return;
+		case GIK_GoToInit:
+			goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
+			pathIndex = 0;
+			state = GIK_GoToEnd;
+			break;
+		case GIK_GoToEnd:
+			goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
+			printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
+			pathIndex++;
+			updateFrame(500000);
+			if (pathIndex>=path.size())
+			{
+				pathIndex = 0;
+				state = GIK_GoToActualTargetSend;
+			}
+			break;
+		case GIK_GoToActualTargetSend:
+			updateFrame(500000);
+			state = GIK_GoToActualTargetSent;
+			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+			break;
+		case GIK_GoToActualTargetSent:
+			updateFrame(500000);
+			TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
+			if (stt.finish == true)
+			{
+				float err = innerVisual->transform("grabPositionHandR", "target").norm2();
+				printf("IK message %s\n", stt.state.c_str());
+
+				if (stt.errorT > MAX_ERROR_IK)
+				{
+					QMessageBox::information(this, "finished", QString("can't go: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+				}
+				else
+				{
+					MotorGoalPositionList mpl;
+					for (auto gp : stt.motors)
+					{
+						MotorGoalPosition mgp;
+						mgp.position = gp.angle;
+						mgp.maxSpeed = 2.;
+						mgp.name = gp.name;
+						mpl.push_back(mgp);
+					}
+					goAndWaitDirect(mpl);
+					updateFrame(500000);
+					QMessageBox::information(this, "finished", QString("target reached: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+				}
+				state = GIK_NoTarget;
+			}
+			break;
 	}
 }
 
@@ -538,11 +596,12 @@ void SpecificWorker::updateInnerModel()
 		for (auto j : mMap)
 		{
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+			innerVisual->updateJointValue(QString::fromStdString(j.first), j.second.pos);
 		}
 	}
 	catch (const Ice::Exception &ex)
 	{
-		cout<<"--> Exception updating InnerModel";
+		cout<<"--> Exception updating InnerModel\n";
 	}
 }
 
@@ -556,21 +615,70 @@ void SpecificWorker::goIK()
 	float vry = ry->value();
 	float vrz = rz->value();
 	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
+
 	// Get closest node to initial position and update it in IMV
 	updateInnerModel();
 	QVec position = innerModel->transform("robot", "grabPositionHandR");
-	int closestToInit = graph->getCloserTo(&position(0));
+	closestToInit = graph->getCloserTo(&position(0));
 	const float *poseInit = graph->vertices[closestToInit].pose;
 	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+
 	// Get closest node to target and update it in IMV
-	int closestToEnd = graph->getCloserTo(vtx, vty, vtz);
+	closestToEnd = graph->getCloserTo(vtx, vty, vtz);
 	const float *poseEnd = graph->vertices[closestToEnd].pose;
 	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
 
+	// Compute path and update state
+	Dijkstra d = Dijkstra(&(graph->edges));
+	d.calculateDistance(closestToInit);
+	d.go(closestToEnd, path);
+	state = GIK_GoToInit;
 }
 
 
 void SpecificWorker::goVIK()
 {
 }
+
+void SpecificWorker::goHome()
+{
+	printf("going home\n");
+
+
+	MotorGoalPositionList listGoals;
+	listGoals.resize(7);
+	listGoals[0].name     = "rightShoulder1";
+	listGoals[0].position = -2.7;
+	listGoals[1].name     = "rightShoulder2";
+	listGoals[1].position = -0.2;
+	listGoals[2].name     = "rightShoulder3";
+	listGoals[2].position = 1.5;
+	listGoals[3].name     = "rightElbow";
+	listGoals[3].position = 0.4;
+	listGoals[4].name   = "rightForeArm";
+	listGoals[4].position = -1.;
+	listGoals[5].name = "rightWrist1";
+	listGoals[5].position = 0.;
+	listGoals[6].name = "rightWrist2";
+	listGoals[6].position = 0.;
+
+	for (int i=0; i<7; i++)
+	{
+		listGoals[i].maxSpeed = 1.;
+	}
+
+	jointmotor_proxy->setSyncPosition(listGoals);
+}
+
+
+
+
+
+
+
+
+
+
+
+
 

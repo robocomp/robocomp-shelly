@@ -48,7 +48,7 @@ using namespace boost;
 #define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
 
-
+enum GIKTargetState { GIK_NoTarget, GIK_GoToInit, GIK_GoToEnd, GIK_GoToActualTargetSend, GIK_GoToActualTargetSent };
 
 class WorkerThread : public QThread
 {
@@ -81,6 +81,7 @@ public slots:
 
 	void goIK();
 	void goVIK();
+	void goHome();
 
 private:
 	void updateFrame(uint wait_usecs=0);
@@ -104,7 +105,10 @@ private:
 	InnerModel *innerModel;
 #endif
 
-	bool hasTarget;
+	GIKTargetState state;
+	int closestToInit, closestToEnd;
+	std::vector<int> path;
+	int targetId;
 	Pose6D target;
 	WeightVector weights;
 

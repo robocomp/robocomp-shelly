@@ -212,11 +212,14 @@ public:
 
 		for (uint i=0; i<vertices.size(); i++)
 		{
-			const float d = vertices[i].distTo(p);
-			if (minDist<0 or minDist>d)
+			if (vertices[i].valid)
 			{
-				minDist = d;
-				minIndex = i;
+				const float d = vertices[i].distTo(p);
+				if (minDist<0 or minDist>d)
+				{
+					minDist = d;
+					minIndex = i;
+				}
 			}
 		}
 		return minIndex;
