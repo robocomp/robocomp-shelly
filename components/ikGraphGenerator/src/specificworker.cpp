@@ -631,6 +631,7 @@ void SpecificWorker::goIK()
 	// Compute path and update state
 	Dijkstra d = Dijkstra(&(graph->edges));
 	d.calculateDistance(closestToInit);
+	path.clear();
 	d.go(closestToEnd, path);
 	state = GIK_GoToInit;
 }
