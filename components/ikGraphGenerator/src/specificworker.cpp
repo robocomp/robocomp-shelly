@@ -18,7 +18,9 @@
  */
 #include "specificworker.h"
 
-#define CLOSE_DISTANCE 120
+#define STEP_DISTANCE 50
+// #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
+#define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /**
 * \brief Default constructor
 */
@@ -75,6 +77,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if( QFile::exists(QString::fromStdString(par.value)) )
 	{
 #ifdef USE_QTGUI
+		innerModel  = new InnerModel(par.value);
 		innerVisual = new InnerModel(par.value);
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
 		osgView->getRootGroup()->addChild(innerViewer);
@@ -88,9 +91,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
-	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
 
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(12,12,12));
+	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "init", "root");
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "init_p", "init", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#ff7777", QVec::vec3(15,15,15));
+
+	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "end", "root");
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "end_p", "end", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#77ff77", QVec::vec3(15,15,15));
+
+	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(15,15,15));
 
 	connect(fromFileButton, SIGNAL(clicked()), this, SLOT(initFile()));
 	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
@@ -102,9 +111,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::initFile()
 {
+	initBox->hide();
+
 	try
 	{
-		graph = new ConnectivityGraph("grafo.ikg");
+		graph = new ConnectivityGraph("ursus.ikg");
 	}
 	catch(...)
 	{
@@ -114,20 +125,42 @@ void SpecificWorker::initFile()
 	for (uint i=0; i<graph->vertices.size(); i++)
 	{
 		QString id = QString("node_") + QString::number(i);
+		QString color;
+		if (graph->vertices[i].configurations.size()>0)
+			color = "#22cc22";
+		else
+			color = "#cc2222";
+
 		InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(graph->vertices[i].pose[0], graph->vertices[i].pose[1], graph->vertices[i].pose[2]),
-		QVec::vec3(1,0,0), "#22cc22", QVec::vec3(3,3,3));
+		    QVec::vec3(1,0,0), color, QVec::vec3(1,1,1));
 	}
-	initBox->hide();
+	for (uint i=0; i<graph->edges.size(); i++)
+	{
+		for (uint j=0; j<graph->edges[i].size(); j++)
+		{
+			if (graph->edges[i][j] < DJ_INFINITY)
+			{
+				QString id = QString("edge_") + QString::number(i) + QString("_") + QString::number(j);
+				float *p1 = graph->vertices[i].pose;
+				float *p2 = graph->vertices[j].pose;
+				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 0.05);
+			}
+		}
+	}
 	commandBox->show();
+	connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
+	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
 
 }
 
 
 void SpecificWorker::initGenerate()
 {
-	xrange = std::pair<float, float>( -120, 360);
-	yrange = std::pair<float, float>( 600, 1200);
-	zrange = std::pair<float, float>( 160, 500);
+	initBox->hide();
+
+	xrange = std::pair<float, float>( -110, 400);
+	yrange = std::pair<float, float>( 580, 1200);
+	zrange = std::pair<float, float>( 140, 570);
 
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
@@ -138,20 +171,12 @@ void SpecificWorker::initGenerate()
 	XR = XR/max;
 	YR = YR/max;
 	ZR = ZR/max;
-	float step = sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
+
+// 	float step = 0.5001*sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
+	float step = STEP_DISTANCE;
 
 
 	uint32_t included=0;
-//#define RANDOMGENERATION
-#ifdef RANDOMGENERATION
-	uint32_t size_f = 200;
-	graph = new ConnectivityGraph(size_f);
-	while (included<size_f)
-	{
-		float xpos = QVec::uniformVector(size_f, xrange.first, xrange.second)(included);
-		float ypos = QVec::uniformVector(size_f, yrange.first, yrange.second)(included);
-		float zpos = QVec::uniformVector(size_f, zrange.first, zrange.second)(included);
-#else
 	graph = new ConnectivityGraph(0);
 	for (float xpos = xrange.first; xpos<xrange.second; xpos+=step)
 	{
@@ -159,7 +184,6 @@ void SpecificWorker::initGenerate()
 		{
 			for (float zpos = zrange.first; zpos<zrange.second; zpos+=step)
 			{
-#endif
 
 				QVec pos = QVec::vec3(xpos, ypos, zpos);
 				QVec diff = center-pos;
@@ -167,11 +191,9 @@ void SpecificWorker::initGenerate()
 				diff(1) = abs(diff(1))/YR;
 				diff(2) = abs(diff(2))/ZR;
 
-				if (diff.norm2() < 300)
+				if (diff.norm2() < 320)
 				{
-#ifndef RANDOMGENERATION
 					graph->addVertex(ConnectivityGraph::VertexData());
-#endif
 					QString id = QString("node_") + QString::number(included);
 					graph->vertices[included].setPose(xpos, ypos, zpos);
 					graph->vertices[included].configurations.clear();
@@ -187,14 +209,9 @@ void SpecificWorker::initGenerate()
 					}
 					included++;
 				}
-#ifdef RANDOMGENERATION
-	}
-#else
 			}
 		}
 	}
-#endif
-
 
 	printf("inc %d\n", included);
 
@@ -413,8 +430,10 @@ void SpecificWorker::computeHard()
 		QString id = QString("node_") + QString::number(graph->vertices[nodeSrc].id);
 		if (nodeSrc == graph->size()-1)
 		{
-			initBox->hide();
 			commandBox->show();
+			connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
+			connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
+			graph->save("aqui.ikg");
 			stop = true;
 			return;
 		}
@@ -442,7 +461,6 @@ void SpecificWorker::computeHard()
 		currentConfiguration = configuration;
 		nodeDst=0;
 
-		graph->save("aqui");
 		return;
 	}
 
@@ -468,7 +486,7 @@ void SpecificWorker::computeHard()
 		{
 			printf("goAndWait done\n");
 			printf("add %d %d %f\n", nodeSrc, nodeDst, dist);
-			graph->add_edge(nodeSrc, nodeDst, dist*dist);
+			graph->add_edge(nodeSrc, nodeDst, dist);
 			graph->add_configurationToNode(nodeDst, configuration);
 
 			{
@@ -477,7 +495,7 @@ void SpecificWorker::computeHard()
 				float *p1 = graph->vertices[nodeSrc].pose;
 				float *p2 = graph->vertices[nodeDst].pose;
 				QMutexLocker l(mutex);
-				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88");
+				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 1);
 			}
 		}
 		else
@@ -495,7 +513,7 @@ void SpecificWorker::computeHard()
 void SpecificWorker::compute()
 {
 	updateFrame(10);
-	
+
 	if (hasTarget)
 	{
 	}
@@ -509,3 +527,50 @@ void WorkerThread::run()
 		usleep(10000);
 	}
 }
+
+void SpecificWorker::updateInnerModel()
+{
+	try
+	{
+		RoboCompJointMotor::MotorStateMap mMap;
+		jointmotor_proxy->getAllMotorState(mMap);
+
+		for (auto j : mMap)
+		{
+			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+		}
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Exception updating InnerModel";
+	}
+}
+
+void SpecificWorker::goIK()
+{
+	/// Get target and update it in IMV
+	float vtx = tx->value();
+	float vty = ty->value();
+	float vtz = tz->value();
+	float vrx = rx->value();
+	float vry = ry->value();
+	float vrz = rz->value();
+	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
+	// Get closest node to initial position and update it in IMV
+	updateInnerModel();
+	QVec position = innerModel->transform("robot", "grabPositionHandR");
+	int closestToInit = graph->getCloserTo(&position(0));
+	const float *poseInit = graph->vertices[closestToInit].pose;
+	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+	// Get closest node to target and update it in IMV
+	int closestToEnd = graph->getCloserTo(vtx, vty, vtz);
+	const float *poseEnd = graph->vertices[closestToEnd].pose;
+	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
+
+}
+
+
+void SpecificWorker::goVIK()
+{
+}
+

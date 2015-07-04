@@ -210,11 +210,11 @@ void InnerModelDraw::drawLine(InnerModelViewer *innerViewer, QString name, QStri
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, name, parent, QVec::vec3(0,0,0), normalVector, texture, QVec::vec3(length, width, width));
 }
 
-void InnerModelDraw::drawLine2Points(InnerModelViewer *innerViewer, QString name, QString parent, const QVec& p1, const QVec& p2, QString texture)
+void InnerModelDraw::drawLine2Points(InnerModelViewer *innerViewer, QString name, QString parent, const QVec& p1, const QVec& p2, QString texture, float width)
 {
 	const QVec resta = p2-p1;
 	const QVec media = (p1+p2).operator*(0.5);
-	InnerModelDraw::addPlane_ignoreExisting(innerViewer, name, parent, media, resta, texture, QVec::vec3(1, 1, resta.norm2()));
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, name, parent, media, resta, texture, QVec::vec3(width, width, resta.norm2()));
 }
 
 
