@@ -164,14 +164,11 @@ void SpecificWorker::compute()
 						UPDATE_READY = true;
 					
 					addTargetSolved(partsIterator.value().getPartName(), partsIterator.value().getTargetList()[0]);
-					qDebug()<<"YEAH 1111";
 					removeInnerModelTarget(partsIterator.value().getTargetList()[0]);
-					qDebug()<<"YEAH 2222";
-
 					partsIterator.value().removeTarget();
-					qDebug()<<"YEAH 33333";
-
 				}
+				else
+					partsIterator.value().getTargetList()[0].setTargetState(Target::IN_PROCESS);
 			}
 		}
 	}
