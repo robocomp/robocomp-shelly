@@ -548,6 +548,7 @@ void SpecificWorker::compute()
 			updateFrame(500000);
 			state = GIK_GoToActualTargetSent;
 			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
+			printf("FINAL TARGET %f %f %f - %f %f %f\n", finalTarget.x, finalTarget.y, finalTarget.z, finalTarget.rx, finalTarget.ry, finalTarget.rz);
 			break;
 		case GIK_GoToActualTargetSent:
 			updateFrame(500000);
@@ -559,7 +560,7 @@ void SpecificWorker::compute()
 
 				if (stt.errorT > MAX_ERROR_IK)
 				{
-					QMessageBox::information(this, "finished", QString("can't go: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+					QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
 				}
 				else
 				{
@@ -574,7 +575,7 @@ void SpecificWorker::compute()
 					}
 					goAndWaitDirect(mpl);
 					updateFrame(500000);
-					QMessageBox::information(this, "finished", QString("target reached: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+					QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
 				}
 				state = GIK_NoTarget;
 			}
