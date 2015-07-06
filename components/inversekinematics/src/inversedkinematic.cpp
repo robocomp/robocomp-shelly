@@ -187,8 +187,6 @@ QMat InversedKinematic::jacobian(QVec motors)
 	// Initialize the Jacobian matrix of the size of the target point having 6 ELEMENTS [ tx , ty, tz , rx , ry, rz ]
 	// The number of motors from the list of joints : 6 rows by n columns. We also initialize a vector of zeros
 	QStringList considermotors = checkMotors();
-	//qDebug()<<"DESDE JACOBIAN: "<<considermotors;
-
 	QMat jacob(6, considermotors.size(), 0.f); //QMat jacob(6, bodypart->getMotorList().size(), 0.f);  //6 output variables
  	QVec zero = QVec::zeros(3);
  	int j=0; //índice de columnas de la matriz: MOTORES
@@ -256,6 +254,14 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 	bool nanInc   = false;
 	float ro      = 0;
 	float n       = pow(10, -3)*H.getDiagonal().max(auxInt);	//¿por que 0,01?
+	
+// 	We.print("WE");
+// 	error.print("error");
+// 	J.print("J");
+// 	H.print("H");
+// 	g.print("g");
+	
+	
 
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
@@ -273,11 +279,11 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 					}
 				if(nanInc == true) break;
 			}
-			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION"; }
+			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION";	}
 
 			if(incrementos.norm2() <= 0.0001)   ///Too small increments
 			{
-				stop = true;
+				//stop = true;
 				smallInc = true;
 				bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_INCS);
 				break;
@@ -323,7 +329,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 		}while(ro<=0 and stop==false);
 		stop = error.norm2() <= 0.001; //1 milimetro de error
 	}
-	//qDebug()<<"Stop: "<<stop<<" k: "<<k<<"  smallInc: "<<smallInc<<"nanInc: "<<nanInc<<" error:"<< error.norm2();
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 
 	if (stop == true)           bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);

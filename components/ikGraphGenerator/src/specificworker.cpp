@@ -303,7 +303,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	target.rz = -3.14;
 
-	RoboCompInverseKinematics::WeightVector weights;
+	//NOTE: CAMBIO DE MERCEDES 
+	//RoboCompInverseKinematics::WeightVector weights;
 	weights.x = weights.y = weights.z = 1;
 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
 	else weights.rx = weights.ry = weights.rz = 0;
@@ -547,8 +548,13 @@ void SpecificWorker::compute()
 		case GIK_GoToActualTargetSend:
 			updateFrame(500000);
 			state = GIK_GoToActualTargetSent;
+			
+			//NOTE: CAMBIOS DE MERCEDES
+			weights.x = weights.y = weights.z = weights.rx = weights.ry = weights.rz = 1;
 			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
 			printf("FINAL TARGET %f %f %f - %f %f %f\n", finalTarget.x, finalTarget.y, finalTarget.z, finalTarget.rx, finalTarget.ry, finalTarget.rz);
+			printf("WITH WEIGHTS %f %f %f - %f %f %f\n", weights.x, weights.y, weights.z, weights.rx, weights.ry, weights.rz);
+			
 			break;
 		case GIK_GoToActualTargetSent:
 			updateFrame(500000);

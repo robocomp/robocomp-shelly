@@ -206,7 +206,16 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	}
 
 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
+	qDebug()<<weights.x<<", "<<weights.y<<", "<<weights.z<<", "<<weights.rx<<", "<<weights.ry<<", "<<weights.rz;
 	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
+	
+	if(weights_.x()<=0 and weights_.y()<=0 and weights_.z()<=0 and weights_.rx()<=0 and weights_.ry()<=0 and weights_.rz()<=0)
+	{
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "ZERO WEIGHTS: "<<weights_;
+		RoboCompInverseKinematics::IKException ex;
+		ex.text = "ZERO WEIGHTS";
+		throw ex;
+	}
 	qDebug() << "----------------------------------------------------------------------------------";
 	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
 	qDebug() << "----------------------------------------------------------------------------------";
