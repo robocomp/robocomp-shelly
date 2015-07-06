@@ -517,6 +517,10 @@ void SpecificWorker::compute()
 
 	updateInnerModel();
 
+	static int tick = 0;
+	
+	if (tick++ % 10 != 0) return;
+
 	static uint32_t pathIndex = 0;
 
 	switch(state)
@@ -527,6 +531,7 @@ void SpecificWorker::compute()
 			goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 			pathIndex = 0;
 			state = GIK_GoToEnd;
+			updateFrame(500000);
 			break;
 		case GIK_GoToEnd:
 			goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
@@ -542,7 +547,7 @@ void SpecificWorker::compute()
 		case GIK_GoToActualTargetSend:
 			updateFrame(500000);
 			state = GIK_GoToActualTargetSent;
-			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
 			break;
 		case GIK_GoToActualTargetSent:
 			updateFrame(500000);
@@ -563,7 +568,7 @@ void SpecificWorker::compute()
 					{
 						MotorGoalPosition mgp;
 						mgp.position = gp.angle;
-						mgp.maxSpeed = 2.;
+						mgp.maxSpeed = 0.8;
 						mgp.name = gp.name;
 						mpl.push_back(mgp);
 					}
@@ -614,6 +619,14 @@ void SpecificWorker::goIK()
 	float vrx = rx->value();
 	float vry = ry->value();
 	float vrz = rz->value();
+
+	finalTarget.x = vtx;
+	finalTarget.y = vty;
+	finalTarget.z = vtz;
+	finalTarget.rx = vrx;
+	finalTarget.ry = vry;
+	finalTarget.rz = vrz;
+	
 	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
 
 	// Get closest node to initial position and update it in IMV

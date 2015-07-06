@@ -109,7 +109,7 @@ private:
 	int closestToInit, closestToEnd;
 	std::vector<int> path;
 	int targetId;
-	Pose6D target;
+	Pose6D finalTarget;
 	WeightVector weights;
 
 

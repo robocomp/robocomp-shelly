@@ -23,21 +23,21 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	INITIALIZE_READY 	= false;
-	UPDATE_READY 		= true; 
+	INITIALIZE_READY    = false;
+	UPDATE_READY        = true; 
 	mutexSolved         = new QMutex(QMutex::Recursive);
 // 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/data.txt", ios::out | ios::app);
 // 	if (file.is_open()==false)
 // 		qFatal("ARCHIVO NO ABIERTO");
 
-	innermodel 			= NULL;
+	innermodel          = NULL;
 #ifdef USE_QTGUI
-	innerViewer 		= NULL;
-	this->osgView		= new OsgView(this);
+	innerViewer         = NULL;
+	this->osgView       = new OsgView(this);
 // 	show();
 #endif
-	inversedkinematic	= new InversedKinematic();
-	correlativeID 		= 0;
+	inversedkinematic   = new InversedKinematic();
+	correlativeID       = 0;
 }
 /**
 * \brief Default destructor
@@ -591,18 +591,18 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
  */ 
 void SpecificWorker::addTargetSolved(QString part, Target t)
 {
-	RoboCompInverseKinematics::MotorList 	ml;
-	RoboCompInverseKinematics::Motor 		m;
-	RoboCompInverseKinematics::TargetState 	state;
+	RoboCompInverseKinematics::MotorList ml;
+	RoboCompInverseKinematics::Motor m;
+	RoboCompInverseKinematics::TargetState state;
 	
 	state.finish = true;
 	state.elapsedTime = t.getTargetTimeExecution();
 	t.getTargetError(state.errorT, state.errorR);
 	state.errorT = state.errorT*1000; //a milimetros
-	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_ERROR)  state.state = "LOW_ERROR";
-	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_INCS)	state.state = "LOW_INCS";
-	if(t.getTargetFinalState() == Target::TargetFinalState::NAN_INCS)	state.state = "NAN_INCS";
-	if(t.getTargetFinalState() == Target::TargetFinalState::KMAX)		state.state = "KMAX";
+	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_ERROR) state.state = "LOW_ERROR";
+	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_INCS)  state.state = "LOW_INCS";
+	if(t.getTargetFinalState() == Target::TargetFinalState::NAN_INCS)  state.state = "NAN_INCS";
+	if(t.getTargetFinalState() == Target::TargetFinalState::KMAX)      state.state = "KMAX";
 	
 	for(int j=0; j<t.getTargetFinalAngles().size(); j++)
 	{
@@ -610,7 +610,7 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 		m.angle = t.getTargetFinalAngles()[j];
 		ml.push_back(m);
 	}
-	state.motors=ml;
+	state.motors = ml;
 		
 	stTargetsSolved ts;
 	ts.part   = part;
