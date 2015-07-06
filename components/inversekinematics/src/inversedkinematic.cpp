@@ -379,7 +379,7 @@ void InversedKinematic::computeFloatModule(QVec& angles, float mod)
  */
 bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 {
-	bool noSupera = true;
+	bool noSupera = false;
 	float limiteMin, limiteMax;
 
 	for(int i=0; i<checkMotors().size(); i++)//for(int i=0; i<bodypart->getMotorList().size(); i++)
@@ -389,7 +389,7 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 
 		if(angles[i]<limiteMin or angles[i]>limiteMax)
 		{
-			noSupera = false;
+			noSupera = true;
 			motors[i] = 1;
 
 			if(angles[i]<limiteMin) angles[i] = limiteMin;
@@ -398,7 +398,7 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 			//qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angles[i]<<" MOTORES: "<<bodypart->getMotorList()[i];
 		}
 	}
-	return !noSupera;
+	return noSupera;
 }
 /**
  * \brief This method update the angles values of the motors.

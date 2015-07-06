@@ -318,47 +318,47 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
  */
 void SpecificWorker::goHome(const string &bodyPart)
 {
-	inversekinematics_proxy->goHome(bodyPart);
-	/*try
+	//inversekinematics_proxy->goHome(bodyPart);
+	try
 	{
 		RoboCompJointMotor::MotorGoalPosition nodo;
 
 		nodo.name = "rightShoulder1";
-		nodo.position = -2.3; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 0.11; // posición en radianes
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightShoulder2";
-		nodo.position = -0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = -0.2; // posición en radianes
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightShoulder3";
 		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightElbow";
-		nodo.position = 0.8; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.position = 1.7; // posición en radianes
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightForeArm";
 		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightWrist1";
 		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 
 		nodo.name = "rightWrist2";
 		nodo.position = 0.11; // posición en radianes
-		nodo.maxSpeed = 2; //radianes por segundo TODO Bajar velocidad.
+		nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 		jointmotor_proxy->setPosition(nodo);
 	}
-	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}*/
+	catch (const Ice::Exception &ex) {	cout<<"Exception in goHome: "<<ex<<endl;}
 
 	sleep(1);
 }
