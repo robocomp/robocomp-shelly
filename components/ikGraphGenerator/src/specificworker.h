@@ -32,10 +32,10 @@
 	#include <osgviewer/osgview.h>
 	#include <innermodel/innermodelviewer.h>
 	#include <innermodeldraw.h>
+	#include <innermodeldraw.h>
 #endif
 
 #include <nabo/nabo.h>
-#include <innermodeldraw.h>
 
 #define MAX_ERROR_IK 5.
 
@@ -101,9 +101,9 @@ private:
 #ifdef USE_QTGUI
 	OsgView *osgView;
 	InnerModelViewer *innerViewer;
+#endif
 	InnerModel *innerVisual;
 	InnerModel *innerModel;
-#endif
 
 	GIKTargetState state;
 	int closestToInit, closestToEnd;
@@ -113,6 +113,17 @@ private:
 	WeightVector weights;
 
 
+
+
+	void setFingers(const float d);
+	TargetState getTargetState(const string &bodyPart, const int targetID);
+	int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist);
+	void goHome(const string &bodyPart);
+	void stop(const string &bodyPart);
+	int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights);
+	bool getPartState(const string &bodyPart);
+	void setJoint(const string &joint, const float angle, const float maxSpeed);
+	int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax);
 
 };
 

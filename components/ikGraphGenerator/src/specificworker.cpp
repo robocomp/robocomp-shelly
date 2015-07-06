@@ -28,10 +28,10 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	state = GIK_NoTarget;
 
+#ifdef USE_QTGUI
 	show();
 	initBox->show();
 	commandBox->hide();
-#ifdef USE_QTGUI
 	innerViewer = NULL;
 	osgView = new OsgView(widget);
 	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
@@ -303,8 +303,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	target.rz = -3.14;
 
-	//NOTE: CAMBIO DE MERCEDES 
-	//RoboCompInverseKinematics::WeightVector weights;
 	weights.x = weights.y = weights.z = 1;
 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
 	else weights.rx = weights.ry = weights.rz = 0;
@@ -519,7 +517,7 @@ void SpecificWorker::compute()
 	updateInnerModel();
 
 	static int tick = 0;
-	
+
 	if (tick++ % 10 != 0) return;
 
 	static uint32_t pathIndex = 0;
@@ -548,13 +546,7 @@ void SpecificWorker::compute()
 		case GIK_GoToActualTargetSend:
 			updateFrame(500000);
 			state = GIK_GoToActualTargetSent;
-			
-			//NOTE: CAMBIOS DE MERCEDES
-			weights.x = weights.y = weights.z = weights.rx = weights.ry = weights.rz = 1;
 			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
-			
-			printf("FINAL TARGET %f %f %f - %f %f %f\n", finalTarget.x, finalTarget.y, finalTarget.z, finalTarget.rx, finalTarget.ry, finalTarget.rz);
-			printf("WITH WEIGHTS %f %f %f - %f %f %f\n", weights.x, weights.y, weights.z, weights.rx, weights.ry, weights.rz);
 			break;
 		case GIK_GoToActualTargetSent:
 			updateFrame(500000);
@@ -633,27 +625,10 @@ void SpecificWorker::goIK()
 	finalTarget.rx = vrx;
 	finalTarget.ry = vry;
 	finalTarget.rz = vrz;
-	
-	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
 
-	// Get closest node to initial position and update it in IMV
-	updateInnerModel();
-	QVec position = innerModel->transform("robot", "grabPositionHandR");
-	closestToInit = graph->getCloserTo(&position(0));
-	const float *poseInit = graph->vertices[closestToInit].pose;
-	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+	weights.x = weights.y = weights.z = weights.rx = weights.ry = weights.rz = 1;
 
-	// Get closest node to target and update it in IMV
-	closestToEnd = graph->getCloserTo(vtx, vty, vtz);
-	const float *poseEnd = graph->vertices[closestToEnd].pose;
-	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
-
-	// Compute path and update state
-	Dijkstra d = Dijkstra(&(graph->edges));
-	d.calculateDistance(closestToInit);
-	path.clear();
-	d.go(closestToEnd, path);
-	state = GIK_GoToInit;
+	setTargetPose6D("RIGHTARM", finalTarget, weights);
 }
 
 
@@ -663,9 +638,6 @@ void SpecificWorker::goVIK()
 
 void SpecificWorker::goHome()
 {
-	printf("going home\n");
-
-
 	MotorGoalPositionList listGoals;
 	listGoals.resize(7);
 	listGoals[0].name     = "rightShoulder1";
@@ -691,11 +663,76 @@ void SpecificWorker::goHome()
 	jointmotor_proxy->setSyncPosition(listGoals);
 }
 
+void SpecificWorker::setFingers(const float d)
+{
+	inversekinematics_proxy->setFingers(d);
+}
 
+TargetState SpecificWorker::getTargetState(const string &bodyPart, const int targetID)
+{
+	TargetState s;
+	qFatal("not implemented yet");
+	return s;
+}
 
+int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist)
+{
+	return inversekinematics_proxy->setTargetAdvanceAxis(bodyPart, ax, dist);
+}
 
+void SpecificWorker::goHome(const string &bodyPart)
+{
+	goHome();
+}
 
+void SpecificWorker::stop(const string &bodyPart)
+{
+	qFatal("not implemented yet");
+}
 
+int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
+{
+	this->weights = weights;
+
+	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
+
+	// Get closest node to initial position and update it in IMV
+	updateInnerModel();
+	QVec position = innerModel->transform("robot", "grabPositionHandR");
+	closestToInit = graph->getCloserTo(&position(0));
+	const float *poseInit = graph->vertices[closestToInit].pose;
+	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+
+	// Get closest node to target and update it in IMV
+	closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
+	const float *poseEnd = graph->vertices[closestToEnd].pose;
+	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
+
+	// Compute path and update state
+	Dijkstra d = Dijkstra(&(graph->edges));
+	d.calculateDistance(closestToInit);
+	path.clear();
+	d.go(closestToEnd, path);
+	state = GIK_GoToInit;
+
+	return 0;
+}
+
+bool SpecificWorker::getPartState(const string &bodyPart)
+{
+	qFatal("not implemented yet");
+	return false;
+}
+
+void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
+{
+	inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
+}
+
+int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
+{
+	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+}
 
 
 

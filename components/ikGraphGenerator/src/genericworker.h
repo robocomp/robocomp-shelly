@@ -66,6 +66,15 @@ public:
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 
+	virtual void setFingers(const float d) = 0;
+	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
+	virtual int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist) = 0;
+	virtual void goHome(const string &bodyPart) = 0;
+	virtual void stop(const string &bodyPart) = 0;
+	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
+	virtual bool getPartState(const string &bodyPart) = 0;
+	virtual void setJoint(const string &joint, const float angle, const float maxSpeed) = 0;
+	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
 
 
 protected:
