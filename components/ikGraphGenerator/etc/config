@@ -3,7 +3,7 @@ CommonBehavior.Endpoints=tcp -p 14536
 InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml
 
 # Proxies for required interfaces
-InverseKinematicsProxy = inversekinematics:tcp -h localhost -p 10220
+InverseKinematicsProxy = inversekinematics:tcp -h localhost -p 10240
 JointMotorProxy = jointmotor:tcp -h localhost -p 20000
 
 
