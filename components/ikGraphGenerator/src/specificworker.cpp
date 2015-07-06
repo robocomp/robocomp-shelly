@@ -552,21 +552,21 @@ void SpecificWorker::compute()
 			//NOTE: CAMBIOS DE MERCEDES
 			weights.x = weights.y = weights.z = weights.rx = weights.ry = weights.rz = 1;
 			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
+			
 			printf("FINAL TARGET %f %f %f - %f %f %f\n", finalTarget.x, finalTarget.y, finalTarget.z, finalTarget.rx, finalTarget.ry, finalTarget.rz);
 			printf("WITH WEIGHTS %f %f %f - %f %f %f\n", weights.x, weights.y, weights.z, weights.rx, weights.ry, weights.rz);
-			
 			break;
 		case GIK_GoToActualTargetSent:
 			updateFrame(500000);
 			TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
 			if (stt.finish == true)
 			{
-				float err = innerVisual->transform("grabPositionHandR", "target").norm2();
 				printf("IK message %s\n", stt.state.c_str());
-
+				//NOTE:CAMBIOS DE MERCEDES he cambiado err por stt.errorT
+				//float err = innerVisual->transform("grabPositionHandR", "target").norm2();
 				if (stt.errorT > MAX_ERROR_IK)
 				{
-					QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+					QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 				}
 				else
 				{
@@ -581,7 +581,7 @@ void SpecificWorker::compute()
 					}
 					goAndWaitDirect(mpl);
 					updateFrame(500000);
-					QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(err)+QString("\n")+QString::fromStdString(stt.state));
+					QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 				}
 				state = GIK_NoTarget;
 			}
@@ -635,6 +635,7 @@ void SpecificWorker::goIK()
 	finalTarget.rz = vrz;
 	
 	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
+	qDebug()<<"---> "<<vtx<<", "<<vty<<", "<<vtz<<", "<<vrx<<", "<<vry<<", "<<vrz;
 
 	// Get closest node to initial position and update it in IMV
 	updateInnerModel();
