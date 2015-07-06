@@ -635,7 +635,6 @@ void SpecificWorker::goIK()
 	finalTarget.rz = vrz;
 	
 	innerVisual->updateTransformValues("target", vtx, vty, vtz, vrx, vry, vrz);
-	qDebug()<<"---> "<<vtx<<", "<<vty<<", "<<vtz<<", "<<vrx<<", "<<vry<<", "<<vrz;
 
 	// Get closest node to initial position and update it in IMV
 	updateInnerModel();
