@@ -31,9 +31,9 @@
 #ifdef USE_QTGUI
 	#include <osgviewer/osgview.h>
 	#include <innermodel/innermodelviewer.h>
-	#include <innermodeldraw.h>
-	#include <innermodeldraw.h>
 #endif
+
+#include <innermodeldraw.h>
 
 #include <nabo/nabo.h>
 
@@ -94,6 +94,10 @@ private:
 	std::pair<float, float> xrange, yrange, zrange;
 
 	MotorGoalPositionList centerConfiguration;
+	MotorGoalPositionList lastMotorGoalPositionList;
+
+	TargetState lastTargetState;
+	std::string lastFinish;
 
 	ConnectivityGraph *graph;
 	WorkerThread *workerThread;
@@ -101,8 +105,8 @@ private:
 #ifdef USE_QTGUI
 	OsgView *osgView;
 	InnerModelViewer *innerViewer;
-#endif
 	InnerModel *innerVisual;
+#endif
 	InnerModel *innerModel;
 
 	GIKTargetState state;
