@@ -31,7 +31,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI
 	show();
 	initBox->show();
-	commandBox->hide();
+	ikCommandWidget->hide();
 	innerViewer = NULL;
 	osgView = new OsgView(widget);
 	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
@@ -41,6 +41,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	tb->setHomePosition(eye, center, up, true);
 	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
  	osgView->setCameraManipulator(tb);
+	connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
+	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
+	connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 	mutex = new QMutex(QMutex::Recursive);
@@ -141,18 +144,14 @@ void SpecificWorker::initFile()
 		{
 			if (graph->edges[i][j] < DJ_INFINITY)
 			{
-				QString id = QString("edge_") + QString::number(i) + QString("_") + QString::number(j);
+// 				QString id = QString("edge_") + QString::number(i) + QString("_") + QString::number(j);
 // 				float *p1 = graph->vertices[i].pose;
 // 				float *p2 = graph->vertices[j].pose;
-// 				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 0.05);
+// 				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88", 1);
 			}
 		}
 	}
-	commandBox->show();
-	connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
-	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
-	connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
-
+	ikCommandWidget->show();
 }
 
 
@@ -429,10 +428,7 @@ void SpecificWorker::computeHard()
 		QString id = QString("node_") + QString::number(graph->vertices[nodeSrc].id);
 		if (nodeSrc == graph->size()-1)
 		{
-			commandBox->show();
-			connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
-			connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
-			connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
+			ikCommandWidget->show();
 			graph->save("aqui.ikg");
 			stop = true;
 			return;
