@@ -123,12 +123,13 @@ void SpecificWorker::initFile()
 	try
 	{
 		graph = new ConnectivityGraph("ursus.ikg");
+		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
 	{
-		printf("Can't create graph from file\n");
-		return;
+		qFatal("Can't create graph from file\n");
 	}
+#ifdef USE_QTGUI
 	for (uint i=0; i<graph->vertices.size(); i++)
 	{
 		QString id = QString("node_") + QString::number(i);
@@ -138,14 +139,9 @@ void SpecificWorker::initFile()
 		else
 			color = "#cc2222";
 
-#ifdef USE_QTGUI
 		InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root", QVec::vec3(graph->vertices[i].pose[0], graph->vertices[i].pose[1], graph->vertices[i].pose[2]),
 		    QVec::vec3(1,0,0), color, QVec::vec3(2,2,2));
-#endif
-
 	}
-
-#ifdef USE_QTGUI
 	for (uint i=0; i<graph->edges.size(); i++)
 	{
 		for (uint j=0; j<graph->edges[i].size(); j++)
@@ -450,8 +446,9 @@ void SpecificWorker::computeHard()
 		QString id = QString("node_") + QString::number(graph->vertices[nodeSrc].id);
 		if (nodeSrc == graph->size()-1)
 		{
+#ifdef USE_QTGUI
 			ikCommandWidget->show();
-
+#endif
 			graph->save("aqui.ikg");
 			stop = true;
 			return;
@@ -536,6 +533,8 @@ void SpecificWorker::computeHard()
 
 void SpecificWorker::compute()
 {
+	QMutexLocker l(mutex);
+
 	updateFrame(10);
 
 	updateInnerModel();
@@ -727,7 +726,8 @@ void SpecificWorker::stop(const string &bodyPart)
 
 int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
 {
-	this->weights = weights;
+	QMutexLocker l(mutex);
+	finalTarget = target;
 
 #ifdef USE_QTGUI
 	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
@@ -737,15 +737,15 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	updateInnerModel();
 	QVec position = innerModel->transform("robot", "grabPositionHandR");
 	closestToInit = graph->getCloserTo(position(0), position(1), position(2));
-	const float *poseInit = graph->vertices[closestToInit].pose;
 #ifdef USE_QTGUI
+	const float *poseInit = graph->vertices[closestToInit].pose;
 	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
 #endif
 
 	// Get closest node to target and update it in IMV
 	closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
-	const float *poseEnd = graph->vertices[closestToEnd].pose;
 #ifdef USE_QTGUI
+	const float *poseEnd = graph->vertices[closestToEnd].pose;
 	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
 #endif
 
@@ -763,6 +763,7 @@ bool SpecificWorker::getPartState(const string &bodyPart)
 {
 	if (state == GIK_NoTarget)
 		return true;
+	return false;
 }
 
 void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
