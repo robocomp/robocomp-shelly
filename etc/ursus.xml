@@ -44,7 +44,7 @@
 													<transform id="rgbd_transform0" ty="85">
 														<transform id="rgbd_transform" tz="20">
 <!-- 																<axes id="00000" length="200" width="8" />															 -->
-																<rgbd id="rgbd" focal="525" width="640" height="480" port="10096" ifconfig="10068,10004" />
+																<rgbd id="rgbd" focal="300" width="640" height="480" port="10096" ifconfig="10068,10004" />
 														</transform>
 														<mesh id="sensorRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 														<!--<plane id="sensorRGBD" nz="1" pz="-20" size="100,16,20" repeat="1" texture="#000000" /> -->
