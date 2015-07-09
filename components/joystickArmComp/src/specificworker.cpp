@@ -330,7 +330,21 @@ QString SpecificWorker::translate(QString first)
 	if (first=="S04")
 		id= "rightElbow";
 	return id;
+/*
+	QString id ("SIN HACER");
+	if (first=="S00")		
+		id = "leftShoulder1";
+	if (first=="S01")
+		id= "leftShoulder2";
+	if (first=="S02")
+		id= "leftShoulder3";
+	if (first=="S03")
+		id= "leftForeArm";
+	if (first=="S04")
+		id= "leftElbow";
+	return id;*/
 }
+
 
 void SpecificWorker::checkError(char character)
 {
