@@ -21,19 +21,27 @@
 #define STEP_DISTANCE 50
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
-/**
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/** ------------------------------------------------------
 * \brief Default constructor
-*/
+* @param mprx 
+*------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	state = GIK_NoTarget;
+	READY         = false;
+	state         = GIK_NoTarget;
+	targetCounter = 0;
+	mutexSolved   = new QMutex(QMutex::Recursive);
 
 #ifdef USE_QTGUI
 	show();
 	initBox->show();
 	ikCommandWidget->hide();
-	innerViewer = NULL;
-	osgView = new OsgView(widget);
+	innerViewer   = NULL;
+	osgView       = new OsgView(widget);
 	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
 	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
 	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
@@ -43,21 +51,21 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
  	osgView->setCameraManipulator(tb);
 	connect(goIKButton,  SIGNAL(clicked()), this, SLOT(goIK()));
 	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
-	connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
+	connect(homeButton,  SIGNAL(clicked()), this, SLOT(goHome()));
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-	mutex = new QMutex(QMutex::Recursive);
-
 }
-
-/**
+/**------------------------------------------------------
 * \brief Default destructor
-*/
+* ------------------------------------------------------*/
 SpecificWorker::~SpecificWorker()
 {
 
 }
-
+/** ------------------------------------------------------
+ * \brief setParams
+ * @param params
+ * ------------------------------------------------------ */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	printf("params: %ld\n", params.size());
@@ -92,8 +100,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		std::cout << "Innermodel path " << par.value << " not found. ";
 		qFatal("Abort");
 	}
-
-
 #ifdef USE_QTGUI
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "init", "root");
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "init_p", "init", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#ff7777", QVec::vec3(15,15,15));
@@ -107,19 +113,20 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	connect(fromFileButton, SIGNAL(clicked()), this, SLOT(initFile()));
 	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
 #endif
-
-	timer.start(10);
-
+	timer.start(10);	
+	initFile();
+	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
 
-
+/** ------------------------------------------------------
+ * \brief initFile
+ * ------------------------------------------------------*/
 void SpecificWorker::initFile()
 {
 #ifdef USE_QTGUI
 	initBox->hide();
 #endif
-
 	try
 	{
 		graph = new ConnectivityGraph("ursus.ikg");
@@ -160,9 +167,12 @@ void SpecificWorker::initFile()
 	connect(goVIKButton, SIGNAL(clicked()), this, SLOT(goVIK()));
 	connect(homeButton, SIGNAL(clicked()), this, SLOT(goHome()));
 #endif
+	READY = true;
 }
 
-
+/** ------------------------------------------------------
+ * \brief initGenerate
+ * ------------------------------------------------------*/
 void SpecificWorker::initGenerate()
 {
 #ifdef USE_QTGUI
@@ -172,7 +182,6 @@ void SpecificWorker::initGenerate()
 	xrange = std::pair<float, float>( -110, 400);
 	yrange = std::pair<float, float>( 580, 1200);
 	zrange = std::pair<float, float>( 140, 570);
-
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float XR = abs(xrange.second - xrange.first);
@@ -185,8 +194,6 @@ void SpecificWorker::initGenerate()
 
 // 	float step = 0.5001*sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
 	float step = STEP_DISTANCE;
-
-
 	uint32_t included=0;
 	graph = new ConnectivityGraph(0);
 	for (float xpos = xrange.first; xpos<xrange.second; xpos+=step)
@@ -209,7 +216,6 @@ void SpecificWorker::initGenerate()
 					graph->vertices[included].setPose(xpos, ypos, zpos);
 					graph->vertices[included].configurations.clear();
 					graph->vertices[included].id = included;
-
 #ifdef USE_QTGUI
 					{
 						QMutexLocker l(mutex);
@@ -225,7 +231,6 @@ void SpecificWorker::initGenerate()
 			}
 		}
 	}
-
 	printf("inc %d\n", included);
 
 	int rec = 0;
@@ -234,13 +239,16 @@ void SpecificWorker::initGenerate()
 
 	workerThread = new WorkerThread(this);
 	workerThread->start();
-
-	
-#ifndef USE_QTGUI
-	initFile();
-#endif
+	READY = true;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/**------------------------------------------------------
+ * \brief updateFrame
+ * @param wait_usecs
+ * ------------------------------------------------------*/
 void SpecificWorker::updateFrame(uint wait_usecs)
 {
 #ifdef USE_QTGUI
@@ -252,18 +260,43 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 	usleep(wait_usecs);
 #endif
 }
+/** ------------------------------------------------------
+ * \brief updateInnerModel
+ * ------------------------------------------------------*/ 
+void SpecificWorker::updateInnerModel()
+{
+	try
+	{
+		RoboCompJointMotor::MotorStateMap mMap;
+		jointmotor_proxy->getAllMotorState(mMap);
 
+		for (auto j : mMap)
+		{
+			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+#ifdef USE_QTGUI
+			innerVisual->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+#endif
+		}
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Exception updating InnerModel\n";
+	}
+}
+/** -------------------------------------------------------------------
+ * \brief goAndWaitDirect. Mueve el brazo en base a la posicion de los
+ * motores almacenada en mpl.
+ * @param mpl motores y posiciones de los motores.
+ * ------------------------------------------------------*/
 void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
 	static MotorGoalPositionList last;
-
 	if (mpl == last)
 	{
 		printf("skipping same config\n");
 		return;
 	}
 	last = mpl;
-
 	jointmotor_proxy->setSyncPosition(mpl);
 	{
 		QMutexLocker l(mutex);
@@ -272,17 +305,31 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 #ifdef USE_QTGUI
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
 #endif
-// 			printf("%s: %f\n", g.name.c_str(), g.position);
 		}
 	}
-	usleep(20000);
+	//usleep(20000);
+	sleep(1);
 }
-
+/** ------------------------------------------------------
+ * \brief goAndWait
+ * @param mpl
+ * @param recursive
+ * @return bool
+ * ------------------------------------------------------*/
 bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recursive)
 {
 	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], nodeId, mpl, recursive);
 }
-
+/** ------------------------------------------------------
+ * \brief goAndWait
+ * @param x
+ * @param y
+ * @param z
+ * @param node
+ * @param mpl
+ * @param recursive
+ * @return bool
+ * ------------------------------------------------------*/
 bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive)
 {
 	RoboCompInverseKinematics::Pose6D target;
@@ -298,7 +345,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	else
 		target.rx = -0.3;
 	target.rx = 0;
-
 
 	float relx = (x - xrange.first) / (xrange.second - xrange.first);
 	if (relx < 0.33)
@@ -321,9 +367,10 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	target.rz = -3.14;
 
-	weights.x = weights.y = weights.z = 1;
-	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
-	else weights.rx = weights.ry = weights.rz = 0;
+	WeightVector weights;
+ 	weights.x = weights.y = weights.z = 1;
+ 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
+ 	else weights.rx = weights.ry = weights.rz = 0;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
 
@@ -428,7 +475,54 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	}
 	return true;
 }
-
+/** ------------------------------------------------------
+ * \brief Este metodo es para descargar un poco de codigo del compute.
+ * Hace los retoques finales del target.
+ * @param stt target state
+ */ 
+void SpecificWorker::finalStep(TargetState stt)
+{
+	QMutexLocker mm(mutexSolved);
+	currentTarget.state = stt;
+	if (stt.errorT > MAX_ERROR_IK)
+	{
+		lastFinish = "ERROR";
+// #ifdef USE_QTGUI
+// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+// #endif
+	}
+	else
+	{
+		MotorGoalPositionList mpl;
+		for (auto gp : stt.motors)
+		{
+			MotorGoalPosition mgp;
+			mgp.position = gp.angle;
+			mgp.maxSpeed = 0.4;
+			mgp.name = gp.name;
+			mpl.push_back(mgp);
+		}
+		goAndWaitDirect(mpl);
+		lastMotorGoalPositionList = mpl;
+		lastFinish = "OK";
+// #ifdef USE_QTGUI
+// 		updateFrame(500000);
+// 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+// #endif
+		//usleep(500000);
+		sleep(2);
+	}
+	solvedList.enqueue(currentTarget); //guardamos el target
+	qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
+	qDebug()<<"Ya estoy despierto";
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/** ------------------------------------------------------
+ * \brief computeHard
+ * ------------------------------------------------------*/
 void SpecificWorker::computeHard()
 {
 	static bool stop=false;
@@ -437,9 +531,7 @@ void SpecificWorker::computeHard()
 	static MotorGoalPositionList currentConfiguration;
 
 	if (stop) return;
-
 	printf("=======================================\n");
-
 	if (nodeDst == graph->size() or nodeDst == -1)
 	{
 		nodeSrc++;
@@ -470,7 +562,6 @@ void SpecificWorker::computeHard()
 #endif
 			return;
 		}
-
 #ifdef USE_QTGUI
 		InnerModelDraw::setPlaneTexture(innerViewer, id, "#00ff00");
 #endif
@@ -479,21 +570,15 @@ void SpecificWorker::computeHard()
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
-
 		return;
 	}
-
 	if (graph->vertices[nodeSrc].configurations[0] != currentConfiguration)
 	{
 		currentConfiguration = graph->vertices[nodeSrc].configurations[0];
 	}
 	goAndWaitDirect(currentConfiguration);
-
 	printf("nodeSrc: %d\n", nodeSrc);
 	printf("nodeDst: %d\n", nodeDst);
-
-
-
 	float dist = graph->vertices[nodeSrc].distTo(graph->vertices[nodeDst].pose);
 	if (dist>0 and dist<CLOSE_DISTANCE and graph->edges[nodeSrc][nodeDst] == DJ_INFINITY)
 	{
@@ -507,7 +592,6 @@ void SpecificWorker::computeHard()
 			printf("add %d %d %f\n", nodeSrc, nodeDst, dist);
 			graph->add_edge(nodeSrc, nodeDst, dist);
 			graph->add_configurationToNode(nodeDst, configuration);
-
 #ifdef USE_QTGUI
 			{
 				static int edId = 0;
@@ -525,23 +609,21 @@ void SpecificWorker::computeHard()
 // 			stop = true;
 		}
 	}
-
 	nodeDst++;
-
 }
-
-
+/** ------------------------------------------------------
+ * \brief compute
+ * this method executes each 10 iterations
+ * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
-	QMutexLocker l(mutex);
-
-	updateFrame(10);
-
-	updateInnerModel();
-
+	if (not READY) return;
 	static int tick = 0;
-
 	if (tick++ % 10 != 0) return;
+
+	QMutexLocker l(mutex);
+	updateFrame(10);
+	updateInnerModel();
 
 	static uint32_t pathIndex = 0;
 
@@ -549,67 +631,49 @@ void SpecificWorker::compute()
 	{
 		case GIK_NoTarget:
 			return;
-		case GIK_GoToInit:
+		//--------------------------------------------------------------------------------------------------//
+		case GIK_GoToInit:			
 			goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 			pathIndex = 0;
+			if (path.size() > 1) pathIndex = 1;
 			state = GIK_GoToEnd;
-			updateFrame(500000);
 			break;
+		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToEnd:
 			goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
 			printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
 			pathIndex++;
-			updateFrame(500000);
 			if (pathIndex>=path.size())
 			{
 				pathIndex = 0;
 				state = GIK_GoToActualTargetSend;
 			}
 			break;
+		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSend:
-			updateFrame(500000);
+			qDebug()<<"---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
+			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
 			state = GIK_GoToActualTargetSent;
-			targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", finalTarget, weights);
 			break;
+		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSent:
-			updateFrame(500000);
-			TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
-			lastTargetState = stt;
+			TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", currentTarget.id_IK);
 			if (stt.finish == true)
 			{
-				printf("IK message %s\n", stt.state.c_str());
-				if (stt.errorT > MAX_ERROR_IK)
-				{
-					lastFinish = "ERROR";
-#ifdef USE_QTGUI
-					QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-#endif
-				}
-				else
-				{
-					MotorGoalPositionList mpl;
-					for (auto gp : stt.motors)
-					{
-						MotorGoalPosition mgp;
-						mgp.position = gp.angle;
-						mgp.maxSpeed = 0.4;
-						mgp.name = gp.name;
-						mpl.push_back(mgp);
-					}
-					goAndWaitDirect(mpl);
-					lastMotorGoalPositionList = mpl;
-					lastFinish = "OK";
-#ifdef USE_QTGUI
-					updateFrame(500000);
-					QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-#endif
-				}
+				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
+				qDebug()<<"ANTES: "<<innerModel->transform("root", "grabPositionHandR");
+				finalStep(stt);
+				updateInnerModel();
+				qDebug()<<"DESPUES: "<<innerModel->transform("root", "grabPositionHandR");
 				state = GIK_NoTarget;
 			}
 			break;
 	}
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 void WorkerThread::run()
 {
 	while(true)
@@ -618,28 +682,13 @@ void WorkerThread::run()
 		usleep(10000);
 	}
 }
-
-void SpecificWorker::updateInnerModel()
-{
-	try
-	{
-		RoboCompJointMotor::MotorStateMap mMap;
-		jointmotor_proxy->getAllMotorState(mMap);
-
-		for (auto j : mMap)
-		{
-			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
-#ifdef USE_QTGUI
-			innerVisual->updateJointValue(QString::fromStdString(j.first), j.second.pos);
-#endif
-		}
-	}
-	catch (const Ice::Exception &ex)
-	{
-		cout<<"--> Exception updating InnerModel\n";
-	}
-}
-
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/** --------------------------------------------------
+ * \brief goIK
+ * --------------------------------------------------- */ 
 void SpecificWorker::goIK()
 {
 #ifdef USE_QTGUI
@@ -651,24 +700,28 @@ void SpecificWorker::goIK()
 	float vry = ry->value();
 	float vrz = rz->value();
 
-	finalTarget.x = vtx;
-	finalTarget.y = vty;
-	finalTarget.z = vtz;
-	finalTarget.rx = vrx;
-	finalTarget.ry = vry;
-	finalTarget.rz = vrz;
+	currentTarget.pose.x = vtx;
+	currentTarget.pose.y = vty;
+	currentTarget.pose.z = vtz;
+	currentTarget.pose.rx = vrx;
+	currentTarget.pose.ry = vry;
+	currentTarget.pose.rz = vrz;
 
-	weights.x = weights.y = weights.z = weights.rx = weights.ry = weights.rz = 1;
+	currentTarget.weights.x  = currentTarget. weights.y = currentTarget.weights.z  = 1;
+	currentTarget.weights.rx = currentTarget.weights.ry = currentTarget.weights.rz = 0.1;
 
-	setTargetPose6D("RIGHTARM", finalTarget, weights);
+	setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
 #endif
 }
-
-
+/** ----------------------------------------------
+ * \brief goVIK
+ * ----------------------------------------*/
 void SpecificWorker::goVIK()
 {
 }
-
+/**-----------------------------------------------
+ * \brief goHome
+ * ----------------------------------------------*/
 void SpecificWorker::goHome()
 {
 	MotorGoalPositionList listGoals;
@@ -694,26 +747,158 @@ void SpecificWorker::goHome()
 	}
 
 	jointmotor_proxy->setSyncPosition(listGoals);
+	usleep(20000);
 }
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/**-------------------------------------------
+ * \brief setTargetPose6D Metodo de la interfaz de IK, que guarda el target en la variable
+ * currentTarget. TODO Por ahora admitimos que el visualIK se espera hasta que el currentTarget
+ * termine de ejecutarse, pero hay que ampliar, usando una lista de targets pendientes.
+ * @param bodyPart name of the body part.
+ * @param target   pose of the goal point.
+ * @param weights  weights of each traslation and rotation components.
+ * @return the identifier of the target (an int)
+ * ------------------------------------------*/ 
+int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
+{
+	QMutexLocker l(mutex);
+	currentTarget.part    = QString::fromStdString(bodyPart);
+	currentTarget.id_IKG  = targetCounter;
+	currentTarget.pose    = target;
+	currentTarget.weights = weights;
+	
+	
+#ifdef USE_QTGUI
+	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
+#endif
+	updateInnerModel();
+	// Get closest node to initial position and update it in IMV
+	QVec position = innerModel->transform("robot", "grabPositionHandR");
+	closestToInit = graph->getCloserTo(position(0), position(1), position(2));
 
+#ifdef USE_QTGUI
+	const float *poseInit = graph->vertices[closestToInit].pose;
+	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+#endif
+	// Get closest node to target and update it in IMV
+	closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
+
+#ifdef USE_QTGUI
+	const float *poseEnd = graph->vertices[closestToEnd].pose;
+	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
+#endif
+	// Compute path and update state
+	Dijkstra d = Dijkstra(&(graph->edges));
+	d.calculateDistance(closestToInit);
+	path.clear();
+	d.go(closestToEnd, path);
+	
+	state = GIK_GoToInit;
+	targetCounter++;
+	return currentTarget.id_IKG;
+}
+/**
+ * \brief este metodo esta pensado para mover la cabeza del robot, principalmente.
+ * Se queda esperando hasta que la IK devuelve el estado del target. Si el estado es TRUE
+ * mueve la parte del robot hasta el target.
+ * @param bodyPart  name of the body part.
+ * @param ax the direction
+ * @param dist step to advance un milimeters
+ * @return the identifier of the target (an int)
+ */ 
+int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
+{
+	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+	
+	for(auto motor : inversekinematics_proxy->getTargetState(bodyPart, id).motors)
+	{
+		try
+		{
+			RoboCompJointMotor::MotorGoalPosition nodo;
+			nodo.name = motor.name;
+			nodo.position = motor.angle; // posición en radianes
+			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+			jointmotor_proxy->setPosition(nodo);
+		} catch (const Ice::Exception &ex) {
+			cout<<"EXCEPTION IN UPDATE MOTORS [TARGET ALING AXIS]: "<<ex<<endl;
+		}
+	}
+	return id;
+}
+/**
+ * \brief este metodo  mueve directamente la parte del robot sobre el eje indicado una distancia determinada.
+ * @param bodyPart  name of the body part.
+ * @param ax the direction
+ * @param dist step to advance un milimeters
+ * @return the identifier of the target (an int)
+ */ 
+int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist)
+{
+	int id = inversekinematics_proxy->setTargetAdvanceAxis(bodyPart, ax, dist);
+	
+	if (id==-1)
+	{
+		qDebug()<<"Error from IK: "<<id;
+		return id;
+	}
+	
+	while(inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+	
+	for(auto motor : inversekinematics_proxy->getTargetState(bodyPart, id).motors)
+	{
+		try
+		{
+			RoboCompJointMotor::MotorGoalPosition nodo;
+			nodo.name = motor.name;
+			nodo.position = motor.angle; // posición en radianes
+			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+			jointmotor_proxy->setPosition(nodo);
+		} catch (const Ice::Exception &ex) {
+			cout<<"EXCEPTION IN UPDATE MOTORS [TARGET ADVANCE AXIS]: "<<ex<<endl;
+		}
+	}
+	return id;
+}
+/**
+ * TODO
+ */ 
 void SpecificWorker::setFingers(const float d)
 {
 	inversekinematics_proxy->setFingers(d);
 }
-
+/**
+ * \brief Este metodo mira si el target de identificador senialado esta dentro de la lista de
+ * targets resueltos por el ikGraph. Si esta devuelve true en el campo finish del target.
+ * Si no esta, devuelve false.
+ * @param bodypart part of the robot that resolves the target
+ * @param targetID target identifier
+ * @return TargetState
+ */ 
 TargetState SpecificWorker::getTargetState(const string &bodyPart, const int targetID)
 {
-	TargetState s = lastTargetState;
-	s.finish = (state = GIK_NoTarget);
-	s.elapsedTime = 0;
+	TargetState s;
+	s.finish = false;
+	
+	QMutexLocker mm(mutexSolved);
+	for(int i=0; i<solvedList.size(); i++)
+	{
+		if (targetID == solvedList[i].id_IKG)
+		{
+			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
+			return solvedList[i].state;
+		}
+	}
 	return s;
 }
 
-int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist)
-{
-	return inversekinematics_proxy->setTargetAdvanceAxis(bodyPart, ax, dist);
-}
-
+/**
+ * \brief this method moves the motors to their home value
+ * @param bodyPart the part of the robot that we want to move to the home
+ */
 void SpecificWorker::goHome(const string &bodyPart)
 {
 	goHome();
@@ -723,58 +908,20 @@ void SpecificWorker::stop(const string &bodyPart)
 {
 	state = GIK_NoTarget;
 }
-
-int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
-{
-	QMutexLocker l(mutex);
-	finalTarget = target;
-
-#ifdef USE_QTGUI
-	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
-#endif
-
-	// Get closest node to initial position and update it in IMV
-	updateInnerModel();
-	QVec position = innerModel->transform("robot", "grabPositionHandR");
-	closestToInit = graph->getCloserTo(position(0), position(1), position(2));
-#ifdef USE_QTGUI
-	const float *poseInit = graph->vertices[closestToInit].pose;
-	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
-#endif
-
-	// Get closest node to target and update it in IMV
-	closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
-#ifdef USE_QTGUI
-	const float *poseEnd = graph->vertices[closestToEnd].pose;
-	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
-#endif
-
-	// Compute path and update state
-	Dijkstra d = Dijkstra(&(graph->edges));
-	d.calculateDistance(closestToInit);
-	path.clear();
-	d.go(closestToEnd, path);
-	state = GIK_GoToInit;
-
-	return 0;
-}
-
 bool SpecificWorker::getPartState(const string &bodyPart)
 {
 	if (state == GIK_NoTarget)
 		return true;
 	return false;
 }
-
+/**
+ * TODO
+ */ 
 void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
 {
 	inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
 }
 
-int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
-{
-	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
-}
 
 
 

@@ -439,11 +439,12 @@ void SpecificWorker::printXXX(QVec errorInv)
 bool SpecificWorker::correctRotation()
 {
 	updateAll();
-	innerModel->transform("root", "grabPositionHandR").print("POse interna: ");
+	innerModel->transform("root", "grabPositionHandR").print("\n\nPOSE INTERNA:");
+	innerModel->transform("root", "visual_hand").print("POSE MARCA:");
 	
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 60, umbralMinTime = 10;
-	static float umbralElapsedTime = 2.0, umbralErrorT = 5.0, umbralErrorR=0.06;
+	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -474,9 +475,10 @@ bool SpecificWorker::correctRotation()
 		return true;
 	}
 
-	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.75);
+	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
-	qDebug()<<"Error T: "<<errorInvP.norm2();
+	qDebug()<<"Error errorInvP: "<<errorInvP.norm2();
+	qDebug()<<"Error errorInvPEnAbsoluto: "<<errorInvPEnAbsoluto.norm2();
 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
