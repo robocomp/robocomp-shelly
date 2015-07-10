@@ -307,8 +307,8 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 #endif
 		}
 	}
-	//usleep(20000);
-	sleep(1);
+	usleep(20000);
+	//sleep(1);
 }
 /** ------------------------------------------------------
  * \brief goAndWait
@@ -498,7 +498,7 @@ void SpecificWorker::finalStep(TargetState stt)
 		{
 			MotorGoalPosition mgp;
 			mgp.position = gp.angle;
-			mgp.maxSpeed = 0.4;
+			mgp.maxSpeed = 3;//0.4;
 			mgp.name = gp.name;
 			mpl.push_back(mgp);
 		}
@@ -510,7 +510,7 @@ void SpecificWorker::finalStep(TargetState stt)
 // 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 // #endif
 		//usleep(500000);
-		sleep(2);
+		sleep(1);
 	}
 	solvedList.enqueue(currentTarget); //guardamos el target
 	qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
@@ -662,9 +662,46 @@ void SpecificWorker::compute()
 			{
 				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
 				qDebug()<<"ANTES: "<<innerModel->transform("root", "grabPositionHandR");
-				finalStep(stt);
+				//finalStep(stt);
+				
+				
+				QMutexLocker mm(mutexSolved);
+				currentTarget.state = stt;
+				if (stt.errorT > MAX_ERROR_IK)
+				{
+					lastFinish = "ERROR";
+			// #ifdef USE_QTGUI
+			// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+			// #endif
+				}
+				else
+				{
+					MotorGoalPositionList mpl;
+					for (auto gp : stt.motors)
+					{
+						MotorGoalPosition mgp;
+						mgp.position = gp.angle;
+						mgp.maxSpeed = 3;//0.4;
+						mgp.name = gp.name;
+						mpl.push_back(mgp);
+					}
+					goAndWaitDirect(mpl);
+					lastMotorGoalPositionList = mpl;
+					lastFinish = "OK";
+			// #ifdef USE_QTGUI
+			// 		updateFrame(500000);
+			// 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+			// #endif
+					//usleep(500000);
+					sleep(1);
+				}
+				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
 				updateInnerModel();
 				qDebug()<<"DESPUES: "<<innerModel->transform("root", "grabPositionHandR");
+				solvedList.enqueue(currentTarget); //guardamos el target
+				qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
+				qDebug()<<"Ya estoy despierto";
+								
 				state = GIK_NoTarget;
 			}
 			break;
@@ -743,11 +780,11 @@ void SpecificWorker::goHome()
 
 	for (int i=0; i<7; i++)
 	{
-		listGoals[i].maxSpeed = 0.6;
+		listGoals[i].maxSpeed = 4;//0.6;
 	}
 
 	jointmotor_proxy->setSyncPosition(listGoals);
-	usleep(20000);
+	//usleep(20000);
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
