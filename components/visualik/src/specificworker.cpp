@@ -158,7 +158,7 @@ void SpecificWorker::compute()
 			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
 			{
 				qDebug()<<"---> El IK ha terminado.";
-				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
+				//updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
@@ -194,7 +194,7 @@ void SpecificWorker::compute()
 		case State::CORRECT_ROTATION:
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			//updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctRotation()==true or abortarotacion==true)
 			{
 				if(nextTargets.isEmpty()==false)
