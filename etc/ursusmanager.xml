@@ -146,7 +146,7 @@
         <dependence alias="aprilTecho" />
         <dependence alias="base" />
         <workingDir path="/home/robocomp/" />
-        <upCommand command="rcremote robonuc2.local relocalizadorTecho /home/robocomp/robocomp/components/robocomp-robolab/components/aprilBasedLocalizationComp/ ./bin/aprilbasedlocalization --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
+        <upCommand command="rcremote robonuc2.local relocalizadorTecho /home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/ ./bin/Aprilbasedlocalization --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
         <downCommand command="ssh robolab@robonuc2.local killall -9 aprilbasedlocalization" />
         <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
         <xpos value="-156.19432562" />
