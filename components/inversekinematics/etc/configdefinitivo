@@ -1,5 +1,5 @@
 # Endpoints for implemented interfaces
-InverseKinematics.Endpoints=tcp -p 10220
+InverseKinematics.Endpoints=tcp -p 10240
 CommonBehavior.Endpoints=tcp -p 12207
 JoystickAdapterTopic.Endpoints=tcp -p 12226
 

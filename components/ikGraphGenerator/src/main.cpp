@@ -78,6 +78,7 @@
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
 
+#include <inversekinematicsI.h>
 
 #include <InverseKinematics.h>
 #include <JointMotor.h>
@@ -187,6 +188,17 @@ int ikGraphGenerator::run(int argc, char* argv[])
 		adapterCommonBehavior->activate();
 
 
+
+
+		// Server adapter creation and publication
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematics.Endpoints", tmp, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematics";
+		}
+		Ice::ObjectAdapterPtr adapterInverseKinematics = communicator()->createObjectAdapterWithEndpoints("InverseKinematics", tmp);
+		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
+		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
+		adapterInverseKinematics->activate();
 
 
 

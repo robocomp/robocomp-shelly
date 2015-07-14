@@ -14,6 +14,11 @@
 
 
 		<transform  id="base_trans" >
+			
+			<transform id="cameraAprilPosition" tx="0" ty="945" tz="-245">
+				<rotation id="cameraAprilRotation" rx="0" ry="1.570796326794" rz="3.14159265359">
+					<camera id="RGBCeiling" focal="746.20" />
+			</transform>
 
 			<joint id="base" port="10067" axis="y" home="0">
 
@@ -44,7 +49,7 @@
 													<transform id="rgbd_transform0" ty="85">
 														<transform id="rgbd_transform" tz="20">
 <!-- 																<axes id="00000" length="200" width="8" />															 -->
-																<rgbd id="rgbd" focal="525" width="640" height="480" port="10096" ifconfig="10068,10004" />
+																<rgbd id="rgbd" focal="300" width="640" height="480" port="10096" ifconfig="10068,10004" />
 														</transform>
 														<mesh id="sensorRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 														<!--<plane id="sensorRGBD" nz="1" pz="-20" size="100,16,20" repeat="1" texture="#000000" /> -->
@@ -176,7 +181,7 @@
 																										<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
 																										<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
 																										<transform id="nhhh" ty="10">
-																											<axes id="targetAxes" length="120" width="2" />
+<!-- 																											<axes id="targetAxes" length="120" width="2" /> -->
 																										</transform>
 																									</transform> <!-- handmesh2_t-->
 																								</transform><!-- Thandmesh2_4-->

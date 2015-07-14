@@ -5,6 +5,7 @@ Component ikGraphGenerator
 {
 	Communications
 	{
+		implements InverseKinematics;
 		requires InverseKinematics, JointMotor;
 	};
 	language cpp;

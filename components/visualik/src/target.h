@@ -24,11 +24,12 @@ class Target
 {
 public:
 	//Atributos, estructuras y enumerados publicos:
-	enum class State {IDLE, WAITING, IN_PROCESS, RESOLVED};
+	enum class State {IDLE, WAITING, IN_PROCESS, NOT_RESOLVED, RESOLVED};
 	
  private:
 	//Atributos privados:
-	int 	identifier;
+	int 	idIK;
+	int     idVIK;
 	State 	state;
 	string 	bodyPart;
 	QVec	pose;
@@ -42,7 +43,8 @@ public:
 	~Target	();
 	
 	//METODOS PUT
-	void	setID		(int id_);
+	void	setID_IK	(int id_);
+	void	setID_VIK   (int id_);
 	void 	setState	(Target::State state_);
 	void 	setBodyPart	(string bodyPart_);
 	void 	setPose		(QVec pose_);
@@ -52,7 +54,8 @@ public:
 	void	setRunTime	();
 
 	//METODOS GET:
-	int				getID		();
+	int				getID_IK	();
+	int             getID_VIK   ();
 	Target::State 	getState	();
 	string 			getBodyPart	();
 	QVec			getPose		();

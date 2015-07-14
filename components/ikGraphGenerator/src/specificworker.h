@@ -31,122 +31,24 @@
 #ifdef USE_QTGUI
 	#include <osgviewer/osgview.h>
 	#include <innermodel/innermodelviewer.h>
-	#include <innermodeldraw.h>
 #endif
 
-#include <nabo/nabo.h>
 #include <innermodeldraw.h>
-
-#define MAX_ERROR_IK 5.
+#include <nabo/nabo.h>
 #include <djk.h>
+#include <graph.h>
 
 using namespace boost;
 
-
+#define MAX_ERROR_IK 5.
 #define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
 
-class ConnectivityGraph
-{
-public:
-	struct VertexData
-	{
-		bool valid;
-		float pose[3];
-		std::vector < MotorGoalPositionList > configurations;
-		std::size_t id;
-		VertexData()
-		{
-			id = -1;
-			valid = false;
-		}
-		VertexData(std::size_t i, const float *p)
-		{
-			id = i;
-			for (int j=0; j<3; j++)
-				pose[j] = p[0];
-		}
-		void setPose(const float *p)
-		{
-			setPose(p[0], p[1], p[2]);
-		}
-		void setPose(const float x, const float y, const float z)
-		{
-			pose[0] = x;
-			pose[1] = y;
-			pose[2] = z;
-			valid = true;
-		}
-		float distTo(const float *p)
-		{
-			if (valid)
-				return sqrt( (p[0]-pose[0])*(p[0]-pose[0]) + (p[1]-pose[1])*(p[1]-pose[1]) + (p[2]-pose[2])*(p[2]-pose[2]) );
-			return 1000000000000;
-		}
-	};
-	ConnectivityGraph(int32_t size)
-	{
-		for (int32_t i=0;i<size; i++)
-		{
-			vertices.push_back(VertexData());
-			std::vector<float> eds;
-			for (int32_t j=0;j<size; j++)
-			{
-				eds.push_back(DJ_INFINITY);
-			}
-			edges.push_back(eds);
-		}
-	}
-	
-	void addVertex(const VertexData &v)
-	{
-		// Add vertex
-		vertices.push_back(v);
-		// Add edges for existing nodes
-		for (uint32_t j=0;j<vertices.size()-1; j++)
-		{
-			edges[j].push_back(DJ_INFINITY);
-		}
-		// Add edges for the new node
-		std::vector<float> eds;
-		for (uint32_t j=0;j<vertices.size(); j++)
-		{
-			eds.push_back(DJ_INFINITY);
-		}
-		edges.push_back(eds);
-	}
+enum GIKTargetState { GIK_NoTarget, GIK_GoToInit, GIK_GoToEnd, GIK_GoToActualTargetSend, GIK_GoToActualTargetSent };
 
-	int size()
-	{
-		return vertices.size();
-	}
-
-
-
-
-
-	std::vector<VertexData> vertices;
-	std::vector< std::vector< float > > edges;
-
-	void add_edge(int a, int b, float dist)
-	{
-		edges[a][b] = dist;
-		edges[b][a] = dist;
-	}
-
-	void add_configurationToNode(int node, MotorGoalPositionList gpl)
-	{
-		vertices[node].configurations.push_back(gpl);
-	}
-
-	int path(int source, int dest, std::vector<int> &path)
-	{
-		Dijkstra d = Dijkstra(&edges);
-		d.calculateDistance(source);
-		return d.go(dest, path);
-	}
-};
-
+/**
+ * \class WorkerThread inherites of QThread
+ */ 
 class WorkerThread : public QThread
 {
 Q_OBJECT
@@ -155,47 +57,96 @@ public:
 	{
 		data = data_;
 	}
-
 	void *data;
-
 	void run();
 };
-
+/**
+ * \class SpecificWorker main class
+ */ 
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
+
 public:
-	SpecificWorker(MapPrx& mprx);
+	SpecificWorker (MapPrx& mprx);
 	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
+	bool setParams (RoboCompCommonBehavior::ParameterList params);
+	
+	
+	int         setTargetAdvanceAxis (const string &bodyPart, const Axis &ax, const float dist);
+	int         setTargetAlignaxis   (const string &bodyPart, const Pose6D &target, const Axis &ax);
+	int         setTargetPose6D      (const string &bodyPart, const Pose6D &target, const WeightVector &weights);
+	
+	void        setFingers           (const float d);
+	void        setJoint             (const string &joint, const float angle, const float maxSpeed);
+
+	void        stop                 (const string &bodyPart);
+	void        goHome               (const string &bodyPart);
+
+	bool        getPartState         (const string &bodyPart);
+	TargetState getTargetState       (const string &bodyPart, const int targetID);
 
 
 public slots:
-	void computeHard();
-	void compute();
+	void initFile    ();
+	void initGenerate();
+	void computeHard ();
+	void compute     ();
+
+	void goIK        ();
+	void goVIK       ();
+	void goHome      ();
 
 private:
-	void updateFrame(uint wait_usecs=0);
-	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive=false);
-	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive=false);
-	void goAndWaitDirect(const MotorGoalPositionList &mpl);
+	struct Target
+	{
+		QString       part;
+		int           id_IKG;
+		int           id_IK;
+		Pose6D        pose;
+		WeightVector  weights;
+		TargetState   state;
+	};
+	
+	
+	void updateFrame      (uint wait_usecs=0);
+	bool goAndWait        (int nodeId, MotorGoalPositionList &mpl, int &recursive);
+	bool goAndWait        (float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
+	void goAndWaitDirect  (const MotorGoalPositionList &mpl);
+	void updateInnerModel ();
+	void finalStep        (TargetState stt);
 
-	std::pair<float, float> xrange, yrange, zrange;
-
-// 	int getRandomNodeClose(int &current, float &dist);
-	MotorGoalPositionList centerConfiguration;
-
-// 	float maxDist;
-	ConnectivityGraph *graph;
-	WorkerThread *workerThread;
+	////////////////////////////////////////
+	bool                    READY;
+	InnerModel              *innerModel;
+	GIKTargetState          state;
+	//QQueue<Target>          nextTargets;     // lista de targets ejecutandose o en espera de ser ejecutados
+	Target                  currentTarget;
+	QQueue<Target>          solvedList;      // lista de targets resueltos.
+	QMutex                  *mutexSolved;
+	int                     targetCounter;   // contador de targets
+	int                     closestToInit;
+	int                     closestToEnd;
+	int                     targetId;
+	std::vector<int>        path;
+	std::pair<float, float> xrange;
+	std::pair<float, float> yrange;
+	std::pair<float, float> zrange;
+	std::string             lastFinish;
+// 	TargetState             lastTargetState;
+	
+	MotorGoalPositionList   centerConfiguration;
+	MotorGoalPositionList   lastMotorGoalPositionList;
+	
+	ConnectivityGraph       *graph;
+	WorkerThread            *workerThread;
 
 #ifdef USE_QTGUI
-	OsgView *osgView;
-	InnerModelViewer *innerViewer;
-	InnerModel *innerVisual;
+	OsgView                 *osgView;
+	InnerModelViewer        *innerViewer;
+	InnerModel              *innerVisual;
 #endif
-
-
+	
 };
 
 #endif
