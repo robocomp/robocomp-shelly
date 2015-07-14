@@ -188,6 +188,21 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
+
+
+	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
+	MotorGoalPosition goal;
+	for (auto init : initializations)
+	{
+		QMutexLocker locker(mutex);
+		std::pair<QString, QString> ret;
+		goal.position = init.second;
+		goal.name = init.first;
+		goal.maxSpeed = 0.5;
+		try { prxMap.at(init.first)->setPosition(goal); }
+		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
+	}
+
 	return true;
 }
 
