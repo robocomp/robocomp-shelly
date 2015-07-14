@@ -156,7 +156,7 @@ void SpecificWorker::compute()
 			if(partsIterator.value().getTargetList()[0].getTargetState() == Target::FINISH) /// The inversedkinematic has finished
 			{
 				//TODO QUITAR DESPUES
-				updateMotors(partsIterator.value(), partsIterator.value().getTargetList()[0].getTargetFinalAngles());
+				//updateMotors(partsIterator.value(), partsIterator.value().getTargetList()[0].getTargetFinalAngles());
 				updateAngles(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 
 				if(inversedkinematic->deleteTarget() == true)
@@ -636,20 +636,20 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 }
 
 // TODO QUITAR DESPUES
-void SpecificWorker::updateMotors (BodyPart bp, QVec angles)
-{
-	for(int i=0; i<bp.getMotorList().size(); i++)
-	{
-		try
-		{
-			RoboCompJointMotor::MotorGoalPosition nodo;
-			nodo.name = bp.getMotorList()[i].toStdString();
-			nodo.position = angles[i]; // posición en radianes
-			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
-			jointmotor_proxy->setPosition(nodo);
-		} catch (const Ice::Exception &ex) {
-			cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;
-		}
-	}
-	sleep(1);
-}
+// void SpecificWorker::updateMotors (BodyPart bp, QVec angles)
+// {
+// 	for(int i=0; i<bp.getMotorList().size(); i++)
+// 	{
+// 		try
+// 		{
+// 			RoboCompJointMotor::MotorGoalPosition nodo;
+// 			nodo.name = bp.getMotorList()[i].toStdString();
+// 			nodo.position = angles[i]; // posición en radianes
+// 			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+// 			jointmotor_proxy->setPosition(nodo);
+// 		} catch (const Ice::Exception &ex) {
+// 			cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;
+// 		}
+// 	}
+// 	sleep(1);
+// }

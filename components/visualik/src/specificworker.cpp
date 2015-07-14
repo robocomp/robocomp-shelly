@@ -26,7 +26,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
-	
+		
 	stateMachine		= State::IDLE;
 	abortatraslacion 	= false;
 	abortarotacion 		= false;
@@ -48,7 +48,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-
+	file.close();
 }
 /**
  * \brief Metodo SET PARAM
@@ -158,6 +158,7 @@ void SpecificWorker::compute()
 			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
 			{
 				qDebug()<<"---> El IK ha terminado.";
+				//updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
@@ -193,6 +194,7 @@ void SpecificWorker::compute()
 		case State::CORRECT_ROTATION:
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
+			//updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctRotation()==true or abortarotacion==true)
 			{
 				if(nextTargets.isEmpty()==false)
@@ -233,6 +235,7 @@ bool SpecificWorker::getPartState(const string &bodyPart)
 TargetState SpecificWorker::getTargetState(const string &bodyPart, const int targetID)
 {
 	//return inversekinematics_proxy->getTargetState(bodyPart, targetID);
+	QMutexLocker ml(mutexSolved);
 	RoboCompInverseKinematics::TargetState 	state;
 	state.finish = false;
 	
@@ -301,7 +304,12 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  */
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
-	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	
+	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+	return id;
+// 	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 }
 /**
  * \brief this method moves the motors to their home value
@@ -420,7 +428,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  * @param errorInv 
  */ 
 void SpecificWorker::printXXX(QVec errorInv)
-{
+{	
 	file<<"P: ("      <<currentTarget.getPose();
 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 	file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
@@ -428,7 +436,7 @@ void SpecificWorker::printXXX(QVec errorInv)
 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
 	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state<<endl;
-	flush(file);
+	flush(file);	
 }
 
 /**
@@ -439,11 +447,12 @@ void SpecificWorker::printXXX(QVec errorInv)
 bool SpecificWorker::correctRotation()
 {
 	updateAll();
-	innerModel->transform("root", "grabPositionHandR").print("POse interna: ");
+	innerModel->transform("root", "grabPositionHandR").print("\n\nPOSE INTERNA:");
+	innerModel->transform("root", "visual_hand").print("POSE MARCA:");
 	
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 60, umbralMinTime = 10;
-	static float umbralElapsedTime = 2.0, umbralErrorT = 5.0, umbralErrorR=0.06;
+	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -474,7 +483,7 @@ bool SpecificWorker::correctRotation()
 		return true;
 	}
 
-	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.75);
+	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
 	qDebug()<<"Error T: "<<errorInvP.norm2();
 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
@@ -516,7 +525,7 @@ void SpecificWorker::updateAll()
 /**
  * \brief Metodo UPDATE MOTORS
  */
-/*void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
+void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 {
 	for(auto motor : motors)
 	{
@@ -532,4 +541,4 @@ void SpecificWorker::updateAll()
 		}
 	}
 	sleep(1);
-}*/
+}

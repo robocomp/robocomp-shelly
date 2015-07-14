@@ -34,22 +34,21 @@
 #endif
 
 #include <innermodeldraw.h>
-
 #include <nabo/nabo.h>
-
-#define MAX_ERROR_IK 5.
-
 #include <djk.h>
 #include <graph.h>
 
 using namespace boost;
 
-
+#define MAX_ERROR_IK 5.
 #define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
 #define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
 
 enum GIKTargetState { GIK_NoTarget, GIK_GoToInit, GIK_GoToEnd, GIK_GoToActualTargetSend, GIK_GoToActualTargetSent };
 
+/**
+ * \class WorkerThread inherites of QThread
+ */ 
 class WorkerThread : public QThread
 {
 Q_OBJECT
@@ -58,77 +57,96 @@ public:
 	{
 		data = data_;
 	}
-
 	void *data;
-
 	void run();
 };
-
+/**
+ * \class SpecificWorker main class
+ */ 
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 
 public:
-	SpecificWorker(MapPrx& mprx);
+	SpecificWorker (MapPrx& mprx);
 	~SpecificWorker();
-	bool setParams(RoboCompCommonBehavior::ParameterList params);
+	bool setParams (RoboCompCommonBehavior::ParameterList params);
+	
+	
+	int         setTargetAdvanceAxis (const string &bodyPart, const Axis &ax, const float dist);
+	int         setTargetAlignaxis   (const string &bodyPart, const Pose6D &target, const Axis &ax);
+	int         setTargetPose6D      (const string &bodyPart, const Pose6D &target, const WeightVector &weights);
+	
+	void        setFingers           (const float d);
+	void        setJoint             (const string &joint, const float angle, const float maxSpeed);
+
+	void        stop                 (const string &bodyPart);
+	void        goHome               (const string &bodyPart);
+
+	bool        getPartState         (const string &bodyPart);
+	TargetState getTargetState       (const string &bodyPart, const int targetID);
+
 
 public slots:
-	void initFile();
+	void initFile    ();
 	void initGenerate();
-	void computeHard();
-	void compute();
+	void computeHard ();
+	void compute     ();
 
-	void goIK();
-	void goVIK();
-	void goHome();
+	void goIK        ();
+	void goVIK       ();
+	void goHome      ();
 
 private:
-	void updateFrame(uint wait_usecs=0);
-	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recursive);
-	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
-	void goAndWaitDirect(const MotorGoalPositionList &mpl);
-	void updateInnerModel();
+	struct Target
+	{
+		QString       part;
+		int           id_IKG;
+		int           id_IK;
+		Pose6D        pose;
+		WeightVector  weights;
+		TargetState   state;
+	};
+	
+	
+	void updateFrame      (uint wait_usecs=0);
+	bool goAndWait        (int nodeId, MotorGoalPositionList &mpl, int &recursive);
+	bool goAndWait        (float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
+	void goAndWaitDirect  (const MotorGoalPositionList &mpl);
+	void updateInnerModel ();
+	void finalStep        (TargetState stt);
 
-
-	std::pair<float, float> xrange, yrange, zrange;
-
-	MotorGoalPositionList centerConfiguration;
-	MotorGoalPositionList lastMotorGoalPositionList;
-
-	TargetState lastTargetState;
-	std::string lastFinish;
-
-	ConnectivityGraph *graph;
-	WorkerThread *workerThread;
+	////////////////////////////////////////
+	bool                    READY;
+	InnerModel              *innerModel;
+	GIKTargetState          state;
+	//QQueue<Target>          nextTargets;     // lista de targets ejecutandose o en espera de ser ejecutados
+	Target                  currentTarget;
+	QQueue<Target>          solvedList;      // lista de targets resueltos.
+	QMutex                  *mutexSolved;
+	int                     targetCounter;   // contador de targets
+	int                     closestToInit;
+	int                     closestToEnd;
+	int                     targetId;
+	std::vector<int>        path;
+	std::pair<float, float> xrange;
+	std::pair<float, float> yrange;
+	std::pair<float, float> zrange;
+	std::string             lastFinish;
+// 	TargetState             lastTargetState;
+	
+	MotorGoalPositionList   centerConfiguration;
+	MotorGoalPositionList   lastMotorGoalPositionList;
+	
+	ConnectivityGraph       *graph;
+	WorkerThread            *workerThread;
 
 #ifdef USE_QTGUI
-	OsgView *osgView;
-	InnerModelViewer *innerViewer;
-	InnerModel *innerVisual;
+	OsgView                 *osgView;
+	InnerModelViewer        *innerViewer;
+	InnerModel              *innerVisual;
 #endif
-	InnerModel *innerModel;
-
-	GIKTargetState state;
-	int closestToInit, closestToEnd;
-	std::vector<int> path;
-	int targetId;
-	Pose6D finalTarget;
-	WeightVector weights;
-
-
-
-
-	void setFingers(const float d);
-	TargetState getTargetState(const string &bodyPart, const int targetID);
-	int setTargetAdvanceAxis(const string &bodyPart, const Axis &ax, const float dist);
-	void goHome(const string &bodyPart);
-	void stop(const string &bodyPart);
-	int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights);
-	bool getPartState(const string &bodyPart);
-	void setJoint(const string &joint, const float angle, const float maxSpeed);
-	int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax);
-
+	
 };
 
 #endif

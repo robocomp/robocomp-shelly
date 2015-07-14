@@ -92,7 +92,7 @@ private:
 	bool correctTraslation ();
 	bool correctRotation   ();
 	void updateAll         ();
-	//void updateMotors      (RoboCompInverseKinematics::MotorList motors);
+	void updateMotors      (RoboCompInverseKinematics::MotorList motors);
 	void printXXX          (QVec errorInv);
 
 };

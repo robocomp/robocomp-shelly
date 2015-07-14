@@ -97,7 +97,7 @@ private:
 	void showInformation        (BodyPart part, Target target);
 	void addTargetSolved        (QString part, Target t);
 	//TODO QUITAR DESPUES
-	void updateMotors           (BodyPart bp, QVec angles);
+	//void updateMotors           (BodyPart bp, QVec angles);
 };
 
 #endif
