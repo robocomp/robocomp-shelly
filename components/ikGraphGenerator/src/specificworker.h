@@ -37,16 +37,53 @@
 #include <nabo/nabo.h>
 #include <innermodeldraw.h>
 
-#define MAX_ERROR_IK 40.
+#define MAX_ERROR_IK 5.
 #include <djk.h>
 
 using namespace boost;
 
 
+#define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
+#define MAX(X,Y) (((X) > (Y)) ? (X) : (Y))
+
 class ConnectivityGraph
 {
 public:
-
+	struct VertexData
+	{
+		bool valid;
+		float pose[3];
+		std::vector < MotorGoalPositionList > configurations;
+		std::size_t id;
+		VertexData()
+		{
+			id = -1;
+			valid = false;
+		}
+		VertexData(std::size_t i, const float *p)
+		{
+			id = i;
+			for (int j=0; j<3; j++)
+				pose[j] = p[0];
+		}
+		void setPose(const float *p)
+		{
+			setPose(p[0], p[1], p[2]);
+		}
+		void setPose(const float x, const float y, const float z)
+		{
+			pose[0] = x;
+			pose[1] = y;
+			pose[2] = z;
+			valid = true;
+		}
+		float distTo(const float *p)
+		{
+			if (valid)
+				return sqrt( (p[0]-pose[0])*(p[0]-pose[0]) + (p[1]-pose[1])*(p[1]-pose[1]) + (p[2]-pose[2])*(p[2]-pose[2]) );
+			return 1000000000000;
+		}
+	};
 	ConnectivityGraph(int32_t size)
 	{
 		for (int32_t i=0;i<size; i++)
@@ -60,6 +97,24 @@ public:
 			edges.push_back(eds);
 		}
 	}
+	
+	void addVertex(const VertexData &v)
+	{
+		// Add vertex
+		vertices.push_back(v);
+		// Add edges for existing nodes
+		for (uint32_t j=0;j<vertices.size()-1; j++)
+		{
+			edges[j].push_back(DJ_INFINITY);
+		}
+		// Add edges for the new node
+		std::vector<float> eds;
+		for (uint32_t j=0;j<vertices.size(); j++)
+		{
+			eds.push_back(DJ_INFINITY);
+		}
+		edges.push_back(eds);
+	}
 
 	int size()
 	{
@@ -67,31 +122,7 @@ public:
 	}
 
 
-	struct VertexData
-	{
-		float pose[3];
-		std::vector < MotorGoalPositionList > configurations;
-		std::size_t id;
-		VertexData()
-		{
-			id = -1;
-		}
-		VertexData(std::size_t i, const float *p)
-		{
-			id = i;
-			for (int j=0; j<3; j++)
-				pose[j] = p[0];
-		}
-		void setPose(const float *p)
-		{
-			for (int j=0; j<3; j++)
-				pose[j] = p[0];
-		}
-		float distTo(const float *p)
-		{
-			return sqrt( (p[0]-pose[0])*(p[0]-pose[0]) + (p[1]-pose[1])*(p[1]-pose[1]) + (p[2]-pose[2])*(p[2]-pose[2]) );
-		}
-	};
+
 
 
 	std::vector<VertexData> vertices;
@@ -146,17 +177,15 @@ public slots:
 private:
 	void updateFrame(uint wait_usecs=0);
 	bool goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive=false);
-	bool goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive=false);
+	bool goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive=false);
 	void goAndWaitDirect(const MotorGoalPositionList &mpl);
 
 	std::pair<float, float> xrange, yrange, zrange;
 
-	int getRandomNodeClose(int &current, float &dist);
-
+// 	int getRandomNodeClose(int &current, float &dist);
 	MotorGoalPositionList centerConfiguration;
 
-
-	float maxDist;
+// 	float maxDist;
 	ConnectivityGraph *graph;
 	WorkerThread *workerThread;
 

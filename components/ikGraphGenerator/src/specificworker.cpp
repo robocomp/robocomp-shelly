@@ -18,12 +18,13 @@
  */
 #include "specificworker.h"
 
+#define CLOSE_DISTANCE 200
 /**
 * \brief Default constructor
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	maxDist = 100;
+// 	maxDist = 180;
 
 
 
@@ -87,49 +88,89 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		qFatal("Abort");
 	}
 
-	uint32_t included=0;
-	uint32_t size_f = 200;
-
 
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
 
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(18,18,18));
 
 
-	xrange = std::pair<float, float>(-50,  400);
-	yrange = std::pair<float, float>( 650, 950);
-	zrange = std::pair<float, float>( 175,  400);
+	xrange = std::pair<float, float>( -80, 450);
+	yrange = std::pair<float, float>( 650, 1100);
+	zrange = std::pair<float, float>( 125, 450);
+	
+	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
+	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "centro", "root", center, QVec::vec3(1,0,0), "#994444", QVec::vec3(12,12,12));
+
+	
+	float XR = abs(xrange.second - xrange.first);
+	float YR = abs(yrange.second - yrange.first);
+	float ZR = abs(zrange.second - zrange.first);
+	float max = MAX(MAX(XR, YR), ZR);
+	XR = XR/max;
+	YR = YR/max;
+	ZR = ZR/max;
+	float step = sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
+
+	
+	uint32_t included=0;
+//#define RANDOMGENERATION
+#ifdef RANDOMGENERATION
+	uint32_t size_f = 200;
 	graph = new ConnectivityGraph(size_f);
 	while (included<size_f)
 	{
-		QVec xm = QVec::uniformVector(size_f, xrange.first, xrange.second);
-		QVec ym = QVec::uniformVector(size_f, yrange.first, yrange.second);
-		QVec zm = QVec::uniformVector(size_f, zrange.first, zrange.second);
-
-		QString id = QString("node_") + QString::number(included);
-		if (true)
+		float xpos = QVec::uniformVector(size_f, xrange.first, xrange.second)(included);
+		float ypos = QVec::uniformVector(size_f, yrange.first, yrange.second)(included);
+		float zpos = QVec::uniformVector(size_f, zrange.first, zrange.second)(included);
+#else
+	graph = new ConnectivityGraph(0);
+	for (float xpos = xrange.first; xpos<xrange.second; xpos+=step)
+	{
+		for (float ypos = yrange.first; ypos<yrange.second; ypos+=step)
 		{
-			graph->vertices[included].pose[0] = xm(included);
-			graph->vertices[included].pose[1] = ym(included);
-			graph->vertices[included].pose[2] = zm(included);
-			graph->vertices[included].configurations.clear();
-			graph->vertices[included].id = included;
-
+			for (float zpos = zrange.first; zpos<zrange.second; zpos+=step)
 			{
-				QMutexLocker l(mutex);
-				InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root",
-				  QVec::vec3(graph->vertices[included].pose[0],
-				  graph->vertices[included].pose[1], graph->vertices[included].pose[2]),
-				  QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8)
-				);
+#endif
+
+				QVec pos = QVec::vec3(xpos, ypos, zpos);
+				QVec diff = center-pos;
+				diff(0) = abs(diff(0))/XR;
+				diff(1) = abs(diff(1))/YR;
+				diff(2) = abs(diff(2))/ZR;
+				
+#ifndef RANDOMGENERATION
+				graph->addVertex(ConnectivityGraph::VertexData());
+#endif
+				if (diff.norm2() < 300)
+				{
+					QString id = QString("node_") + QString::number(included);
+					graph->vertices[included].setPose(xpos, ypos, zpos);
+					graph->vertices[included].configurations.clear();
+					graph->vertices[included].id = included;
+
+					{
+						QMutexLocker l(mutex);
+						InnerModelDraw::addPlane_ignoreExisting(innerViewer, id, "root",
+							QVec::vec3(graph->vertices[included].pose[0],
+							graph->vertices[included].pose[1], graph->vertices[included].pose[2]),
+							QVec::vec3(1,0,0), "#990000", QVec::vec3(8,8,8)
+						);
+					}
+					included++;
+				}
+#ifdef RANDOMGENERATION
+	}
+#else
 			}
-			included++;
 		}
 	}
+#endif
 
 
-	if (not goAndWait(200, 800, 300, centerConfiguration, true))
+
+
+	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, true))
 		qFatal("Couldn't get initial position");
 
 
@@ -153,26 +194,33 @@ void SpecificWorker::updateFrame(uint wait_usecs)
 
 void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
-	jointmotor_proxy->setSyncPosition(mpl);
-	usleep(500000);
+	static MotorGoalPositionList last;
+	
+	if (mpl == last)
+	{
+		printf("skipping same config\n");
+		return;
+	}
+	last = mpl;
 
+	jointmotor_proxy->setSyncPosition(mpl);
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)
 		{
 			innerVisual->updateJointValue(QString::fromStdString(g.name), g.position);
-// 			printf("%s: %f\n", g.name.c_str(), g.position);
+			printf("%s: %f\n", g.name.c_str(), g.position);
 		}
 	}
-	return;
+	usleep(20000);
 }
 
 bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, bool recursive)
 {
-	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], mpl, recursive);
+	return goAndWait(graph->vertices[nodeId].pose[0], graph->vertices[nodeId].pose[1], graph->vertices[nodeId].pose[2], nodeId, mpl, recursive);
 }
 
-bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList &mpl, bool recursive)
+bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, bool recursive)
 {
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = x;
@@ -192,28 +240,27 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	if (relx < 0.33)
 		target.ry = -1.57;
 	else if (relx < 0.66)
-		target.ry = -0.8;
+		target.ry = -1.17;
 	else
-		target.ry = 0.;
+		target.ry = 0.77;
 
-// 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
-// 	if (relz < 0.33)
-// 		target.ry -= -0.8;
-// 	else if (relz < 0.66)
-// 		target.ry -= -0.4;
-// 	else
-// 		target.ry -= 0.;
-// 	
-// 	if (target.ry < -1.57)
-// 		target.ry = -1.57;
+	float relz = (z - zrange.first) / (zrange.second - zrange.first);
+	if (relz < 0.33)
+		target.ry -= 0.8;
+	else if (relz < 0.66)
+		target.ry -= 0.4;
+	else
+		target.ry -= 0.;
 
-// 	target.ry = -1.57;
+	if (target.ry < -1.57)
+		target.ry = -1.57;
+
 	target.rz = -3.14;
 
 	RoboCompInverseKinematics::WeightVector weights;
-	weights.x  = weights.y  = weights.z  = 1;
-	weights.rx = 0.01;
-	weights.ry = 0.01;
+	weights.x = weights.y = weights.z = 1;
+	weights.rx = 0.1;
+	weights.ry = 0.1;
 	weights.rz = 0.1;
 
 	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
@@ -222,20 +269,11 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	QTime initialTime = QTime::currentTime();
 	do
 	{
-		usleep(500000);
+		usleep(10000);
 		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
 		if (stt.finish == true)
 			break;
-	} while (initialTime.elapsed()<10000);
-
-	if (initialTime.elapsed()>=10000)
-		qFatal("10 seconds!");
-
-	if (not stt.finish)
-	{
-		printf("cant\'t go\n");
-		return false;
-	}
+	} while (initialTime.elapsed()<15000);
 
 	{
 		QMutexLocker l(mutex);
@@ -253,37 +291,76 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	}
 
 	goAndWaitDirect(mpl);
-	
+
 	float err = innerVisual->transform("grabPositionHandR", "target").norm2();
+	
 	printf("ERROR segun IM %f\n", err);
 	printf("ERROR segun IK %f\n", stt.errorT);
+	printf("IK message %s\n", stt.state.c_str());
 
-	if (stt.errorT > MAX_ERROR_IK)
+	if (stt.errorT > MAX_ERROR_IK or initialTime.elapsed()>15000 or not stt.finish)
 	{
+		printf("cant\'t go\n");
+		sleep(60);
+		
 		if (not recursive)
 		{
+			printf("recursive call\n");
+			bool ret = false;
 			printf("reseteando al mas parecido\n");
-			float minDist = -1;
+			float mustBeBiggerThan = -1;
 			MotorGoalPositionList minConfig;
-			for (int j=0; j<graph->size(); j++)
+			for (int jj=0; jj<10; jj++)
 			{
-				if (graph->vertices[j].configurations.size() > 0)
+				if (jj == 3 and node != -1)
 				{
-					float p[3];
-					p[0] = x;
-					p[1] = y;
-					p[2] = z;
-					float dist = graph->vertices[j].distTo(p);
-					if (minDist < 0 or minDist > dist)
+					QVec xm = QVec::uniformVector(graph->size(), xrange.first, xrange.second);
+					QVec ym = QVec::uniformVector(graph->size(), yrange.first, yrange.second);
+					QVec zm = QVec::uniformVector(graph->size(), zrange.first, zrange.second);
+					graph->vertices[node].pose[0] = xm(node);
+					graph->vertices[node].pose[1] = ym(node);
+					graph->vertices[node].pose[2] = zm(node);
+				}
+				float minDist = 99999999;
+				int minIndex = -1;
+				printf("%f %f\n", mustBeBiggerThan, minDist);
+				printf("(iter:%d) graph size %d\n", jj, graph->size());
+				for (int j=0; j<graph->size(); j++)
+				{
+					if (graph->vertices[j].configurations.size() > 0)
 					{
-						minDist = dist;
-						minConfig = graph->vertices[j].configurations[0];
+						float p[3];
+						p[0] = x;
+						p[1] = y;
+						p[2] = z;
+						float dist = graph->vertices[j].distTo(p);
+						printf("j:%d siiiiiiiiii d %f md %f mbb %f\n", j, dist, minDist, mustBeBiggerThan);
+						if ((dist > mustBeBiggerThan and dist < minDist) or minDist == -1)
+						{
+							printf("pillo (%d) con dist %f (que es menor que %f)\n", j, dist, minDist);
+							minDist = dist;
+							minIndex = j;
+						}
 					}
 				}
+				if (minIndex != -1)
+				{
+					minConfig = graph->vertices[minIndex].configurations[0];
+					mustBeBiggerThan = minDist;
+					printf("patras con %d\n", minIndex);
+					goAndWaitDirect(minConfig);
+					printf("realizando la llamada recursiva\n");
+					ret = goAndWait(x, y, z, -1, mpl, true);
+					printf("got %d\n", ret);
+					if (ret)
+						return true;
+				}
+				else
+				{
+					return false;
+				}
 			}
-			goAndWaitDirect(minConfig);
-			printf("realizando la llamada recursiva\n");
-			return goAndWait(x, y, z, mpl);
+			return false;
 		}
 		else
 		{
@@ -293,6 +370,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, MotorGoalPositionList 
 	return true;
 }
 
+/*
 int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 {
 	int some;
@@ -337,49 +415,58 @@ int SpecificWorker::getRandomNodeClose(int &current, float &dist)
 	}
 	return -1;
 }
-
+*/
 void SpecificWorker::computeHard()
 {
 	bool stop=false;
-	static int nodeSrc=0;
+	static int nodeSrc=-1;
 	static int nodeDst=-1;
 	static MotorGoalPositionList currentConfiguration;
-	MotorGoalPositionList configuration;
-
 	if (stop) return;
+	
+	printf("=======================================\n");
 
-	if (nodeDst == -1)
+	if (nodeDst == graph->size() or nodeDst == -1)
 	{
-		qDebug() << nodeSrc;
-		if (not goAndWait(nodeSrc, configuration))
+		nodeSrc++;
+		if (nodeSrc == graph->size())
 		{
-			qFatal("Couln't reach target");
+				qDebug() << "fin feliz";
+				stop = true;
 		}
+		MotorGoalPositionList configuration;
+		int de;
+		for (de=0; de < 5 and not goAndWait(nodeSrc, configuration); de++)
+		{
+			goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, true);
+		}
+		if (de == 5)
+		{
+			qDebug() << "Couldn't reach target: skipping node" << nodeSrc;
+			nodeDst = -1;
+			return;
+		}
+		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
 		nodeDst=0;
 		return;
 	}
 
-	if (nodeDst == nodeSrc)
+	if (graph->vertices[nodeSrc].configurations[0] != currentConfiguration)
 	{
-		nodeDst++;
-		if (nodeDst == graph->size())
-		{
-			nodeDst = -1;
-			nodeSrc++;
-			if (nodeSrc == graph->size())
-			{
-				qDebug() << "fin";
-				stop = true;
-			}
-		}
+		currentConfiguration = graph->vertices[nodeSrc].configurations[0];
 	}
+	goAndWaitDirect(currentConfiguration);
 
-// 	printf("%d %d\n", nodeSrc, nodeDst);
-/*
-	dist = graph->vertices[nodeSrc].distTo(graph->vertices[nodeDst].pose);
-	if (dist < 100)
+	printf("nodeSrc: %d\n", nodeSrc);
+	printf("nodeDst: %d\n", nodeDst);
+
+	float dist = graph->vertices[nodeSrc].distTo(graph->vertices[nodeDst].pose);
+	if (dist>0  and dist<CLOSE_DISTANCE)
 	{
+		printf("***  nodeSrc: %d\n", nodeSrc);
+		printf("***  nodeDst: %d\n", nodeDst);
+		MotorGoalPositionList configuration;
 		if (goAndWait(nodeDst, configuration))
 		{
 			printf("goAndWait done\n");
@@ -395,28 +482,15 @@ void SpecificWorker::computeHard()
 				QMutexLocker l(mutex);
 				InnerModelDraw::drawLine2Points(innerViewer, id, "root", QVec::vec3(p1[0], p1[1], p1[2]), QVec::vec3(p2[0], p2[1], p2[2]), "#88ff88");
 			}
-
-			goAndWaitDirect(currentConfiguration);
-			nodeSrc = nodeDst;
 		}
 		else
 		{
-			qDebug() << "Can't move to last target. Reinitializing...";
-			stop = true;
+			qDebug() << "Can't move to last target...";
+// 			stop = true;
 		}
 	}
-*/
+
 	nodeDst++;
-	if (nodeDst == graph->size())
-	{
-		nodeDst = -1;
-		nodeSrc++;
-		if (nodeSrc == graph->size())
-		{
-				qDebug() << "fin2";
-				stop = true;
-		}
-	}
 
 }
 
@@ -509,6 +583,6 @@ void WorkerThread::run()
 	while(true)
 	{
 		((SpecificWorker*)data)->computeHard();
-		usleep(100);
+		usleep(1000);
 	}
 }

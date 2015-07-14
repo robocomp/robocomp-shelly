@@ -49,6 +49,7 @@ public:
 	void	setWeights	(QVec weights_);
 	void 	setPose		(RoboCompInverseKinematics::Pose6D       pose6D_);
 	void 	setWeights	(RoboCompInverseKinematics::WeightVector weights_);
+	void	setRunTime	();
 
 	//METODOS GET:
 	int				getID		();

@@ -10,6 +10,7 @@ Target::Target()
 	state 		= TargetState::IDLE;
 	identifier 	= 0;
 	runTime 	= QTime::currentTime();
+	divided	= false;
 }
 /**
  * \brief Cosntructor for POSE6D targets.
@@ -17,19 +18,21 @@ Target::Target()
  * @param type_ target type --> POSE6D
  * @param pose_ qvec 6 with the target pose
  * @param weights_ qvec 6 with the weights of each traslation and rotation component.
+ * @param divided_
  */ 
-Target::Target(int id_, const QVec &pose_, const QVec &weights_, TargetType type_)
+Target::Target(int id_,const QVec &pose_, const QVec &weights_, bool divided_, TargetType type_)
 {
-	identifier			= id_;
-	state 				= TargetState::IDLE;
-	type 				= type_;
-	pose 				= pose_;
-	weight				= weights_;
-	runTime  			= QTime::currentTime();
+	identifier	= id_;
+	state 		= TargetState::IDLE;
+	type 		= type_;
+	pose 		= pose_;
+	weight		= weights_;
+	runTime  	= QTime::currentTime();
+	divided		= divided_;
 }
 /**
  * \brief Constructor for ADVANCEAXIS Targets.
- * @param type_ target type --> POSE6D
+ * @param type_ target type --> ADVANCEAXIS
  * @param axis_ Target axis to be aligned with
  * @param step_ step to advance along axis
  */ 
@@ -41,10 +44,11 @@ Target::Target(int id_, const QVec& axis_, float step_, TargetType type_)
 	axis 		= axis_;
 	step		= step_;
 	runTime		= QTime::currentTime();
+	divided		= false;
 }
 /**
  * \brief Constructor for ALIGNAXIS targets.
- * @param type_ target type --> POSE6D
+ * @param type_ target type --> ALIGNAXIS
  * @param pose_ qvec 6 with the target pose
  * @param weights_ qvec 6 with the weights of each traslation and rotation component.
  * @param axis_ Target axis to be aligned with
@@ -58,6 +62,7 @@ Target::Target(int id_, const QVec &pose_, const QVec &weights_, const QVec &axi
 	weight		= weights_;
 	axis 		= axis_;
 	runTime 	= QTime::currentTime();
+	divided		= false;
 }
 
 /**
@@ -193,10 +198,15 @@ float Target::getTargetTimeExecution()
 	if(state == TargetState::IDLE)
 		return 0;
 	else
-	{
-		qDebug()<<"TTime: "<<runTime.elapsed();
 		return runTime.elapsed()/1000;
-	}
+}
+/**
+ * \brief This method returns the flag divided.
+ * @return bool
+ */ 
+bool Target::getTargetDivided()
+{
+	return divided;
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
