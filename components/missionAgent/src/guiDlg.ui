@@ -116,6 +116,13 @@ plan</string>
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="imCheck">
+         <property name="text">
+          <string>InnerModel</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="quitButton">
          <property name="text">
           <string>quit</string>

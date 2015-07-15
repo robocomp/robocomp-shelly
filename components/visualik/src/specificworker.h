@@ -18,7 +18,7 @@
  */
 
 /**
-  \brief
+  \brief  VISUAL INVERSE KINEMATICS COMP
   @author authorname
 */
 
@@ -82,6 +82,7 @@ private:
 	bool             abortarotacion;      // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
 	int              contador;
+        float            timeSinMarca;
 
 	#ifdef USE_QTGUI
 	OsgView           *osgView;
@@ -93,7 +94,7 @@ private:
 	bool correctRotation   ();
 	void updateAll         ();
 	void updateMotors      (RoboCompInverseKinematics::MotorList motors);
-	void printXXX          (QVec errorInv);
+	void printXXX          (QVec errorInv/*, bool camaraNoVista*/);
 
 };
 

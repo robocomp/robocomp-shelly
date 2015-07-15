@@ -58,7 +58,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(resetButton,          SIGNAL(clicked()), this, SLOT(resetClicked()));
 
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
-
+	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
 
 	timer.start(90);
 }
@@ -165,6 +165,15 @@ void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCom
 		refresh = true;
 	}
 }
+
+void SpecificWorker::imShow()
+{
+	qDebug()<<"imCheck->isChecked()"<<imCheck->isChecked();
+	modelDrawer->setShowInnerModel(imCheck->isChecked());
+	
+}
+
+
 
 void SpecificWorker::quitButtonClicked()
 {
