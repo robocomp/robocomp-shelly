@@ -113,7 +113,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::compute()
 {
-        qDebug()<<"............";
 	static int i = 0;
 	if (i%20 != 0)
 	{
@@ -494,7 +493,7 @@ bool SpecificWorker::correctRotation()
 
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
-	qDebug()<<"Error T: "<<errorInvP.norm2();
+	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
