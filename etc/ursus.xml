@@ -14,6 +14,11 @@
 
 
 		<transform  id="base_trans" >
+			<transform id="cameraAprilPosition" tx="0" ty="945" tz="-245">
+				<rotation id="cameraAprilRotation" rx="0" ry="1.570796326794" rz="3.14159265359">
+					<camera id="RGBCeiling" focal="746.20" />
+				</rotation>
+			</transform>
 
 			<joint id="base" port="10067" axis="y" home="0">
 
@@ -53,7 +58,7 @@
 													<!-- left camera -->
 													<transform id="left_rgb" tx="-75">
 														<transform id="left_rgb_pan_pre" rx="-1.57079632679">
-															<joint id="left_rgb_pan" port="10067" min="-1" max="1" axis="z" >
+															<joint id="leftEye" port="10067" min="-1" max="1" axis="z" >
 																<transform id="left_rgb_pan_post" rx="1.57079632679">
 																	<mesh id="left_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
 																</transform>
@@ -64,7 +69,7 @@
 													<!-- right camera -->
 													<transform id="right_rgb" tx="75">
 														<transform id="right_rgb_pan_pre" rx="-1.57079632679">
-															<joint id="right_rgb_pan" port="10067" min="-1" max="1" axis="z" >
+															<joint id="rightEye" port="10067" min="-1" max="1" axis="z" >
 																<transform id="right_rgb_pan_post" rx="1.57079632679">
 																	<mesh id="right_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
 																</transform>

@@ -113,6 +113,33 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	connect(fromFileButton, SIGNAL(clicked()), this, SLOT(initFile()));
 	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
 #endif
+
+
+	try
+	{
+		InnerModelNode *parent = innerModel->getNode("root");
+		if (innerModel->getNode("target") == NULL)
+		{
+			InnerModelTransform *tr;
+			try
+			{
+				tr = innerModel->newTransform("target", "static", parent, 0,0,0, 0,0,0);
+				parent->addChild(tr);
+			}
+			catch (QString err)
+			{
+				printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
+				throw;
+			}
+		}
+	}
+	catch (QString err)
+	{
+		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
+		throw;
+	}
+
+
 	timer.start(10);	
 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
@@ -661,10 +688,7 @@ void SpecificWorker::compute()
 			if (stt.finish == true)
 			{
 				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
-				qDebug()<<"ANTES: "<<innerModel->transform("root", "grabPositionHandR");
 				//finalStep(stt);
-				
-				
 				QMutexLocker mm(mutexSolved);
 				currentTarget.state = stt;
 				if (stt.errorT > MAX_ERROR_IK)
@@ -697,10 +721,8 @@ void SpecificWorker::compute()
 				}
 				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
 				updateInnerModel();
-				qDebug()<<"DESPUES: "<<innerModel->transform("root", "grabPositionHandR");
 				solvedList.enqueue(currentTarget); //guardamos el target
 				qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
-				qDebug()<<"Ya estoy despierto";
 								
 				state = GIK_NoTarget;
 			}
@@ -807,34 +829,50 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	currentTarget.pose    = target;
 	currentTarget.weights = weights;
 	
-	
 #ifdef USE_QTGUI
 	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 #endif
 	updateInnerModel();
-	// Get closest node to initial position and update it in IMV
-	QVec position = innerModel->transform("robot", "grabPositionHandR");
-	closestToInit = graph->getCloserTo(position(0), position(1), position(2));
+		
+	//Si la distancia entre el target y la mano es poca, pasamos del grafo:
+	innerModel->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
+	float distancia = innerModel->transform("target", "grabPositionHandR").norm2();
+// 	printf("ERROR AL TARGET: %f\n", distancia);
+	if (distancia<100)
+	{
+// 		qDebug()<<"DIRECTO";
+// 		qDebug()<<"DIRECTO";
+// 		qDebug()<<"DIRECTO";
+// 		qDebug()<<"DIRECTO";
+// 		qDebug()<<"DIRECTO";
+		state = GIK_GoToActualTargetSend;
+	}
+	else
+	{	
+		// Get closest node to initial position and update it in IMV
+		QVec position = innerModel->transform("robot", "grabPositionHandR");
+		closestToInit = graph->getCloserTo(position(0), position(1), position(2));
+#ifdef USE_QTGUI
+		const float *poseInit = graph->vertices[closestToInit].pose;
+		innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+#endif
+		// Get closest node to target and update it in IMV
+		closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
 
 #ifdef USE_QTGUI
-	const float *poseInit = graph->vertices[closestToInit].pose;
-	innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
+		const float *poseEnd = graph->vertices[closestToEnd].pose;
+		innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
 #endif
-	// Get closest node to target and update it in IMV
-	closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
-
-#ifdef USE_QTGUI
-	const float *poseEnd = graph->vertices[closestToEnd].pose;
-	innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
-#endif
-	// Compute path and update state
-	Dijkstra d = Dijkstra(&(graph->edges));
-	d.calculateDistance(closestToInit);
-	path.clear();
-	d.go(closestToEnd, path);
-	
-	state = GIK_GoToInit;
+		// Compute path and update state
+		Dijkstra d = Dijkstra(&(graph->edges));
+		d.calculateDistance(closestToInit);
+		path.clear();
+		d.go(closestToEnd, path);
+		
+		state = GIK_GoToInit;
+	}
 	targetCounter++;
+
 	return currentTarget.id_IKG;
 }
 /**
