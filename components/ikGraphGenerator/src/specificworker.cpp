@@ -837,10 +837,10 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	//Si la distancia entre el target y la mano es poca, pasamos del grafo:
 	innerModel->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	float distancia = innerModel->transform("target", "grabPositionHandR").norm2();
-// 	printf("ERROR AL TARGET: %f\n", distancia);
+ 	printf("ERROR AL TARGET: %f\n", distancia);
 	if (distancia<100)
 	{
-// 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
 // 		qDebug()<<"DIRECTO";
 // 		qDebug()<<"DIRECTO";
 // 		qDebug()<<"DIRECTO";
