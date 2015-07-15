@@ -54,6 +54,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(homeButton,  SIGNAL(clicked()), this, SLOT(goHome()));
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+	
+	timer.start(10);
 }
 /**------------------------------------------------------
 * \brief Default destructor
@@ -140,7 +142,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
-	timer.start(10);	
+	/*timer.start(10);*/	
 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
@@ -842,10 +844,10 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	if (distancia<100)
 	{
  		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
 		state = GIK_GoToActualTargetSend;
 	}
 	else
