@@ -18,7 +18,7 @@
  */
 
 /**
-  \brief
+  \brief  VISUAL INVERSE KINEMATICS COMP
   @author authorname
 */
 
