@@ -47,11 +47,16 @@ SpecificWorker::~SpecificWorker()
 {
 
 }
-
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief principal SLOT
+ * This updates the innerModel and the innerViewer
+ */ 
 void SpecificWorker::compute( )
 {
 	usleep(50000);
-	// Actualizamos el innerModel y la ventada del viewer
+	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 
 	try
@@ -77,7 +82,12 @@ void SpecificWorker::compute( )
 #endif
 }
 
-
+////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////
+/**
+ * \brief This initializes the Dynamixel bus and the Faulhaber bus. Also, it initializes
+ * the scene in the osgView
+ */ 
 void SpecificWorker::init()
 {
 #ifdef USE_QTGUI
@@ -132,14 +142,21 @@ void SpecificWorker::init()
 		cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex << endl;
 	};
 }
-
+/**
+ * \brief This method initializes the variables with the config params.
+ * @param params list of config params
+ * @return boolean
+ */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	QMutexLocker locker(mutex);
 
 	timer.start(Period);
-
-	innerModel = new InnerModel(params["InnerModel"].value);
+	try
+	{
+		innerModel = new InnerModel(params["InnerModel"].value);
+	}catch(std::exception e) { qFatal("Error reading Innermodel");}
+	
 	init();
 #ifdef USE_QTGUI
 	imv = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
@@ -164,7 +181,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
 	}
 
-
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes);
 	std::sort(meshes.begin(), meshes.end());
@@ -186,10 +202,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			}
 		}
 	}
-
-
-
-
+	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
 	MotorGoalPosition goal;
 	for (auto init : initializations)
