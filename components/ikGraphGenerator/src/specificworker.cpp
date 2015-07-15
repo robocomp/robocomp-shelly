@@ -828,7 +828,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	currentTarget.id_IKG  = targetCounter;
 	currentTarget.pose    = target;
 	currentTarget.weights = weights;
-	
+
 #ifdef USE_QTGUI
 	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 #endif
