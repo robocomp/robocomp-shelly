@@ -113,6 +113,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::compute()
 {
+        qDebug()<<"............";
 	static int i = 0;
 	if (i%20 != 0)
 	{
@@ -307,11 +308,11 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
 	
-	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
-	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
-	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
-	return id;
-// 	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+// 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+// 	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+// 	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+// 	return id;
+ 	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 }
 /**
  * \brief this method moves the motors to their home value
@@ -459,18 +460,15 @@ bool SpecificWorker::correctRotation()
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 60, umbralMinTime = 10;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
-        //static bool camaraNoVista = false;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
 	{
 		std::cout<<"La camara no ve la marca..."<<std::endl;
-                //camaraNoVista = true;
                 timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
 		rightHand->setVisualPosewithInternal();
 	}
-// 	else
-//             camaraNoVista = false;
+
 	// COMPROBAMOS EL ERROR:
 	QVec errorInv = rightHand->getErrorInverse();
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
