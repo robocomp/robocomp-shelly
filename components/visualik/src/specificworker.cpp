@@ -32,6 +32,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	abortarotacion 		= false;
 	innerModel 			= NULL;
 	contador			= 0;
+        timeSinMarca = 0.0;
 	mutexSolved         = new QMutex(QMutex::Recursive);
 	
 #ifdef USE_QTGUI	
@@ -136,6 +137,7 @@ void SpecificWorker::compute()
 				abortatraslacion = false;
 				abortarotacion   = false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
+                                timeSinMarca = 0.0;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -427,7 +429,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  * \brief Metodo auxiliar que guarda en el fichero el resultado de la correccion de un target.
  * @param errorInv 
  */ 
-void SpecificWorker::printXXX(QVec errorInv)
+void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 {	
 	file<<"P: ("      <<currentTarget.getPose();
 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
@@ -435,7 +437,11 @@ void SpecificWorker::printXXX(QVec errorInv)
 	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
-	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state<<endl;
+	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
+        if(timeSinMarca > (60/3))
+            file<<"   CAMARA PERDIDA: "<<1<<endl;
+        else
+            file<<"   CAMARA PERDIDA: "<<0<<endl;
 	flush(file);	
 }
 
@@ -453,13 +459,18 @@ bool SpecificWorker::correctRotation()
 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 60, umbralMinTime = 10;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
+        //static bool camaraNoVista = false;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
 	{
 		std::cout<<"La camara no ve la marca..."<<std::endl;
+                //camaraNoVista = true;
+                timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
 		rightHand->setVisualPosewithInternal();
 	}
+// 	else
+//             camaraNoVista = false;
 	// COMPROBAMOS EL ERROR:
 	QVec errorInv = rightHand->getErrorInverse();
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
@@ -467,7 +478,7 @@ bool SpecificWorker::correctRotation()
 		abortarotacion = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
 		qDebug()<<"Abort rotation: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-		printXXX(errorInv);
+		printXXX(errorInv/*, camaraNoVista*/);
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return false;
@@ -477,7 +488,7 @@ bool SpecificWorker::correctRotation()
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		printXXX(errorInv);
+		printXXX(errorInv/*, camaraNoVista*/);
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
