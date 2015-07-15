@@ -156,7 +156,8 @@ void SpecificWorker::initFile()
 #endif
 	try
 	{
-		graph = new ConnectivityGraph("ursus.ikg");
+		//graph = new ConnectivityGraph("ursus.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
