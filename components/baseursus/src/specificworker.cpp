@@ -38,6 +38,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	innermodel->getRoot()->addChild(backPose);	
 	newPose = innermodel->newTransform("newPose", "static", backPose, 0,0,0, 0,0,0, 0);
 	backPose->addChild(newPose);
+
 	// corrected odometry nodes
 	corrBackPose = innermodel->newTransform("corrBackPose", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
 	innermodel->getRoot()->addChild(corrBackPose);	
@@ -147,17 +148,12 @@ void SpecificWorker::computeOdometry(bool forced)
 		getElapsedSeconds(true);
 		QVec newP;
 		QVec wheelsInc = wheelVels.operator*(elapsedTime);
-// 		wheelsInc.print("wheelsinc");
 		QVec deltaPos = M_wheels_2_vels * wheelsInc;
-// 		wheelVels.print("wheelsvels");
-// 		printf("elapsedTime=%g\n", elapsedTime*1000);
-// 		deltaPos.print("delta");
-			
 
 		// Raw odometry
 		innermodel->updateTransformValues("newPose",     deltaPos(1), 0, deltaPos(0),       0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "newPose");
-		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, deltaPos(2)+angle, 0);
+		innermodel->updateTransformValues("backPose",        newP(0), 0,     newP(2),       0, angle+deltaPos(2), 0);
 		innermodel->updateTransformValues("newPose",               0, 0,           0,       0,                 0, 0);
 		x = newP(0);
 		z = newP(2);
@@ -166,7 +162,7 @@ void SpecificWorker::computeOdometry(bool forced)
 		// Corrected odometry
 		innermodel->updateTransformValues("corrNewPose",    deltaPos(1), 0, deltaPos(0),    0,       deltaPos(2), 0);
 		newP = innermodel->transform("root", "corrNewPose");
-		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, deltaPos(2)+angle, 0);
+		innermodel->updateTransformValues("corrBackPose",       newP(0), 0,     newP(2),    0, corrAngle+deltaPos(2), 0);
 		innermodel->updateTransformValues("corrNewPose",              0, 0,           0,    0,                 0, 0);
 		corrX = newP(0);
 		corrZ = newP(2);
@@ -237,6 +233,7 @@ void SpecificWorker::setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->x = x;
 	this->z = z;
 	this->angle = alpha;
+	innermodel->updateTransformValues("backPose",x, 0,z,0,alpha,0);
 }
 
 void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha)
@@ -245,6 +242,7 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrX = x;
 	this->corrZ = z;
 	this->corrAngle = alpha;
+	innermodel->updateTransformValues("corrBackPose",x, 0,z,0,alpha,0);
 }
 
 //////////////////////////////////////////
