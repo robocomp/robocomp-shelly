@@ -74,6 +74,7 @@ public slots:
 		missions->addItem(QString::fromStdString(name));
 		missionPaths[missions->count()-1] = path;
 	}
+	void imShow();
 
 private:
 	bool refresh;

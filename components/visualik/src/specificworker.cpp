@@ -27,21 +27,22 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
 		
-	stateMachine		= State::IDLE;
-	abortatraslacion 	= false;
-	abortarotacion 		= false;
-	innerModel 			= NULL;
-	contador			= 0;
+	stateMachine        = State::IDLE;
+	abortatraslacion    = false;
+	abortarotacion      = false;
+	innerModel          = NULL;
+	contador            = 0;
+	timeSinMarca        = 0.0;
 	mutexSolved         = new QMutex(QMutex::Recursive);
 	
 #ifdef USE_QTGUI	
-	innerViewer 		= NULL;
-	osgView 			= new OsgView(this);
+	innerViewer         = NULL;
+	osgView             = new OsgView(this);
  	show();
 #endif
 	
 	QMutexLocker ml(mutex);
-	INITIALIZED			= false;
+	INITIALIZED         = false;
 }
 /**
 * \brief Default destructor
@@ -136,6 +137,7 @@ void SpecificWorker::compute()
 				abortatraslacion = false;
 				abortarotacion   = false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
+				timeSinMarca = 0.0;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -305,11 +307,12 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
 	
-	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
-	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
-	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
-	return id;
-// 	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+// 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+// 	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+// 	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+// 	return id;
+	qDebug()<<"...";
+  	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 }
 /**
  * \brief this method moves the motors to their home value
@@ -427,7 +430,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  * \brief Metodo auxiliar que guarda en el fichero el resultado de la correccion de un target.
  * @param errorInv 
  */ 
-void SpecificWorker::printXXX(QVec errorInv)
+void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 {	
 	file<<"P: ("      <<currentTarget.getPose();
 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
@@ -435,7 +438,11 @@ void SpecificWorker::printXXX(QVec errorInv)
 	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
-	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state<<endl;
+	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
+	if(timeSinMarca > (60/3))
+		file<<"   CAMARA PERDIDA: "<<1<<endl;
+	else
+		file<<"   CAMARA PERDIDA: "<<0<<endl;
 	flush(file);	
 }
 
@@ -458,8 +465,10 @@ bool SpecificWorker::correctRotation()
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
 	{
 		std::cout<<"La camara no ve la marca..."<<std::endl;
+                timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
 		rightHand->setVisualPosewithInternal();
 	}
+
 	// COMPROBAMOS EL ERROR:
 	QVec errorInv = rightHand->getErrorInverse();
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
@@ -467,7 +476,7 @@ bool SpecificWorker::correctRotation()
 		abortarotacion = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
 		qDebug()<<"Abort rotation: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-		printXXX(errorInv);
+		printXXX(errorInv/*, camaraNoVista*/);
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return false;
@@ -477,7 +486,7 @@ bool SpecificWorker::correctRotation()
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		printXXX(errorInv);
+		printXXX(errorInv/*, camaraNoVista*/);
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
@@ -485,7 +494,7 @@ bool SpecificWorker::correctRotation()
 
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
-	qDebug()<<"Error T: "<<errorInvP.norm2();
+	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
@@ -515,7 +524,7 @@ void SpecificWorker::updateAll()
 		for (auto j : mMap)
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
 	}catch (const Ice::Exception &ex){
-		cout<<"--> Excepción en actualizar InnerModel";
+		std::cout<<"--> Excepción en actualizar InnerModel"<<std::endl;
 	}
 	const Pose6D tt = currentTarget.getPose6D();
 	innerModel->updateTransformValues("target", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);

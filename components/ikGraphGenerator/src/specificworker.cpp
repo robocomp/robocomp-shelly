@@ -54,6 +54,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(homeButton,  SIGNAL(clicked()), this, SLOT(goHome()));
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+	
+	timer.start(10);
 }
 /**------------------------------------------------------
 * \brief Default destructor
@@ -140,7 +142,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 
-	timer.start(10);	
+	/*timer.start(10);*/	
 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
@@ -156,7 +158,8 @@ void SpecificWorker::initFile()
 #endif
 	try
 	{
-		graph = new ConnectivityGraph("ursus.ikg");
+		//graph = new ConnectivityGraph("ursus.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
@@ -828,7 +831,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	currentTarget.id_IKG  = targetCounter;
 	currentTarget.pose    = target;
 	currentTarget.weights = weights;
-	
+
 #ifdef USE_QTGUI
 	innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 #endif
@@ -837,14 +840,14 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	//Si la distancia entre el target y la mano es poca, pasamos del grafo:
 	innerModel->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	float distancia = innerModel->transform("target", "grabPositionHandR").norm2();
-// 	printf("ERROR AL TARGET: %f\n", distancia);
+ 	printf("ERROR AL TARGET: %f\n", distancia);
 	if (distancia<100)
 	{
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
-// 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
+ 		qDebug()<<"DIRECTO";
 		state = GIK_GoToActualTargetSend;
 	}
 	else

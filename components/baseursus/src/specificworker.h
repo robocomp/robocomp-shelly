@@ -23,7 +23,6 @@
 
 #include <qmat/QMatAll>
 #include <innermodel/innermodel.h>
-
 /**
        \brief
        @author authorname
@@ -47,7 +46,6 @@ private:
 	float R, l1, l2;
 	QMat M_wheels_2_vels;
 	QMat M_vels_2_wheels;
-	
 	// Odometry control
 	QMutex *dataMutex;
 	QVec wheelVels;

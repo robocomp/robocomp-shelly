@@ -61,6 +61,7 @@ public:
 	void run();
 };
 /**
+ * \brief INVERSE KINEMATICS GRAPH GENERATOR COMPONENT
  * \class SpecificWorker main class
  */ 
 class SpecificWorker : public GenericWorker
@@ -133,7 +134,6 @@ private:
 	std::pair<float, float> yrange;
 	std::pair<float, float> zrange;
 	std::string             lastFinish;
-// 	TargetState             lastTargetState;
 	
 	MotorGoalPositionList   centerConfiguration;
 	MotorGoalPositionList   lastMotorGoalPositionList;

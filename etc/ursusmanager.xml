@@ -13,14 +13,28 @@
 
     <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h robonuc1.local -p 12204">
         <color value="#4422FF"/>
-        <dependence alias="laser" />
+        <dependence alias="laserRGBD" />
         <dependence alias="base" />
         <workingDir path="/home/robocomp/" />
         <upCommand command="rcremote robonuc1.local trajectory /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/ ./bin/trajectoryrobot2dcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
         <downCommand command="ssh robolab@robonuc1.local killall -9 trajectoryrobot2dcomp" />
         <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
         <xpos value="42.7825631502" />
-        <ypos value="-42.059644855" />
+        <ypos value="-100" />
+        <radius value="10.0" />
+    </node>
+
+		<node alias="laserRGBD" endpoint="laser:tcp -h robonuc1.local -p 10033">
+        <color value="#4422FF"/>
+        <dependence alias="laser" />
+        <dependence alias="primesense" />
+        <dependence alias="commonjoint" />
+        <workingDir path="/home/robocomp/" />
+        <upCommand command="rcremote robonuc1.local laserRGBD /home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp/ ./bin/laserrgbdComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laserrgbd.conf" />
+        <downCommand command="ssh robolab@robonuc1.local killall -9 laserrgbdComp" />
+        <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laserrgbd.conf" />
+        <xpos value="42.7825631502" />
+        <ypos value="0" />
         <radius value="10.0" />
     </node>
 

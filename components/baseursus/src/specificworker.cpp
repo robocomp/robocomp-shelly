@@ -175,6 +175,10 @@ void SpecificWorker::computeOdometry(bool forced)
 }
 
 
+//////////////////////////////////////////
+///  SERVANTS FOR OMNIROBOT
+//////////////////////////////////////////
+
 void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
 {
 // 	printf("--------------------\n");
@@ -218,7 +222,6 @@ void SpecificWorker::resetOdometer()
 	setOdometerPose(0,0,0);
 	correctOdometer(0,0,0);
 	innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
-	innermodel->updateTransformValues("corrBackPose",0, 0,0,0,0,0);
 }
 
 void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
@@ -234,7 +237,6 @@ void SpecificWorker::setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->x = x;
 	this->z = z;
 	this->angle = alpha;
-	innermodel->updateTransformValues("backPose", x, 0, z,     0, alpha, 0);
 }
 
 void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha)
@@ -243,32 +245,29 @@ void SpecificWorker::correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float al
 	this->corrX = x;
 	this->corrZ = z;
 	this->corrAngle = alpha;
-	innermodel->updateTransformValues("corrBackPose", x, 0, z,     0, alpha, 0);
 }
+
+//////////////////////////////////////////
+///  TALKING TO JOINTMOTOR
+//////////////////////////////////////////
 
 void SpecificWorker::setWheels(QVec wheelVels_)
 {
 	static MotorGoalVelocity goalFL, goalFR, goalBL, goalBR;
+	goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
+	goalFL.name = "frontLeft";
+	goalFR.name = "frontRight";
+	goalBL.name = "backLeft";
+	goalBR.name = "backRight";
 
 	{
 		QMutexLocker locker(dataMutex);
 		wheelVels = wheelVels_;
-
-		goalFL.maxAcc = goalFR.maxAcc = goalBL.maxAcc = goalBR.maxAcc = 0.1;
-
-		goalFL.name = "frontLeft";
 		goalFL.velocity = wheelVels(0);
-		
-		goalFR.name = "frontRight";
 		goalFR.velocity = wheelVels(1);
-		
-		goalBL.name = "backLeft";
 		goalBL.velocity = wheelVels(2);
-		
-		goalBR.name = "backRight";
 		goalBR.velocity = wheelVels(3);
 	}
-
 	try 
 	{
 		jointmotor_proxy->setVelocity(goalFL);

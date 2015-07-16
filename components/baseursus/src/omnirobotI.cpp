@@ -44,7 +44,17 @@ void OmniRobotI::getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const 
 
 void OmniRobotI::setSpeedBase(Ice::Float advx, Ice::Float advz, Ice::Float rot, const Ice::Current&)
 {
-	worker->setSpeedBase(advx,advz,rot);
+	static QTime reloj = QTime::currentTime();
+	RoboCompOmniRobot::HardwareFailedException ex;
+	
+	if( reloj.elapsed() > 300)
+		worker->setSpeedBase(advx,advz,rot);
+	else
+	{
+		ex.what = "Too many requests in setSpeedBase";
+		throw ex;
+		reloj.restart();
+	}
 }
 
 void OmniRobotI::stopBase(const Ice::Current&)
