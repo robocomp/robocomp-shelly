@@ -15,7 +15,7 @@
 
 		<transform  id="base_trans" >
 			<transform id="cameraAprilPosition" tx="0" ty="945" tz="-245">
-				<rotation id="cameraAprilRotation" rx="0" ry="1.570796326794" rz="3.14159265359">
+				<rotation id="cameraAprilRotation" rx="0" rx="-1.570796326794" rz="3.14159265359">
 					<camera id="RGBCeiling" focal="746.20" />
 				</rotation>
 			</transform>
