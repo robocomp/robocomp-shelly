@@ -439,10 +439,10 @@ void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
 	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
-	if(timeSinMarca > (60/3))
-		file<<"   CAMARA PERDIDA: "<<1<<endl;
+	if(timeSinMarca > (60/5))
+		file<<"   CAMARA PERDIDA: "<<1<<" - "<<timeSinMarca<<endl;
 	else
-		file<<"   CAMARA PERDIDA: "<<0<<endl;
+		file<<"   CAMARA PERDIDA: "<<0<<" - "<<timeSinMarca<<endl;
 	flush(file);	
 }
 
@@ -454,10 +454,10 @@ void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 bool SpecificWorker::correctRotation()
 {
 	updateAll();
-	innerModel->transform("root", "grabPositionHandR").print("\n\nPOSE INTERNA:");
-	innerModel->transform("root", "visual_hand").print("POSE MARCA:");
-	
-	qDebug()<<"\nCORRIGIENDO ROTACION...";
+// 	innerModel->transform("root", "grabPositionHandR").print("\n\nPOSE INTERNA:");
+// 	innerModel->transform("root", "visual_hand").print("POSE MARCA:");
+// 	
+// 	qDebug()<<"\nCORRIGIENDO ROTACION...";
 	static float umbralMaxTime = 60, umbralMinTime = 10;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
 
@@ -494,15 +494,15 @@ bool SpecificWorker::correctRotation()
 
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
-	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+// 	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+// 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
 	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
-	qDebug()<<"Correccion final: "<<correctedTarget.getPose();
+// 	qDebug()<<"Correccion final: "<<correctedTarget.getPose();
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
