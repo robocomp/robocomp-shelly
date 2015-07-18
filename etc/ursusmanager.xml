@@ -127,7 +127,7 @@
  <node alias="camT" endpoint="rgbdbus:tcp -h robonuc2.local -p 13239">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote robonuc2.local camaraTecho /home/robocomp/robocomp/components/robocomp-robolab/components/cameraV4lComp/ ./bin/camerav4l --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/camaraTecho.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 dunkermotorenComp" />
+  <downCommand command="ssh robolab@robonuc2.local killall -9 camerav4l" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="-224.799729705" />
   <ypos value="155.614022815" />
