@@ -1,16 +1,13 @@
+
 <innerModel>
 	<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml"/>
 	<transform id="world">
 
-
 		<transform id="aprilOdometryReference0_pose" tx="1947" ty="3000" tz="716" rx="-1.57" rz="3.1415" />
-
-	
 
 		<axes id="ax" length="200" width="30"/>
 		<transform id="floor">
-			<plane id="back" ny="1" size="30000,30000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
-		</transform>
+			<plane id="floor_plane" px="3300" pz="2000" ny="1" size="7000,4500,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
 		<transform id="pared0" tx="1075.0" tz="0.0" ty="400" >
 			<plane id="muro0" nx="-0.0" nz="2150.0" size="2150.0,800"  texture="/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg" />
 		</transform>
@@ -65,6 +62,6 @@
 		<transform id="pared17" tx="1400.0" tz="3610.0" ty="400" >
 			<plane id="muro17" nx="-0.0" nz="-700.0" size="700.0,800"  texture="/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg" />
 		</transform>
-
+		</transform>
 	</transform>
 </innerModel>
