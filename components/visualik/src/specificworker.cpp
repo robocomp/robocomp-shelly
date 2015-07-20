@@ -439,7 +439,7 @@ void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
 	file<<"   END: "    <<currentTarget.getRunTime();
 	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
-	if(timeSinMarca > (60/5))
+	if(timeSinMarca > (60/4))
 		file<<"   CAMARA PERDIDA: "<<1<<" - "<<timeSinMarca<<endl;
 	else
 		file<<"   CAMARA PERDIDA: "<<0<<" - "<<timeSinMarca<<endl;
