@@ -84,7 +84,6 @@
 #include <InverseKinematics.h>
 #include <AprilTags.h>
 #include <JointMotor.h>
-#include <Reflexxes.h>
 
 
 // User includes here
@@ -96,7 +95,6 @@ using namespace RoboCompCommonBehavior;
 using namespace RoboCompInverseKinematics;
 using namespace RoboCompAprilTags;
 using namespace RoboCompJointMotor;
-using namespace RoboCompReflexxes;
 
 
 
@@ -113,14 +111,14 @@ public:
 	virtual int run(int, char*[]);
 };
 
-void VisualBIK::initialize()
+void ::VisualBIK::initialize()
 {
 	// Config file properties read example
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
 
-int VisualBIK::run(int argc, char* argv[])
+int ::VisualBIK::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
 	QApplication a(argc, argv);  // GUI application
@@ -131,7 +129,6 @@ int VisualBIK::run(int argc, char* argv[])
 
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
-	ReflexxesPrx reflexxes_proxy;
 
 	string proxy, tmp;
 	initialize();
@@ -169,23 +166,6 @@ int VisualBIK::run(int argc, char* argv[])
 	}
 	rInfo("JointMotorProxy initialized Ok!");
 	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);//Remote server proxy creation example
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "ReflexxesProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy ReflexxesProxy\n";
-		}
-		reflexxes_proxy = ReflexxesPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("ReflexxesProxy initialized Ok!");
-	mprx["ReflexxesProxy"] = (::IceProxy::Ice::Object*)(&reflexxes_proxy);//Remote server proxy creation example
 
 IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 
@@ -318,7 +298,7 @@ int main(int argc, char* argv[])
 			printf("Configuration prefix: <%s>\n", prefix.toStdString().c_str());
 		}
 	}
-	VisualBIK app(prefix);
+	::VisualBIK app(prefix);
 
 	return app.main(argc, argv, configFile.c_str());
 }

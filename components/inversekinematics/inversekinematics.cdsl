@@ -7,9 +7,8 @@ Component inversekinematics
 {
 	Communications
 	{
-		requires  JointMotor, InnerModelManager;
+		requires  JointMotor;
 		implements InverseKinematics;
-		subscribesTo JoystickAdapter;
 	};
 	language Cpp;
 	gui Qt(QWidget);

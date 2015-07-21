@@ -27,7 +27,6 @@ SET ( SOURCES
   genericworker.cpp
   specificworker.cpp
   inversekinematicsI.cpp
-  joystickadapterI.cpp
 )
 
 # Headers set
@@ -39,12 +38,11 @@ SET ( HEADERS
   genericworker.h
   specificworker.h
   inversekinematicsI.h
-  joystickadapterI.h
 )
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
 ROBOCOMP_WRAP_ICE( CommonBehavior InnerModelManager InverseKinematics JointMotor JoystickAdapter )
-SET (EXECUTABLE_OUTPUT_PATH ../bin)
+SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Qt4
 ADD_DEFINITIONS( -Wall -DQT_DLL -DQT_GUI_LIB -DQT_CORE_LIB )
@@ -63,4 +61,4 @@ QT4_WRAP_CPP( MOC_SOURCES ${HEADERS} )
 # Specify construction and link process
 ADD_EXECUTABLE( inversekinematics ${SOURCES} ${MOC_SOURCES} ${RC_SOURCES} ${UI_HEADERS} )
 TARGET_LINK_LIBRARIES( inversekinematics ${QT_LIBRARIES} ${LIBS} ${STATIC_LIBS} ${SPECIFIC_LIBS})
-INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/inversekinematics DESTINATION /opt/robocomp/bin/ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
+INSTALL(FILES ${EXECUTABLE_OUTPUT_PATH}/inversekinematics DESTINATION ${RC_COMPONENT_INSTALL_PATH}/bin/ PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE )
