@@ -85,6 +85,10 @@ Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
 import RoboCompTrajectoryRobot2D
 Ice.loadSlice(preStr+"OmniRobot.ice")
 import RoboCompOmniRobot
+Ice.loadSlice(preStr+"Speech.ice")
+import RoboCompSpeech
+Ice.loadSlice(preStr+"ASRPublish.ice")
+import RoboCompASRPublish
 
 
 class CommonBehaviorI(RoboCompCommonBehavior.CommonBehavior):
@@ -176,6 +180,28 @@ if __name__ == '__main__':
 			print 'Cannot get OmniRobotProxy property.'
 			status = 1
 
+
+		# Remote object connection for Speech
+		try:
+			proxyString = ic.getProperties().getProperty('SpeechProxy')
+			try:
+				basePrx = ic.stringToProxy(proxyString)
+				speech_proxy = RoboCompSpeech.SpeechPrx.checkedCast(basePrx)
+				mprx["SpeechProxy"] = speech_proxy
+			except Ice.Exception:
+				print 'Cannot connect to the remote object (Speech)', proxyString
+				#traceback.print_exc()
+				status = 1
+		except Ice.Exception, e:
+			print e
+			print 'Cannot get SpeechProxy property.'
+			status = 1
+
+
+		# Topic Manager
+		proxy = ic.getProperties().getProperty("TopicManager.Proxy")
+		obj = ic.stringToProxy(proxy)
+		topicManager = IceStorm.TopicManagerPrx.checkedCast(obj)
 	except:
 			traceback.print_exc()
 			status = 1
@@ -183,6 +209,24 @@ if __name__ == '__main__':
 
 	if status == 0:
 		worker = SpecificWorker(mprx)
+
+
+		ASRPublish_adapter = ic.createObjectAdapter("ASRPublishTopic")
+		asrpublishI_ = ASRPublishI(worker)
+		asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
+
+		subscribeDone = False
+		while not subscribeDone:
+			try:
+				asrpublish_topic = topicManager.retrieve("ASRPublish")
+				subscribeDone = True
+			except Ice.Exception, e:
+				print "Error. Topic does not exist (yet)"
+				status = 0
+				time.sleep(1)
+		qos = {}
+		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+		ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

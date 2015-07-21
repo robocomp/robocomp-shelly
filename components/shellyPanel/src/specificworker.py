@@ -40,8 +40,13 @@ Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
 from RoboCompTrajectoryRobot2D import *
 Ice.loadSlice(preStr+"OmniRobot.ice")
 from RoboCompOmniRobot import *
+Ice.loadSlice(preStr+"Speech.ice")
+from RoboCompSpeech import *
+Ice.loadSlice(preStr+"ASRPublish.ice")
+from RoboCompASRPublish import *
 
 
+from asrpublishI import *
 
 class SpecificWorker(GenericWorker):
 	def __init__(self, proxy_map):
@@ -69,6 +74,16 @@ class SpecificWorker(GenericWorker):
 		#	traceback.print_exc()
 		#	print e
 		return True
+
+
+	#
+	# newText
+	#
+	def newText(self, text):
+		#
+		# YOUR CODE HERE
+		#
+		pass
 
 
 
