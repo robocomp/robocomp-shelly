@@ -1,6 +1,7 @@
 ﻿<innerModel>
 <!-- 	<axes id="sl3" /> -->
-	<omnirobot id="robot" port="12238" >
+
+<omnirobot id="robot" port="12238" >
 		<transform id="laserPose" tx="0" ty="240" tz="100" rx="-0.4" >
 			<rgbd id="laser" focal="120" width="160" height="120" port="10097" ifconfig="10068,10004" />
 		</transform>
@@ -29,11 +30,11 @@
 						<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" tx="-150" ty="0" tz="945" ry="-1.5707963267948966" scale="1000" collide="1" />
 						<mesh id="barracuello" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracuello.ive" tx="0" ty="0" tz="930" rx="3.14159265359" scale="1000" collide="1" />
 						<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracolumna.osg" tx="30" ty="-15" tz="930" rz="1.5707963267948966" scale="850" collide="1" />
-
+ 
 
 
 						<transform id="base_bodypost" rx="1.5707963267948966" ty="0" tz="0" >
-							<transform id="base_head" tz="0" ty="1080"  rx="-1.5707963267948966" >  <!-- Head begins -->
+							<transform id="base_head" tz="0" ty="1225"  rx="-1.5707963267948966" >  <!-- Head begins -->
 								<joint id="head_yaw_joint" port="10067" axis="z" home="0" min="-1" max="1">
 									<mesh id="head_base_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,87.5" tz="87.5" collide="1" />
 									<transform id="head_rot_tilt_pose" tz="175" rx="1.5707963267948966" >
@@ -46,8 +47,8 @@
 													<mesh id="head_center_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,35" ry="1.5707963268" collide="1"/>
 
 													<!-- rgbd camera -->
-													<transform id="rgbd_transform0" ty="85">
-														<transform id="rgbd_transform" tz="20">
+													<transform id="rgbd_transform0" ty="82">
+														<transform id="rgbd_transform" tz="15">
 <!-- 																<axes id="00000" length="200" width="8" />															 -->
 																<rgbd id="rgbd" focal="300" width="640" height="480" port="10096" ifconfig="10068,10004" />
 														</transform>
@@ -90,7 +91,7 @@
 
 
 						<!-- Right Arm CON LÍMITES -->
-						<transform id="arm_right_1" tx="174" tz="990" ry="1.5707963267948966" rz="1.5707963267948966">
+						<transform id="arm_right_1" tx="174" tz="1192" ry="1.5707963267948966" rz="1.5707963267948966">
 							<!--Gira en Z -->
 							<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
 							<joint id="rightShoulder1" port="10068" axis="z" min="-3.14" max="0.54" home="-0.1">
@@ -210,7 +211,7 @@
 
 
 						<!-- Left Arm -->
-						<transform id="arm_left_1" tx="-174" tz="990" ry="-1.5707963267948966" rz="1.5707963267948966">
+						<transform id="arm_left_1" tx="-174" tz="1192" ry="-1.5707963267948966" rz="1.5707963267948966">
 							<transform id="niapa_arm_left_1" rz="0" >
 								<mesh id="arm_left_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="3.14159265359" tz="-55" tx="0" ty="30" scale="1000"  collide="1" />
 								<!-- Gira en Z -->

@@ -11,11 +11,23 @@
   <simulation hookes="0.07" springlength="0.5" friction="0.4" step="0.5" fieldforce="20000.0" />
  </generalInformation>
 
+ <node alias="ik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10240">
+  <dependence alias="cj" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote robonuc1.local ik /home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/ ./bin/inversekinematics --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/inversekinematics.conf" />
+  <downCommand command="killall -9 inversekinematics" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/inversekinematics.conf" />
+  <xpos value="154.259467294" />
+  <ypos value="-9.36293739682" />
+  <radius value="10.0" />
+  <color value="#4422FF" />
+ </node>
+
  <node alias="gik" endpoint="inversekinematics:tcp -h localhost -p 10241">
   <dependence alias="cj" />
   <dependence alias="ik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/ikgSim.conf" />
+  <upCommand command="rcremote localhost GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
   <downCommand command="killall -9 ikGraphGenerator" />
   <configFile path="xxx" />
   <xpos value="202.996601781" />
@@ -27,7 +39,7 @@
  <node alias="vik" endpoint="inversekinematics:tcp -h localhost -p 10242">
   <dependence alias="gik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/vikSim.conf" />
+  <upCommand command="rcremote localhost VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik.conf" />
   <downCommand command="killall -9 VisualBIK" />
   <configFile path="xxx" />
   <xpos value="138.248690482" />
@@ -105,19 +117,6 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="5.49849758769" />
   <ypos value="55.1798781598" />
-  <radius value="10.0" />
-  <color value="#4422FF" />
- </node>
-
- <node alias="ik" endpoint="commonbehavior:tcp -h robonuc1.local -p 12207">
-  <dependence alias="relocalizadorTecho" />
-  <dependence alias="cj" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local ik /home/robocomp/robocomp/components/robocomp-robolab/components/ree/ ./bin/apdedee--Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 aprilbasedlocalization" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <xpos value="154.259467294" />
-  <ypos value="-9.36293739682" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>

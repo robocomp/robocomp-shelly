@@ -79,7 +79,6 @@
 #include "commonbehaviorI.h"
 
 #include <inversekinematicsI.h>
-#include <joystickadapterI.h>
 
 #include <InnerModelManager.h>
 #include <InverseKinematics.h>
@@ -113,14 +112,14 @@ public:
 	virtual int run(int, char*[]);
 };
 
-void inversekinematics::initialize()
+void ::inversekinematics::initialize()
 {
 	// Config file properties read example
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
 
-int inversekinematics::run(int argc, char* argv[])
+int ::inversekinematics::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
 	QApplication a(argc, argv);  // GUI application
@@ -129,28 +128,10 @@ int inversekinematics::run(int argc, char* argv[])
 #endif
 	int status=EXIT_SUCCESS;
 
-	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
 
 	string proxy, tmp;
 	initialize();
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "InnerModelManagerProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InnerModelManagerProxy\n";
-		}
-		innermodelmanager_proxy = InnerModelManagerPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("InnerModelManagerProxy initialized Ok!");
-	mprx["InnerModelManagerProxy"] = (::IceProxy::Ice::Object*)(&innermodelmanager_proxy);//Remote server proxy creation example
 
 
 	try
@@ -169,7 +150,6 @@ int inversekinematics::run(int argc, char* argv[])
 	rInfo("JointMotorProxy initialized Ok!");
 	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);//Remote server proxy creation example
 
-IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 
 
 	GenericWorker *worker = new SpecificWorker(mprx);
@@ -208,34 +188,6 @@ IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(
 
 
 
-
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "JoystickAdapterTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy JoystickAdapterProxy";
-		}
-		Ice::ObjectAdapterPtr JoystickAdapter_adapter = communicator()->createObjectAdapterWithEndpoints("joystickadapter", tmp);
-		JoystickAdapterPtr joystickadapterI_ = new JoystickAdapterI(worker);
-		Ice::ObjectPrx joystickadapter = JoystickAdapter_adapter->addWithUUID(joystickadapterI_)->ice_oneway();
-		IceStorm::TopicPrx joystickadapter_topic;
-		if(!joystickadapter_topic){
-		try {
-			joystickadapter_topic = topicManager->create("JoystickAdapter");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			joystickadapter_topic = topicManager->retrieve("JoystickAdapter");
-		}
-		catch(const IceStorm::NoSuchTopic&)
-		{
-			//Error. Topic does not exist
-			}
-		}
-		IceStorm::QoS qos;
-		joystickadapter_topic->subscribeAndGetPublisher(qos, joystickadapter);
-		}
-		JoystickAdapter_adapter->activate();
 
 		// Server adapter creation and publication
 		cout << SERVER_FULL_NAME " started" << endl;
@@ -300,7 +252,7 @@ int main(int argc, char* argv[])
 			printf("Configuration prefix: <%s>\n", prefix.toStdString().c_str());
 		}
 	}
-	inversekinematics app(prefix);
+	::inversekinematics app(prefix);
 
 	return app.main(argc, argv, configFile.c_str());
 }

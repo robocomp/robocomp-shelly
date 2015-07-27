@@ -67,7 +67,6 @@ public:
 	QMutex *mutex;
 	
 
-	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
 
 	virtual void setFingers(const float d) = 0;
@@ -79,7 +78,6 @@ public:
 	virtual bool getPartState(const string &bodyPart) = 0;
 	virtual void setJoint(const string &joint, const float angle, const float maxSpeed) = 0;
 	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
-	virtual void sendData(const TData &data) = 0;
 
 
 protected:

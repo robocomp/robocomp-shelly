@@ -30,7 +30,6 @@ QObject()
 {
 	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
-	reflexxes_proxy = (*(ReflexxesPrx*)mprx["ReflexxesProxy"]);
 
 
 	mutex = new QMutex(QMutex::Recursive);
@@ -42,6 +41,7 @@ QObject()
 		
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+// 	timer.start(Period);
 }
 
 /**
