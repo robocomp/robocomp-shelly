@@ -83,6 +83,31 @@
   <radius value="10.0" />
   <color value="#DDFF22" />
  </node>
+ 
+  <node alias="humanAgent" endpoint="agmcommonbehavior:tcp -h luiky.local -p 10333">
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote luiky.local humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/humanAgent ./bin/humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
+  <downCommand command="ssh luiky@luiky.local killall -9 humanComp" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
+  <xpos value="280.899089599" />
+  <ypos value="191.702611627" />
+  <radius value="10.0" />
+  <color value="#DDFF22" />
+ </node>
+ 
+   <node alias="agmInnerAgent" endpoint="agmcommonbehavior:tcp -h luiky.local -p 10334">
+  <workingDir path="/home/robocomp/" />
+  <dependence alias="humanAgent" />
+  <upCommand command="rcremote luiky.local agmInnerComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/agmInnerComp ./bin/agmInnerComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
+  <downCommand command="ssh luiky@luiky.local killall -9 agmInnerComp" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
+  <xpos value="380.899089599" />
+  <ypos value="171.702611627" />
+  <radius value="10.0" />
+  <color value="#DDFF22" />
+ </node>
+ 
+
 
  <node alias="rgbd" endpoint="rgbd:tcp -h robonuc1.local -p 10096">
   <dependence alias="cj" />
@@ -240,7 +265,7 @@
   <color value="#4422FF" />
  </node>
 
- <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h robonuc1.local -p 12204">
+ <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h localhost -p 12204">
   <dependence alias="laserRGBD" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
@@ -252,6 +277,8 @@
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
+ 
+
 
  <node alias="localization" endpoint="commonbehavior:tcp -h robonuc1.local -p 15542">
   <dependence alias="cgr" />
@@ -263,6 +290,18 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/stableOdometry.conf" />
   <xpos value="-150.515777219" />
   <ypos value="-231.253593982" />
+  <radius value="10.0" />
+  <color value="#4422FF" />
+ </node>
+ 
+  <node alias="navigationAgent" endpoint="agmcommonbehavior:tcp -h luiky.local -p 10330">
+  <dependence alias="trajectory" />  
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost navigationComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <downCommand command="ssh luiky@luiky.local killall -9 navigationComp" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <xpos value="-200.515777219" />
+  <ypos value="-321.253593982" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
