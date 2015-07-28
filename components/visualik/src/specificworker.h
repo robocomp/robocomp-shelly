@@ -63,13 +63,15 @@ Q_OBJECT
 
 public slots:
 	void    compute ();
+	//void 	on_goButton_clicked();
+	void goYESButton();
 
 private:
 	enum class State {IDLE, INIT_BIK, WAIT_BIK, CORRECT_TRASLATION, CORRECT_ROTATION}; // ESTADOS POR LOS QUE PASA LA MAQUINA DE ESTADOS DEL VISUAL BIK:
 	State                      stateMachine; // LA VARIABLE QUE GUARDA EL ESTADO DEL VISUAL BIK
 	VisualHand                 *rightHand;   // VARIABLE QUE GUARDA LA POSE VISUAL DE LA MARCA DE LA MANO DERECHA DEL ROBOT
-	QMap<QString, QStringList> motorchains;  // MAPA CON LAS CADENAS DE MOTORES
 
+	bool             goMotorsGO;
 	// VARIABLES QUE GUARDAN EL TARGET QUE SE ESTA EJECUTANDO Y LOS SIGUIENTES A EJECUTAR.
 	Target           currentTarget;
 	Target           correctedTarget;
@@ -99,4 +101,3 @@ private:
 };
 
 #endif
-

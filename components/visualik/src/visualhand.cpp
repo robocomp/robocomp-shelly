@@ -41,7 +41,7 @@ VisualHand::~VisualHand()
  */
 void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 {
-	QVec tagPose = QVec::vec6(tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
+	tagPose = QVec::vec6(tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
 	// Metemos en el InnerModel la marca vista por la RGBD:
 	im->updateTransformValues("marca-" + tip + "-segun-head", tag.tx, tag.ty, tag.tz,   tag.rx, tag.ry, tag.rz);
 	im->updateTransformValues("marca-" + tip + "-segun-head2", 0,0,0,   -M_PI_2,0,M_PI);
@@ -58,12 +58,10 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
 	gettimeofday(lastUpdate, NULL);
 	
-	//TODO Calculo el error entre pose interna y pose visual.
-	QVec tip_root 		= im->transform("root", QVec::zeros(3), tip);
-	QVec visual_root	= im->transform("root", QVec::zeros(3), "visual_hand");
-	QVec errorT 		= visual_root-tip_root;
-// 	qDebug()<<"TIP in ROOT: "<<tip_root<<"\nVISUAL in ROOT: "<<visual_root<<"\nERROR T: "<<errorT<<"\nCORREGIDA T: "<<tip_root+errorT;
-	
+	// Calculo el error de traslacion:
+	const QVec errorInv = im->transform6D(tip, "visual_hand");
+	QVec errorInvP      = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
+	QVec errorT         = im->getRotationMatrixTo("root", tip)*errorInvP;
 	//TODO Calculo del error de rotacion:
 	QMat Mvisual_tip= im->getRotationMatrixTo(tip, "visual_hand");
 	QMat Mtip_root	= im->getRotationMatrixTo("root", tip);
@@ -76,16 +74,9 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 	Rot3D M3(R3[0], R3[1],R3[2]);
 	QMat Mfinal		=(M1*M2)*M3;
 	QVec errorR 	= Mfinal.extractAnglesR_min();
-//  	qDebug()<<"ERROR R: "<<errorR;
-	
-	//ANTES!!!!!!!!!!!!!!!:
-	//const QVec errorInv 	= im->transform6D(tip, "visual_hand");
-	//QVec errorInvP      	= QVec::vec3(errorInv(0), errorInv(1), errorInv(2));*/
-	//errorInternal_Visual 	= im->getRotationMatrixTo("root", tip)*errorInvP;
+	//Error total
 	errorInternal_Visual.inject(errorT,0);
 	errorInternal_Visual.inject(errorR,3);
-// 	qDebug()<<"ERROR: "<<errorInternal_Visual;
-// 	qFatal("fary");
 }
 /**
 * \brief Updates the hand's possition according to direct kinematics.
@@ -143,21 +134,8 @@ double VisualHand::getSecondsElapsed()
 */
 QVec VisualHand::getError()
 {
-	QVec target_root = im->transform("root", "target");
-	QVec visual_root = im->transform("root", "visual_hand");
-	QVec errorT      = target_root - visual_root;
-	
-	QVec aux    = im->transform6D("visual_hand", "target");
-	QVec errorR = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
-	
-	QVec errorFinal = QVec::zeros(6);
-	errorFinal.inject(errorT, 0);
-	errorFinal.inject(errorR, 3);
-	return errorFinal;
-	
-// 	const QVec error = im->transform6D("target", "visual_hand");
-	//QVec target_root = im->transform("root", QVec::Zeros(3), "target");
-	//return error;
+	const QVec error = im->transform6D("target", "visual_hand");
+	return error;
 }
 /**
 * \brief Computes the inverse of the error from the visual position to a target position
@@ -166,6 +144,7 @@ QVec VisualHand::getError()
 */
 QVec VisualHand::getErrorInverse()
 {
+	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
 	const QVec error = im->transform6D("visual_hand", "target");
 	return error;
 }

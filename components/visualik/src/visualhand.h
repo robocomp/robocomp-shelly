@@ -38,6 +38,7 @@ public:
 
 private:
 	QVec 				visualPose;
+	QVec 				tagPose;
 	timeval 			*lastUpdate;
 	InnerModel 			*im;
 	QString 			tip;

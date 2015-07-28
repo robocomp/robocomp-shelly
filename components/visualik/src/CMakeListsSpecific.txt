@@ -14,7 +14,7 @@ SET ( HEADERS
   specificmonitor.h
   
   target.h
-  visualhand.cpp
+  visualhand.h
 )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)

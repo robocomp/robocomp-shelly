@@ -160,7 +160,7 @@
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote robonuc1.local dyxl /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp/bin/ ./dynamixelComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 dynamixelComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <xpos value="67.5873667673" />
   <ypos value="154.986334868" />
   <radius value="10.0" />
