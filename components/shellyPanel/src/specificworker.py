@@ -246,7 +246,7 @@ class SpecificWorker(GenericWorker):
 			self.transport.close()
 		if self.ssh is not None:
 			self.ssh.close()
- 
+
 	def connect(self,hostname,username,password,port=22):
 		self.hostname = hostname
 		self.username = username
@@ -263,7 +263,7 @@ class SpecificWorker(GenericWorker):
 			print "ERROR: SSH connection to "+self.hostname+" failed: " +str(message)
 			#sys.exit(1)
 		return  self.transport is not None
- 
+
 	def runcmd(self,cmd,sudoenabled=True):
 		if sudoenabled:
 			fullcmd="echo " + self.password + " |   sudo -S -p '' " + cmd
@@ -280,7 +280,7 @@ class SpecificWorker(GenericWorker):
 		output=stdout.read()
 		session.close()
 		return output
-	
+
 	@QtCore.Slot()
 	def shutdownNUC1(self):
 		print "POWEROFF NUC1"
@@ -290,16 +290,12 @@ class SpecificWorker(GenericWorker):
 			self.connect(hostname,"robolab",self.hosts[hostname])
 			output=self.runcmd('sudo poweroff')
 			if output:
-				break;
+				print output
+                                self.disconnect()
+				break
 			else:
 				i -= 1
-				print ' trying number '+str(i)
-		if output:
-			print output
-			self.disconnect()
-		else:
-			print 'ERROR shutdown NUC1'
-
+				print 'ERROR shutdown NUC1. Trying number '+str(i)
 
 	@QtCore.Slot()
 	def resetNUC1(self):
@@ -310,16 +306,13 @@ class SpecificWorker(GenericWorker):
 			self.connect(hostname,"robolab",self.hosts[hostname])
 			output=self.runcmd('sudo reboot')
 			if output:
-				break;
+				print output
+                                self.disconnect()
+				break
 			else:
 				i -= 1
-				print ' trying number '+str(i)
-		if output:
-			print output
-			self.disconnect()
-		else:
-			print 'ERROR reset NUC1'
-		
+				print ' Error reset NUC1.  Trying number '+str(i)
+
 	@QtCore.Slot()
 	def shutdownNUC2(self):
 		print "POWEROFF NUC2"
@@ -329,16 +322,13 @@ class SpecificWorker(GenericWorker):
 			self.connect(hostname,"robolab",self.hosts[hostname])
 			output=self.runcmd('sudo poweroff')
 			if output:
+				print output
+                                self.disconnect()
 				break;
 			else:
 				i -= 1
-				print ' trying number '+str(i)
-		if output:
-			print output
-			self.disconnect()
-		else:
-			print 'ERROR shutdown NUC2'
-		
+				print 'ERROR shutdown NUC2.  Trying number '+str(i)
+
 	@QtCore.Slot()
 	def resetNUC2(self):
 		print "REBOOT NUC2"
@@ -348,12 +338,12 @@ class SpecificWorker(GenericWorker):
 			self.connect(hostname,"robolab",self.hosts[hostname])
 			output=self.runcmd('sudo reboot')
 			if output:
-				break;
+				print output
+	                        self.disconnect()
+				break
 			else:
 				i -= 1
-				print ' trying number '+str(i)
-		if output:
-			print output
-			self.disconnect()
-		else:
-			print 'ERROR reset NUC1'
+				print 'ERROR reset NUC1. Trying number '+str(i)
+
+
+###################################################################################################
