@@ -224,9 +224,13 @@ if __name__ == '__main__':
 				print "Error. Topic does not exist (yet)"
 				status = 0
 				time.sleep(1)
-		qos = {}
-		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
-		ASRPublish_adapter.activate()
+				# ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				# TODO quitar!!!!!!!!!!!!!!!!!!!!!!
+				# ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				subscribeDone = True
+		#qos = {}
+		#asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+		#ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

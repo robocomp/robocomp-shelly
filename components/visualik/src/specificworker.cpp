@@ -169,30 +169,25 @@ void SpecificWorker::compute()
 				qDebug()<<"---> El IK ha terminado.";
 				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
-				goMotorsGO = false;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
-			if(goMotorsGO==true)
+			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			if (correctRotation()==true or abortarotacion==true)
 			{
-				goMotorsGO = false;
-				updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
-				if (correctRotation()==true or abortarotacion==true)
+				if(nextTargets.isEmpty()==false)
 				{
-					if(nextTargets.isEmpty()==false)
-					{
-						std::cout<<"--> Correccion completada.\nPasamos al siguiente target:\n";
-						currentTarget = nextTargets.head();
-						nextTargets.dequeue();
-					}
-					else
-						currentTarget.setState(Target::State::IDLE);
-					stateMachine = State::IDLE;
-					goHome("RIGHTARM");
+					std::cout<<"--> Correccion completada.\nPasamos al siguiente target:\n";
+					currentTarget = nextTargets.head();
+					nextTargets.dequeue();
 				}
+				else
+					currentTarget.setState(Target::State::IDLE);
+				stateMachine = State::IDLE;
+				//goHome("RIGHTARM");
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -251,20 +246,20 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	cout<<"Recibido target"<<endl;
 	if(currentTarget.getState()==Target::State::IDLE)
 	{
-		currentTarget.setBodyPart	(bodyPart);
-		currentTarget.setPose		(target);
-		currentTarget.setWeights	(weights);
-		currentTarget.setState		(Target::State::WAITING);
-		currentTarget.setID_VIK		(contador);
+		currentTarget.setBodyPart (bodyPart);
+		currentTarget.setPose     (target);
+		currentTarget.setWeights  (weights);
+		currentTarget.setState    (Target::State::WAITING);
+		currentTarget.setID_VIK   (contador);
 	}
 	else
 	{
 		Target auxnextTargets;
-		auxnextTargets.setBodyPart	(bodyPart);
-		auxnextTargets.setPose		(target);
-		auxnextTargets.setWeights	(weights);
-		auxnextTargets.setState		(Target::State::WAITING);
-		auxnextTargets.setID_VIK	(contador);
+		auxnextTargets.setBodyPart (bodyPart);
+		auxnextTargets.setPose     (target);
+		auxnextTargets.setWeights  (weights);
+		auxnextTargets.setState    (Target::State::WAITING);
+		auxnextTargets.setID_VIK   (contador);
 		nextTargets.enqueue(auxnextTargets);
 	}
 	contador++;
@@ -290,13 +285,13 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  */
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
-	
+	//NOTE: When the VIK is connected to IK directly
 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
 	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
 	return id;
-// 	qDebug()<<"...";
-//   	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	//NOTE: When the VIK is connected to GIK and GIK is connected to IK.
+	//return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 }
 /**
  * \brief this method moves the motors to their home value
@@ -379,7 +374,7 @@ bool SpecificWorker::correctRotation()
 {
 	updateAll();
 	static float umbralMaxTime = 90, umbralMinTime = 10;
-	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.06;
+	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.2;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
@@ -414,7 +409,9 @@ bool SpecificWorker::correctRotation()
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
  	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 	qDebug()<<"Distancia entre la camara y la marca: "<<innerModel->transform("visual_hand", "rgbd_transform").norm2();
+	innerModel->transform("rgbd_transform", "visual_hand").print("marca desde la camara");
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);

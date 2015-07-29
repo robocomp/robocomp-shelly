@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>420</width>
-    <height>609</height>
+    <width>428</width>
+    <height>618</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -193,7 +193,7 @@ angle</string>
          </widget>
         </item>
         <item row="3" column="1">
-         <widget class="QSpinBox" name="spinBox_2">
+         <widget class="QSpinBox" name="tyBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -219,7 +219,7 @@ angle</string>
          </widget>
         </item>
         <item row="3" column="0">
-         <widget class="QSpinBox" name="spinBox">
+         <widget class="QSpinBox" name="txBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -242,7 +242,7 @@ angle</string>
          </widget>
         </item>
         <item row="3" column="2">
-         <widget class="QSpinBox" name="spinBox_3">
+         <widget class="QSpinBox" name="tzBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -285,7 +285,7 @@ angle</string>
          </widget>
         </item>
         <item row="5" column="0">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox">
+         <widget class="QDoubleSpinBox" name="rxBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -301,7 +301,7 @@ angle</string>
          </widget>
         </item>
         <item row="5" column="1">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_2">
+         <widget class="QDoubleSpinBox" name="ryBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
@@ -320,7 +320,7 @@ angle</string>
          </widget>
         </item>
         <item row="5" column="2">
-         <widget class="QDoubleSpinBox" name="doubleSpinBox_3">
+         <widget class="QDoubleSpinBox" name="rzBox">
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
           </property>
