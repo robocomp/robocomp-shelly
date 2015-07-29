@@ -105,6 +105,8 @@ class SpecificWorker(GenericWorker):
 		#except Ice.Exception, e:
 		#	traceback.print_exc()
 		#	print e
+		self.temperatura()
+		self.loadAverage()
 		return True
 
 
@@ -117,6 +119,15 @@ class SpecificWorker(GenericWorker):
 		#
 		pass
 
+	def temperatura(self):
+		#TODO IMPLEMENTAR
+		self.ui.temperatura1.setText("tmp")
+		self.ui.temperatura2.setText("tmp")
+
+	def loadAverage(self):
+		#TODO IMPLEMENTAR
+		self.loadavg1.setText("avg")
+		self.loadavg2.setText("avg")
 ######################################################################	
 #### NAVEGACION
 	@QtCore.Slot()
