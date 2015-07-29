@@ -31,12 +31,10 @@
 						<mesh id="barracuello" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracuello.ive" tx="0" ty="0" tz="930" rx="3.14159265359" scale="1000" collide="1" />
 						<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracolumna.osg" tx="30" ty="-15" tz="930" rz="1.5707963267948966" scale="850" collide="1" />
  
-
-
 						<transform id="base_bodypost" rx="1.5707963267948966" ty="0" tz="0" >
 							<transform id="base_head" tz="0" ty="1225"  rx="-1.5707963267948966" >  <!-- Head begins -->
 								<transform id="rgbdHumanPose" tz="40" ty="-40" rx="1.57079632679">
-									<rgbd id="rgbdHuman" focal="600" width="640" height="480" port="10096" ifconfig="10068,10004" />
+ 									<rgbd id="rgbdHuman" focal="600" width="640" height="480" /> 
 									<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 								</transform>
 								<joint id="head_yaw_joint" port="10067" axis="z" home="0" min="-1" max="1">
