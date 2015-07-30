@@ -63,6 +63,17 @@ class SpecificWorker(GenericWorker):
 		self.timer.timeout.connect(self.compute)
 		self.Period = 2000
 		self.timer.start(self.Period)
+	
+		# timer for the get informations of nucs
+		timer2 = QtCore.QTimer(self)		
+		timer2.timeout.connect(self.computeTemp)
+		timer2.start(10000)
+		timer3 = QtCore.QTimer(self)
+		timer3.timeout.connect(self.computeLoad)
+		timer3.start(15000)
+		timer4 = QtCore.QTimer(self)
+		timer4.timeout.connect(self.computeWifi)
+		timer4.start(5000)
 		
 		self.ui.navigationButton.clicked.connect(self.goNavigation)
 		self.ui.ikButton.clicked.connect(self.goIK)
@@ -90,6 +101,7 @@ class SpecificWorker(GenericWorker):
 		except:
 			print ("can't open file ~/.rcmemote")
 
+
 	def setParams(self, params):
 		#try:
 		#	par = params["InnerModelPath"]
@@ -107,12 +119,19 @@ class SpecificWorker(GenericWorker):
 		#	differentialrobot_proxy.setSpeed(100, 0)
 		#except Ice.Exception, e:
 		#	traceback.print_exc()
-		#	print e
-		self.temperatura()
+		#	print e		
+		#return True
+		
+
+	def computeTemp(self):
+		self.loadTemp()
+	
+	def computeLoad(self):
 		self.loadAverage()
-		return True
-
-
+	
+	def computeWifi(self):
+		self.loadWiFiSignal()
+		
 	#
 	# newText
 	#
@@ -122,7 +141,7 @@ class SpecificWorker(GenericWorker):
 		#
 		pass
 
-	def temperatura(self):
+	def loadTemp(self):
 		hostnames = ['robonuc1.local','robonuc2.local']
 		for hostname in hostnames:
 			self.connect(hostname,"robolab",self.hosts[hostname])
@@ -138,21 +157,54 @@ class SpecificWorker(GenericWorker):
 				self.disconnect()
 			else:
 				print 'ERROR with: '+str(hostname)
-		
-		
+
+
 
 	def loadAverage(self):
+		maxAttemp = 50
 		hostnames = ['robonuc1.local','robonuc2.local']
 		for hostname in hostnames:
 			self.connect(hostname,"robolab",self.hosts[hostname])
-			output=self.runcmd('top -bn1')
+			output=self.runcmd('top -bn '+str(maxAttemp)+' -d 0.01 | grep \'%Cpu(s)\' | gawk \'{print $2+$4+$6}\'')
 			if output:
+				output = output.split('\n')
+				aux = 0
+				cont = 0
+				for load in output:
+					if load != '':
+						aux += float(load[:-1])
+						cont += 1
+				aux = aux / maxAttemp
 				if hostname == 'robonuc1.local':
-					self.ui.loadavg1.setText('Load: '+((output.split('\n'))[2]).split(' ')[1])
+					self.ui.loadavg1.setText('Load: '+str(aux))
 				else:
-					self.ui.loadavg2.setText('Load: '+((output.split('\n'))[2]).split(' ')[1])
+					self.ui.loadavg2.setText('Load: '+str(aux))
 			else:
 				print 'ERROR with: '+str(hostname)
+
+
+
+	def loadWiFiSignal(self):
+		ifaceN1 = 'wlan2'
+		ifaceN2 = 'wlan3'
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			if hostname == 'robonuc1.local':
+				output=self.runcmd('iwconfig '+ifaceN1+' | grep -e "Signal level"')
+			else:
+				output=self.runcmd('iwconfig '+ifaceN2+' | grep -e "Signal level"')
+			if output:
+				signal = 'Wifi: '+((output.split('='))[2])
+
+				if hostname == 'robonuc1.local':
+					#self.ui.loadwifi1.setText(signal)
+					print 'Wifi NUC1',signal
+				else:
+					#self.ui.loadwifi2.setText(signal)
+					print 'Wifi NUC2',signal
+			else:
+				print 'ERROR with: '+str(hostname)			
 ######################################################################	
 #### NAVEGACION
 	@QtCore.Slot()

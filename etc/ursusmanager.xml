@@ -350,4 +350,15 @@
   <color value="None" />
  </node>
 
+ <node alias="shellyPanel" endpoint="shellypanel:tcp -p 15555">
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-ursus/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/shellyPanel.conf" />
+  <downCommand command="pkill -9 -f shellyPanel.py" />
+  <configFile path="xxx" />
+  <xpos value="333.6044453252" />
+  <ypos value="-338.660182356" />
+  <radius value="10.0" />
+  <color value="None" />
+ </node>
+
 </rcmanager>
