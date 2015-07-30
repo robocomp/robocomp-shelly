@@ -521,7 +521,7 @@ NUC2</string>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="tenperatura2">
+           <widget class="QLabel" name="temperatura2">
             <property name="text">
              <string>TextLabel</string>
             </property>
