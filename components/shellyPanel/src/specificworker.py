@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #
 # Copyright (C) 2015 by YOUR NAME HERE
 #
@@ -16,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
+
 
 import sys, os, Ice, traceback
 import socket, paramiko, time
@@ -120,14 +123,36 @@ class SpecificWorker(GenericWorker):
 		pass
 
 	def temperatura(self):
-		#TODO IMPLEMENTAR
-		self.ui.temperatura1.setText("tmp")
-		self.ui.temperatura2.setText("tmp")
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			output=self.runcmd('sensors')
+			if output:
+				output = output.split('\n')
+				temC1 = (output[8].split('         ')[1].split('  ')[0])[1:-3]
+				temC2 = (output[9].split('         ')[1].split('  ')[0])[1:-3]
+				if hostname == 'robonuc1.local':					
+					self.ui.temperatura1.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
+				else:
+					self.ui.temperatura2.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
+				self.disconnect()
+			else:
+				print 'ERROR with: '+str(hostname)
+		
+		
 
 	def loadAverage(self):
-		#TODO IMPLEMENTAR
-		self.loadavg1.setText("avg")
-		self.loadavg2.setText("avg")
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			output=self.runcmd('top -bn1')
+			if output:
+				if hostname == 'robonuc1.local':
+					self.ui.loadavg1.setText('Load: '+((output.split('\n'))[2]).split(' ')[1])
+				else:
+					self.ui.loadavg2.setText('Load: '+((output.split('\n'))[2]).split(' ')[1])
+			else:
+				print 'ERROR with: '+str(hostname)
 ######################################################################	
 #### NAVEGACION
 	@QtCore.Slot()
