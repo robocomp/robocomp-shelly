@@ -127,17 +127,24 @@ class SpecificWorker(GenericWorker):
 		
 
 	def computeTemp(self):
-		if self.on_1 == True and self.on_2 ==True:
+		if self.on_1 is True and self.on_2 is True:
 			self.loadTemp()
-	
+		else:
+			pass
+
 	def computeLoad(self):
-		if self.on_1 == True and self.on_2 ==True:
+		if self.on_1 is True and self.on_2 is True:
 			self.loadAverage()
-	
+		else:
+			pass
+
 	def computeWifi(self):
-		if self.on_1 == True and self.on_2 ==True:
+		if self.on_1 is True and self.on_2 is True:
 			self.loadWiFiSignal()
-		
+		else:
+			pass
+
+
 	#
 	# newText
 	#
@@ -146,6 +153,7 @@ class SpecificWorker(GenericWorker):
 		# YOUR CODE HERE
 		#
 		pass
+
 
 	def loadTemp(self):
 		hostnames = ['robonuc1.local','robonuc2.local']
