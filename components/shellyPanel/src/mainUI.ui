@@ -485,7 +485,7 @@ NUC1</string>
           <item>
            <widget class="QLabel" name="temperatura1">
             <property name="text">
-             <string>Tmp:</string>
+             <string></string>
             </property>
            </widget>
           </item>
@@ -504,7 +504,7 @@ NUC1</string>
           <item>
            <widget class="QLabel" name="loadavg1">
             <property name="text">
-             <string>TextLabel</string>
+             <string></string>
             </property>
            </widget>
           </item>
@@ -521,9 +521,9 @@ NUC2</string>
            </widget>
           </item>
           <item>
-           <widget class="QLabel" name="tenperatura2">
+           <widget class="QLabel" name="temperatura2">
             <property name="text">
-             <string>TextLabel</string>
+             <string></string>
             </property>
            </widget>
           </item>
@@ -542,7 +542,7 @@ NUC2</string>
           <item>
            <widget class="QLabel" name="loadavg2">
             <property name="text">
-             <string>TextLabel</string>
+             <string></string>
             </property>
            </widget>
           </item>

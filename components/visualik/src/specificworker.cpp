@@ -27,25 +27,24 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	if (file.is_open()==false)
 		qFatal("ARCHIVO NO ABIERTO");
 		
-	goMotorsGO          = false;
-	stateMachine        = State::IDLE;
-	abortatraslacion    = false;
-	abortarotacion      = false;
-	innerModel          = NULL;
-	contador            = 0;
-	timeSinMarca        = 0.0;
-	mutexSolved         = new QMutex(QMutex::Recursive);
+	goMotorsGO         = false;
+	stateMachine       = State::IDLE;
+	abortCorrection    = false;
+	innerModel         = NULL;
+	contador           = 0;
+	timeSinMarca       = 0.0;
+	mutexSolved        = new QMutex(QMutex::Recursive);
 	
 #ifdef USE_QTGUI	
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
-	innerViewer         = NULL;
-	//osgView             = new OsgView(this);
-	osgView             = new OsgView(this->widget);
+	innerViewer        = NULL;
+	//osgView          = new OsgView(this);
+	osgView            = new OsgView(this->widget);
  	show();
 #endif
 	
 	QMutexLocker ml(mutex);
-	INITIALIZED         = false;
+	INITIALIZED        = false;
 }
 /**
 * \brief Default destructor
@@ -116,23 +115,14 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::compute()
 {
-//  	static int frecuencia = 0;
-// 	qDebug()<<frecuencia;
-//  	if (frecuencia%5 != 0)
-//  	{
 #ifdef USE_QTGUI
 		if (innerViewer)
 		{
 			innerViewer->update();
 			osgView->autoResize();
 			osgView->frame();
-//			return;
 		}
 #endif
-//  	}
-//  	frecuencia ++;
-	
-	
 	updateAll();
 	QMutexLocker ml(mutex);
 	switch(stateMachine)
@@ -141,8 +131,7 @@ void SpecificWorker::compute()
 			if (currentTarget.getState() == Target::State::WAITING)
 			{
 				stateMachine     = State::INIT_BIK;
-				abortatraslacion = false;
-				abortarotacion   = false;
+				abortCorrection = false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
 				timeSinMarca = 0.0;
 			}
@@ -176,7 +165,7 @@ void SpecificWorker::compute()
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
 			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
-			if (correctRotation()==true or abortarotacion==true)
+			if (correctRotation()==true or abortCorrection==true)
 			{
 				if(nextTargets.isEmpty()==false)
 				{
@@ -227,7 +216,6 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 			state.finish = true;
 			if(solvedList[i].getState()==Target::State::NOT_RESOLVED) state.state = "NOT_RESOLVED";
 			if(solvedList[i].getState()==Target::State::RESOLVED)     state.state = "RESOLVED";
-			qDebug()<<"ENCONTRADO!!";
 		}
 	}
 	return state;
@@ -387,7 +375,7 @@ bool SpecificWorker::correctRotation()
 	QVec errorInv = rightHand->getErrorInverse();
 	if(currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
-		abortarotacion = true;
+		abortCorrection = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
 		qDebug()<<"Abort rotation: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 		printXXX(errorInv);
@@ -461,7 +449,8 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
 			jointmotor_proxy->setPosition(nodo);
 		} catch (const Ice::Exception &ex) {
-			cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<endl;
+			std::cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<std::endl;
+			//ABANDONAMOS TARGET SI LA IK NO PUEDE MOVERSE NI SIQUIERA CERCA DEL TARGET
 		}
 	}
 	//sleep(1);

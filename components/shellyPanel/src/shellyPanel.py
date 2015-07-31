@@ -139,8 +139,9 @@ if __name__ == '__main__':
 				mprx["JointMotorProxy"] = jointmotor_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (JointMotor)', proxyString
+				mprx["JointMotorProxy"] = ''				
 				#traceback.print_exc()
-				status = 1
+				#status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get JointMotorProxy property.'
@@ -156,8 +157,9 @@ if __name__ == '__main__':
 				mprx["TrajectoryRobot2DProxy"] = trajectoryrobot2d_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (TrajectoryRobot2D)', proxyString
+				mprx["TrajectoryRobot2DProxy"] = ''
 				#traceback.print_exc()
-				status = 1
+				#status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get TrajectoryRobot2DProxy property.'
@@ -173,8 +175,9 @@ if __name__ == '__main__':
 				mprx["OmniRobotProxy"] = omnirobot_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (OmniRobot)', proxyString
+				mprx["OmniRobotProxy"] = ''				
 				#traceback.print_exc()
-				status = 1
+				#status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get OmniRobotProxy property.'
@@ -190,8 +193,9 @@ if __name__ == '__main__':
 				mprx["SpeechProxy"] = speech_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (Speech)', proxyString
+				mprx["SpeechProxy"] = ''				
 				#traceback.print_exc()
-				status = 1
+				#status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get SpeechProxy property.'
@@ -216,7 +220,8 @@ if __name__ == '__main__':
 		asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
 
 		subscribeDone = False
-		while not subscribeDone:
+		i=5
+		while i > 0:
 			try:
 				asrpublish_topic = topicManager.retrieve("ASRPublish")
 				subscribeDone = True
@@ -224,13 +229,11 @@ if __name__ == '__main__':
 				print "Error. Topic does not exist (yet)"
 				status = 0
 				time.sleep(1)
-				# ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				# TODO quitar!!!!!!!!!!!!!!!!!!!!!!
-				# ALERT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				subscribeDone = True
-		#qos = {}
-		#asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
-		#ASRPublish_adapter.activate()
+				i -= 1
+		if i > 0:
+			qos = {}
+			asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+			ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

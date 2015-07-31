@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #
 # Copyright (C) 2015 by YOUR NAME HERE
 #
@@ -16,6 +18,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
+
 
 import sys, os, Ice, traceback
 import socket, paramiko, time
@@ -60,6 +63,17 @@ class SpecificWorker(GenericWorker):
 		self.timer.timeout.connect(self.compute)
 		self.Period = 2000
 		self.timer.start(self.Period)
+	
+		# timer for the get informations of nucs
+		timer2 = QtCore.QTimer(self)		
+		timer2.timeout.connect(self.computeTemp)
+		timer2.start(10000)
+		timer3 = QtCore.QTimer(self)
+		timer3.timeout.connect(self.computeLoad)
+		timer3.start(15000)
+		timer4 = QtCore.QTimer(self)
+		timer4.timeout.connect(self.computeWifi)
+		timer4.start(5000)
 		
 		self.ui.navigationButton.clicked.connect(self.goNavigation)
 		self.ui.ikButton.clicked.connect(self.goIK)
@@ -70,6 +84,9 @@ class SpecificWorker(GenericWorker):
 		self.ui.shutdown2Button.clicked.connect(self.shutdownNUC2)
 		self.ui.reset1Button.clicked.connect(self.resetNUC1)
 		self.ui.reset2Button.clicked.connect(self.resetNUC2)
+		
+		self.on_1 = True
+		self.on_2 = True
 		
 		# variables for work with ssh
 		self.ssh = None
@@ -86,6 +103,7 @@ class SpecificWorker(GenericWorker):
 					print ("can't find password for "+str(s[0])+" in ~/.rcremote  (format 'host#password')")
 		except:
 			print ("can't open file ~/.rcmemote")
+
 
 	def setParams(self, params):
 		#try:
@@ -104,12 +122,22 @@ class SpecificWorker(GenericWorker):
 		#	differentialrobot_proxy.setSpeed(100, 0)
 		#except Ice.Exception, e:
 		#	traceback.print_exc()
-		#	print e
-		self.temperatura()
-		self.loadAverage()
-		return True
+		#	print e		
+		#return True
+		
 
-
+	def computeTemp(self):
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadTemp()
+	
+	def computeLoad(self):
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadAverage()
+	
+	def computeWifi(self):
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadWiFiSignal()
+		
 	#
 	# newText
 	#
@@ -119,15 +147,70 @@ class SpecificWorker(GenericWorker):
 		#
 		pass
 
-	def temperatura(self):
-		#TODO IMPLEMENTAR
-		self.ui.temperatura1.setText("tmp")
-		self.ui.temperatura2.setText("tmp")
+	def loadTemp(self):
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			output=self.runcmd('sensors')
+			if output:
+				output = output.split('\n')
+				temC1 = (output[8].split('         ')[1].split('  ')[0])[1:-3]
+				temC2 = (output[9].split('         ')[1].split('  ')[0])[1:-3]
+				if hostname == 'robonuc1.local':					
+					self.ui.temperatura1.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
+				else:
+					self.ui.temperatura2.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
+				self.disconnect()
+			else:
+				print 'ERROR with: '+str(hostname)
+
+
 
 	def loadAverage(self):
-		#TODO IMPLEMENTAR
-		self.loadavg1.setText("avg")
-		self.loadavg2.setText("avg")
+		maxAttemp = 50
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			output=self.runcmd('top -bn '+str(maxAttemp)+' -d 0.01 | grep \'%Cpu(s)\' | gawk \'{print $2+$4+$6}\'')
+			if output:
+				output = output.split('\n')
+				aux = 0
+				cont = 0
+				for load in output:
+					if load != '':
+						aux += float(load[:-1])
+						cont += 1
+				aux = aux / maxAttemp
+				if hostname == 'robonuc1.local':
+					self.ui.loadavg1.setText('Load: '+str(aux))
+				else:
+					self.ui.loadavg2.setText('Load: '+str(aux))
+			else:
+				print 'ERROR with: '+str(hostname)
+
+
+
+	def loadWiFiSignal(self):
+		ifaceN1 = 'wlan2'
+		ifaceN2 = 'wlan3'
+		hostnames = ['robonuc1.local','robonuc2.local']
+		for hostname in hostnames:
+			self.connect(hostname,"robolab",self.hosts[hostname])
+			if hostname == 'robonuc1.local':
+				output=self.runcmd('iwconfig '+ifaceN1+' | grep -e "Signal level"')
+			else:
+				output=self.runcmd('iwconfig '+ifaceN2+' | grep -e "Signal level"')
+			if output:
+				signal = 'Wifi: '+((output.split('='))[2])
+
+				if hostname == 'robonuc1.local':
+					#self.ui.loadwifi1.setText(signal)
+					print 'Wifi NUC1',signal
+				else:
+					#self.ui.loadwifi2.setText(signal)
+					print 'Wifi NUC2',signal
+			else:
+				print 'ERROR with: '+str(hostname)			
 ######################################################################	
 #### NAVEGACION
 	@QtCore.Slot()
@@ -302,7 +385,8 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo poweroff')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
+				self.on_1 = False
 				break
 			else:
 				i -= 1
@@ -318,7 +402,7 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo reboot')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
 				break
 			else:
 				i -= 1
@@ -334,7 +418,8 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo poweroff')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
+				self.on_2 = False
 				break;
 			else:
 				i -= 1
