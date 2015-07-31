@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1180</width>
+    <width>1194</width>
     <height>761</height>
    </rect>
   </property>
@@ -328,6 +328,16 @@ plan</string>
             <layout class="QVBoxLayout" name="verticalLayout_4">
              <item>
               <widget class="QWidget" name="widget3D" native="true"/>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QWidget" name="tab_3">
+            <attribute name="title">
+             <string>Page</string>
+            </attribute>
+            <layout class="QGridLayout" name="gridLayout">
+             <item row="0" column="0">
+              <widget class="QWidget" name="inner3D" native="true"/>
              </item>
             </layout>
            </widget>
