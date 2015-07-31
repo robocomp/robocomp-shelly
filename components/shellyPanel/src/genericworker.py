@@ -32,7 +32,6 @@ class GenericWorker(QtGui.QWidget):
 	def __init__(self, mprx):
 		super(GenericWorker, self).__init__()
 
-
 		self.jointmotor_proxy = mprx["JointMotorProxy"]
 		self.trajectoryrobot2d_proxy = mprx["TrajectoryRobot2DProxy"]
 		self.omnirobot_proxy = mprx["OmniRobotProxy"]
