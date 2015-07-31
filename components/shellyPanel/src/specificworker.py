@@ -85,6 +85,9 @@ class SpecificWorker(GenericWorker):
 		self.ui.reset1Button.clicked.connect(self.resetNUC1)
 		self.ui.reset2Button.clicked.connect(self.resetNUC2)
 		
+		self.on_1 = True
+		self.on_2 = True
+		
 		# variables for work with ssh
 		self.ssh = None
 		self.transport = None
@@ -124,13 +127,16 @@ class SpecificWorker(GenericWorker):
 		
 
 	def computeTemp(self):
-		self.loadTemp()
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadTemp()
 	
 	def computeLoad(self):
-		self.loadAverage()
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadAverage()
 	
 	def computeWifi(self):
-		self.loadWiFiSignal()
+		if self.on_1 == True and self.on_2 ==True:
+			self.loadWiFiSignal()
 		
 	#
 	# newText
@@ -379,7 +385,8 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo poweroff')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
+				self.on_1 = False
 				break
 			else:
 				i -= 1
@@ -395,7 +402,7 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo reboot')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
 				break
 			else:
 				i -= 1
@@ -411,7 +418,8 @@ class SpecificWorker(GenericWorker):
 			output=self.runcmd('sudo poweroff')
 			if output:
 				print output
-                                self.disconnect()
+				self.disconnect()
+				self.on_2 = False
 				break;
 			else:
 				i -= 1
