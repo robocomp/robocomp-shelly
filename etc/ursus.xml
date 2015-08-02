@@ -2,9 +2,14 @@
 <!-- 	<axes id="sl3" /> -->
 
 <omnirobot id="robot" port="12238" >
+<!--
 		<transform id="laserPose" tx="0" ty="240" tz="100" rx="-0.4" >
 			<rgbd id="laser" focal="120" width="160" height="120" port="10097" ifconfig="10068,10004" />
 		</transform>
+-->
+		<transform id="laserPose" tx="200" ty="240" tz="180" rx="0" >
+                        <laser id="laser" measures="100" min="100" max="4000" angle="3.14" port="10003" />
+                </transform>
 
 <!--		<transform id="monitor_pose" ty="700" tz="35" >-->
 		<transform id="monitor_pose" ty="935" tz="35" >
