@@ -89,6 +89,8 @@ Ice.loadSlice(preStr+"Speech.ice")
 import RoboCompSpeech
 Ice.loadSlice(preStr+"ASRPublish.ice")
 import RoboCompASRPublish
+Ice.loadSlice(preStr+"CommonBehavior.ice")
+import RoboCompCommonBehavior
 
 
 class CommonBehaviorI(RoboCompCommonBehavior.CommonBehavior):
@@ -139,9 +141,8 @@ if __name__ == '__main__':
 				mprx["JointMotorProxy"] = jointmotor_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (JointMotor)', proxyString
-				mprx["JointMotorProxy"] = ''				
 				#traceback.print_exc()
-				#status = 1
+				status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get JointMotorProxy property.'
@@ -156,10 +157,10 @@ if __name__ == '__main__':
 				trajectoryrobot2d_proxy = RoboCompTrajectoryRobot2D.TrajectoryRobot2DPrx.checkedCast(basePrx)
 				mprx["TrajectoryRobot2DProxy"] = trajectoryrobot2d_proxy
 			except Ice.Exception:
+				mprx["TrajectoryRobot2DProxy"] = None
 				print 'Cannot connect to the remote object (TrajectoryRobot2D)', proxyString
-				mprx["TrajectoryRobot2DProxy"] = ''
 				#traceback.print_exc()
-				#status = 1
+				status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get TrajectoryRobot2DProxy property.'
@@ -175,9 +176,9 @@ if __name__ == '__main__':
 				mprx["OmniRobotProxy"] = omnirobot_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (OmniRobot)', proxyString
-				mprx["OmniRobotProxy"] = ''				
 				#traceback.print_exc()
-				#status = 1
+				status = 1
+				mprx["OmniRobotProxy"] = None
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get OmniRobotProxy property.'
@@ -193,9 +194,9 @@ if __name__ == '__main__':
 				mprx["SpeechProxy"] = speech_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (Speech)', proxyString
-				mprx["SpeechProxy"] = ''				
 				#traceback.print_exc()
-				#status = 1
+				status = 1
+				mprx["SpeechProxy"] = None
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get SpeechProxy property.'
@@ -211,8 +212,13 @@ if __name__ == '__main__':
 			status = 1
 
 
-	if status == 0:
+	if status == 0 or True:
 		worker = SpecificWorker(mprx)
+
+
+		adapter = ic.createObjectAdapter('CommonBehavior')
+		adapter.add(CommonBehaviorI(worker, ic), ic.stringToIdentity('commonbehavior'))
+		adapter.activate()
 
 
 		ASRPublish_adapter = ic.createObjectAdapter("ASRPublishTopic")
@@ -220,20 +226,19 @@ if __name__ == '__main__':
 		asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
 
 		subscribeDone = False
-		i=5
-		while i > 0:
-			try:
-				asrpublish_topic = topicManager.retrieve("ASRPublish")
-				subscribeDone = True
-			except Ice.Exception, e:
-				print "Error. Topic does not exist (yet)"
-				status = 0
-				time.sleep(1)
-				i -= 1
-		if i > 0:
+		asrpublish_topic = None
+		try:
+			asrpublish_topic = topicManager.retrieve("ASRPublish")
+			subscribeDone = True
 			qos = {}
 			asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
 			ASRPublish_adapter.activate()
+		except Ice.Exception, e:
+			print "Error. Topic does not exist (yet)"
+			status = 0
+			time.sleep(1)
+		except:
+			pass
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

@@ -19,7 +19,6 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 import sys, os, Ice, traceback
 import socket, paramiko, time
 
@@ -53,9 +52,13 @@ Ice.loadSlice(preStr+"Speech.ice")
 from RoboCompSpeech import *
 Ice.loadSlice(preStr+"ASRPublish.ice")
 from RoboCompASRPublish import *
+Ice.loadSlice(preStr+"CommonBehavior.ice")
+from RoboCompCommonBehavior import *
 
 
+from commonbehaviorI import *
 from asrpublishI import *
+
 
 class SpecificWorker(GenericWorker):
 	def __init__(self, proxy_map):
@@ -241,41 +244,31 @@ class SpecificWorker(GenericWorker):
 			print "Error: Sleeping 10 :-)"
 			time.sleep(10)
 ######################################################################	
-#### MANIPULACION		
+#### MANIPULACION
 	@QtCore.Slot()
 	def lowPosition(self):
 		print "LOW POSITION"
 		mapa = [['rightWrist2',0.0], ['rightWrist1',0.0], ['rightForeArm',0.1], ['rightElbow',0.15], ['rightShoulder3',0.10], ['rightShoulder2',-0.10], ['rightShoulder1',-0.10]]
-		#, 'leftWrist2':0.0, 'leftWrist1':0.0 , 'leftForeArm':0.0 , 'leftElbow':-0.1 , 'leftShoulder3':-0.1 , 'leftShoulder2':0.1, 'leftShoulder1':0.1, 'head_yaw_joint':0.0, 'head_pitch_joint':0.85
-		for motor in mapa:
-			goal = MotorGoalPosition()
-			goal.name = str(motor[0])
-			goal.position = float(motor[1])
-			goal.maxSpeed = float(0.5)
-			time.sleep(3)
-			try:
-				self.jointmotor_proxy.setPosition(goal)
-			except CollisionException:
-				print "Error en abajo_R: ", CollisionException
-				
+		self.gotoPosition(mapa)
+
 	@QtCore.Slot()
 	def topPosition(self):
 		print "TOP POSITION"
 		mapa = [['rightWrist2',0.0], ['rightWrist1',0.0], ['rightForeArm',0.1], ['rightElbow',0.10], ['rightShoulder3',0.50], ['rightShoulder2',-0.20], ['rightShoulder1',-3.0]]
-		#print OrderedDict(mapa)
-		#, 'leftWrist2':0.0, 'leftWrist1':0.0 , 'leftForeArm':0.0 , 'leftElbow':-0.1 , 'leftShoulder3':-0.1 , 'leftShoulder2':0.1, 'leftShoulder1':0.1, 'head_yaw_joint':0.0, 'head_pitch_joint':0.85
-		print mapa
+		self.gotoPosition(mapa)
+
+	def gotoPosition(self, mapa):
 		for motor in mapa:
 			goal = MotorGoalPosition()
 			goal.name = str(motor[0])
 			goal.position = float(motor[1])
-			goal.maxSpeed = float(0.5)
-			time.sleep(3)
+			goal.maxSpeed = float(0.9)
+			time.sleep(0.5)
 			try:
-				print str(goal.name) + '  ' + str(goal.position) + '  ' + str(goal.maxSpeed)
 				self.jointmotor_proxy.setPosition(goal)
 			except CollisionException:
-				print "Error en abajo_R: ", CollisionException
+				print "Error en gotoPosition: ", CollisionException
+				
 	
 	@QtCore.Slot()
 	def goIK(self):
@@ -451,3 +444,120 @@ class SpecificWorker(GenericWorker):
 
 
 ###################################################################################################
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	#
+	# reloadConfig
+	#
+	def reloadConfig(self):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# setPeriod
+	#
+	def setPeriod(self, period):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# getState
+	#
+	def getState(self):
+		ret = State()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# setParameterList
+	#
+	def setParameterList(self, l):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# timeAwake
+	#
+	def timeAwake(self):
+		ret = int()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# getParameterList
+	#
+	def getParameterList(self):
+		ret = ParameterList()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# killYourSelf
+	#
+	def killYourSelf(self):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# getPeriod
+	#
+	def getPeriod(self):
+		ret = int()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# newText
+	#
+	def newText(self, text):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+
+
+
+
+
+
+
+

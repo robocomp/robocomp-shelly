@@ -1,3 +1,7 @@
+# Endpoints for implemented interfaces
+CommonBehavior.Endpoints=tcp -p 0
+
+
 # Endpoints for subscriptions
 ASRPublishTopic.Endpoints=tcp -p 0
 

@@ -170,9 +170,6 @@
 																							<transform id="finger_right_2_2_pre" tx="-25" ry="0.40"  >
 																								<mesh id="finger_right_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" collide="1" />
 																								<transform id="finger_right_2_tip" tz="20">
-																									<transform id="munon_t" tz="60">
-																										<mesh id="munonMesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="10,10,10"  collide="1" />
-																									</transform>
 																								</transform>
 																							</transform>
 																						</transform>
