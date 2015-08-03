@@ -16,31 +16,31 @@
   <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-ursus/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/shellyPanel.conf" />
   <downCommand command="pkill -9 -f shellyPanel.py" />
   <configFile path="xxx" />
-  <xpos value="260.760779101" />
-  <ypos value="2.21670728252" />
+  <xpos value="167.318930474" />
+  <ypos value="-197.195449773" />
   <radius value="10.0" />
   <color value="None" />
  </node>
 
- <node alias="executive" endpoint="agmexecutive:tcp -h robonuc2.local -p 10198">
+ <node alias="executive" endpoint="agmexecutive:tcp -h negrino.local -p 10198">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
   <downCommand command="pkill -9 -f AGMExecutive_robocomp.py" />
   <configFile path="xxx" />
-  <xpos value="-20.4516713558" />
-  <ypos value="-228.224635655" />
+  <xpos value="-86.1841644503" />
+  <ypos value="-183.528936574" />
   <radius value="10.0" />
   <color value="None" />
  </node>
 
- <node alias="ik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10240">
+ <node alias="ik" endpoint="inversekinematics:tcp -h 192.168.55.5 -p 10240">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local ik /home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/ ./bin/inversekinematics --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/inversekinematics.conf" />
+  <upCommand command="rcremote 192.168.55.5 ik /home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics/ ./bin/inversekinematics --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/inversekinematics.conf" />
   <downCommand command="killall -9 inversekinematics" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/inversekinematics.conf" />
-  <xpos value="177.352620214" />
-  <ypos value="113.699549573" />
+  <xpos value="137.009375542" />
+  <ypos value="97.6819578002" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
@@ -52,8 +52,8 @@
   <upCommand command="rcremote localhost GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
   <downCommand command="killall -9 ikGraphGenerator" />
   <configFile path="xxx" />
-  <xpos value="155.478660808" />
-  <ypos value="48.5562790298" />
+  <xpos value="185.746510029" />
+  <ypos value="-2.24200686896" />
   <radius value="10.0" />
   <color value="None" />
  </node>
@@ -64,21 +64,21 @@
   <upCommand command="rcremote localhost VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik.conf" />
   <downCommand command="killall -9 VisualBIK" />
   <configFile path="xxx" />
-  <xpos value="180.341851595" />
-  <ypos value="-14.2568338078" />
+  <xpos value="120.99859873" />
+  <ypos value="-66.6662307953" />
   <radius value="10.0" />
   <color value="None" />
  </node>
 
- <node alias="april" endpoint="commonbehavior:tcp -h robonuc1.local -p 14358">
+ <node alias="april" endpoint="commonbehavior:tcp -h 192.168.55.5 -p 14358">
   <dependence alias="rgbd" />
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 apriltagscomp" />
+  <upCommand command="rcremote 192.168.55.5 aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
+  <downCommand command="ssh robolab@192.168.55.5 killall -9 apriltagscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
-  <xpos value="94.7053456031" />
-  <ypos value="63.6608026921" />
+  <xpos value="-32.1373789361" />
+  <ypos value="26.0293561817" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
@@ -88,8 +88,8 @@
   <upCommand command="rcremote localhost humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/humanAgent ./bin/humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
   <downCommand command="ssh luiky@localhost killall -9 humanComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
-  <xpos value="2.18576387201" />
-  <ypos value="-135.77245456" />
+  <xpos value="-6.14775261724" />
+  <ypos value="-101.41950634" />
   <radius value="10.0" />
   <color value="#DDFF22" />
  </node>
@@ -100,115 +100,115 @@
   <upCommand command="rcremote localhost agmInnerComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/agmInnerComp ./bin/agmInnerComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
   <downCommand command="ssh luiky@localhost killall -9 agmInnerComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
-  <xpos value="-130.816730912" />
-  <ypos value="-153.969966103" />
+  <xpos value="-108.660129481" />
+  <ypos value="-123.794583565" />
   <radius value="10.0" />
   <color value="#DDFF22" />
  </node>
 
- <node alias="rgbd" endpoint="rgbd:tcp -h robonuc1.local -p 10096">
+ <node alias="rgbd" endpoint="rgbd:tcp -h 192.168.55.5 -p 10096">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
+  <upCommand command="rcremote 192.168.55.5 rcis /home/robocomp rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
   <downCommand command="killall -9 rcis" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
-  <xpos value="43.919580471" />
-  <ypos value="155.422429958" />
+  <xpos value="-11.7515941639" />
+  <ypos value="162.224773357" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="IS" endpoint="IceStorm/TopicManager:default -h robonuc1.local -p 9999">
+ <node alias="IS" endpoint="IceStorm/TopicManager:default -h 192.168.55.5 -p 9999">
   <workingDir path="/home/robocomp/robocomp/components/robocomp-ursus/etc/" />
-  <upCommand command="rcremote robonuc1.local IS /home/robocomp/robocomp/components/robocomp-ursus/etc/ icebox --Ice.Config=icebox.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 icebox" />
+  <upCommand command="rcremote 192.168.55.5 IS /home/robocomp/robocomp/components/robocomp-ursus/etc/ icebox --Ice.Config=icebox.conf" />
+  <downCommand command="ssh robolab@192.168.55.5 killall -9 icebox" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="25.872771037" />
-  <ypos value="-50.3345900777" />
+  <xpos value="-38.3563004069" />
+  <ypos value="87.759075524" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="comJoint" endpoint="jointmotor:tcp -h robonuc1.local -p 20000">
+ <node alias="comJoint" endpoint="jointmotor:tcp -h 192.168.55.5 -p 20000">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
+  <upCommand command="rcremote 192.168.55.5 rcis /home/robocomp rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
   <downCommand command="killall -9 rcis" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="101.50321051" />
-  <ypos value="204.033991187" />
+  <xpos value="75.9669919311" />
+  <ypos value="177.005036023" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="base" endpoint="omnirobot:tcp -h robonuc1.local -p 12238">
+ <node alias="base" endpoint="omnirobot:tcp -h 192.168.55.5 -p 12238">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
+  <upCommand command="rcremote 192.168.55.5 rcis /home/robocomp rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
   <downCommand command="killall -9 rcis" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-134.901779663" />
-  <ypos value="207.178018903" />
+  <xpos value="-86.5783739152" />
+  <ypos value="171.713058307" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="joystick" endpoint="joystick:tcp -h robonuc1.local -p 10002">
+ <node alias="joystick" endpoint="joystick:tcp -h 192.168.55.5 -p 10002">
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local jstck /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/ ./bin/joystickOmniComp --Ice.Config=config" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 joystickOmniComp" />
+  <upCommand command="rcremote 192.168.55.5 jstck /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/ ./bin/joystickOmniComp --Ice.Config=config" />
+  <downCommand command="ssh robolab@192.168.55.5 killall -9 joystickOmniComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-224.696036829" />
-  <ypos value="162.268044425" />
+  <xpos value="-196.428170414" />
+  <ypos value="189.025305981" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="laser" endpoint="laser:tcp -h robonuc1.local -p 10003">
+ <node alias="laser" endpoint="laser:tcp -h 192.168.55.5 -p 10003">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
+  <upCommand command="rcremote 192.168.55.5 rcis /home/robocomp rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
   <downCommand command="killall -9 rcis" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
-  <xpos value="-21.5856275705" />
-  <ypos value="200.508250809" />
+  <xpos value="-29.3510021526" />
+  <ypos value="258.747506825" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="laserRGBD" endpoint="laser:tcp -h robonuc1.local -p 10033">
+ <node alias="laserRGBD" endpoint="laser:tcp -h 192.168.55.5 -p 10033">
   <dependence alias="laser" />
   <dependence alias="rgbd" />
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
+  <upCommand command="rcremote 192.168.55.5 rcis /home/robocomp rcis /home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/autonomyLabModel.xml" />
   <downCommand command="killall -9 rcis" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laserrgbd.conf" />
-  <xpos value="-45.0498994383" />
-  <ypos value="28.8562800647" />
+  <xpos value="70.7150253539" />
+  <ypos value="55.6135416205" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h robonuc1.local -p 12204">
+ <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h 192.168.55.5 -p 12204">
   <dependence alias="laserRGBD" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
-  <downCommand command="ssh robolab@robonuc1.local pkill -9 dumbtrajectoryrobot2d" />
+  <upCommand command="rcremote 192.168.55.5 trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
+  <downCommand command="ssh robolab@192.168.55.5 pkill -9 dumbtrajectoryrobot2d" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
-  <xpos value="-172.29889282" />
-  <ypos value="10.7927369402" />
+  <xpos value="-21.7886360579" />
+  <ypos value="-70.0194074499" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
 
- <node alias="mission" endpoint="commonbehavior:tcp -h robonuc1.local -p 15542">
+ <node alias="mission" endpoint="commonbehavior:tcp -h 192.168.55.5 -p 15542">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
-  <xpos value="-130.15577542" />
-  <ypos value="-315.432311355" />
+  <xpos value="-5.63204089872" />
+  <ypos value="-249.952172451" />
   <radius value="10.0" />
   <color value="None" />
  </node>
@@ -219,8 +219,8 @@
   <upCommand command="rcremote localhost navigationComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <downCommand command="ssh luiky@localhost killall -9 navigationComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
-  <xpos value="115.091788406" />
-  <ypos value="-157.94004267" />
+  <xpos value="96.8594761799" />
+  <ypos value="-123.568599807" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
@@ -231,8 +231,8 @@
   <upCommand command="rcremote localhost navigationComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <downCommand command="ssh luiky@localhost killall -9 navigationComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
-  <xpos value="-277.255957609" />
-  <ypos value="-141.262256637" />
+  <xpos value="-231.599364748" />
+  <ypos value="-107.412717993" />
   <radius value="10.0" />
   <color value="#4422FF" />
  </node>
