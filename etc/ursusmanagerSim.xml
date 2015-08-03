@@ -207,7 +207,7 @@
   <dependence alias="comJoint" />
   <dependence alias="ik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
+  <upCommand command="rcremote 192.168.55.5 GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
   <downCommand command="killall -9 ikGraphGenerator" />
   <configFile path="xxx" />
   <xpos value="130.172309218" />
