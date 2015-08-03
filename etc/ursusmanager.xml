@@ -266,29 +266,6 @@
   <color value="#DDFF22" />
  </node>
 
- <node alias="GoogleASR" endpoint="rgbd:tcp -h robonuc2.local -p 19299">
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local googleASR /home/robocomp/robocomp/components/robocomp-robolab/components/googleASR src/GoogleASR.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASR.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 googleASR" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASR.conf" />
-  <xpos value="222.885300504" />
-  <ypos value="227.054371056" />
-  <radius value="10.0" />
-  <color value="#DDFF22" />
- </node>
-
- <node alias="GoogleASRClientUrsus" endpoint="rgbd:tcp -h robonuc2.local -p 11000">
-  <dependence alias="GoogleASR" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local googleASRClientUrsus /home/robocomp/robocomp/components/robocomp-robolab/components/googleASRClientUrsus src/GoogleASRClientUrsus.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASRClientUrsus.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 googleASRClientUrsus" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/googleASRClientUrsus.conf" />
-  <xpos value="218.167791629" />
-  <ypos value="103.205804774" />
-  <radius value="10.0" />
-  <color value="#DDFF22" />
- </node>
-
  <node alias="april" endpoint="commonbehavior:tcp -h robonuc1.local -p 14358">
   <dependence alias="rgbd" />
   <dependence alias="IS" />
