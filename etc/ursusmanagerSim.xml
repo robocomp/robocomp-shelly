@@ -15,7 +15,7 @@
   <dependence alias="base" />
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="python /home/robocomp/robocomp/components/robocomp-ursus/components/shellyPanel/src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/shellyPanelSim.conf" />
+  <upCommand command="rcremote localhost shellyPanel python /home/robocomp/robocomp/components/robocomp-ursus/components/shellyPanel/src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/shellyPanelSim.conf" />
   <downCommand command="pkill -9 -f shellyPanel.py" />
   <configFile path="xxx" />
   <xpos value="0.978682527817" />
@@ -64,7 +64,7 @@
  <node alias="vik" endpoint="inversekinematics:tcp -h 192.168.55.5 -p 10242">
   <dependence alias="gik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 192.168.55.5 VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik.conf" />
+  <upCommand command="rcremote 192.168.55.5 VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik_sim.conf" />
   <downCommand command="killall -9 VisualBIK" />
   <configFile path="xxx" />
   <xpos value="131.026373535" />
@@ -122,15 +122,15 @@
   <color value="#4422FF" />
  </node>
 
- <node alias="IS" endpoint="IceStorm/TopicManager:default -h 192.168.55.5 -p 9999">
+ <node alias="IS" endpoint="IceStorm/TopicManager:default -h localhost -p 9999">
   <workingDir path="/home/robocomp/robocomp/components/robocomp-ursus/etc/" />
-  <upCommand command="rcremote 192.168.55.5 IS /home/robocomp/robocomp/components/robocomp-ursus/etc/ icebox --Ice.Config=icebox.conf" />
-  <downCommand command="ssh robolab@192.168.55.5 killall -9 icebox" />
+  <upCommand command="rcremote localhost IS /home/robocomp/robocomp/components/robocomp-ursus/etc/ icebox --Ice.Config=icebox.conf" />
+  <downCommand command="killall -9 icebox" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="-42.047240739" />
   <ypos value="21.3155590005" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#DDFF22" />
  </node>
 
  <node alias="comJoint" endpoint="jointmotor:tcp -h 192.168.55.5 -p 20000">
@@ -198,7 +198,7 @@
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 192.168.55.5 trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
   <downCommand command="ssh robolab@192.168.55.5 pkill -9 dumbtrajectoryrobot2d" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2dSim.conf" />
   <xpos value="21.5615546169" />
   <ypos value="-20.2842212194" />
   <radius value="10.0" />
