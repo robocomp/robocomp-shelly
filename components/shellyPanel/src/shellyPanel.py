@@ -157,7 +157,6 @@ if __name__ == '__main__':
 				trajectoryrobot2d_proxy = RoboCompTrajectoryRobot2D.TrajectoryRobot2DPrx.checkedCast(basePrx)
 				mprx["TrajectoryRobot2DProxy"] = trajectoryrobot2d_proxy
 			except Ice.Exception:
-				mprx["TrajectoryRobot2DProxy"] = None
 				print 'Cannot connect to the remote object (TrajectoryRobot2D)', proxyString
 				#traceback.print_exc()
 				status = 1
@@ -178,7 +177,6 @@ if __name__ == '__main__':
 				print 'Cannot connect to the remote object (OmniRobot)', proxyString
 				#traceback.print_exc()
 				status = 1
-				mprx["OmniRobotProxy"] = None
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get OmniRobotProxy property.'
@@ -196,7 +194,6 @@ if __name__ == '__main__':
 				print 'Cannot connect to the remote object (Speech)', proxyString
 				#traceback.print_exc()
 				status = 1
-				mprx["SpeechProxy"] = None
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get SpeechProxy property.'
@@ -212,7 +209,7 @@ if __name__ == '__main__':
 			status = 1
 
 
-	if status == 0 or True:
+	if status == 0:
 		worker = SpecificWorker(mprx)
 
 
@@ -226,19 +223,17 @@ if __name__ == '__main__':
 		asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
 
 		subscribeDone = False
-		asrpublish_topic = None
-		try:
-			asrpublish_topic = topicManager.retrieve("ASRPublish")
-			subscribeDone = True
-			qos = {}
-			asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
-			ASRPublish_adapter.activate()
-		except Ice.Exception, e:
-			print "Error. Topic does not exist (yet)"
-			status = 0
-			time.sleep(1)
-		except:
-			pass
+		while not subscribeDone:
+			try:
+				asrpublish_topic = topicManager.retrieve("ASRPublish")
+				subscribeDone = True
+			except Ice.Exception, e:
+				print "Error. Topic does not exist (yet)"
+				status = 0
+				time.sleep(1)
+		qos = {}
+		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+		ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

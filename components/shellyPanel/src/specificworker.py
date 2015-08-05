@@ -19,13 +19,11 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
 import sys, os, Ice, traceback
 import socket, paramiko, time
 
 from PySide import *
 from genericworker import *
-
 
 from collections import OrderedDict
 
@@ -56,13 +54,8 @@ from RoboCompASRPublish import *
 Ice.loadSlice(preStr+"CommonBehavior.ice")
 from RoboCompCommonBehavior import *
 
-
 from commonbehaviorI import *
 from asrpublishI import *
-
-
-
-
 
 
 ##############################################################################
@@ -423,6 +416,88 @@ class SpecificWorker(GenericWorker):
 		#
 		pass
 
+	#
+	# reloadConfig
+	#
+	def reloadConfig(self):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# setPeriod
+	#
+	def setPeriod(self, period):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# getState
+	#
+	def getState(self):
+		ret = State()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# setParameterList
+	#
+	def setParameterList(self, l):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# timeAwake
+	#
+	def timeAwake(self):
+		ret = int()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# getParameterList
+	#
+	def getParameterList(self):
+		ret = ParameterList()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
+
+
+	#
+	# killYourSelf
+	#
+	def killYourSelf(self):
+		#
+		# YOUR CODE HERE
+		#
+		pass
+
+
+	#
+	# getPeriod
+	#
+	def getPeriod(self):
+		ret = int()
+		#
+		# YOUR CODE HERE
+		#
+		return ret
 
 ######################################################################	
 #### NAVEGACION
@@ -446,7 +521,7 @@ class SpecificWorker(GenericWorker):
 			print "Error: Sleeping 10 :-)"
 			time.sleep(10)
 ######################################################################	
-#### MANIPULACION		
+#### MANIPULACION
 	@QtCore.Slot()
 	def lowPosition(self):
 		print "LOW POSITION"
@@ -541,109 +616,3 @@ class SpecificWorker(GenericWorker):
 			#identificador = self.inversekinematics_proxy.setTargetPose6D(part,pose6D, weights)
 		#except RoboCompInverseKinematics.IKException, e:
 			#print "Expection in tester (sendPose): ", e
-
-
-
-
-	#
-	# reloadConfig
-	#
-	def reloadConfig(self):
-		#
-		# YOUR CODE HERE
-		#
-		pass
-
-
-	#
-	# setPeriod
-	#
-	def setPeriod(self, period):
-		#
-		# YOUR CODE HERE
-		#
-		pass
-
-
-	#
-	# getState
-	#
-	def getState(self):
-		ret = State()
-		#
-		# YOUR CODE HERE
-		#
-		return ret
-
-
-	#
-	# setParameterList
-	#
-	def setParameterList(self, l):
-		#
-		# YOUR CODE HERE
-		#
-		pass
-
-
-	#
-	# timeAwake
-	#
-	def timeAwake(self):
-		ret = int()
-		#
-		# YOUR CODE HERE
-		#
-		return ret
-
-
-	#
-	# getParameterList
-	#
-	def getParameterList(self):
-		ret = ParameterList()
-		#
-		# YOUR CODE HERE
-		#
-		return ret
-
-
-	#
-	# killYourSelf
-	#
-	def killYourSelf(self):
-		#
-		# YOUR CODE HERE
-		#
-		pass
-
-
-	#
-	# getPeriod
-	#
-	def getPeriod(self):
-		ret = int()
-		#
-		# YOUR CODE HERE
-		#
-		return ret
-
-
-	#
-	# newText
-	#
-	def newText(self, text):
-		#
-		# YOUR CODE HERE
-		#
-		pass
-
-
-
-
-
-
-
-
-
-
