@@ -336,7 +336,7 @@ plan</string>
            </widget>
            <widget class="QWidget" name="tab_3">
             <attribute name="title">
-             <string>Page</string>
+             <string>Geometric View</string>
             </attribute>
             <layout class="QGridLayout" name="gridLayout">
              <item row="0" column="0">
