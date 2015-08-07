@@ -78,7 +78,7 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-// 	printf("compute\n");
+// 	printf("compute 1\n");
 	static QTime taim = QTime::currentTime();
 
 // 	graphViewer->animateStep();
@@ -106,7 +106,7 @@ void SpecificWorker::compute( )
 		planText->clear();
 		planText->setText(planString);
 	}
-
+	
 	{
 		
 			
@@ -117,15 +117,16 @@ void SpecificWorker::compute( )
 		{
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
-			
 		}
 		else if (tabWidget->currentIndex()==1 )
 		{
+			
 			graphViewer->update(worldModel);
 			graphViewer->animateStep();
 		}
 		else
 		{
+			
 			innerViewer->update();
 			osgView->autoResize();
 			osgView->frame();
@@ -145,7 +146,7 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	{
 		osgView->getRootGroup()->removeChild(innerViewer);
 		
-		//delete innerViewer;
+		qDebug()<<"delete innerViewer";
 		innerViewer = NULL;
 	}
 	innerViewer = new InnerModelViewer(inner, "root", osgView->getRootGroup(), true);
@@ -169,6 +170,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modifi
 		agmInner.setWorld(worldModel);		
 		changeInner(agmInner.extractInnerModel("room"));
 		refresh = true;
+		
 	}
 }
 

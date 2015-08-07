@@ -6,12 +6,12 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1194</width>
+    <width>1201</width>
     <height>761</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Collazu AGM mission controller</string>
+   <string>AGM mission controller</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
@@ -119,6 +119,9 @@ plan</string>
         <widget class="QCheckBox" name="imCheck">
          <property name="text">
           <string>InnerModel</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
