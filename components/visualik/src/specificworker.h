@@ -93,7 +93,7 @@ private:
 
 	// METODOS PRIVADOS
 	void applyFirstCorrection  ();
-	void storeTargetCorrection()
+	void storeTargetCorrection ();
 	//bool correctTraslation   ();
 	bool correctRotation      ();
 	void updateAll            ();
