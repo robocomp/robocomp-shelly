@@ -84,6 +84,7 @@ private:
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
 	int              contador;
 	float            timeSinMarca;
+	QVec             firstCorrection;
 
 	#ifdef USE_QTGUI
 	OsgView           *osgView;
@@ -91,11 +92,13 @@ private:
 	#endif
 
 	// METODOS PRIVADOS
-	bool correctTraslation ();
-	bool correctRotation   ();
-	void updateAll         ();
-	void updateMotors      (RoboCompInverseKinematics::MotorList motors);
-	void printXXX          (QVec errorInv/*, bool camaraNoVista*/);
+	void applyFirstCorrection  ();
+	void storeTargetCorrection()
+	//bool correctTraslation   ();
+	bool correctRotation      ();
+	void updateAll            ();
+	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
+	void printXXX             (QVec errorInv/*, bool camaraNoVista*/);
 
 };
 

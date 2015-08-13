@@ -34,6 +34,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	contador           = 0;
 	timeSinMarca       = 0.0;
 	mutexSolved        = new QMutex(QMutex::Recursive);
+	firstCorrection    = QVec::zeros(3);
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -142,14 +143,15 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::INIT_BIK:
-			try
-			{
-				int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), currentTarget.getPose6D(), currentTarget.getWeights6D());
-				currentTarget.setID_IK(identifier);
-			}
-			catch (const Ice::Exception &ex){
-				std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
-			}
+			applyFirstCorrection();
+// 			try
+// 			{
+// 				int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), currentTarget.getPose6D(), currentTarget.getWeights6D());
+// 				currentTarget.setID_IK(identifier);
+// 			}
+// 			catch (const Ice::Exception &ex){
+// 				std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
+// 			}
 			currentTarget.setState(Target::State::IN_PROCESS); // El currentTarget pasa a estar siendo ejecutado:
 			correctedTarget = currentTarget;
 			stateMachine    = State::WAIT_BIK; // Esperamos a que el BIK termine.
@@ -376,6 +378,51 @@ void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
 }
 
 /**
+ * \brief Metodo Aniadido APPLY CORRECTION
+ * Metodo aniadido para aplicar a la cinematica inversa una correccion inicial del target.
+ * La primera vez que se ejecuta la correccion vale 0, pero a medida que se van ejecutando 
+ * los targets, el error calculado entre el target y el target corregido se almacena y se
+ * aplica en esta correcion inicial.
+ * TODO HAY QUE PROBARLO MUUUUUUUUCHO
+ */ 
+void SpecificWorker::applyFirstCorrection()
+{
+	QVec target = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
+	QVec targetFirstCorrection = target + firstCorrection;
+	Pose6D firstCorrectedTarget;
+	firstCorrectedTarget.x = targetFirstCorrection.x();
+	firstCorrectedTarget.y = targetFirstCorrection.y();
+	firstCorrectedTarget.z = targetFirstCorrection.z();
+	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
+	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
+	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
+
+	try
+	{
+		int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), firstCorrectedTarget, currentTarget.getWeights6D());
+		currentTarget.setID_IK(identifier);
+	}
+	catch (const Ice::Exception &ex){
+		std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
+	}
+}
+
+/**
+ * \brief Metodo aniadido STORE TARGET CORRECTION
+ * Almacena en la variable de clase firstCorrection, la correccion entre el target original y la última posicion corregida
+ * asociada a ese target para que pueda ser utilizada por el siguiente target como correccion inicial.
+ * TODO HAY QUE PROBARLO
+ */ 
+void SpecificWorker::storeTargetCorrection()
+{
+	//CALCULAMOS EL VECTOR DE ERROR ENTRE TARGET Y CORRECTED TARGET
+	QVec auxTarget = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
+	QVec auxCorrect= QVec::vec3(correctedTarget.getPose().x(), correctedTarget.getPose().y(), correctedTarget.getPose().z());
+	
+	firstCorrection = auxCorrect - auxTarget;
+}
+
+/**
  * \brief Metodo CORRECT ROTATION
  * Corrige la posicion de la mano en traslacion y en rotacion.
  * @return bool TRUE si el target esta perfecto o FALSE si no lo esta.
@@ -411,6 +458,7 @@ bool SpecificWorker::correctRotation()
 		currentTarget.setState(Target::State::RESOLVED);
 		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		printXXX(errorInv);
+		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
