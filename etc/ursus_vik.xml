@@ -6,7 +6,7 @@
 		</transform>
 
 		<transform id="visual_hand">
-<!--			<axes id="handAxes" length="80" width="20" />-->
+			<axes id="handAxes" length="80" width="20" />
 		</transform>
 
 		<transform id="corr_hand">

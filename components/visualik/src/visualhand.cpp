@@ -44,7 +44,7 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 	tagPose = QVec::vec6(tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
 	// Metemos en el InnerModel la marca vista por la RGBD:
 	im->updateTransformValues("marca-" + tip + "-segun-head", tag.tx, tag.ty, tag.tz,   tag.rx, tag.ry, tag.rz);
-	im->updateTransformValues("marca-" + tip + "-segun-head2", 0,0,0,   -M_PI_2,0,M_PI);
+	im->updateTransformValues("marca-" + tip + "-segun-head2", 0,0,0,   0,0,-M_PI_2);
 	//Pasamos del marca-segun-head al mundo:
 	QVec ret = im->transform6D("root", tagPose, "rgbd");
 	visualPose[0] = ret(0);
