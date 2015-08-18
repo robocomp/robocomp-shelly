@@ -54,11 +54,11 @@ public:
 	void	setRunTime	();
 
 	//METODOS GET:
-	int				getID_IK	();
-	int             getID_VIK   ();
-	Target::State 	getState	();
-	string 			getBodyPart	();
-	QVec			getPose		();
+	int                             getID_IK	();
+	int                             getID_VIK   ();
+	Target::State                   getState	();
+	string                          getBodyPart	();
+	QVec                            getPose		();
 	QVec			getWeights	();
 	float			getRunTime	();
 	RoboCompInverseKinematics::Pose6D 		getPose6D	();

@@ -209,8 +209,8 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -110, 400);
-	yrange = std::pair<float, float>( 580, 1200);
+	xrange = std::pair<float, float>( -50, 400);
+	yrange = std::pair<float, float>( 700, 1300);
 	zrange = std::pair<float, float>( 140, 570);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
@@ -239,7 +239,7 @@ void SpecificWorker::initGenerate()
 				diff(1) = abs(diff(1))/YR;
 				diff(2) = abs(diff(2))/ZR;
 
-				if (diff.norm2() < 320)
+				if (diff.norm2() < 400)
 				{
 					graph->addVertex(ConnectivityGraph::VertexData());
 					QString id = QString("node_") + QString::number(included);
@@ -539,8 +539,7 @@ void SpecificWorker::finalStep(TargetState stt)
 // 		updateFrame(500000);
 // 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 // #endif
-		//usleep(500000);
-		sleep(1);
+		usleep(500000);
 	}
 	solvedList.enqueue(currentTarget); //guardamos el target
 	qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
@@ -719,8 +718,8 @@ void SpecificWorker::compute()
 			// 		updateFrame(500000);
 			// 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 			// #endif
-					//usleep(500000);
-					sleep(1);
+					usleep(500000);
+// 					sleep(1);
 				}
 				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
 				updateInnerModel();

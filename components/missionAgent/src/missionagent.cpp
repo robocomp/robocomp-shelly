@@ -208,7 +208,7 @@ AGMAgentTopicPrx agmagenttopic_proxy;
 	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 	
 	IceStorm::TopicPrx agmagenttopic_topic;
-    while(!agmagenttopic_topic){
+	while(!agmagenttopic_topic){
 		try {
 			agmagenttopic_topic = topicManager->retrieve("AGMAgentTopic");
 		}catch (const IceStorm::NoSuchTopic&){

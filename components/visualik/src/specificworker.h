@@ -80,11 +80,11 @@ private:
 	QMutex           *mutexSolved;        // MUTEX PARA ZONAS CRITICAS
 	InnerModel       *innerModel;         // EL MODELO INTERNO DEL ROBOT
 	ofstream         file;                // EL FICHERO DONDE GUARDAR DATOS
-	bool             abortatraslacion;    // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TRASLACION
-	bool             abortarotacion;      // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE ROTACION
+	bool             abortCorrection;     // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TARGET
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
 	int              contador;
-        float            timeSinMarca;
+	float            timeSinMarca;
+	QVec             firstCorrection;
 
 	#ifdef USE_QTGUI
 	OsgView           *osgView;
@@ -92,11 +92,13 @@ private:
 	#endif
 
 	// METODOS PRIVADOS
-	bool correctTraslation ();
-	bool correctRotation   ();
-	void updateAll         ();
-	void updateMotors      (RoboCompInverseKinematics::MotorList motors);
-	void printXXX          (QVec errorInv/*, bool camaraNoVista*/);
+	void applyFirstCorrection  ();
+	void storeTargetCorrection ();
+	//bool correctTraslation   ();
+	bool correctRotation      ();
+	void updateAll            ();
+	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
+	void printXXX             (QVec errorInv/*, bool camaraNoVista*/);
 
 };
 

@@ -59,7 +59,12 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
 	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
-
+		
+	innerModel = new InnerModel();
+	innerViewer = NULL;
+	osgView = new OsgView( inner3D );
+	show();
+	changeInner(innerModel);
 	timer.start(90);
 }
 
@@ -73,7 +78,7 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
-// 	printf("compute\n");
+// 	printf("compute 1\n");
 	static QTime taim = QTime::currentTime();
 
 // 	graphViewer->animateStep();
@@ -101,18 +106,30 @@ void SpecificWorker::compute( )
 		planText->clear();
 		planText->setText(planString);
 	}
-
+	
 	{
+		
+			
 		QMutexLocker dd(&modelMutex);
+		
+		
 		if (tabWidget->currentIndex()==0)
 		{
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
 		}
-		else
+		else if (tabWidget->currentIndex()==1 )
 		{
+			
 			graphViewer->update(worldModel);
 			graphViewer->animateStep();
+		}
+		else
+		{
+			
+			innerViewer->update();
+			osgView->autoResize();
+			osgView->frame();
 		}
 	}
 
@@ -120,6 +137,22 @@ void SpecificWorker::compute( )
 // 	printf("compute>\n");
 }
 
+
+
+void SpecificWorker::changeInner (InnerModel *inner)
+{
+	inner->save("inner.xml");
+	if (innerViewer)
+	{
+		osgView->getRootGroup()->removeChild(innerViewer);
+		
+		qDebug()<<"delete innerViewer";
+		innerViewer = NULL;
+	}
+	innerViewer = new InnerModelViewer(inner, "root", osgView->getRootGroup(), true);
+
+}
+	
 
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& params)
@@ -134,7 +167,10 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modifi
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 		AGMModelPrinter::printWorld(worldModel);
+		agmInner.setWorld(worldModel);		
+		changeInner(agmInner.extractInnerModel("room"));
 		refresh = true;
+		
 	}
 }
 
@@ -143,6 +179,8 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modificati
 	{
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		agmInner.setWorld(worldModel);		
+// 		changeInner(agmInner.extractInnerModel("room"));
 		refresh = true;
 	}
 }
@@ -151,6 +189,8 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 	{
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		agmInner.setWorld(worldModel);
+// 		changeInner(agmInner.extractInnerModel("room"));		
 		refresh = true;
 	}
 }
@@ -291,4 +331,116 @@ void SpecificWorker::set3DViewer()
 void SpecificWorker::setGeometry()
 {
 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
+}
+
+
+//  /**
+//  * @brief This method updates the simulator
+//  * 
+//  * @param idPerson Identifier of the person who will be updated in the simulator
+//  * @return void
+//  */
+ void SpecificWorker::updateInner3D()
+{
+	
+	QList<InnerModelNode *>	l;
+	
+	innerModel->getSubTree(innerModel->getNode("root"),&l);
+	
+	QList<InnerModelNode*>::iterator it;
+	for (it=l.begin();it!=l.end();it++)
+	{
+		qDebug()<<"\tinsertNodeInnerModel "<<(*it)->id;
+		insertNodeInnerModel((*it));
+	}
+}
+void SpecificWorker::insertNodeInnerModel( InnerModelNode* node)
+{
+// 	qDebug()<<node->id;
+// 	qDebug()<<"\t parent"<<node->parent->id;
+	
+	
+	InnerModelNode * parent = node->parent;
+// 	if (node->parent->id=="root")
+// 	{			
+// 		parent = im->getRoot();							
+// 	}
+// 	else
+// 	{
+// 		parent = im->getNode(pre+node->parent->id);
+// 	}
+// 	if (parent==NULL)
+// 		qFatal("parent null stop");
+
+	if(  dynamic_cast<InnerModelTransform *>( node )  != NULL )
+	{
+		
+		InnerModelTransform * tf=dynamic_cast<InnerModelTransform *>( node );
+				
+		if(  dynamic_cast<InnerModelJoint *>( tf )  != NULL )
+		{
+			qDebug()<<"insert Joint"<<node->id;
+			InnerModelJoint * joint=dynamic_cast<InnerModelJoint *>( tf );
+			
+			/*InnerModelJoint * newJoint = im->newJoint (pre+joint->id,dynamic_cast<InnerModelTransform *>( parent),
+								joint->backlX,joint->backlY,joint->backlZ,joint->backhX,joint->backhY,joint->backhZ,
+								joint->backtX,joint->backtY,joint->backtZ,joint->backrX,joint->backrY,joint->backrZ,
+								joint->min, joint->max,joint->port,joint->axis,joint->home);
+			parent->addChild(newJoint);*/		
+			QVec r = QVec::vec3(joint->getRxValue(),joint->getRyValue(),joint->getRzValue());
+			InnerModelDraw::addJoint(innerViewer,node->id,parent->id, joint->getTr(),r,QString::fromStdString(joint->axis));
+		}
+		else
+		{
+			qDebug()<<"insert transform"<<node->id;
+			InnerModelDraw::addTransform_ignoreExisting(innerViewer,node->id,parent->id);
+			
+			/*InnerModelTransform * newTf = im->newTransform(pre+tf->id,tf->engine,parent,tf->backtX,tf->backtY,tf->backtZ,tf->backrX,tf->backrY,tf->backrZ,tf->mass);
+			parent->addChild(newTf)*/;
+			
+			
+		}
+	}
+	else if(  dynamic_cast<InnerModelMesh *>( node )  != NULL )
+	{
+		qDebug()<<"insert Mesh"<<node->id;
+		InnerModelMesh * m=dynamic_cast<InnerModelMesh *>( node );
+		QVec r = QVec::vec3(m->getRxValue(),m->getRyValue(),m->getRzValue());
+		QVec scale = QVec::vec3(m->scalex,m->scaley,m->scalez);
+		InnerModelDraw::addMesh_ignoreExisting(innerViewer,node->id,parent->id,m->getTr(),r,m->meshPath,scale);
+		
+// 		InnerModelMesh * newMesh = im->newMesh(pre+m->id,parent, m->meshPath,m->scalex,m->scaley,m->scalez,m->render,m->tx,m->ty,m->tz,m->rx,m->ry,m->rz,m->collidable);
+// 		parent->addChild(newMesh);		
+	}
+	else if(  dynamic_cast<InnerModelPlane *>( node )  != NULL )
+	{
+		qDebug()<<"insert Plane"<<node->id;
+		InnerModelPlane * p=dynamic_cast<InnerModelPlane *>( node );
+		
+		QVec size = QVec::vec3(p->width,p->height,p->depth);
+
+		InnerModelDraw::addPlane_ignoreExisting (innerViewer,node->id,parent->id,p->point,p->normal, p->texture,size);
+		
+// 		InnerModelPlane * newPlane = im->newPlane(pre+p->id,parent,p->texture,
+// 							p->width,p->height,p->depth,p->repeat,
+// 							p->normal(0),p->normal(1),p->normal(2),
+// 							p->point(0),p->point(1),p->point(2),
+// 							p->collidable);
+// 		parent->addChild(newPlane);		
+	}
+	else
+	{
+		qDebug()<<"type not implemented, node-id: asumo transform "<<node->id<<"\n";
+		try
+		{
+			InnerModelDraw::addTransform_ignoreExisting(innerViewer,node->id,parent->id);
+		}
+		catch(...)
+		{
+			qDebug()<<"la recogo";
+		}
+		
+		
+	}
+	
 }

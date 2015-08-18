@@ -27,6 +27,13 @@
 #include <agm_modelDrawer.h>
 #include <graphModelViewer.h>
 
+#include <innermodel/innermodel.h>
+#include <innermodel/innermodeldraw.h>
+#include <innermodel/innermodelreader.h>
+#include <osgviewer/osgview.h>
+#include <innermodel/innermodelviewer.h>
+#include <agmInner/agmInner.h>
+
 /**
 	   \brief
 	   @author authorname
@@ -55,6 +62,9 @@ public:
 	void set3DViewer();
 
 public slots:
+	
+	
+	
 	void compute();
 	void setGeometry();
 	void quitButtonClicked();
@@ -86,6 +96,17 @@ private:
 	AGMModelDrawer *modelDrawer, *targetDrawer;
 	RCDraw *rcdraw1, *rcdraw2;
 	GraphModelViewer *graphViewer;
+	
+	OsgView *osgView;
+	InnerModel *innerModel, *innerModel1,*innerModel2;
+	InnerModelViewer *innerViewer; 
+	AgmInner agmInner;
+	
+	 void updateInner3D();
+	 void insertNodeInnerModel(InnerModelNode* node);
+	 void changeInner (InnerModel *inner);
+
+
 };
 
 #endif

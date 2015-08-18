@@ -89,6 +89,8 @@ Ice.loadSlice(preStr+"Speech.ice")
 import RoboCompSpeech
 Ice.loadSlice(preStr+"ASRPublish.ice")
 import RoboCompASRPublish
+Ice.loadSlice(preStr+"CommonBehavior.ice")
+import RoboCompCommonBehavior
 
 
 class CommonBehaviorI(RoboCompCommonBehavior.CommonBehavior):
@@ -209,6 +211,11 @@ if __name__ == '__main__':
 
 	if status == 0:
 		worker = SpecificWorker(mprx)
+
+
+		adapter = ic.createObjectAdapter('CommonBehavior')
+		adapter.add(CommonBehaviorI(worker, ic), ic.stringToIdentity('commonbehavior'))
+		adapter.activate()
 
 
 		ASRPublish_adapter = ic.createObjectAdapter("ASRPublishTopic")
