@@ -7,11 +7,11 @@
 */
 VisualHand::VisualHand(InnerModel *im_, QString tip_)
 {
-	im 						= im_;
-	tip 					= tip_;
-	visualPose 				= QVec::vec6(0,0,0,0,0,0);
-	errorInternal_Visual 	= QVec::vec6(0,0,0,0,0,0);
-	lastUpdate 				= new timeval;
+	im                      = im_;
+	tip                     = tip_;
+	visualPose              = QVec::vec6(0,0,0,0,0,0);
+	errorInternal_Visual    = QVec::vec6(0,0,0,0,0,0);
+	lastUpdate              = new timeval;
 	gettimeofday(lastUpdate, NULL);
 	
 	InnerModelNode *nodeParent = im->getNode("rgbd_transform");
@@ -146,6 +146,11 @@ QVec VisualHand::getErrorInverse()
 {
 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
 	const QVec error = im->transform6D("visual_hand", "target");
+	im->transform6D("root",        "target").print("target      pose_in_root");
+	im->transform6D("root",             tip).print("belief      pose_in_root");
+	im->transform6D("root",   "visual_hand").print("visual_hand pose_in_root");
+	
+	error.print("target desde visual");
 	return error;
 }
 /**

@@ -192,9 +192,8 @@ if __name__ == '__main__':
 				mprx["SpeechProxy"] = speech_proxy
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (Speech)', proxyString
-				mprx["SpeechProxy"] = None
 				#traceback.print_exc()
-				#status = 1
+				status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get SpeechProxy property.'
@@ -228,16 +227,13 @@ if __name__ == '__main__':
 			try:
 				asrpublish_topic = topicManager.retrieve("ASRPublish")
 				subscribeDone = True
-				asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
-				ASRPublish_adapter.activate()
-
 			except Ice.Exception, e:
 				print "Error. Topic does not exist (yet)"
-				asrpublish_topic = None
-				break
 				status = 0
 				time.sleep(1)
 		qos = {}
+		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+		ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

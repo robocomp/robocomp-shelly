@@ -468,14 +468,20 @@ bool SpecificWorker::correctRotation()
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
  	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
 	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-	qDebug()<<"Distancia entre la camara y la marca: "<<innerModel->transform("visual_hand", "rgbd_transform").norm2();
-	innerModel->transform("rgbd_transform", "visual_hand").print("marca desde la camara");
+// 	qDebug()<<"Distancia entre la camara y la marca: "<<innerModel->transform("visual_hand", "rgbd_transform").norm2();
+// 	innerModel->transform("rgbd_transform", "visual_hand").print("marca desde la camara");
 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
 	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
+	
+	
+	qDebug()<<"VISUAL POSE: "<<rightHand->getVisualPose();
+	qDebug()<<"INTERNAL POSE: "<<rightHand->getInternalPose();
+	qDebug()<<"ERROR INVERSE: "<< errorInv;
+	qDebug()<<"CORRECCION: "<< correccionFinal;
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
@@ -531,8 +537,25 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 			//ABANDONAMOS TARGET SI LA IK NO PUEDE MOVERSE NI SIQUIERA CERCA DEL TARGET
 		}
 	}
-	//sleep(1);
+	
+	MotorStateMap allMotorsAct, allMotorsBack;
+	jointmotor_proxy->getAllMotorState(allMotorsBack);
+	for (bool allStill=false;   allStill==false;   allMotorsBack=allMotorsAct)
+	{
+		usleep(500000);
+		jointmotor_proxy->getAllMotorState(allMotorsAct);
+		allStill = true;
+		for (auto v : allMotorsAct)
+		{
+			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.01)
+			{
+				allStill = false;
+				break;
+			}
+		}
+	} 
 	usleep(500000);
+
 }
 
 void SpecificWorker::goYESButton()
