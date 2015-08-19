@@ -145,10 +145,10 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	inner->save("inner.xml");
 	if (innerViewer)
 	{
-		qDebug()<<"----------- 1111 delete innerViewer ??----------" ;		
+		qDebug()<<"----------- 1111 delete innerViewer ----------" ;		
 		osgView->getRootGroup()->removeChild(innerViewer);				
 		delete innerViewer->innerModel;
-		qDebug()<<"----------- 2222 delete innerViewer ??----------" ;		
+		qDebug()<<"----------- 2222 delete innerViewer ----------" ;		
 		
 	}
 
