@@ -430,7 +430,7 @@ void SpecificWorker::storeTargetCorrection()
 bool SpecificWorker::correctRotation()
 {
 	updateAll();
-	static float umbralMaxTime = 90, umbralMinTime = 10;
+	static float umbralMaxTime = 25, umbralMinTime = 3;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.2;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
@@ -484,8 +484,8 @@ bool SpecificWorker::correctRotation()
 	qDebug()<<"CORRECCION: "<< correccionFinal;
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
-// 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
-// 	correctedTarget.setID_IK(identifier);
+	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
+	correctedTarget.setID_IK(identifier);
 	return false;
 }
 
