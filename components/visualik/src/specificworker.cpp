@@ -311,6 +311,11 @@ void SpecificWorker::goHome(const string &bodyPart)
 
 void SpecificWorker::stop(const string &bodyPart)
 {
+	QMutexLocker ml(mutex);
+	nextTargets.clear();
+	currentTarget.setState(Target::State::IDLE);
+	stateMachine = State::IDLE;
+	
 	inversekinematics_proxy->stop(bodyPart);
 }
 
