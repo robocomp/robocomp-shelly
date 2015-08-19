@@ -2,10 +2,6 @@
 CommonBehavior.Endpoints=tcp -p 0
 
 
-# Endpoints for subscriptions
-ASRPublishTopic.Endpoints=tcp -p 0
-
-
 # Proxies for required interfaces
 JointMotorProxy = jointmotor:tcp -h localhost -p 0
 TrajectoryRobot2DProxy = trajectoryrobot2d:tcp -h localhost -p 0
