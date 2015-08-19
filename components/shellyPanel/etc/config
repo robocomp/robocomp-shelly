@@ -1,17 +1,20 @@
+# Endpoints for implemented interfaces
+CommonBehavior.Endpoints=tcp -p 2131
+
 # Endpoints for subscriptions
 ASRPublishTopic.Endpoints=tcp -p 3974
 
 
 # Proxies for required interfaces
 JointMotorProxy = jointmotor:tcp -h robonuc1.local -p 20000
-TrajectoryRobot2DProxy = trajectoryrobot2d:tcp -h localhost -p 12204
+TrajectoryRobot2DProxy = trajectoryrobot2d:tcp -h robonuc1.local -p 12204
 OmniRobotProxy = omnirobot:tcp -h robonuc1.local -p 12238
 SpeechProxy = speech:tcp -h localhost -p 10021
 
 
 
 # This property is used by the clients to connect to IceStorm.
-TopicManager.Proxy=IceStorm/TopicManager:default -p 9999 -h localhost
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999 -h robonuc1.local
 
 
 

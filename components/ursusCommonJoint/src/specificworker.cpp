@@ -170,12 +170,12 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
-	if (checkFuturePosition(listGoals, ret) /*and false*/)//NOTE para desactivar, descomente "and false"
+	if (checkFuturePosition(listGoals, ret) and false)//NOTE para desactivar, descomente "and false"
 	{
 		//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
 		//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
 		printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+ 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	//movemos el motor:
 	try { prxMap.at(goal.name)->setPosition(goal);}
@@ -213,7 +213,7 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+ 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for (uint i=0; i<listGoals.size(); i++)

@@ -113,7 +113,7 @@ class MyShellyThread(QtCore.QThread):
 	def loadTemp(self):
 		global statusN1, statusN2
 		if statusN1 == "on" or statusN2 == "on":
-			hostnames = ['robonuc1.local','robonuc2.local']
+			hostnames = ["robonuc1.local","robonuc2.local"]
 			for hostname in hostnames:
 				global hosts
 				self.connect(hostname,"robolab",hosts[hostname])

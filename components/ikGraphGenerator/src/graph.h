@@ -212,7 +212,7 @@ public:
 
 		for (uint i=0; i<vertices.size(); i++)
 		{
-			if (vertices[i].valid)
+			if (vertices[i].valid and vertices[i].configurations.size() > 0)
 			{
 				const float d = vertices[i].distTo(p);
 				if (minDist<0 or minDist>d)
