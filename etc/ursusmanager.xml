@@ -279,11 +279,11 @@
   <color value="#4422FF" />
  </node>
 
- <node alias="vik" endpoint="inversekinematics:tcp -h localhost -p 10242">
+ <node alias="vik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10242">
   <dependence alias="gik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik.conf" />
-  <downCommand command="killall -9 VisualBIK" />
+  <upCommand command="rcremote robonuc1.local VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik.conf" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 VisualBIK" />
   <configFile path="xxx" />
   <xpos value="133.234901387" />
   <ypos value="-98.3593665638" />
