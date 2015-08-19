@@ -291,11 +291,11 @@
   <color value="None" />
  </node>
 
- <node alias="gik" endpoint="inversekinematics:tcp -h localhost -p 10241">
+ <node alias="gik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10241">
   <dependence alias="comJoint" />
   <dependence alias="ik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
+  <upCommand command="rcremote robonuc1.local GIK /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-ursus/etc/ikg.conf" />
   <downCommand command="killall -9 ikGraphGenerator" />
   <configFile path="xxx" />
   <xpos value="197.982812686" />

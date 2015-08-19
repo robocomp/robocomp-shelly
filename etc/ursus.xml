@@ -169,31 +169,17 @@
 																						</transform>
 																					</transform>
 																				</transform>
-
 																			</joint>
 																		</transform>
 
 																		<!-- El siguiente transform es para que coincidan los ejes de la marca con los del mundo	 -->
-																		<transform	id="ThandMesh2_pre"  ty="-25" tz= "55" rx="-1.5707963267948966" rz="3.14159265359">
-																			<transform	id="ThandMesh2" >
-																				<!-- Deshacemos la transformación anterior, primero giramos en z, luego y y luego en X. -->
-																				<transform id="ThandMesh2_2" rz="-3.14159265359">
-																					<transform id="ThandMesh2_3" ry="0">
-																						<transform id="ThandMesh2_4" rx="1.5707963267948966">
-
-																							<!--  Colocamos la marca -->
-																							<transform id="grabPositionHandR" ty="0" tz="0" rx="0" ry="0,0" rz="0">
-																								<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
-																								<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
-																								<transform id="nhhh" ty="10">
-<!-- 																											<axes id="targetAxes" length="120" width="2" /> -->
-																								</transform>
-																							</transform> <!-- handmesh2_t-->
-																						</transform><!-- Thandmesh2_4-->
-																					</transform><!-- Thandmesh2_3-->
-																				</transform><!-- Thandmesh2_2-->
-																			</transform><!-- Thandmesh2-->
-																		</transform><!-- Thandmesh2_Pre-->
+																		<transform	id="ThandMesh2_pre"  ty="-25" tz= "55" >
+																			<!--  Colocamos la marca -->
+																			<transform id="grabPositionHandR" rz="3.14159265359">
+																				<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
+																				<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
+																			</transform>
+																		</transform>
 																		
 																	</joint> <!-- rightWrist2 -->
 																</transform><!-- arm_right_7-->
