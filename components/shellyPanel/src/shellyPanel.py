@@ -199,11 +199,6 @@ if __name__ == '__main__':
 			print 'Cannot get SpeechProxy property.'
 			status = 1
 
-
-		# Topic Manager
-		proxy = ic.getProperties().getProperty("TopicManager.Proxy")
-		obj = ic.stringToProxy(proxy)
-		topicManager = IceStorm.TopicManagerPrx.checkedCast(obj)
 	except:
 			traceback.print_exc()
 			status = 1
@@ -216,24 +211,6 @@ if __name__ == '__main__':
 		adapter = ic.createObjectAdapter('CommonBehavior')
 		adapter.add(CommonBehaviorI(worker, ic), ic.stringToIdentity('commonbehavior'))
 		adapter.activate()
-
-
-		ASRPublish_adapter = ic.createObjectAdapter("ASRPublishTopic")
-		asrpublishI_ = ASRPublishI(worker)
-		asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
-
-		subscribeDone = False
-		while not subscribeDone:
-			try:
-				asrpublish_topic = topicManager.retrieve("ASRPublish")
-				subscribeDone = True
-			except Ice.Exception, e:
-				print "Error. Topic does not exist (yet)"
-				status = 0
-				time.sleep(1)
-		qos = {}
-		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
-		ASRPublish_adapter.activate()
 
 
 #		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))

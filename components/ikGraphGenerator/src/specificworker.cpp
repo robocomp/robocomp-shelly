@@ -984,6 +984,8 @@ void SpecificWorker::goHome(const string &bodyPart)
 void SpecificWorker::stop(const string &bodyPart)
 {
 	state = GIK_NoTarget;
+	inversekinematics_proxy->stop(bodyPart);
+	
 }
 bool SpecificWorker::getPartState(const string &bodyPart)
 {

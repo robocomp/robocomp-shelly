@@ -10,7 +10,7 @@ Component shellyPanel
 	Communications
 	{
 		requires JointMotor, TrajectoryRobot2D, OmniRobot, Speech;
-		subscribesTo ASRPublish;
+//		subscribesTo ASRPublish;
 		implements CommonBehavior;
 	};
 	language python;

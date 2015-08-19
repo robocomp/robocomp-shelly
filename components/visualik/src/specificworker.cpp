@@ -163,7 +163,7 @@ void SpecificWorker::compute()
 			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
 			{
 				qDebug()<<"---> El IK ha terminado.";
-				updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
+				//updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
@@ -171,7 +171,7 @@ void SpecificWorker::compute()
 		case State::CORRECT_ROTATION:
 			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
 			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			//updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctRotation()==true or abortCorrection==true)
 			{
 				if(nextTargets.isEmpty()==false)
@@ -291,12 +291,12 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax)
 {
 	//NOTE: When the VIK is connected to IK directly
-	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
-	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
-	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
-	return id;
+// 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+// 	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
+// 	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+// 	return id;
 	//NOTE: When the VIK is connected to GIK and GIK is connected to IK.
-	//return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
+	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 }
 
 
@@ -311,6 +311,11 @@ void SpecificWorker::goHome(const string &bodyPart)
 
 void SpecificWorker::stop(const string &bodyPart)
 {
+	QMutexLocker ml(mutex);
+	nextTargets.clear();
+	currentTarget.setState(Target::State::IDLE);
+	stateMachine = State::IDLE;
+	
 	inversekinematics_proxy->stop(bodyPart);
 }
 
@@ -430,7 +435,7 @@ void SpecificWorker::storeTargetCorrection()
 bool SpecificWorker::correctRotation()
 {
 	updateAll();
-	static float umbralMaxTime = 90, umbralMinTime = 10;
+	static float umbralMaxTime = 25, umbralMinTime = 3;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.2;
 
 	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
@@ -497,13 +502,17 @@ bool SpecificWorker::correctRotation()
  */
 void SpecificWorker::updateAll()
 {
+	//qDebug() << "--------";
 	try
 	{
 		RoboCompJointMotor::MotorStateMap mMap;
 		jointmotor_proxy->getAllMotorState(mMap);
 
 		for (auto j : mMap)
+		{
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
+		//	qDebug() << QString::fromStdString(j.first) << j.second.pos;
+		}
 	}
 	catch (const Ice::Exception &ex)
 	{

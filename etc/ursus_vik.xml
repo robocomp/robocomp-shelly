@@ -6,7 +6,7 @@
 		</transform>
 
 		<transform id="visual_hand">
-<!--			<axes id="handAxes" length="80" width="20" />-->
+			<axes id="handAxes" length="80" width="20" />
 		</transform>
 
 		<transform id="corr_hand">
@@ -18,7 +18,6 @@
 		</transform>
 		
 		<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml"/>
-<!--		<include path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/visualBIKexperiment/ursus_errors.xml"/>-->
 
 
 </innerModel>
