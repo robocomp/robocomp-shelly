@@ -176,7 +176,6 @@
 																		<transform	id="ThandMesh2_pre"  ty="-25" tz= "55" >
 																			<!--  Colocamos la marca -->
 																			<transform id="grabPositionHandR" rz="3.14159265359">
-																				<axes id="hand_axes" />
 																				<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
 																				<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
 																			</transform>

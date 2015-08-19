@@ -32,28 +32,27 @@ VisualHand::~VisualHand()
 	delete lastUpdate;
 }
 
-/*~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*
- * 												METODOS PUT/SET												   *
- *~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~*/
 /**
  * \brief Updates the hand's possition according to an April tag and the time.
  * Also, it calculates the error between the visualHand and the internal hand
  */
 void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 {
+	const QString m1 = "marca-" + tip + "-segun-head";
+	const QString m2 = "marca-" + tip + "-segun-head2";
+	
 	tagPose = QVec::vec6(tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
 	// Metemos en el InnerModel la marca vista por la RGBD:
-	im->updateTransformValues("marca-" + tip + "-segun-head", tag.tx, tag.ty, tag.tz,   tag.rx, tag.ry, tag.rz);
-	im->updateTransformValues("marca-" + tip + "-segun-head2", 0,0,0,   0,0,-M_PI_2);
+	im->updateTransformValues(m1, tag.tx, tag.ty, tag.tz,    tag.rx, tag.ry, tag.rz);
+	im->updateTransformValues(m2,      0,      0,      0,    -M_PI_2,       0,     0);
 	//Pasamos del marca-segun-head al mundo:
-	QVec ret = im->transform6D("root", tagPose, "rgbd");
+	QVec ret = im->transform6D("root", m2);
 	visualPose[0] = ret(0);
 	visualPose[1] = ret(1);
 	visualPose[2] = ret(2);
-	QVec ret2 = im->transform("root", tagPose, "marca-" + tip + "-segun-head2");
-	visualPose[3] = ret2(3);
-	visualPose[4] = ret2(4);
-	visualPose[5] = ret2(5);
+	visualPose[3] = ret(3);
+	visualPose[4] = ret(4);
+	visualPose[5] = ret(5);
 	//Actualizamos la posicion del nodo visual_hand:
 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
 	gettimeofday(lastUpdate, NULL);
