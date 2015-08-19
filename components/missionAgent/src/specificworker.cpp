@@ -145,22 +145,16 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	inner->save("inner.xml");
 	if (innerViewer)
 	{
-// 		QList<InnerModelNode*> l;l.clear();
-// 		innerViewer->innerModel->getSubTree(innerViewer->innerModel->getRoot() ,&l);
-// 		foreach(InnerModelNode* node, l) 
-// 		{
-// 			//remove node in InnerModel
-// 			innerViewer->innerModel->removeNode(node->id);
-// 		}
-
+		qDebug()<<"----------- 1111 delete innerViewer ??----------" ;		
 		osgView->getRootGroup()->removeChild(innerViewer);				
-		qDebug()<<"delete innerViewer";
+		delete innerViewer->innerModel;
+		qDebug()<<"----------- 2222 delete innerViewer ??----------" ;		
 		
-		innerViewer = NULL;
 	}
-	
+
 	innerViewer = new InnerModelViewer(inner, "root", osgView->getRootGroup(), true);
 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+	
 }
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& params)
@@ -195,9 +189,12 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 {
 	{
 		QMutexLocker dd(&modelMutex);
-		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);		
+		AGMModelEdge dst;
+		AGMModelConverter::fromIceToInternal(modification,dst);
+		agmInner.updateImNodeFromEdge(dst,innerViewer->innerModel);
 		agmInner.setWorld(worldModel);
-// 		changeInner(agmInner.extractInnerModel("room"));		
+
 		refresh = true;
 	}
 }
