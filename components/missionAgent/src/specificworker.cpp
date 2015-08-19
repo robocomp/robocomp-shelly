@@ -187,8 +187,7 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modificati
 	{
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-		agmInner.setWorld(worldModel);		
-		changeInner(agmInner.extractInnerModel("room"));
+		agmInner.setWorld(worldModel);				
 		refresh = true;
 	}
 }
