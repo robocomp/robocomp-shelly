@@ -51,7 +51,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h robonuc2.local -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local mission bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <upCommand command="rcremote robonuc2.local mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent/ ./bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <downCommand command="ssh robolab@robonuc2.local killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <xpos value="15.3174030149" />
