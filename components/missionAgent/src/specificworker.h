@@ -97,8 +97,9 @@ private:
 	RCDraw *rcdraw1, *rcdraw2;
 	GraphModelViewer *graphViewer;
 	
+	osgGA::TrackballManipulator *manipulator;
 	OsgView *osgView;
-	InnerModel *innerModel, *innerModel1,*innerModel2;
+	InnerModel *innerModelVacio;
 	InnerModelViewer *innerViewer; 
 	AgmInner agmInner;
 	
