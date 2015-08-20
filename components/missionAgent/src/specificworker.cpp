@@ -129,6 +129,7 @@ void SpecificWorker::compute( )
 		}
 		else
 		{
+			targetDrawer->update(targetModel);
 			innerViewer->update();
 			osgView->autoResize();		
 			osgView->frame();			
