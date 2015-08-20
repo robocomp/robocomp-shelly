@@ -35,6 +35,19 @@
   <radius value="10.0" />
   <color value="#DDFF22" />
  </node>
+ 
+ <node alias="ppcptnAg" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10335">
+  <dependence alias="IS" />
+  <dependence alias="comJoint" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote robonuc2.local ppcptnAg /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/proprioceptionAgent ./bin/proprioceptionAgent /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/proprioceptionAgent_sim.conf" />
+  <downCommand command="ssh robolab@robonuc2.local killall -9 proprioceptionAgent" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/proprioceptionAgent_sim.conf" />
+  <xpos value="45.3185770764" />
+  <ypos value="-79.6478025205" />
+  <radius value="10.0" />
+  <color value="#DDFF22" />
+ </node>
 
  <node alias="graspingAgent" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10332">
   <dependence alias="vik" />
