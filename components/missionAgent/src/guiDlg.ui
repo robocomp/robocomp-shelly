@@ -116,6 +116,19 @@ plan</string>
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="robotCheck">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>robot</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="imCheck">
          <property name="text">
           <string>InnerModel</string>

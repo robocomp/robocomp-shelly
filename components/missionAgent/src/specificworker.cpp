@@ -59,6 +59,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
 	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
+	connect(robotCheck,           SIGNAL(clicked()), this, SLOT(showRobot()));
 		
 	innerModelVacio = new InnerModel();	
 	osgView = new OsgView( inner3D );
@@ -170,7 +171,8 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modifi
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
 		//AGMModelPrinter::printWorld(worldModel);
-		agmInner.setWorld(worldModel);		
+		agmInner.setWorld(worldModel);	
+		worldModel->save("lastStructuralChange.xml");
 		changeInner(agmInner.extractInnerModel("room"));		
 		refresh = true;
 		
@@ -215,6 +217,12 @@ void SpecificWorker::imShow()
 {
 	qDebug()<<"imCheck->isChecked()"<<imCheck->isChecked();
 	modelDrawer->setShowInnerModel(imCheck->isChecked());
+	
+}
+void SpecificWorker::showRobot()
+{
+	qDebug()<<"robotCheck->isChecked()"<<robotCheck->isChecked();
+	modelDrawer->setShowRobot(robotCheck->isChecked());	
 	
 }
 
