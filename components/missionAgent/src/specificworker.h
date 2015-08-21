@@ -85,6 +85,7 @@ public slots:
 		missionPaths[missions->count()-1] = path;
 	}
 	void imShow();
+	void showRobot();
 
 private:
 	bool refresh;
