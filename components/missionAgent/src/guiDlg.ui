@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1201</width>
-    <height>761</height>
+    <height>876</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -179,6 +179,26 @@ plan</string>
              <width>400</width>
              <height>16777215</height>
             </size>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_4">
+           <property name="text">
+            <string>item list</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="itemList">
+           <property name="editable">
+            <bool>true</bool>
+           </property>
+           <property name="currentIndex">
+            <number>-1</number>
+           </property>
+           <property name="insertPolicy">
+            <enum>QComboBox::NoInsert</enum>
            </property>
           </widget>
          </item>

@@ -86,6 +86,7 @@ public slots:
 	}
 	void imShow();
 	void showRobot();
+	void itemSelected(QString nameItem);
 
 private:
 	bool refresh;
@@ -103,10 +104,13 @@ private:
 	InnerModel *innerModelVacio;
 	InnerModelViewer *innerViewer; 
 	AgmInner agmInner;
+
+
 	
 	 void updateInner3D();
 	 void insertNodeInnerModel(InnerModelNode* node);
 	 void changeInner (InnerModel *inner);
+	void fillItemList();
 
 
 };
