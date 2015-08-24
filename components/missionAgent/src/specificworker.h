@@ -86,6 +86,8 @@ public slots:
 	}
 	void imShow();
 	void showRobot();
+	void showMesh();
+	void showPlane();
 	void itemSelected(QString nameItem);
 
 private:

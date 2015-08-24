@@ -116,6 +116,26 @@ plan</string>
         </spacer>
        </item>
        <item>
+        <widget class="QCheckBox" name="planeCheck">
+         <property name="text">
+          <string>Plane</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="meshCheck">
+         <property name="text">
+          <string>Mesh</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="robotCheck">
          <property name="enabled">
           <bool>true</bool>
