@@ -60,6 +60,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
 	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
 	connect(robotCheck,           SIGNAL(clicked()), this, SLOT(showRobot()));
+	connect(meshCheck,           SIGNAL(clicked()), this, SLOT(showMesh()));
+	connect(planeCheck,           SIGNAL(clicked()), this, SLOT(showPlane()));
+
 	
 	connect(itemList,     SIGNAL(activated(QString)), this, SLOT(itemSelected(QString)));
 	
@@ -252,6 +255,18 @@ void SpecificWorker::showRobot()
 {
 	qDebug()<<"robotCheck->isChecked()"<<robotCheck->isChecked();
 	modelDrawer->setShowRobot(robotCheck->isChecked());	
+	
+}
+void SpecificWorker::showMesh()
+{
+	qDebug()<<"showMesh: meshCheck->isChecked()"<<meshCheck->isChecked();
+	modelDrawer->setShowMesh(meshCheck->isChecked());	
+	
+}
+void SpecificWorker::showPlane()
+{
+	qDebug()<<"showPlane: planeCheck->isChecked()"<<planeCheck->isChecked();
+	modelDrawer->setShowPlane(planeCheck->isChecked());	
 	
 }
 
