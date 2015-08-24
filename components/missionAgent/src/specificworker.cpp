@@ -136,6 +136,7 @@ void SpecificWorker::compute( )
 		else
 		{
 			targetDrawer->update(targetModel);
+			modelDrawer->drawTable();
 			innerViewer->update();
 			osgView->autoResize();		
 			osgView->frame();			
@@ -203,8 +204,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 		AGMModelEdge dst;
 		AGMModelConverter::fromIceToInternal(modification,dst);
 		agmInner.updateImNodeFromEdge(dst,innerViewer->innerModel);
-		agmInner.setWorld(worldModel);
-
+		agmInner.setWorld(worldModel);		
 		refresh = true;
 	}
 }
