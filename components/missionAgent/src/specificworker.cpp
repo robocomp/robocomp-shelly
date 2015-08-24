@@ -60,7 +60,12 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
 	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
 	connect(robotCheck,           SIGNAL(clicked()), this, SLOT(showRobot()));
-		
+	
+	connect(itemList,     SIGNAL(activated(QString)), this, SLOT(itemSelected(QString)));
+	
+	itemList->completer()->setCompletionMode (QCompleter::UnfilteredPopupCompletion);
+// 	itemList->completer()->setCompletionMode (QCompleter::PopupCompletion);
+
 	innerModelVacio = new InnerModel();	
 	osgView = new OsgView( inner3D );
 	show();
@@ -170,10 +175,12 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::Event& modifi
 	{
 		QMutexLocker dd(&modelMutex);
 		AGMModelConverter::fromIceToInternal(modification.newModel, worldModel);
-		//AGMModelPrinter::printWorld(worldModel);
+		//AGMModelPrinter::printWorld(worldModel);		
 		agmInner.setWorld(worldModel);	
+		//CAUTION no realentizará el hilo
 		worldModel->save("lastStructuralChange.xml");
 		changeInner(agmInner.extractInnerModel("room"));		
+		fillItemList();
 		refresh = true;
 		
 	}
@@ -212,6 +219,28 @@ void SpecificWorker::update(const RoboCompAGMWorldModel::World &a, const RoboCom
 		refresh = true;
 	}
 }
+
+void SpecificWorker::fillItemList()
+{
+	for (uint32_t i=0; i<worldModel->symbols.size(); ++i)
+	{
+		itemList->addItem(QString::fromStdString(worldModel->symbols[i]->toString()));
+	}
+	for (uint32_t i=0; i<worldModel->edges.size(); ++i)
+	{
+		itemList->addItem(QString::fromStdString(worldModel->edges[i]->toString(worldModel)));
+	}
+
+
+}
+
+void SpecificWorker::itemSelected(QString nameItem)
+{
+	qDebug()<<"nameItem"<<nameItem;
+	modelDrawer->setInterest(nameItem.toStdString());
+}
+
+
 
 void SpecificWorker::imShow()
 {
