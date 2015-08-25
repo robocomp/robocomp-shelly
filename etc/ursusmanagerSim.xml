@@ -63,6 +63,7 @@
 
  <node alias="vik" endpoint="inversekinematics:tcp -h lowlevelcomps -p 10242">
   <dependence alias="gik" />
+  <dependence alias="april" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote lowlevelcomps VIK /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-ursus/etc/vik_sim.conf" />
   <downCommand command="killall -9 VisualBIK" />
