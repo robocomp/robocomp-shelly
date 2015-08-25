@@ -32,11 +32,11 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	targetModel = AGMModel::SPtr(new AGMModel());
 
 	QPalette palette1 = modelWidget->palette();
-	palette1.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
-	rcdraw1 = new RCDraw(modelWidget);
-	modelWidget->setPalette(palette1);
+	palette1.setColor( backgroundRole(), QColor( 255, 255, 255 ) );	
+	modelWidget->setPalette(palette1);	
+	
+	rcdraw1 = new RCDraw( modelWidget);
 	modelDrawer = new AGMModelDrawer(rcdraw1, tableWidget);
-
 	QPalette palette2 = targetWidget->palette();
 	palette2.setColor( backgroundRole(), QColor( 255, 255, 255 ) );
 	rcdraw2 = new RCDraw(targetWidget);
@@ -68,7 +68,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	itemList->completer()->setCompletionMode (QCompleter::UnfilteredPopupCompletion);
 // 	itemList->completer()->setCompletionMode (QCompleter::PopupCompletion);
-
+	
+	
+	scrollArea->setAlignment (Qt::AlignCenter);
 	innerModelVacio = new InnerModel();	
 	osgView = new OsgView( inner3D );
 	show();
@@ -129,6 +131,11 @@ void SpecificWorker::compute( )
 		{
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
+// 			QSize  widgetSize = modelWidget->size();
+// 			qDebug()<<"***************************************************";
+// 			qDebug()<<"widgetSize"<<widgetSize;
+// 			qDebug()<<"***************************************************";
+// 			qDebug()<<"rcdraw1->getWindow()"<<rcdraw1->getWindow();
 		}
 		else if (tabWidget->currentIndex()==1 )
 		{
