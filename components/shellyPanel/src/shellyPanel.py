@@ -182,23 +182,6 @@ if __name__ == '__main__':
 			print 'Cannot get OmniRobotProxy property.'
 			status = 1
 
-
-		# Remote object connection for Speech
-		try:
-			proxyString = ic.getProperties().getProperty('SpeechProxy')
-			try:
-				basePrx = ic.stringToProxy(proxyString)
-				speech_proxy = RoboCompSpeech.SpeechPrx.checkedCast(basePrx)
-				mprx["SpeechProxy"] = speech_proxy
-			except Ice.Exception:
-				print 'Cannot connect to the remote object (Speech)', proxyString
-				#traceback.print_exc()
-				status = 1
-		except Ice.Exception, e:
-			print e
-			print 'Cannot get SpeechProxy property.'
-			status = 1
-
 	except:
 			traceback.print_exc()
 			status = 1
