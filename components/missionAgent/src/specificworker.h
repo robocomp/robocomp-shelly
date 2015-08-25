@@ -100,6 +100,7 @@ private:
 	AGMModelDrawer *modelDrawer, *targetDrawer;
 	RCDraw *rcdraw1, *rcdraw2;
 	GraphModelViewer *graphViewer;
+
 	
 	osgGA::TrackballManipulator *manipulator;
 	OsgView *osgView;
