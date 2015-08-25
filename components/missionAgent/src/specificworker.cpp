@@ -210,10 +210,8 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 {
 	{
 		QMutexLocker dd(&modelMutex);
-		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);		
-		AGMModelEdge dst;
-		AGMModelConverter::fromIceToInternal(modification,dst);
-		agmInner.updateImNodeFromEdge(dst,innerViewer->innerModel);
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);				
+		agmInner.updateImNodeFromEdge(modification,innerViewer->innerModel);
 		agmInner.setWorld(worldModel);		
 		refresh = true;
 	}
