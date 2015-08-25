@@ -7,9 +7,9 @@
 			<rgbd id="laser" focal="120" width="160" height="120" port="10097" ifconfig="20000,10004" />
 		</transform>
 -->
-<!--		<transform id="laserPose" tx="200" ty="240" tz="180" rx="0" >
+		<transform id="laserPose" tx="200" ty="240" tz="180" rx="0" >
                         <laser id="laser" measures="100" min="100" max="30000" angle="3.14" port="10003" />
-                </transform>-->
+                </transform>
 
 <!--		<transform id="monitor_pose" ty="700" tz="35" >-->
 		<transform id="monitor_pose" ty="935" tz="35" >
