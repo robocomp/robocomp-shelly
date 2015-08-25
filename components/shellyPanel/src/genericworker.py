@@ -36,7 +36,6 @@ class GenericWorker(QtGui.QWidget):
 		self.jointmotor_proxy = mprx["JointMotorProxy"]
 		self.trajectoryrobot2d_proxy = mprx["TrajectoryRobot2DProxy"]
 		self.omnirobot_proxy = mprx["OmniRobotProxy"]
-		self.speech_proxy = mprx["SpeechProxy"]
 
 		self.ui = Ui_guiDlg()
 		self.ui.setupUi(self)
