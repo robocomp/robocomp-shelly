@@ -27,7 +27,8 @@
 				</rotation>
 			</transform>
 
-			<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"  tx="0" ty="10" tz="0" rx="1.5707963267949" scale="1000" collide="1" />
+<!-- 			<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"  tx="0" ty="10" tz="0" rx="1.5707963267949" scale="1000" collide="1" /> -->
+			<mesh id="base_mesh" file="//home/mercedes/robocomp/components/robocomp-ursus-rockin/files/RoCKIn@home/world/omnibase2.3ds" tx="0" ty="10" tz="0" rx="1.5707963267949" scale="100" collide="1"/>
 			<transform id="base_body" rx="-1.5707963267948966" ty="0" tz="0" >
 				<!--<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" tx="-150" ty="0" tz="945" ry="-1.5707963267948966" scale="1000" collide="1" />
 				<mesh id="barracuello" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracuello.ive" tx="0" ty="0" tz="930" rx="3.14159265359" scale="1000" collide="1" />
