@@ -39,19 +39,6 @@
         </widget>
        </item>
        <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
         <widget class="QLabel" name="label_2">
          <property name="font">
           <font>
@@ -62,27 +49,6 @@
          </property>
          <property name="text">
           <string>CONTROL</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="activateButton">
-         <property name="text">
-          <string>activate</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="deactivateButton">
-         <property name="text">
-          <string>deactivate</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="resetButton">
-         <property name="text">
-          <string>reset</string>
          </property>
         </widget>
        </item>
@@ -121,7 +87,7 @@ plan</string>
           <string>Plane</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -131,7 +97,7 @@ plan</string>
           <string>Mesh</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>
@@ -144,7 +110,7 @@ plan</string>
           <string>robot</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>

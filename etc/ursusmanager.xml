@@ -19,7 +19,7 @@
   <xpos value="142.309899809" />
   <ypos value="-189.869393554" />
   <radius value="10.0" />
-  <color value="None" />
+  <color value="#AAAAAA" />
  </node>
 
  <node alias="executive" endpoint="agmexecutive:tcp -h robonuc2.local -p 10198">
@@ -314,16 +314,16 @@
   <color value="#4422FF" />
  </node>
 
- <node alias="mission" endpoint="commonbehavior:tcp -h robonuc2.local -p 11247">
+ <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent/ ./bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 missionagent" />
+  <upCommand command="rcremote localhost mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent/ ./bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <xpos value="-14.3367350024" />
   <ypos value="-216.866888456" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#AAAAAA" />
  </node>
 
  <node alias="graspingA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10332">

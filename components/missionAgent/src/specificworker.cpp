@@ -53,9 +53,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(broadcastModelButton, SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
 	connect(broadcastPlanButton,  SIGNAL(clicked()), this, SLOT(broadcastPlanButtonClicked()));
 
-	connect(activateButton,       SIGNAL(clicked()), this, SLOT(activateClicked()));
-	connect(deactivateButton,     SIGNAL(clicked()), this, SLOT(deactivateClicked()));
-	connect(resetButton,          SIGNAL(clicked()), this, SLOT(resetClicked()));
+	//connect(activateButton,       SIGNAL(clicked()), this, SLOT(activateClicked()));
+	//connect(deactivateButton,     SIGNAL(clicked()), this, SLOT(deactivateClicked()));
+	//connect(resetButton,          SIGNAL(clicked()), this, SLOT(resetClicked()));
 
 	connect(setMissionButton,     SIGNAL(clicked()), this, SLOT(setMission()));
 	connect(imCheck,           SIGNAL(clicked()), this, SLOT(imShow()));
