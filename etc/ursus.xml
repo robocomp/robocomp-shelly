@@ -97,8 +97,12 @@
 
 
 
-				<!-- Right Arm CON LÍMITES -->
+				<!-- Right Arm  -->
 				<transform id="arm_right_1" tx="174" tz="1192" ry="1.5707963267948966" rz="1.5707963267948966">
+					<transform id="right_shoulder_pose_r" ry="-1.5707963267948966">
+						<transform id="right_shoulder_pose" tz="300" ty="-350">
+						</transform>
+					</transform>
 					<!--Gira en Z -->
 					<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
 					<joint id="rightShoulder1" port="20000" axis="z" min="-3.14" max="0.54" home="-0.1">
@@ -294,7 +298,7 @@
 
 																								<!--  Metemos un error en la marca -->
 																								<transform id="errorMarcaPruebas" ty="0" rx="0" ry="0" rz="0">
-																									<plane id="handMesh1" ny="1" size="71.25,-71.25,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00024.png" collide="1"/>
+																									<plane id="handMesh1" ny="1" size="70,-70,5" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00024.png" collide="1"/>
 																								</transform>
 
 																								<transform id="ThandMesh1_5" tz="-50" ty="-20" tx="0">
