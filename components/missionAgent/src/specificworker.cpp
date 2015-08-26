@@ -72,7 +72,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	scrollArea->setAlignment (Qt::AlignCenter);
 	innerModelVacio = new InnerModel();	
-	osgView = new OsgView( inner3D );
+	osgView = new OsgView(  inner3D );
 	show();
 	
 	innerViewer = new InnerModelViewer(innerModelVacio, "root", osgView->getRootGroup(), true);
@@ -163,10 +163,13 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	inner->save("inner.xml");
 	if (innerViewer)
 	{
-		qDebug()<<"----------- 1111 delete innerViewer ----------" ;		
+// 		qDebug()<<"----------- 1111 delete innerViewer ----------" ;	
+		//borra innermodel dentro de InnerModelViewer
 		osgView->getRootGroup()->removeChild(innerViewer);				
-		delete innerViewer->innerModel;
-		qDebug()<<"----------- 2222 delete innerViewer ----------" ;		
+		//delete innerViewer->innerModel;		
+// 		qDebug()<<"----------- delete AAAA innerModel ----------" ;	
+// 		delete innerViewer;		
+// 		qDebug()<<"----------- 2222 delete innerViewer ----------" ;		
 		
 	}
 
