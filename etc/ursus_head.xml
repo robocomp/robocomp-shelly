@@ -1,0 +1,57 @@
+<innerModel>
+	<transform id="base_head" tz="0" ty="1225"  rx="-1.5707963267948966" >  <!-- Head begins -->
+		<transform id="rgbdHumanPose" tz="40" ty="-40" rx="1.57079632679">
+			<rgbd id="rgbdHuman" focal="600" width="640" height="480" /> 
+			<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
+		</transform>
+		<joint id="head_yaw_joint" port="20000" axis="z" home="0" min="-1" max="1">
+			<mesh id="head_base_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,87.5" tz="87.5" collide="1" />
+			<transform id="head_rot_tilt_pose" tz="175" rx="1.5707963267948966" >
+				<transform id="head_pre_tilt" ry="1.57079632679">
+					<joint id="head_pitch_joint" port="20000" axis="z" home="0" min="-1" max="1">
+						<!--<transform id="nose_pre" rz="-1.57079632679"> <transform id="nose" /> </transform></transform>-->
+						<transform id="head_post_tilt" ry="-1.57079632679">
+							<!-- center mesh -->
+							<mesh id="head_center_mesh1" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="95,20,20" ty="50" collide="1" />
+							<mesh id="head_center_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,35" ry="1.5707963268" collide="1"/>
+
+							<!-- rgbd camera -->
+							<transform id="rgbd_transform0" ty="82">
+								<transform id="rgbd_transform" tz="15">
+<!-- 																<axes id="00000" length="200" width="8" />															 -->
+										<rgbd id="rgbd" focal="523.5" width="640" height="480" port="10096" ifconfig="20000,10004" />
+								</transform>
+								<mesh id="sensorRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
+								<!--<plane id="sensorRGBD" nz="1" pz="-20" size="100,16,20" repeat="1" texture="#000000" /> -->
+							</transform>
+
+							<!-- left camera -->
+							<transform id="left_rgb" tx="-75">
+								<transform id="left_rgb_pan_pre" rx="-1.57079632679">
+									<joint id="leftEye" port="20000" min="-1" max="1" axis="z" >
+										<transform id="left_rgb_pan_post" rx="1.57079632679">
+											<mesh id="left_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
+										</transform>
+									</joint>
+								</transform>
+							</transform>
+
+							<!-- right camera -->
+							<transform id="right_rgb" tx="75">
+								<transform id="right_rgb_pan_pre" rx="-1.57079632679">
+									<joint id="rightEye" port="20000" min="-1" max="1" axis="z" >
+										<transform id="right_rgb_pan_post" rx="1.57079632679">
+											<mesh id="right_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
+										</transform>
+									</joint>
+								</transform>
+							</transform>
+						</transform>
+					</joint>
+				</transform>
+			</transform>
+<!-- 									</transform> -->
+		</joint>
+	</transform>
+</innerModel>
+
