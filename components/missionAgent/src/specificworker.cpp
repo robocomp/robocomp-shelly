@@ -71,6 +71,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 	
 	scrollArea->setAlignment (Qt::AlignCenter);
+	QSize  widgetSize = modelWidget->size();
+	scrollArea->ensureVisible(widgetSize.width()/2,widgetSize.height()/2 );
 	innerModelVacio = new InnerModel();	
 	osgView = new OsgView(  inner3D );
 	show();
@@ -131,7 +133,10 @@ void SpecificWorker::compute( )
 		{
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
-// 			QSize  widgetSize = modelWidget->size();
+			//void QScrollArea::ensureVisible ( int x, int y, int xmargin = 50, int ymargin = 50 )
+			
+
+ 			
 // 			qDebug()<<"***************************************************";
 // 			qDebug()<<"widgetSize"<<widgetSize;
 // 			qDebug()<<"***************************************************";
