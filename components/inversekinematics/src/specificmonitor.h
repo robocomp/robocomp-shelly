@@ -40,9 +40,6 @@ class SpecificMonitor : public GenericMonitor
     
 	bool sendParamsToWorker(RoboCompCommonBehavior::ParameterList params);
 	bool checkParams(RoboCompCommonBehavior::ParameterList l);
-	
-	bool ready;
-
 };
 
 #endif // GENERICMONITOR_H

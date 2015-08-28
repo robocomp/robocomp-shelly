@@ -170,21 +170,15 @@ int ::VisualBIK::run(int argc, char* argv[])
 IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 
 
-	SpecificWorker *worker = new SpecificWorker(mprx);
+	GenericWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread
-	SpecificMonitor *monitor = new SpecificMonitor(worker,communicator());
+	GenericMonitor *monitor = new SpecificMonitor(worker,communicator());
 	QObject::connect(monitor, SIGNAL(kill()), &a, SLOT(quit()));
 	QObject::connect(worker, SIGNAL(kill()), &a, SLOT(quit()));
 	monitor->start();
 
 	if ( !monitor->isRunning() )
 		return status;
-	
-	while (!monitor->ready)
-	{
-		usleep(10000);
-	}
-	
 	try
 	{
 		// Server adapter creation and publication
