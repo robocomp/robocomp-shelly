@@ -64,7 +64,7 @@
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote lowlevelcomps trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
-  <downCommand command="ssh lowlevelcomps pkill -9 -f dumbTrajectoryRobot2D" />
+  <downCommand command="rcremote lowlevelcomps X / pkill -9 -f dumbTrajectoryRobot2D" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2dSim.conf" />
   <xpos value="-81.791406104" />
   <ypos value="-28.8243283979" />

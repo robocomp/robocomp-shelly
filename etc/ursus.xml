@@ -1,16 +1,23 @@
 ﻿<innerModel>
-<!-- 	<axes id="sl3" /> -->
+	<!-- <axes id="sl3" /> -->
 
-<omnirobot id="robot" port="12238" >
+	<omnirobot id="robot" port="12238" >
+		<!-- laser position -->
 		<transform id="laserPose" tx="200" ty="240" tz="180" rx="0" >
                         <laser id="laser" measures="100" min="100" max="30000" angle="3.14" port="10003" />
-                </transform>
+		</transform>
 
+		<!-- some meshes useful for avoiding colliding with its own body -->
 		<transform id="monitor_pose" ty="935" tz="35" >
 			<plane id="monitor_mesh" size="300,400,50" texture="#222266"  collide="1" />
 		</transform>
 		<transform id="caja_pose" ty="330" tz="-120" >
 			<plane id="caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
+		</transform>
+
+		<!-- 'ideal' grasp position of the robot for its right arm -->
+		<transform id="right_shoulder_grasp_pose" tx="120" ty="900" tz="270">
+			<axes id="dewetrteuj53" />
 		</transform>
 
 

@@ -1,10 +1,6 @@
 <innerModel>
 	<!-- Right Arm  -->
 	<transform id="arm_right_1" tx="174" tz="1192" ry="1.5707963267948966" rz="1.5707963267948966">
-		<transform id="right_shoulder_pose_r" ry="-1.5707963267948966">
-			<transform id="right_shoulder_pose" tz="300" ty="-350">
-			</transform>
-		</transform>
 		<!--Gira en Z -->
 		<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
 		<joint id="rightShoulder1" port="20000" axis="z" min="-3.14" max="0.54" home="-0.1">

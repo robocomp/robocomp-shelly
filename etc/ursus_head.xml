@@ -5,6 +5,9 @@
 			<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 		</transform>
 		<joint id="head_yaw_joint" port="20000" axis="z" home="0" min="-1" max="1">
+			<transform id="head_yaw_pose" tz="1000" rx="1.5707963267948966">
+<!-- 				<axes id="e" /> -->
+			</transform>
 			<mesh id="head_base_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,87.5" tz="87.5" collide="1" />
 			<transform id="head_rot_tilt_pose" tz="175" rx="1.5707963267948966" >
 				<transform id="head_pre_tilt" ry="1.57079632679">
