@@ -33,6 +33,7 @@ class SpecificMonitor : public GenericMonitor
   public:
 	SpecificMonitor(GenericWorker *_worker, Ice::CommunicatorPtr _communicator);
 	~SpecificMonitor();
+	bool ready;
 	
 	void readConfig(RoboCompCommonBehavior::ParameterList &params );
 	void run();
