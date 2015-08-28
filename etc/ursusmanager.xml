@@ -170,7 +170,7 @@
 
  <node alias="dunker" endpoint="jointmotor:tcp -h robonuc2.local -p 10066">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local dnkr /home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp/bin/ ./dunkermotorenComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dunker.conf" />
+  <upCommand command="rcremote robonuc2.local dnkr /home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp/ ./bin/dunkermotorenComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dunker.conf" />
   <downCommand command="ssh robolab@robonuc2.local killall -9 dunkermotorenComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="-94.0789668344" />
@@ -192,7 +192,7 @@
 
  <node alias="dynamixel" endpoint="jointmotor:tcp -h robonuc1.local -p 10068">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local dyxl /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp/bin/ ./dynamixelComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
+  <upCommand command="rcremote robonuc1.local dyxl /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp/ ./bin/dynamixelComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 dynamixelComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <xpos value="27.5572324532" />
@@ -203,7 +203,7 @@
 
  <node alias="faulhaber" endpoint="jointmotor:tcp -h robonuc1.local -p 10067">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local flhbr /home/robocomp/robocomp/components/robocomp-ursus/components/faulhaberComp/bin/ ./faulhaberComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/faulhaber.conf" />
+  <upCommand command="rcremote robonuc1.local flhbr /home/robocomp/robocomp/components/robocomp-ursus/components/faulhaberComp/ ./bin/faulhaberComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/faulhaber.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 faulhaberComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="112.751918591" />

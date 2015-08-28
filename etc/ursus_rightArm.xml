@@ -1,0 +1,102 @@
+<innerModel>
+	<!-- Right Arm  -->
+	<transform id="arm_right_1" tx="174" tz="1192" ry="1.5707963267948966" rz="1.5707963267948966">
+		<!--Gira en Z -->
+		<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
+		<joint id="rightShoulder1" port="20000" axis="z" min="-3.14" max="0.54" home="-0.1">
+			<mesh id="shoulder_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000" collide="1" />
+			<transform id="arm_right_2" tz="41" rx="1.5707963267948966">
+				<!-- 									Gira en X -->
+				<joint id="rightShoulder2" port="20000"  axis="x" min="-3.14" max="0.34" home="-0.1" >
+					<mesh id="shoulder_right_2_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" rx="0" scale="1000" collide="1" />
+					<transform id="arm_right_3" tz="234" rz="-1.5707963267948966" >
+						<!-- 											Gira en Z -->
+						<joint id="rightShoulder3" port="20000"  axis="z" min="-1.8" max="1.8" home="0.1">
+							<mesh id="shoulder_right_3_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" rz="3.14159265359" scale="1000"  collide="1"  />
+							<transform id="arm_right_4" ty="-28"  tz="20"    > <!--Codo-->
+								<!-- 													Gira en X -->
+								<joint id="rightElbow" port="20000" axis="x"  min="0.01" max="2.6" home="0.15" >
+									<mesh id="elbow_right_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive" rz="3.14159265359" ty="0" scale="1000"  collide="1"  />
+									<transform id="arm_right_5" ty="28" tz="166"    > <!--Giro1 muñeca-->
+										<!-- 															Gira en Z-->
+										<joint id="rightForeArm" port="20000" axis="z" min="-1.8" max="1.8" home="0.1">
+											<mesh id="wrist_right_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="2"  collide="1"  />
+
+
+											<transform id="arm_right_6" tz="60" >
+												<!-- 																Gira en x -->
+												<plane id="motorWrist1Mesh" py="0" pz="-20" ny="1" size="40,66,-40" repeat="1" texture="#152115" collide="1"/>
+												<joint id="rightWrist1" port="20000" min="-1.570796326794" max="1.5707963267946" axis="x" home="0" >
+													<transform id="arm_right_7" tz="60" >
+														<!-- Gira en Y -->
+														<plane id="motorWrist2Mesh" px="-15" pz="-20" ny="1" size="66,40,-40" repeat="1" texture="#152115" collide="1" />
+														<joint id="rightWrist2" port="20000" min="-0.1" max="1.5707963267948966" axis="y" home="0" >
+															<transform id="arm_right_8" tx="20" tz="95" >
+																<!-- Gira en Y -->
+																<mesh id="finger_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="0" tz="-22" scale="20"  collide="1"  />
+																<joint id="rightFinger1" port="20000" min="-1.5707963267948966" max="0" axis="y" home="0" >
+																	<mesh id="finger_right_1_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="12" scale="18,5,5"  collide="1"  />
+																	<transform id="finger_right_1_1_pre" tx="30" ty="12" ry="0.7"  >
+																		<mesh id="finger_right_1_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30"  collide="1"  />
+																		<transform id="finger_right_1_2_pre" tx="25" ry="-0.4"  >
+																			<mesh id="finger_right_1_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" collide="1"   />
+																			<transform id="finger_right_1_1_tip" tz="20">
+																			</transform>
+																		</transform>
+																	</transform>
+
+																	<mesh id="finger_right_1_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="-12" scale="18,5,5"  collide="1"  />
+																	<transform id="finger_right_1_3_pre" tx="30" ty="-12" ry="0.7"  >
+																		<mesh id="finger_right_1_mesh6" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30" collide="1"   />
+																		<transform id="finger_right_1_4_pre" tx="25" ry="-0.4"  >
+																			<mesh id="finger_right_1_mesh7" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"  collide="1"  />
+																			<transform id="finger_right_1_2_tip" tz="20">
+																			</transform>
+																		</transform>
+																	</transform>
+																</joint>
+															</transform>
+
+
+															<transform id="arm_right_9" tx="-20" tz="95" >
+																<!-- 																Gira en Y -->
+																<mesh id="finger_right_2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="0" tz="-22" scale="20" collide="1" />
+																<joint id="rightFinger2" port="20000" min="0" max="1.5707963267948966" axis="y" home="0" >
+																	<mesh id="finger_right_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="-18" scale="-18,5,5" collide="1" />
+																	<transform id="finger_right_2_1_pre" tx="-30" ry="-0.7"  >
+																		<mesh id="finger_right_2_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30" collide="1" />
+																		<transform id="finger_right_2_2_pre" tx="-25" ry="0.40"  >
+																			<mesh id="finger_right_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" collide="1" />
+																			<transform id="finger_right_2_tip" tz="20">
+																			</transform>
+																		</transform>
+																	</transform>
+																</joint>
+															</transform>
+
+															<!-- El siguiente transform es para que coincidan los ejes de la marca con los del mundo	 -->
+															<transform	id="ThandMesh2_pre"  ty="-25" tz= "55" >
+																<!--  Colocamos la marca -->
+																<transform id="grabPositionHandR" rz="3.14159265359">
+																	<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
+																	<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
+																</transform>
+															</transform>
+															
+														</joint> <!-- rightWrist2 -->
+													</transform><!-- arm_right_7-->
+
+												</joint><!---rightWrist1-->
+											</transform>
+										</joint>
+									</transform>
+								</joint>
+							</transform>
+						</joint>
+					</transform>
+				</joint>
+			</transform>
+		</joint>
+	</transform>
+	<!-- Right Arm End -->
+</innerModel>
