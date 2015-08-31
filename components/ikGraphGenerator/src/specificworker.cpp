@@ -103,12 +103,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		qFatal("Abort");
 	}
 #ifdef USE_QTGUI
+        //posicion inicial
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "init", "root");
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "init_p", "init", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#ff7777", QVec::vec3(15,15,15));
 
+        //final 
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "end", "root");
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "end_p", "end", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#77ff77", QVec::vec3(15,15,15));
 
+        //target
 	InnerModelDraw::addTransform_ignoreExisting(innerViewer, "target", "root");
 	InnerModelDraw::addPlane_ignoreExisting(innerViewer, "target_p", "target", QVec::vec3(0,0,0), QVec::vec3(1,0,0), "#7777ff", QVec::vec3(15,15,15));
 
@@ -676,58 +679,69 @@ void SpecificWorker::compute()
 			{
 				pathIndex = 0;
 				state = GIK_GoToActualTargetSend;
+                                qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";                                                               
+                                sleep(1);
 			}
 			break;
 		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSend:
 			qDebug()<<"---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
-			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
-			state = GIK_GoToActualTargetSent;
+                        try {
+                           currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
+                           state = GIK_GoToActualTargetSent;
+                        }
+                        catch (Ice::Exception e)
+                        {
+                            qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();
+                        }
+			
 			break;
 		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSent:
+                        
 			TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", currentTarget.id_IK);
-			if (stt.finish == true)
-			{
-				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
-				//finalStep(stt);
-				QMutexLocker mm(mutexSolved);
-				currentTarget.state = stt;
-				if (stt.errorT > MAX_ERROR_IK)
-				{
-					lastFinish = "ERROR";
-			// #ifdef USE_QTGUI
-			// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-			// #endif
-				}
-				else
-				{
-					MotorGoalPositionList mpl;
-					for (auto gp : stt.motors)
-					{
-						MotorGoalPosition mgp;
-						mgp.position = gp.angle;
-						mgp.maxSpeed = 3;//0.4;
-						mgp.name = gp.name;
-						mpl.push_back(mgp);
-					}
-					goAndWaitDirect(mpl);
-					lastMotorGoalPositionList = mpl;
-					lastFinish = "OK";
-			// #ifdef USE_QTGUI
-			// 		updateFrame(500000);
-			// 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-			// #endif
-					usleep(500000);
-// 					sleep(1);
-				}
-				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
-				updateInnerModel();
-				solvedList.enqueue(currentTarget); //guardamos el target
-				qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
-								
-				state = GIK_NoTarget;
-			}
+                            if (stt.finish == true)
+                            {
+                                    qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
+                                    //finalStep(stt);
+                                    QMutexLocker mm(mutexSolved);
+                                    currentTarget.state = stt;
+                                    if (stt.errorT > MAX_ERROR_IK)
+                                    {
+                                            lastFinish = "ERROR";
+                            // #ifdef USE_QTGUI
+                            // 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+                            // #endif
+                                    }
+                                    else
+                                    {
+                                            MotorGoalPositionList mpl;
+                                            for (auto gp : stt.motors)
+                                            {
+                                                    MotorGoalPosition mgp;
+                                                    mgp.position = gp.angle;
+                                                    mgp.maxSpeed = 3;//0.4;
+                                                    mgp.name = gp.name;
+                                                    mpl.push_back(mgp);
+                                            }
+                                            goAndWaitDirect(mpl);
+                                            lastMotorGoalPositionList = mpl;
+                                            lastFinish = "OK";
+                            // #ifdef USE_QTGUI
+                            // 		updateFrame(500000);
+                            // 		QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+                            // #endif
+                                            usleep(500000);
+    // 					sleep(1);
+                                    }
+                                    qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
+                                    updateInnerModel();
+                                    solvedList.enqueue(currentTarget); //guardamos el target
+                                    qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
+                                                                    
+                                    state = GIK_NoTarget;
+                            }
+			
 			break;
 	}
 }
@@ -945,7 +959,14 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  */ 
 void SpecificWorker::setFingers(const float d)
 {
-	inversekinematics_proxy->setFingers(d);
+        try
+        {
+            inversekinematics_proxy->setFingers(d);
+        }
+        catch (Ice::Exception e)
+        {
+           qDebug()<<"SpecificWorker::setFingers cannot connect with inversekinematics_proxy"<<e.what();
+        }
 }
 /**
  * \brief Este metodo mira si el target de identificador senialado esta dentro de la lista de
@@ -984,7 +1005,14 @@ void SpecificWorker::goHome(const string &bodyPart)
 void SpecificWorker::stop(const string &bodyPart)
 {
 	state = GIK_NoTarget;
-	inversekinematics_proxy->stop(bodyPart);
+        try
+        {
+            inversekinematics_proxy->stop(bodyPart);
+        }
+        catch (Ice::Exception e)
+        {
+           qDebug()<<"SpecificWorker::stop cannot connect with inversekinematics_proxy"<<e.what();
+        }
 	
 }
 bool SpecificWorker::getPartState(const string &bodyPart)
@@ -998,7 +1026,14 @@ bool SpecificWorker::getPartState(const string &bodyPart)
  */ 
 void SpecificWorker::setJoint(const string &joint, const float angle, const float maxSpeed)
 {
-	inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
+        try
+        {
+            inversekinematics_proxy->setJoint(joint, angle, maxSpeed);
+        }
+        catch (Ice::Exception e)
+        {
+           qDebug()<<"SpecificWorker::setFingers cannot connect with inversekinematics_proxy"<<e.what();
+        }
 }
 
 
