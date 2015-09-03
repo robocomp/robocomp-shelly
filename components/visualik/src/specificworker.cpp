@@ -24,7 +24,8 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
-	if (file.is_open() == false)  qFatal("ARCHIVO NO ABIERTO");
+	if (file.is_open() == false)
+		qFatal("ARCHIVO NO ABIERTO");
 
 	goMotorsGO         = false;
 	stateMachine       = State::IDLE;
@@ -63,13 +64,18 @@ SpecificWorker::~SpecificWorker()
  */
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	qDebug()<<"YEAAAAAAAAH: 11111";
+
 	try
 	{
 		RoboCompCommonBehavior::Parameter par = params.at("InnerModel") ;
 		if( QFile(QString::fromStdString(par.value)).exists() == true)
 		{
+			qDebug()<<"YEAAAAAAAAH: 22222";
+
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
+			qDebug()<<"YEAAAAAAAAH: 333333"<<QString::fromStdString(par.value);
 		}
 		else
 			qFatal("Exiting now.");
