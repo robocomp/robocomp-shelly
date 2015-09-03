@@ -679,22 +679,26 @@ void SpecificWorker::compute()
 			{
 				pathIndex = 0;
 				state = GIK_GoToActualTargetSend;
-                                qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";                                                               
-                                sleep(1);
+				while(moveMotors()!=true);
+				qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";          
+//                                 sleep(1);
 			}
 			break;
 		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSend:
-			qDebug()<<"---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
-                        try {
-                           currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
-                           state = GIK_GoToActualTargetSent;
-                        }
-                        catch (Ice::Exception e)
-                        {
-                            qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();
-                        }
-			
+// 			if(moveMotors()==true)
+			{
+				qDebug()<<"---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
+				try {
+// 					usleep(5000000);
+				currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
+				state = GIK_GoToActualTargetSent;
+				}
+				catch (Ice::Exception e)
+				{
+				qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();
+				}
+			}
 			break;
 		//--------------------------------------------------------------------------------------------------//
 		case GIK_GoToActualTargetSent:
@@ -1035,7 +1039,33 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
            qDebug()<<"SpecificWorker::setFingers cannot connect with inversekinematics_proxy"<<e.what();
         }
 }
-
+/**
+ * \brief Devuelve TRUE cuando los motores no se estan moviendo y FALSE cuando están moviendose
+ */ 
+bool SpecificWorker::moveMotors()
+{
+	MotorStateMap allMotorsAct, allMotorsBack;
+	jointmotor_proxy->getAllMotorState(allMotorsBack); //Valor anterior
+	bool allStill = true;
+// 	for (		;   allStill==false;   allMotorsBack=allMotorsAct, allStill = true)
+// 	{
+		usleep(500000);
+		jointmotor_proxy->getAllMotorState(allMotorsAct); //valor actual		
+		for (auto v : allMotorsAct)
+		{
+			qDebug()<<"MOTOR: "<<QString::fromStdString(v.first)<<"      ABS MOTORS: "<<abs(v.second.pos - allMotorsBack[v.first].pos);
+			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.05)
+			{
+ 				allStill = false;
+// 				return true;
+				break;
+			}
+		}
+// 	} 
+	usleep(500000);
+// 	return false;
+	return allStill;
+}
 
 
 

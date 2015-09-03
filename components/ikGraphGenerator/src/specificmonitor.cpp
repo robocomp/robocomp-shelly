@@ -22,7 +22,7 @@
 */
 SpecificMonitor::SpecificMonitor(GenericWorker *_worker,Ice::CommunicatorPtr _communicator):GenericMonitor(_worker, _communicator)
 {
-
+		ready = false;
 }
 /**
 * \brief Default destructor
@@ -35,6 +35,7 @@ SpecificMonitor::~SpecificMonitor()
 void SpecificMonitor::run()
 {
 	initialize();
+	ready = true;
 	forever
 	{
 		//rDebug("specific monitor run");
@@ -44,7 +45,8 @@ void SpecificMonitor::run()
 
 /**
  * \brief Reads components parameters and checks set integrity before signaling the Worker thread to start running
-
+ *   (1) Ice parameters
+ *   (2) Local component parameters read at start
  *
  */
 void SpecificMonitor::initialize()

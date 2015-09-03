@@ -116,6 +116,7 @@ private:
 	void goAndWaitDirect  (const MotorGoalPositionList &mpl);
 	void updateInnerModel ();
 	void finalStep        (TargetState stt);
+        bool moveMotors       ();
 
 	////////////////////////////////////////
 	bool                    READY;
