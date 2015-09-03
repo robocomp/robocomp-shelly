@@ -24,8 +24,7 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
-	if (file.is_open() == false)
-		qFatal("ARCHIVO NO ABIERTO");
+	if (file.is_open() == false)  qFatal("ARCHIVO NO ABIERTO");
 
 	goMotorsGO         = false;
 	stateMachine       = State::IDLE;

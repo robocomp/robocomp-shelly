@@ -12,7 +12,7 @@ InverseKinematicsProxy =inversekinematics:tcp -h localhost -p 10241
 JointMotorProxy = jointmotor:tcp -p 20000 
 ReflexxesProxy = reflexxes:tcp -h localhost -p 10260
 
-InnerModel=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/ficheros_Test_VisualBIK/ursus_bik.xml
+InnerModel=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus_vik.xml
 RIGHTARM=rightShoulder1;rightShoulder2;rightShoulder3;rightElbow;rightForeArm;rightWrist1;rightWrist2
 
 
