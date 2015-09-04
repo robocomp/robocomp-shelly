@@ -451,7 +451,7 @@ bool SpecificWorker::correctRotation()
 		rightHand->setVisualPosewithInternal();
 	}
 	// COMPROBAMOS EL ERROR:
-	QVec errorInv = rightHand->getErrorInverse();
+	QVec errorInv = rightHand->getErrorInverse(); //error: mano visualdesde el target
 	if (currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
 	{
 		abortCorrection = true;
@@ -476,15 +476,19 @@ bool SpecificWorker::correctRotation()
 
 	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
 	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
- 	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-// 	qDebug()<<"Distancia entre la camara y la marca: "<<innerModel->transform("visual_hand", "rgbd_transform").norm2();
-// 	innerModel->transform("rgbd_transform", "visual_hand").print("marca desde la camara");
-
+ 
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
+	
+	
+	// ROTACION: 
+	QVec error_world = innerModel->transform6D("root", errorInv, "visual_hand"); 
+	qDebug()<<"Error T in WORLD: "<<QVec::vec3(error_world.x(), error_world.y(), error_world.z()).norm2();
+	qDebug()<<"Error R in WORLD: "<<QVec::vec3(error_world.rx(), error_world.ry(), error_world.rz()).norm2();
+
+	correccionFinal.inject(QVec::vec3(error_world.rx(), error_world.ry(), error_world.rz()),3);
+// 	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
 	
 	
