@@ -80,7 +80,7 @@
 
 
 																<!-- El siguiente transform es para que coincidan los ejes de la marca con los del mundo	 -->
-																<!--Primero ponemos las tranlaciones y rotaciones del ThandMesh1_pre a 0 y habrimos el componente tester
+																<!--Primero ponemos las tranlaciones y rotaciones del ThandMesh1_pre a 0 y abrimos el componente tester
 															Este devuelve la la diferencia que hay entre la marca vista or la cámara y el transform ThandMesh1.
 															Esta diferencia es la que hay que poner en ThandMesh1_pre
 															Luego desacemos la tranformación en orden inverso (rz, ry, rx) y cambiando los signos con los ThandMesh1_2 al ThandMesh1_5-->

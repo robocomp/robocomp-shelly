@@ -486,8 +486,18 @@ bool SpecificWorker::correctRotation()
 	QVec error_world = innerModel->transform6D("root", errorInv, "visual_hand"); 
 	qDebug()<<"Error T in WORLD: "<<QVec::vec3(error_world.x(), error_world.y(), error_world.z()).norm2();
 	qDebug()<<"Error R in WORLD: "<<QVec::vec3(error_world.rx(), error_world.ry(), error_world.rz()).norm2();
+	
+	Rot3D matriz_error_R(error_world.rx(), error_world.ry(), error_world.rz()); //matriz de rotacion
+	qDebug()<<"MATRIZ ERROR: "<< matriz_error_R;
+	QMat Matriz_tip_root	= innerModel->getRotationMatrixTo("root", rightHand->getTip());
+	qDebug()<<"MATRIZ TIP IN ROOT: "<<Matriz_tip_root;
+	QMat matrizResult = Matriz_tip_root * matriz_error_R;
+	matrizResult.print("MATRIZ FINAL");
+	QVec angulosFinales = matrizResult.extractAnglesR_min();
+	qDebug()<<"ANGULOS FINALES: "<<angulosFinales;
 
-	correccionFinal.inject(QVec::vec3(error_world.rx(), error_world.ry(), error_world.rz()),3);
+
+	correccionFinal.inject(QVec::vec3(angulosFinales[0], angulosFinales[1], angulosFinales[2]),3);
 // 	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
 	correctedTarget.setPose(correccionFinal);
 	
