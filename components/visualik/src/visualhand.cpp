@@ -144,12 +144,10 @@ QVec VisualHand::getError()
 QVec VisualHand::getErrorInverse()
 {
 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
-	const QVec error = im->transform6D("visual_hand", "target");
-// 	im->transform6D("root",        "target").print("target      pose_in_root");
-// 	im->transform6D("root",             tip).print("belief      pose_in_root");
-// 	im->transform6D("root",   "visual_hand").print("visual_hand pose_in_root");
 	
-	error.print("target desde visual");
+	const QVec error = im->transform6D("visual_hand", "target");
+
+	//error.print("target desde visual");
 	return error;
 }
 /**
