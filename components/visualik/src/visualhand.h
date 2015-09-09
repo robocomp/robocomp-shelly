@@ -21,8 +21,8 @@ class VisualHand
 {
 public:
 
-	VisualHand	(InnerModel *im_, QString tip_);
-	~VisualHand	();
+	VisualHand(InnerModel *im_, QString tip_);
+	~VisualHand();
 
 	
 	void setVisualPose				(RoboCompAprilTags::tag tag);
@@ -43,5 +43,6 @@ private:
 	InnerModel 			*im;
 	QString 			tip;
 	QVec 				errorInternal_Visual;
+	QVec 				errorInternalINV_Visual;
 	InnerModelTransform *nodeMarca, *nodeMarca2;
 };

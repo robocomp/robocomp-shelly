@@ -38,15 +38,15 @@ VisualHand::~VisualHand()
  */
 void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 {
-	const QString m1 = "marca-" + tip + "-segun-head";
-	const QString m2 = "marca-" + tip + "-segun-head2";
+	const QString SH1 = "marca-" + tip + "-segun-head";
+	const QString SH2 = "marca-" + tip + "-segun-head2";
 	
 	tagPose = QVec::vec6(tag.tx, tag.ty, tag.tz, tag.rx, tag.ry, tag.rz);
 	// Metemos en el InnerModel la marca vista por la RGBD:
-	im->updateTransformValues(m1, tag.tx, tag.ty, tag.tz,    tag.rx, tag.ry, tag.rz);
-	im->updateTransformValues(m2,      0,      0,      0,    -M_PI_2,       0,     0);
+	im->updateTransformValues(SH1, tag.tx, tag.ty, tag.tz,    tag.rx, tag.ry, tag.rz);
+	im->updateTransformValues(SH2,      0,      0,      0,    -M_PI_2,       0,     0);
 	//Pasamos del marca-segun-head al mundo:
-	QVec ret = im->transform6D("root", m2);
+	QVec ret = im->transform6D("root", SH2);
 	visualPose[0] = ret(0);
 	visualPose[1] = ret(1);
 	visualPose[2] = ret(2);
@@ -58,24 +58,19 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 	gettimeofday(lastUpdate, NULL);
 	
 	// Calculo el error de traslacion:
-	const QVec errorInv = im->transform6D(tip, "visual_hand");
-	QVec errorInvP      = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
-	QVec errorT         = im->getRotationMatrixTo("root", tip)*errorInvP;
-	//TODO Calculo del error de rotacion:
-	QMat Mvisual_tip= im->getRotationMatrixTo(tip, "visual_hand");
-	QMat Mtip_root	= im->getRotationMatrixTo("root", tip);
-	QVec Avisual_tip= Mvisual_tip.extractAnglesR_min();
-	QVec R1			= Mtip_root * QVec::vec3(Avisual_tip[0], 0, 0);
-	QVec R2			= Mtip_root * QVec::vec3(0, Avisual_tip[1], 0);
-	QVec R3			= Mtip_root * QVec::vec3(0, 0, Avisual_tip[2]);
-	Rot3D M1(R1[0], R1[1],R1[2]);
-	Rot3D M2(R2[0], R2[1],R2[2]);
-	Rot3D M3(R3[0], R3[1],R3[2]);
-	QMat Mfinal		=(M1*M2)*M3;
-	QVec errorR 	= Mfinal.extractAnglesR_min();
+	const QVec errorT = im->transform(tip, "visual_hand");
+
+	// Calculo del error de rotacion:
+	QMat error_from_tip = im->getRotationMatrixTo(tip, "visual_hand");
+
 	//Error total
-	errorInternal_Visual.inject(errorT,0);
-	errorInternal_Visual.inject(errorR,3);
+	errorInternal_Visual.inject(errorT, 0);
+	errorInternal_Visual.inject(error_from_tip.extractAnglesR_min(),3);
+
+	errorInternalINV_Visual.inject(-errorT, 0);
+	errorInternalINV_Visual.inject(error_from_tip.invert().extractAnglesR_min(),3);
+	
+	error_from_tip.invert().extractAnglesR_min().print("inv err R");
 }
 /**
 * \brief Updates the hand's possition according to direct kinematics.
@@ -133,8 +128,9 @@ double VisualHand::getSecondsElapsed()
 */
 QVec VisualHand::getError()
 {
-	const QVec error = im->transform6D("target", "visual_hand");
-	return error;
+// 	const QVec error = im->transform6D("target", "visual_hand");
+// 	return error;
+	return errorInternal_Visual;
 }
 /**
 * \brief Computes the inverse of the error from the visual position to a target position
@@ -143,14 +139,15 @@ QVec VisualHand::getError()
 */
 QVec VisualHand::getErrorInverse()
 {
-	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
-	const QVec error = im->transform6D("visual_hand", "target");
+// 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
+// 	const QVec error = im->transform6D("visual_hand", "target");
 // 	im->transform6D("root",        "target").print("target      pose_in_root");
 // 	im->transform6D("root",             tip).print("belief      pose_in_root");
 // 	im->transform6D("root",   "visual_hand").print("visual_hand pose_in_root");
-	
-	error.print("target desde visual");
-	return error;
+// 	error.print("target desde visual");
+// 	return error;
+	return errorInternalINV_Visual;
+
 }
 /**
 * \brief Metodo GET VISUAL POSE
@@ -162,6 +159,7 @@ QVec VisualHand::getVisualPose()
 {
 	return visualPose;
 }
+
 /**
 * \brief Metodo GET INTERNAL POSE
 * Devuelve las coordenadas de traslacion y de orientacion de la marca que el robot 
@@ -173,6 +171,7 @@ QVec VisualHand::getInternalPose()
 	QVec internalPose = im->transform6D("root", tip);
 	return internalPose;
 }
+
 /**
 * \brief returns the name of the hand's tip.
 * @return QString tip
@@ -181,3 +180,4 @@ QString VisualHand::getTip()
 { 
 	return tip; 
 }
+

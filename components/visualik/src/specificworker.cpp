@@ -474,38 +474,29 @@ bool SpecificWorker::correctRotation()
 		return true;
 	}
 
-	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
-	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
+	QVec errorInvP = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.5);
+	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
  
-	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
+	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
 	
-	
-	// ROTACION: 
-	QVec error_world = innerModel->transform6D("root", errorInv, "visual_hand"); 
-	qDebug()<<"Error T in WORLD: "<<QVec::vec3(error_world.x(), error_world.y(), error_world.z()).norm2();
-	qDebug()<<"Error R in WORLD: "<<QVec::vec3(error_world.rx(), error_world.ry(), error_world.rz()).norm2();
-	
-	Rot3D matriz_error_R(error_world.rx(), error_world.ry(), error_world.rz()); //matriz de rotacion
-	qDebug()<<"MATRIZ ERROR: "<< matriz_error_R;
-	QMat Matriz_tip_root	= innerModel->getRotationMatrixTo("root", rightHand->getTip());
-	qDebug()<<"MATRIZ TIP IN ROOT: "<<Matriz_tip_root;
-	QMat matrizResult = Matriz_tip_root * matriz_error_R;
-	matrizResult.print("MATRIZ FINAL");
-	QVec angulosFinales = matrizResult.extractAnglesR_min();
-	qDebug()<<"ANGULOS FINALES: "<<angulosFinales;
+	//Pasamos los angulos a matriz de rotacion
+	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz()).invert();
+	// multiplicamos la matriz del tip en el root por la matriz generada antes
+	//extraemos los angulos de la nueva matriz y esos son los angulas ya corregidos
+	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", rightHand->getTip())*rotErrorInv).extractAnglesR_min();
 
 
-	correccionFinal.inject(QVec::vec3(angulosFinales[0], angulosFinales[1], angulosFinales[2]),3);
-// 	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
+	correccionFinal.inject(QVec::vec3(angulosFinales(0), angulosFinales(1), angulosFinales(2)), 3);
+
 	correctedTarget.setPose(correccionFinal);
 	
 	
-	qDebug()<<"VISUAL POSE: "<<rightHand->getVisualPose();
-	qDebug()<<"INTERNAL POSE: "<<rightHand->getInternalPose();
-	qDebug()<<"ERROR INVERSE: "<< errorInv;
-	qDebug()<<"CORRECCION: "<< correccionFinal;
+	rightHand->getVisualPose().print("VISUAL POSE: ");
+	rightHand->getInternalPose().print("INTERNAL POSE: ");
+	errorInv.print("ERROR INVERSE: ");
+	correccionFinal.print("CORRECCION: ");
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
