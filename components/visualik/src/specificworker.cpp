@@ -439,6 +439,7 @@ void SpecificWorker::storeTargetCorrection()
  */
 bool SpecificWorker::correctRotation()
 {
+	qDebug()<<"\n\n\n-------------------------";
 	updateAll();
 	static float umbralMaxTime = 25, umbralMinTime = 3;
 	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.2;
@@ -456,17 +457,17 @@ bool SpecificWorker::correctRotation()
 	{
 		abortCorrection = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
-		qDebug()<<"Abort rotation: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+		qDebug()<<"Abort rotation: traslacion"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<"  rotacion: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		printXXX(errorInv);
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return false;
 	}
-	// Si el error es miserable no hacemos nada y acabamos la corrección. Para hacer la norma lo pasamos a vec6
+	// Si el error es miserable no hacemos nada y acabamos la corrección.
 	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+		qDebug()<<"done!traslacion"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<"  rotacion: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
 		printXXX(errorInv);
 		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
@@ -480,6 +481,7 @@ bool SpecificWorker::correctRotation()
 	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
+<<<<<<< HEAD
 	
 	//Pasamos los angulos a matriz de rotacion
 	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz()).invert();
@@ -497,6 +499,25 @@ bool SpecificWorker::correctRotation()
 	rightHand->getInternalPose().print("INTERNAL POSE: ");
 	errorInv.print("ERROR INVERSE: ");
 	correccionFinal.print("CORRECCION: ");
+=======
+		
+	// ROTACION: 
+// 	Rot3D matrizR_error (errorInv(3), errorInv(4), errorInv(5));
+// 	QMat  matrizTip_root = innerModel->getRotationMatrixTo("root", "visual_hand");
+// 	QMat  matrizRotacionFinal =  matrizTip_root * matrizR_error;
+// 	QVec angulosFinales = matrizRotacionFinal.extractAnglesR_min();
+// 	correccionFinal.inject(QVec::vec3(angulosFinales(0), angulosFinales(1), angulosFinales(2)),3);
+	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
+	correctedTarget.setPose(correccionFinal);
+	
+	
+	qDebug()<<"VISUAL POSE: "<<rightHand->getVisualPose();
+	qDebug()<<"INTERNAL POSE: "<<rightHand->getInternalPose();
+	qDebug()<<"ERROR INVERSE: "<< errorInv;
+	qDebug()<<"ERROR T: "<< QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+	qDebug()<<"ERROR R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+	qDebug()<<"CORRECCION: "<< correccionFinal;
+>>>>>>> 86fa073abbfe5a190a0cf1d2df1797cb0d3cd062
 
 	//Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
@@ -579,7 +600,93 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 
 void SpecificWorker::goYESButton()
 {
-	qDebug()<<"GOOOOOOOOOOO";
-	goMotorsGO = true;
+	//goMotorsGO = true;
+	qDebug() << "\n---------------------------------------------------------------";
+	qDebug()<<"CALIBRATE!!!!!!!!!!!!!!";
+	
+	// Esto es sólo para mostrar la posición del tip vista desde la cámara y desde el innermodel expresadas en el sistema de referencia del mundo
+	QVec grabInWorld = innerModel->transform6D("root", rightHand->getTip()); // Con traslaciones y rotaciones.
+	qDebug()<<"internal TIP in root: "<<grabInWorld;
+	QVec visualHandInWorld = innerModel->transform6D("root","visual_hand");
+	qDebug() << "VISUAL_HAND en el mundo vista desde la camara" << visualHandInWorld;
+	qDebug() << "Diferencia" <<  visualHandInWorld - grabInWorld;
+	
+	
+	// Calculamos el error de la marca
+	// Ponemos la marca vista desde la cámara en el sistema de coordenadas de la mano (TIP), si no hay error debería ser todo cero
+	QVec visualMarcaInHandTip = innerModel->transform6D(rightHand->getTip(), "visual_hand");
+	qDebug()<<" Visual in Tip: "<<visualMarcaInHandTip;
+	QVec visualMarcaTInHandTip=QVec::vec3(visualMarcaInHandTip.x(), visualMarcaInHandTip.y(), visualMarcaInHandTip.z());
+
+	// Cogemos la matriz de rotación de TIP (marca en la mano) con respecto al padre (ThandMesh2_pre) para que las nuevas rotaciones y translaciones que hemos calculado (visualMarcaTInHandTip) sean añadidas a las ya esistentes en tip
+	QMat visualMarcaRInHandMarcaMat = innerModel->getRotationMatrixTo(rightHand->getTip(),"visual_hand");
+	QMat handMarcaRInParentMat = innerModel->getRotationMatrixTo("ThandMesh2_pre",rightHand->getTip());
+	 		
+	// Multiplicamos las matrices de rotación para sumar la nueva rotación visualMarcaRInHandMarcaMat a la ya existente con respecto al padre
+	QMat finalHandMarcaRMat = handMarcaRInParentMat * visualMarcaRInHandMarcaMat;
+	QVec finalHandMarcaR = finalHandMarcaRMat.extractAnglesR_min();
+
+	// Pasamos también las translaciones nuevas (visualMarcaTInHandTip) al padre y las sumamos con las existentes
+	QVec handMarcaTInParent = innerModel->transform("ThandMesh2_pre", QVec::zeros(3), rightHand->getTip());
+	QVec finalHandMarcaT = handMarcaTInParent + (handMarcaRInParentMat* visualMarcaTInHandTip);
+
+	// Esto es sólo para mostar como está el TIP respecto al padre antes de las modificaciones
+	QVec inicialHandMarca(6);
+	inicialHandMarca.inject(handMarcaTInParent,0);
+	inicialHandMarca.inject(handMarcaRInParentMat.extractAnglesR_min(),3);	
+	qDebug() << "Posicion inicial del TIP respecto al padre" << inicialHandMarca;
+
+	// Creamos el vector final con las rotaciones y translaciones del TIP con respecto al padre
+	QVec finalHandMarca(6);
+	finalHandMarca.inject(finalHandMarcaT,0);
+	finalHandMarca.inject(finalHandMarcaR,3);
+
+	qDebug() << "Posicion final corregida del TIP respecto al padre" << finalHandMarca;
+
+	//Actualizamos el transform de la marca en la mano (ThandMesh1) con las rotaciones y translaciones calculadas
+	mutex->lock();
+		innerModel->updateTransformValues(rightHand->getTip(),finalHandMarca.x(), finalHandMarca.y(), finalHandMarca.z(), finalHandMarca.rx(), finalHandMarca.ry(), finalHandMarca.rz());	
+	mutex->unlock();
+	
+	
+	//Escribimos por pantalla como está el grab en el mundo despues de hacer las modificaciones
+	grabInWorld = innerModel->transform6D("root", rightHand->getTip());
+	qDebug() << "Grab en el mundo despues de modificar" << grabInWorld;
+		
+	qDebug() << "--------------------------------------------\n";
+	
+	//Actualizamos el inermodel del Bik con los datos del inermodel del tester
+	// ALERT: PREGUNTAR A LUIS COMO PASAMOS EL CAMBIO A LA IK Y A LA IKG
+	innerModel->updateTranslationValues(rightHand->getTip(), finalHandMarca.x(), finalHandMarca.y(), finalHandMarca.z());
+// 	
+	
+	//We send now to inermodel BIK the new endEffector pose
+// 	try 
+// 	{
+// 		RoboCompBodyInverseKinematics::Pose6D pose;
+// 		pose.x = finalHandMarca.x();
+// 		pose.y = finalHandMarca.y();
+// 		pose.z = finalHandMarca.z();
+// 		pose.rx = finalHandMarca.rx();
+// 		pose.ry = finalHandMarca.ry();
+// 		pose.rz = finalHandMarca.rz();
+// 		inversekinematics_proxy->setTip("LEFTARM", "ThandMesh1", pose);
+// 		
+// 		qDebug() << __FUNCTION__ << visualMarcaInHandMarca;
+// 		
+// //		bodyinversekinematics_proxy->setTargetPose6D("LEFTARM", pose, pesos,10);
+// 		
+// 			
+// 	} 
+// 	catch (const Ice::Exception &ex) 
+// 	{
+// 		std::cout << ex << endl;
+// 	}
+	
+	
+	
+	
+	//Eliminamos el nodo creado
+	
 }
 
