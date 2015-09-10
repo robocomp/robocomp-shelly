@@ -471,9 +471,7 @@ bool SpecificWorker::correctRotation()
 		rightHandVisualPose = rightHand->getVisualPose();
 		rightHandInternalPose = rightHand->getInternalPose();
 	}
-	
-	
-	errorInv.print("sssssssssss");
+
 	if (currentTarget.getRunTime()>umbralMaxTime)
 	{
 		abortCorrection = true;

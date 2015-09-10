@@ -15,38 +15,78 @@ using namespace std;
  * 		-lastUpdate: last time that the visual pose was updated.
  * 		-im:		 InnerModel
  * 		-errorInternal_Visual: error between the visual pose and the internal pose.
- * 		-nodeMarca & nodeMarca2: auxiliar nodes 
+ * 		-nodeMarca & nodeMarca2: auxiliar nodes
  **/
 class VisualHand
 {
 public:
-
+	/**
+	* \brief The VisualHand constructor must receive a pointer to an InnerModel object and the name of the arm's tip.
+	* @param im_ the pointer to the main innermodel
+	* @param tip_ the name of the end effector of the hand
+	*/
 	VisualHand(InnerModel *im_, QString tip_);
 	~VisualHand();
 
-	
+	/**
+	* \brief Updates the hand's possition according to an April tag and the time.
+	* Also, it calculates the error between the visualHand and the internal hand
+	* @param tag the pose of the aprilTag
+	*/
 	void setVisualPose             (RoboCompAprilTags::tag tag);
-	void setVisualPose             (const QVec pose_);
+	/**
+	* \brief Updates the pose of the visual tag with the internal error calculated before, between the visual tag and the internal tip.
+	* ALERT HAY QUE PROBARLO
+	*/ 
 	void setVisualPosewithInternal ();
 
 	/**
-	* \brief Metodo SECONDS ELAPSED
-	* Devuelve los segundos que han pasado desde que se actualizo la pose visual por ultima vez.
-	* @return double segundos
+	* \brief Returns the elapsed time in seconds between the last time that the visual pose was calculated and the current time.
+	* @return double seconds
 	*/
 	double getSecondsElapsed         ();
 
-	void    updateTargetError();
-	QVec    getTargetError           ();
-	QVec    getTargetErrorInverse    ();
-	
+	/** \brief updates the direct and inverse errors between the target and the visual pose. */ 
+	void    updateTargetError      ();
+	/** 
+	 * \brief returns the direct error between the target and the visual pose
+	 * @return QVec (6) direct error
+	 */
+	QVec    getTargetError         ();
+	/** 
+	 * \brief returns the inverse error between the target and the visual pose
+	 * @return QVec (6) inverse error
+	 */
+	QVec    getTargetErrorInverse  ();
+
+	/** \brief updates the direct and inverse errors between the internal tip and the visual pose. */ 	
 	void    updateInternalError();
+	/** 
+	 * \brief returns the direct error between the internal tip and the visual pose
+	 * @return QVec (6) direct error
+	 */
 	QVec    getInternalError         ();
+	/** 
+	 * \brief returns the inverse error between the internal tip and the visual pose
+	 * @return QVec (6) inverse error
+	 */
 	QVec    getInternalErrorInverse  ();
 
 
+	/** 
+	 * \brief returns the visual pose
+	 * @return QVec (6) visual pose
+	 */
 	QVec    getVisualPose      ();
+	/** 
+	 * \brief returns the internal pose of the tip
+	 * @return QVec (6) internal pose
+	 */
 	QVec    getInternalPose    ();
+	/**
+	* \brief returns the name of the hand's tip.
+	* @return QString tip
+	*/ 
 	QString getTip             ();
 
 private:

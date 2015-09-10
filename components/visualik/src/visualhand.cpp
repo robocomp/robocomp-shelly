@@ -2,9 +2,7 @@
 
 #include <qmat/qrtmat.h>
 #include <time.h>
-/**
-* \brief The VisualHand constructor must receive a pointer to an InnerModel object and the name of the arm's tip.
-*/
+
 VisualHand::VisualHand(InnerModel *im_, QString tip_)
 {
 	im                      = im_;
@@ -27,18 +25,12 @@ VisualHand::VisualHand(InnerModel *im_, QString tip_)
 	}
 }
 
-/**
-* \brief Destructor.
-*/
+
 VisualHand::~VisualHand()
 {
 	delete lastUpdate;
 }
 
-/**
- * \brief Updates the hand's possition according to an April tag and the time.
- * Also, it calculates the error between the visualHand and the internal hand
- */
 void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 {
 	// tagPose as seen by apriltagscomp (rotation zero faces the camera)
@@ -58,16 +50,27 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 
 	updateInternalError();
 	updateTargetError();
-	
-// 	getInternalErrorInverse().print("invErr");
 }
 
+
+void VisualHand::setVisualPosewithInternal()
+{
+	qDebug()<<"La camara no ve la marca...";
+	
+	QVec aux             = im->transform6D("root", tip);
+	QVec rotCorregida    = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
+	QVec poseCorregida   = im->transform("root", QVec::zeros(3), tip) + QVec::vec3(internalError.x(), internalError.y(), internalError.z());
+	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
+	correccionFinal.inject(poseCorregida,0);
+	correccionFinal.inject(rotCorregida,3); 	//ALERT Diremos que la rotacion es la misma que el tip CAMBIAR!!!!
+
+	visualPose = correccionFinal;
+}
 
 void VisualHand::updateTargetError()
 {
 	getErrors("visual_hand", "target", targetError, targetErrorINV);
 }
-
 
 void VisualHand::updateInternalError()
 {
@@ -85,33 +88,6 @@ void VisualHand::getErrors(QString visual, QString source, QVec &normal, QVec &i
 	normal.inject(error_from_tip.extractAnglesR_min(),3);
 	inverse.inject(-errorT, 0);
 	inverse.inject(error_from_tip.invert().extractAnglesR_min(),3);
-}
-
-
-/**
-* \brief Updates the hand's possition according to direct kinematics.
-*/
-void VisualHand::setVisualPose(const QVec pose_)
-{
-	visualPose = pose_;
-}
-/**
- * \brief Actualiza la posicion de la marca visual con la posicion de la marca interna 
- * y el error calculado que existe entre la marca vista y la marca interna. Calcula la
- * pose (trasladandola) y la rotacion la asimila como la rotacion del tip en el mundo.
- */ 
-void VisualHand::setVisualPosewithInternal()
-{
-	qDebug()<<"La camara no ve la marca...";
-	
-	QVec aux           = im->transform6D("root", tip);
-	QVec rotCorregida  = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
-	QVec poseCorregida = im->transform("root", QVec::zeros(3), tip) + QVec::vec3(internalError.x(), internalError.y(), internalError.z());
-	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
-	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(rotCorregida,3); 	//Diremos que la rotacion es la misma que el tip
-
-	visualPose = correccionFinal;
 }
 
 
@@ -151,34 +127,18 @@ QVec VisualHand::getInternalErrorInverse()
 	return internalErrorINV;
 }
 
-
-/**
-* \brief Metodo GET VISUAL POSE
-* Devuelve las coordenadas de traslacion y de orientacion de la marca vista
-* por la camara del robot.
-* @return QVEC
-*/
 QVec VisualHand::getVisualPose()
 {
 	return visualPose;
 }
 
-/**
-* \brief Metodo GET INTERNAL POSE
-* Devuelve las coordenadas de traslacion y de orientacion de la marca que el robot 
-* siente internamente (lo que el cree)
-* @return QVEC
-*/
 QVec VisualHand::getInternalPose()
 {
 	QVec internalPose = im->transform6D("root", tip);
 	return internalPose;
 }
 
-/**
-* \brief returns the name of the hand's tip.
-* @return QString tip
-*/ 
+
 QString VisualHand::getTip() 
 { 
 	return tip; 
