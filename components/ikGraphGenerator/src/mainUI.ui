@@ -386,16 +386,9 @@ rotation</string>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
              <item>
-              <widget class="QPushButton" name="goVIKButton">
-               <property name="text">
-                <string>go vik</string>
-               </property>
-              </widget>
-             </item>
-             <item>
               <widget class="QPushButton" name="goIKButton">
                <property name="text">
-                <string>go ik</string>
+                <string>go target</string>
                </property>
               </widget>
              </item>

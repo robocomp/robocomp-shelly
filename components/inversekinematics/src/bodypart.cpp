@@ -71,6 +71,7 @@ QQueue<Target> &BodyPart::getTargetList()
  */ 
 void BodyPart::addTargetToList(Target &target)
 {
+	//NOTE Cambiamos aqui el identificador del target
 	target.setTargetIdentifier(counter);
 	targetList.enqueue(target);
 	counter++;
@@ -91,7 +92,5 @@ void BodyPart::reset()
 {
 	for(int i=0; i<targetList.size(); i++)
 		targetList.dequeue();
-	
-	counter = 0;
 }
 

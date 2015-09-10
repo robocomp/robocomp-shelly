@@ -63,8 +63,6 @@ Q_OBJECT
 
 public slots:
 	void    compute ();
-	//void 	on_goButton_clicked();
-	void goYESButton();
 
 private:
 	enum class State {IDLE, INIT_BIK, WAIT_BIK, CORRECT_TRASLATION, CORRECT_ROTATION}; // ESTADOS POR LOS QUE PASA LA MAQUINA DE ESTADOS DEL VISUAL BIK:
@@ -78,6 +76,7 @@ private:
 	QQueue<Target>   nextTargets;
 	QQueue<Target>   solvedList;          // TARGETS RESUELTOS
 	QMutex           *mutexSolved;        // MUTEX PARA ZONAS CRITICAS
+	QMutex           *mutexRightHand;        // MUTEX PARA ZONAS CRITICAS
 	InnerModel       *innerModel;         // EL MODELO INTERNO DEL ROBOT
 	ofstream         file;                // EL FICHERO DONDE GUARDAR DATOS
 	bool             abortCorrection;     // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TARGET
@@ -96,7 +95,7 @@ private:
 	void storeTargetCorrection ();
 	//bool correctTraslation   ();
 	bool correctRotation      ();
-	void updateAll            ();
+	void updateInnerModel_motors_target_and_visual();
 	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
 	void printXXX             (QVec errorInv/*, bool camaraNoVista*/);
 

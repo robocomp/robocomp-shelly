@@ -66,12 +66,12 @@ bool InversedKinematic::deleteTarget()
 	QVec errorT         = QVec::vec3(error.x(), error.y(), error.z());
 	QVec errorR         = QVec::vec3(error.rx(), error.ry(), error.rz());
 
-	qDebug()<<"-----------------------------------------------------------------";
-	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
-	qDebug()<<"Repeticiones: "<<repetitions;
-	qDebug()<<"Error T: "<<errorT.norm2();
-	qDebug()<<"Error R: "<<errorR.norm2();
-	qDebug()<<"-----------------------------------------------------------------";
+// 	qDebug()<<"-----------------------------------------------------------------";
+// 	qDebug()<<"Milliseconds computed: "<<bodypart->getTargetList().head().getTargetTimeExecution()*1000;
+// 	qDebug()<<"Repeticiones: "<<repetitions;
+// 	qDebug()<<"Error T: "<<errorT.norm2();
+// 	qDebug()<<"Error R: "<<errorR.norm2();
+// 	qDebug()<<"-----------------------------------------------------------------";
 
 	QVec restaAngles (checkMotors().size());
 	for(int i=0; i<bodypart->getTargetList().head().getTargetFinalAngles().size(); i++)
@@ -399,7 +399,6 @@ bool InversedKinematic::outLimits(QVec& angles, QVec& motors)
 
 			if(angles[i]<limiteMin) angles[i] = limiteMin;
 			if(angles[i]>limiteMax) angles[i] = limiteMax;
-
 			//qDebug()<< __FUNCTION__ << "MIN: "<<limiteMin<<" MAX: "<<limiteMax<<" ANGLE: "<<angles[i]<<" MOTORES: "<<bodypart->getMotorList()[i];
 		}
 	}

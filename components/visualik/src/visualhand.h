@@ -25,24 +25,41 @@ public:
 	~VisualHand();
 
 	
-	void setVisualPose				(RoboCompAprilTags::tag tag);
-	void setVisualPose				(const QVec pose_);
-	void setVisualPosewithInternal	();
+	void setVisualPose             (RoboCompAprilTags::tag tag);
+	void setVisualPose             (const QVec pose_);
+	void setVisualPosewithInternal ();
+
+	/**
+	* \brief Metodo SECONDS ELAPSED
+	* Devuelve los segundos que han pasado desde que se actualizo la pose visual por ultima vez.
+	* @return double segundos
+	*/
+	double getSecondsElapsed         ();
+
+	void    updateTargetError();
+	QVec    getTargetError           ();
+	QVec    getTargetErrorInverse    ();
 	
-	double 	getSecondsElapsed	();
- 	QVec 	getError			();
-	QVec 	getErrorInverse		();
-	QVec 	getVisualPose		();
-	QVec 	getInternalPose		();
-	QString getTip				();
+	void    updateInternalError();
+	QVec    getInternalError         ();
+	QVec    getInternalErrorInverse  ();
+
+
+	QVec    getVisualPose      ();
+	QVec    getInternalPose    ();
+	QString getTip             ();
 
 private:
-	QVec 				visualPose;
-	QVec 				tagPose;
-	timeval 			*lastUpdate;
-	InnerModel 			*im;
-	QString 			tip;
-	QVec 				errorInternal_Visual;
-	QVec 				errorInternalINV_Visual;
+	void        getErrors(QString visual, QString source, QVec &normal, QVec &inverse);
+
+	QVec        visualPose;
+	QVec        tagPose;
+	timeval     *lastUpdate;
+	InnerModel  *im;
+	QString     tip;
+	QVec        internalError, internalErrorINV;
+	QVec        targetError, targetErrorINV;
 	InnerModelTransform *nodeMarca, *nodeMarca2;
 };
+
+
