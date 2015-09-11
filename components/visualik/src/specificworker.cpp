@@ -494,10 +494,10 @@ bool SpecificWorker::correctRotation()
 	}
 
 	// CORREGIR TRASLACION
-	QVec errorInvP = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.5);
+	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.5);
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
  
-	QVec poseCorregida = innerModel->transform("root", "target") + errorInvP_from_root;
+	QVec poseCorregida   = innerModel->transform("root", "target") + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
 	

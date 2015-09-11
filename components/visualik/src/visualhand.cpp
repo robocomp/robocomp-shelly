@@ -55,16 +55,31 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 
 void VisualHand::setVisualPosewithInternal()
 {
-	qDebug()<<"La camara no ve la marca...";
+	qDebug()<<"The camera is not seeing the April Tag!!";
 	
-	QVec aux             = im->transform6D("root", tip);
-	QVec rotCorregida    = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
-	QVec poseCorregida   = im->transform("root", QVec::zeros(3), tip) + QVec::vec3(internalError.x(), internalError.y(), internalError.z());
-	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
-	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(rotCorregida,3); 	//ALERT Diremos que la rotacion es la misma que el tip CAMBIAR!!!!
-
-	visualPose = correccionFinal;
+	// Correct TRASLATION: We add to the internal pose of the end effector (tip) the internal error between the tip and 
+	// the visual tag in order to correct the internal position.
+	QVec internalErrorINV_T = QVec::vec3(internalErrorINV.x(), internalErrorINV.y(), internalErrorINV.z());
+	QVec errorInv_root      = im->getRotationMatrixTo("root", "visual_hand") * internalErrorINV_T;
+	QVec correctedT         = im->transform("root", "visual_hand") + errorInv_root;
+	// Correct ROTATION: 
+	QMat rotErrorInv = Rot3D(internalErrorINV.rx(), internalErrorINV.ry(), internalErrorINV.rz());
+	QVec correctedR  = (im->getRotationMatrixTo("root", "visual_hand")*rotErrorInv.invert()).extractAnglesR_min();
+	
+	QVec finalCorrection = QVec::vec6(0,0,0,0,0,0);
+	finalCorrection.inject(correctedT,0);
+	finalCorrection.inject(correctedR,3);	
+	
+	visualPose = finalCorrection;
+	
+	//NOTE CODIGO ANTERIOR
+// 	QVec aux = im->transform6D("root", tip);
+// 	QVec rotCorregida    = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
+// 	QVec poseCorregida   = im->transform("root", QVec::zeros(3), tip) + QVec::vec3(internalError.x(), internalError.y(), internalError.z());
+// 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
+// 	correccionFinal.inject(poseCorregida,0);
+// 	correccionFinal.inject(rotCorregida,3); 	//ALERT Diremos que la rotacion es la misma que el tip CAMBIAR!!!!
+//	visualPose = correccionFinal;
 }
 
 void VisualHand::updateTargetError()
