@@ -53,7 +53,7 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 }
 
 
-void VisualHand::setVisualPosewithInternal()
+void VisualHand::setVisualPosewithInternalError()
 {
 	qDebug()<<"The camera is not seeing the April Tag!!";
 	

@@ -38,7 +38,7 @@ public:
 	* \brief Updates the pose of the visual tag with the internal error calculated before, between the visual tag and the internal tip.
 	* ALERT HAY QUE PROBARLO
 	*/ 
-	void setVisualPosewithInternal ();
+	void setVisualPosewithInternalError ();
 
 	/**
 	* \brief Returns the elapsed time in seconds between the last time that the visual pose was calculated and the current time.

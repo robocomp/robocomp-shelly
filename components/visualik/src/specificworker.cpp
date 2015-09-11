@@ -464,7 +464,7 @@ bool SpecificWorker::correctRotation()
 			qFatal("tag lost!");
 	// 		std::cout<<"La camara no ve la marca..."<<std::endl;
 	// 		timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
-	// 		rightHand->setVisualPosewithInternal();
+	// 		rightHand->setVisualPosewithInternalError();
 		}
 		// COMPROBAMOS EL ERROR:
 		errorInv = rightHand->getTargetErrorInverse(); //error: mano visualdesde el target
