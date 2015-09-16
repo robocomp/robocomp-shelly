@@ -448,9 +448,9 @@ bool SpecificWorker::correctRotation()
 // 	first = false;
 
 	qDebug()<<"\n\n\n-------------------------";
-	const float umbralMaxTime=25, umbralMinTime=3;
+	const float umbralMaxTime=250, umbralMinTime=3;
 	const float tagLostThresholdTime=1;
-	const float umbralErrorT=5.0, umbralErrorR=0.01;
+	const float umbralErrorT=10.0, umbralErrorR=0.1;
 
 
 	QString rightTip = rightHand->getTip();
