@@ -47,7 +47,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	secondTimer->start(1000);
 	connect(secondTimer, SIGNAL(timeout()), this, SLOT(setGeometry()));
 
-	set3DViewer();
+//	set3DViewer();
 
 	connect(quitButton,           SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
 	connect(broadcastModelButton, SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
@@ -134,20 +134,16 @@ void SpecificWorker::compute( )
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
 			//void QScrollArea::ensureVisible ( int x, int y, int xmargin = 50, int ymargin = 50 )
-			
-
- 			
 // 			qDebug()<<"***************************************************";
 // 			qDebug()<<"widgetSize"<<widgetSize;
 // 			qDebug()<<"***************************************************";
 // 			qDebug()<<"rcdraw1->getWindow()"<<rcdraw1->getWindow();
 		}
-		else if (tabWidget->currentIndex()==1 )
-		{
-			
-			graphViewer->update(worldModel);
-			graphViewer->animateStep();
-		}
+// 		else if (tabWidget->currentIndex()==1 )
+// 		{
+// 			graphViewer->update(worldModel);
+// 			graphViewer->animateStep();
+// 		}
 		else
 		{
 			targetDrawer->update(targetModel);
@@ -382,7 +378,7 @@ void SpecificWorker::resetClicked()
 	}
 }
 
-
+/*
 void SpecificWorker::set3DViewer()
 {
 // #if QT_VERSION >= 0x050000
@@ -397,10 +393,11 @@ void SpecificWorker::set3DViewer()
 	setGeometry();
 	graphViewer->show();
 }
+*/
 
 void SpecificWorker::setGeometry()
 {
-	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
+// 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
 }
 
 

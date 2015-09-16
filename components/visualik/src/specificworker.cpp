@@ -461,10 +461,9 @@ bool SpecificWorker::correctRotation()
 		updateInnerModel_motors_target_and_visual();
 		if (rightHand->getSecondsElapsed() > tagLostThresholdTime) // If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
 		{
-			qFatal("tag lost!");
-	// 		std::cout<<"La camara no ve la marca..."<<std::endl;
-	// 		timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
-	// 		rightHand->setVisualPosewithInternalError();
+			//qFatal("tag lost!");
+			timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
+			rightHand->setVisualPosewithInternalError();
 		}
 		// COMPROBAMOS EL ERROR:
 		errorInv = rightHand->getTargetErrorInverse(); //error: mano visualdesde el target
@@ -485,7 +484,6 @@ bool SpecificWorker::correctRotation()
 	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR and currentTarget.getRunTime()>umbralMinTime)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		qDebug()<<"done!";
 		errorInv.print("done with error INV");
 		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);

@@ -318,7 +318,7 @@ plan</string>
          <item>
           <widget class="QTabWidget" name="tabWidget">
            <property name="currentIndex">
-            <number>0</number>
+            <number>1</number>
            </property>
            <property name="movable">
             <bool>false</bool>
@@ -371,16 +371,6 @@ plan</string>
                 </property>
                </widget>
               </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="tab_2">
-            <attribute name="title">
-             <string>3D</string>
-            </attribute>
-            <layout class="QVBoxLayout" name="verticalLayout_4">
-             <item>
-              <widget class="QWidget" name="widget3D" native="true"/>
              </item>
             </layout>
            </widget>
