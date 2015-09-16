@@ -144,9 +144,10 @@ void SpecificWorker::compute( )
 // 			graphViewer->update(worldModel);
 // 			graphViewer->animateStep();
 // 		}
-		else
+		else if (tabWidget->currentIndex() == 1 )
 		{
 			targetDrawer->update(targetModel);
+			modelDrawer->update(worldModel);
 			modelDrawer->drawTable();
 			innerViewer->update();
 			osgView->autoResize();		

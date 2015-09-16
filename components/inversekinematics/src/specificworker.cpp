@@ -392,20 +392,20 @@ void SpecificWorker::goHome(const string &bodyPart)
  */
 void SpecificWorker::setJoint (const string &joint, const float angle, const float maxSpeed)
 {
-// 	try
-// 	{
-// 		RoboCompJointMotor::MotorGoalPosition nodo;
-// 		nodo.name = joint;
-// 		nodo.position = angle;      // posición en radianes
-// 		nodo.maxSpeed = maxSpeed;   // radianes por segundo
-// 		jointmotor_proxy->setPosition(nodo);
-// 	}
-// 	catch (const Ice::Exception &ex){
-// 		cout<< ex << "Exception moving " << joint << endl;
-// 		RoboCompInverseKinematics::IKException exep;
-// 		exep.text = "Not recognized joint: "+joint;
-// 		throw exep;
-// 	}
+	try
+	{
+		RoboCompJointMotor::MotorGoalPosition nodo;
+		nodo.name = joint;
+		nodo.position = angle;      // posición en radianes
+		nodo.maxSpeed = maxSpeed;   // radianes por segundo
+		jointmotor_proxy->setPosition(nodo);
+	}
+	catch (const Ice::Exception &ex){
+		cout<< ex << "Exception moving " << joint << endl;
+		RoboCompInverseKinematics::IKException exep;
+		exep.text = "Not recognized joint: "+joint;
+		throw exep;
+	}
 }
 /**
  * @brief Set the fingers of the right hand position so there is d mm between them
