@@ -207,7 +207,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	}
 
 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
-	qDebug()<<weights.x<<", "<<weights.y<<", "<<weights.z<<", "<<weights.rx<<", "<<weights.ry<<", "<<weights.rz;
+	qDebug()<<"PESOS: "<<weights.x<<", "<<weights.y<<", "<<weights.z<<", "<<weights.rx<<", "<<weights.ry<<", "<<weights.rz;
 	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
 	
 	if(weights_.x()<=0 and weights_.y()<=0 and weights_.z()<=0 and weights_.rx()<=0 and weights_.ry()<=0 and weights_.rz()<=0)
@@ -232,7 +232,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //Con rotacion o sin ella
 	
 	QMutexLocker locker(mutex);
-	bodyParts[partName].addTargetToList(newTarget_);
+	bodyParts[partName].addTargetToList(newTarget_); //cambia el identificador del target
 	return newTarget_.getTargetIdentifier(); //devolvemos con rotacion
 }
 
@@ -382,35 +382,8 @@ void SpecificWorker::stop(const string &bodyPart)
  */
 void SpecificWorker::goHome(const string &bodyPart)
 {
-	QString partName = QString::fromStdString(bodyPart);
-
-	if ( bodyParts.contains(partName)==false)
-	{
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
-		RoboCompInverseKinematics::IKException ex;
-		ex.text = "Not recognized body part: "+bodyPart;
-		throw ex;
-	}
-	qDebug() << "----------------------------------------";
-	qDebug() << "Go gome" << partName;
-	qDebug() << bodyParts[partName].getMotorList();
-
-	QStringList lmotors = bodyParts[partName].getMotorList();
-	for(int i=0; i<lmotors.size(); i++){
-		try {
-			RoboCompJointMotor::MotorGoalPosition nodo;
-			nodo.name = lmotors.at(i).toStdString();
-			nodo.position = innermodel->getJoint(lmotors.at(i))->home;
-			nodo.maxSpeed = 2; //radianes por segundo
-			mutex->lock();
-				jointmotor_proxy->setPosition(nodo);
-			mutex->unlock();
-		} catch (const Ice::Exception &ex) {
-			cout<<"Excepción en mover Brazo: "<<ex<<endl;
-			throw ex;
-		}
-	}
 }
+
 /**
  * \brief this method changes the position of a determina joint.
  * @param joint the joint to change
@@ -442,35 +415,35 @@ void SpecificWorker::setJoint (const string &joint, const float angle, const flo
  */
 void SpecificWorker::setFingers(const float d)
 {
-	qDebug() << __FUNCTION__;
-
-	float len = innermodel->transform("rightFinger1", QVec::zeros(3), "finger_right_1_1_tip").norm2();
-	float D = (d/1000)/2.;  // half distnace in meters
-	float s = D/len;
-	if( s > 1) s = 1;
-	if( s < -1) s = -1;
-	float ang = asin(s);    // 1D inverse kinematics
-	QVec angles = QVec::vec2( ang - 1, -ang + 1);
-
-	/// NOTE!!! DO THAT WITH innerModel->getNode("rightFinger1")->min
-	QStringList joints;
-	joints << "rightFinger1" << "rightFinger2";
-	for(int i=0; i<joints.size(); i++)
-	{
-		try
-			{
-				RoboCompJointMotor::MotorGoalPosition nodo;
-				nodo.name = joints.at(i).toStdString();
-				nodo.position = angles[i]; // posición en radianes
-				nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
-				jointmotor_proxy->setPosition(nodo);
-			} catch (const Ice::Exception &ex) {
-				cout<<"EXECEPTION IN setFingers"<<ex<<endl;
-				RoboCompInverseKinematics::IKException exep;
-				exep.text = "Not recognized joint: "+joints.at(i).toStdString();
-				throw exep;
-			}
-	}
+// 	qDebug() << __FUNCTION__;
+// 
+// 	float len = innermodel->transform("rightFinger1", QVec::zeros(3), "finger_right_1_1_tip").norm2();
+// 	float D = (d/1000)/2.;  // half distnace in meters
+// 	float s = D/len;
+// 	if( s > 1) s = 1;
+// 	if( s < -1) s = -1;
+// 	float ang = asin(s);    // 1D inverse kinematics
+// 	QVec angles = QVec::vec2( ang - 1, -ang + 1);
+// 
+// 	/// NOTE!!! DO THAT WITH innerModel->getNode("rightFinger1")->min
+// 	QStringList joints;
+// 	joints << "rightFinger1" << "rightFinger2";
+// 	for(int i=0; i<joints.size(); i++)
+// 	{
+// 		try
+// 			{
+// 				RoboCompJointMotor::MotorGoalPosition nodo;
+// 				nodo.name = joints.at(i).toStdString();
+// 				nodo.position = angles[i]; // posición en radianes
+// 				nodo.maxSpeed = 0.5; //radianes por segundo TODO Bajar velocidad.
+// 				jointmotor_proxy->setPosition(nodo);
+// 			} catch (const Ice::Exception &ex) {
+// 				cout<<"EXECEPTION IN setFingers"<<ex<<endl;
+// 				RoboCompInverseKinematics::IKException exep;
+// 				exep.text = "Not recognized joint: "+joints.at(i).toStdString();
+// 				throw exep;
+// 			}
+// 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -653,3 +626,4 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 // 	}
 // 	sleep(1);
 // }
+

@@ -107,9 +107,6 @@ class MyShellyThread(QtCore.QThread):
 				self.resetNUC2()
 				statusN1 = "on"
 
-
-
-
 	def loadTemp(self):
 		global statusN1, statusN2
 		if statusN1 == "on" or statusN2 == "on":
@@ -319,10 +316,79 @@ class MyShellyThread(QtCore.QThread):
 
 
 ####################################################################################################
+class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
+	def __init__(self, parent):
+		super(myGraphicsSceneJoyStick,self).__init__() 
+		self.move = False
+		self.press = False
+		self.vaca = None
+		self.vacaW = None
+		self.vacaH = None
+		self.parent = parent
+		self.timerJoystick = QtCore.QTime.currentTime()
+
+		self.setSceneRect(-100,-100,200,200)
+		# Regla de 3. Para extrapolar el valor de la escena que va de 0 a 100 a los de 0 a 1024 del pwm
+		# El negativo es porque en el scene el punto el 0,1 es en el centro hacia abajo.
+		self.vAdvanceRobot = -800/100
+		# No le pongo el negativo porque izquierda y derecha es correcto.
+		self.vRotationRobot = .1#10/100
+
+		posX = 0
+		posY = 0
+		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+		self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
+		self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+		self.vacaW = self.addLine(self.crosslineW)
+		self.vacaH = self.addLine(self.crosslineH)
+		self.update()
+		self.parent.setRobotSpeed(0,0)
+ 
+ 
+	def mousePressAndMoveEvent(self,event):
+		if self.press and self.move:
+			self.removeItem(self.vaca)
+			self.removeItem(self.vacaW)
+			self.removeItem(self.vacaH)
+			posX = event.scenePos().x()
+			posY = event.scenePos().y()
+			self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+			self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
+			self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+			self.vacaW = self.addLine(self.crosslineW)
+			self.vacaH = self.addLine(self.crosslineH)
+			self.update()
+			if self.timerJoystick.elapsed() > 500:
+				print "Moving--> Advance: ", posY*self.vAdvanceRobot, " <--> Rotation: ", posX*self.vRotationRobot
+				self.parent.setRobotSpeed(posY*self.vAdvanceRobot,posX*self.vRotationRobot)
+				self.timerJoystick.restart()
+  
+	def mousePressEvent(self,event):
+		self.press = True
+		self.mousePressAndMoveEvent(event)
+
+	def mouseMoveEvent(self,event):
+		self.move = True
+		self.mousePressAndMoveEvent(event)
+
+	def mouseReleaseEvent(self,event):
+		self.press = False
+		self.move = False
+
+		self.removeItem(self.vaca)
+		self.removeItem(self.vacaW)
+		self.removeItem(self.vacaH)
+		posX = 0
+		posY = 0
+		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+		self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
+		self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+		self.vacaW = self.addLine(self.crosslineW)
+		self.vacaH = self.addLine(self.crosslineH)
+		self.update()
+		self.parent.setRobotSpeed(0,0)
 ####################################################################################################
 ####################################################################################################
-
-
 class SpecificWorker(GenericWorker):
 	def __init__(self, proxy_map):
 		super(SpecificWorker, self).__init__(proxy_map)
@@ -339,7 +405,11 @@ class SpecificWorker(GenericWorker):
 		self.ui.shutdown2Button.clicked.connect(self.putOffN2)
 		self.ui.reset1Button.clicked.connect(self.putRebootN1)
 		self.ui.reset2Button.clicked.connect(self.putRebootN2)
-	
+
+		self.sceneJoyStick = myGraphicsSceneJoyStick(self)
+		self.vaca = self.ui.graphicsViewJoyStick.setScene(self.sceneJoyStick)
+		self.sceneJoyStick.update()
+		
 		# variables for work with ssh
 		#self.ssh = None
 		#self.transport = None
@@ -361,6 +431,10 @@ class SpecificWorker(GenericWorker):
 		except:
 			print ("can't open file ~/.rcmemote")
 
+
+	def setRobotSpeed(self,vAdvance,vRotation):	  
+		self.omnirobot_proxy.setSpeedBase(vAdvance,vRotation,0)
+		return True
 
 	def setParams(self, params):
 		return True

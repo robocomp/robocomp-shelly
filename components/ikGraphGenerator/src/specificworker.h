@@ -95,7 +95,6 @@ public slots:
 	void compute     ();
 
 	void goIK        ();
-	void goVIK       ();
 	void goHome      ();
 
 private:
@@ -115,7 +114,7 @@ private:
 	bool goAndWait        (float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
 	void goAndWaitDirect  (const MotorGoalPositionList &mpl);
 	void updateInnerModel ();
-	void finalStep        (TargetState stt);
+	void waitForMotorsToStop       ();
 
 	////////////////////////////////////////
 	bool                    READY;

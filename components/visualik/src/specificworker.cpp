@@ -34,6 +34,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	contador           = 0;
 	timeSinMarca       = 0.0;
 	mutexSolved        = new QMutex(QMutex::Recursive);
+	mutexRightHand     = new QMutex(QMutex::Recursive);
 	firstCorrection    = QVec::zeros(3);
 	
 #ifdef USE_QTGUI
@@ -64,13 +65,18 @@ SpecificWorker::~SpecificWorker()
  */
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	qDebug()<<"YEAAAAAAAAH: 11111";
+
 	try
 	{
 		RoboCompCommonBehavior::Parameter par = params.at("InnerModel") ;
 		if( QFile(QString::fromStdString(par.value)).exists() == true)
 		{
+			qDebug()<<"YEAAAAAAAAH: 22222";
+
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
+			qDebug()<<"YEAAAAAAAAH: 333333"<<QString::fromStdString(par.value);
 		}
 		else
 			qFatal("Exiting now.");
@@ -128,7 +134,7 @@ void SpecificWorker::compute()
 			osgView->frame();
 		}
 #endif
-	updateAll();
+	updateInnerModel_motors_target_and_visual();
 	QMutexLocker ml(mutex);
 	switch(stateMachine)
 	{
@@ -347,13 +353,16 @@ void SpecificWorker::setFingers(const float d)
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
 	// Recibimos las marcas que la camara esta viendo: marca mano y marca target.
-	QMutexLocker ml(mutex);
 	if(INITIALIZED == true)
 	{
 		for (auto tag : tags)
 		{
 			if (tag.id == 25)
 			{
+				tag.tx *= 0.65;
+				tag.ty *= 0.65;
+				tag.tz *= 0.65;
+				QMutexLocker ml(mutexRightHand);
 				rightHand->setVisualPose(tag);
 			}
 		}
@@ -366,7 +375,7 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  * \brief Metodo auxiliar que guarda en el fichero el resultado de la correccion de un target.
  * @param errorInv 
  */ 
-void SpecificWorker::printXXX(QVec errorInv/*, bool camaraNoVista*/)
+void SpecificWorker::printXXX(const QVec errorInv/*, bool camaraNoVista*/)
 {	
 	file<<"P: ("      <<currentTarget.getPose();
 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
@@ -434,63 +443,83 @@ void SpecificWorker::storeTargetCorrection()
  */
 bool SpecificWorker::correctRotation()
 {
-	updateAll();
-	static float umbralMaxTime = 25, umbralMinTime = 3;
-	static float umbralElapsedTime = 5.0, umbralErrorT = 5.0, umbralErrorR=0.2;
+// 	static bool first = true;
+// 	if (not first) return true;
+// 	first = false;
 
-	// If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
-	if (rightHand->getSecondsElapsed() > umbralElapsedTime)
+	qDebug()<<"\n\n\n-------------------------";
+	const float umbralMaxTime=250, umbralMinTime=3;
+	const float tagLostThresholdTime=1;
+	const float umbralErrorT=10.0, umbralErrorR=0.1;
+
+
+	QString rightTip = rightHand->getTip();
+	QVec rightHandVisualPose, rightHandInternalPose;
+	QVec errorInv;
 	{
-		std::cout<<"La camara no ve la marca..."<<std::endl;
-		timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
-		rightHand->setVisualPosewithInternal();
+		QMutexLocker ml(mutexRightHand);
+		updateInnerModel_motors_target_and_visual();
+		if (rightHand->getSecondsElapsed() > tagLostThresholdTime) // If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
+		{
+			//qFatal("tag lost!");
+			timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
+			rightHand->setVisualPosewithInternalError();
+		}
+		// COMPROBAMOS EL ERROR:
+		errorInv = rightHand->getTargetErrorInverse(); //error: mano visualdesde el target
+		rightHandVisualPose = rightHand->getVisualPose();
+		rightHandInternalPose = rightHand->getInternalPose();
 	}
-	// COMPROBAMOS EL ERROR:
-	QVec errorInv = rightHand->getErrorInverse();
-	if (currentTarget.getRunTime()>umbralMaxTime and currentTarget.getRunTime()>umbralMinTime)
+
+	if (currentTarget.getRunTime()>umbralMaxTime)
 	{
 		abortCorrection = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
-		qDebug()<<"Abort rotation: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-		printXXX(errorInv);
+		errorInv.print("abort with error INV");
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return false;
 	}
-	// Si el error es miserable no hacemos nada y acabamos la corrección. Para hacer la norma lo pasamos a vec6
-	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR)
+	// Si el error es miserable no hacemos nada y acabamos la corrección.
+	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR and currentTarget.getRunTime()>umbralMinTime)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		qDebug()<<"done!: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<<" and "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-		printXXX(errorInv);
+		errorInv.print("done with error INV");
 		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
 	}
 
-	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2)).operator*(0.5);
-	QVec errorInvPEnAbsoluto = innerModel->getRotationMatrixTo("root", rightHand->getTip()) * errorInvP;
- 	qDebug()<<"Error T: "<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-	qDebug()<<"Error R: "<<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-// 	qDebug()<<"Distancia entre la camara y la marca: "<<innerModel->transform("visual_hand", "rgbd_transform").norm2();
-// 	innerModel->transform("rgbd_transform", "visual_hand").print("marca desde la camara");
-
-	QVec poseCorregida = innerModel->transform("root", rightHand->getTip()) + errorInvPEnAbsoluto;
+	// CORREGIR TRASLACION
+	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.5);
+	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
+ 
+	QVec poseCorregida   = innerModel->transform("root", "target") + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal.inject(poseCorregida,0);
-	correccionFinal.inject(QVec::vec3(currentTarget.getPose().rx(), currentTarget.getPose().ry(), currentTarget.getPose().rz()),3);
+	
+	// CORREGIR ROTACION
+	//Pasamos los angulos a matriz de rotacion
+	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz());
+	// multiplicamos la matriz del tip en el root por la matriz generada antes
+	//extraemos los angulos de la nueva matriz y esos son los angulas ya corregidos
+	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
+	correccionFinal.inject(QVec::vec3(angulosFinales(0), angulosFinales(1), angulosFinales(2)), 3);
+
+	
 	correctedTarget.setPose(correccionFinal);
 	
-	
-	qDebug()<<"VISUAL POSE: "<<rightHand->getVisualPose();
-	qDebug()<<"INTERNAL POSE: "<<rightHand->getInternalPose();
-	qDebug()<<"ERROR INVERSE: "<< errorInv;
-	qDebug()<<"CORRECCION: "<< correccionFinal;
+	errorInv.print("ERROR INVERSE: ");
+	correccionFinal.print("CORRECCION: ");
 
-	//Llamamos al BIK con el nuevo target corregido y esperamos
+	// Llamamos al BIK con el nuevo target corregido y esperamos
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
 	correctedTarget.setID_IK(identifier);
+
+// 	stateMachine = State::IDLE;
+
+// 	sleep(1);
 	return false;
 }
 
@@ -500,7 +529,7 @@ bool SpecificWorker::correctRotation()
  * Se encarga de actualizar la posicion de los motores del robot (el innerModel),
  * la pose del target que le enviamos y la pose de la marca visual que ve.
  */
-void SpecificWorker::updateAll()
+void SpecificWorker::updateInnerModel_motors_target_and_visual()
 {
 	//qDebug() << "--------";
 	try
@@ -567,9 +596,18 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 
 }
 
-void SpecificWorker::goYESButton()
-{
-	qDebug()<<"GOOOOOOOOOOO";
-	goMotorsGO = true;
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

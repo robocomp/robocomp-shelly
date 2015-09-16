@@ -1,4 +1,3 @@
-
 # Sources set
 SET ( SOURCES
   specificworker.cpp
@@ -19,6 +18,6 @@ SET ( HEADERS
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
 
-SET (LIBS ${LIBS} -losgViewer )
+SET (LIBS ${LIBS} -losgViewer -lgsl)
 ADD_DEFINITIONS( -std=c++14 )
 

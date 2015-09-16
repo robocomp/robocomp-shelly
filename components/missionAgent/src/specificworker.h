@@ -59,7 +59,7 @@ public:
 	void killAgent() {}
 	int uptimeAgent() { return 1; }
 	bool reloadConfigAgent() { return true; }
-	void set3DViewer();
+//	void set3DViewer();
 
 public slots:
 	
@@ -99,9 +99,8 @@ private:
 	RoboCompPlanning::Plan plan;
 	AGMModelDrawer *modelDrawer, *targetDrawer;
 	RCDraw *rcdraw1, *rcdraw2;
-	GraphModelViewer *graphViewer;
+// 	GraphModelViewer *graphViewer;
 
-	
 	osgGA::TrackballManipulator *manipulator;
 	OsgView *osgView;
 	InnerModel *innerModelVacio;
@@ -110,9 +109,9 @@ private:
 
 
 	
-	 void updateInner3D();
-	 void insertNodeInnerModel(InnerModelNode* node);
-	 void changeInner (InnerModel *inner);
+// 	void updateInner3D();
+	void insertNodeInnerModel(InnerModelNode* node);
+	void changeInner (InnerModel *inner);
 	void fillItemList();
 
 
