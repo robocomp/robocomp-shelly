@@ -92,13 +92,15 @@ private:
 
 	// METODOS PRIVADOS
 	void applyFirstCorrection  ();
-	void storeTargetCorrection ();
+	void storeKinematicDeviation ();
 	//bool correctTraslation   ();
 	bool correctRotation      ();
 	void updateInnerModel_motors_target_and_visual();
 	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
 	void printXXX             (QVec errorInv/*, bool camaraNoVista*/);
 
+	Pose6D kinematicDeviationTarget;
+	QVec kinematicDeviation;
 };
 
 #endif

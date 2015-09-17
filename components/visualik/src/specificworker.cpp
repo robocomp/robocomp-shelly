@@ -23,9 +23,9 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
-	if (file.is_open() == false)
-		qFatal("ARCHIVO NO ABIERTO");
+// 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
+// 	if (file.is_open() == false)
+// 		qFatal("ARCHIVO NO ABIERTO");
 
 	goMotorsGO         = false;
 	stateMachine       = State::IDLE;
@@ -36,6 +36,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	mutexSolved        = new QMutex(QMutex::Recursive);
 	mutexRightHand     = new QMutex(QMutex::Recursive);
 	firstCorrection    = QVec::zeros(3);
+	
+	kinematicDeviationTarget.x = kinematicDeviationTarget.y = kinematicDeviationTarget.z = 0;
+	kinematicDeviation       = QVec::vec6();
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -53,7 +56,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	file.close();
+// 	file.close();
 }
 
 
@@ -150,14 +153,6 @@ void SpecificWorker::compute()
 		//---------------------------------------------------------------------------------------------
 		case State::INIT_BIK:
 			applyFirstCorrection();
-// 			try
-// 			{
-// 				int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), currentTarget.getPose6D(), currentTarget.getWeights6D());
-// 				currentTarget.setID_IK(identifier);
-// 			}
-// 			catch (const Ice::Exception &ex){
-// 				std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
-// 			}
 			currentTarget.setState(Target::State::IN_PROCESS); // El currentTarget pasa a estar siendo ejecutado:
 			correctedTarget = currentTarget;
 			stateMachine    = State::WAIT_BIK; // Esperamos a que el BIK termine.
@@ -267,6 +262,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		auxnextTargets.setWeights  (weights);
 		auxnextTargets.setState    (Target::State::WAITING);
 		auxnextTargets.setID_VIK   (contador);
+		//nextTargets.clear();
 		nextTargets.enqueue(auxnextTargets);
 	}
 	contador++;
@@ -359,9 +355,9 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 		{
 			if (tag.id == 25)
 			{
-				tag.tx *= 0.65;
-				tag.ty *= 0.65;
-				tag.tz *= 0.65;
+// 				tag.tx *= 0.65;
+// 				tag.ty *= 0.65;
+// 				tag.tz *= 0.65;
 				QMutexLocker ml(mutexRightHand);
 				rightHand->setVisualPose(tag);
 			}
@@ -377,18 +373,18 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
  */ 
 void SpecificWorker::printXXX(const QVec errorInv/*, bool camaraNoVista*/)
 {	
-	file<<"P: ("      <<currentTarget.getPose();
-	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-	file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
-	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
-	file<<"   END: "    <<currentTarget.getRunTime();
-	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
-	if(timeSinMarca > (60/4))
-		file<<"   CAMARA PERDIDA: "<<1<<" - "<<timeSinMarca<<endl;
-	else
-		file<<"   CAMARA PERDIDA: "<<0<<" - "<<timeSinMarca<<endl;
-	flush(file);	
+// 	file<<"P: ("      <<currentTarget.getPose();
+// 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
+// 	file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
+// 	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
+// 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
+// 	file<<"   END: "    <<currentTarget.getRunTime();
+// 	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
+// 	if(timeSinMarca > (60/4))
+// 		file<<"   CAMARA PERDIDA: "<<1<<" - "<<timeSinMarca<<endl;
+// 	else
+// 		file<<"   CAMARA PERDIDA: "<<0<<" - "<<timeSinMarca<<endl;
+// 	flush(file);	
 }
 
 /**
@@ -401,24 +397,35 @@ void SpecificWorker::printXXX(const QVec errorInv/*, bool camaraNoVista*/)
  */ 
 void SpecificWorker::applyFirstCorrection()
 {
-	QVec target = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
-	QVec targetFirstCorrection = target + firstCorrection;
-	Pose6D firstCorrectedTarget;
-	firstCorrectedTarget.x = targetFirstCorrection.x();
-	firstCorrectedTarget.y = targetFirstCorrection.y();
-	firstCorrectedTarget.z = targetFirstCorrection.z();
-	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
-	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
-	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
-
-	try
+	// Use stored deviation only if the current target is close to the one the last deviation was associated with
+	if (0)
 	{
-		int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), firstCorrectedTarget, currentTarget.getWeights6D());
-		currentTarget.setID_IK(identifier);
+		// Here we just send the IK the target we get
+		// That's all
+		return;
 	}
-	catch (const Ice::Exception &ex){
-		std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
-	}
+	
+	// If it is close, then and only then, we try to guess the error and fix it...
+
+	// Compute a matrix containing the corrected target
+	RTMat targetM(
+	  currentTarget.getPose6D().rx, currentTarget.getPose6D().ry, currentTarget.getPose6D().rz,
+	  currentTarget.getPose6D().x,  currentTarget.getPose6D().y,  currentTarget.getPose6D().z
+	);
+	// Create a matrix for the stored kinematic deviation 
+	RTMat initCorrM(
+	  kinematicDeviation.rx(), kinematicDeviation.ry(), kinematicDeviation.rz(), 
+	  kinematicDeviation.x(),  kinematicDeviation.y(), kinematicDeviation.z()
+	);
+	RTMat result = initCorrM * targetM;
+	// Create a target (translation & rotation vector) based on the resulting matrix
+	QVec correccion = QVec::vec6(0,0,0,  0,0,0);
+	for (int i=0; i<3; i++) correccion(i) = result(i, 3);	
+	for (int i=0; i<3; i++) correccion(i+3) = result.extractAnglesR_min()(i);
+	// Set and send the corrected target
+	correctedTarget.setPose(correccion);
+	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
+	correctedTarget.setID_IK(identifier);	
 }
 
 /**
@@ -427,13 +434,10 @@ void SpecificWorker::applyFirstCorrection()
  * asociada a ese target para que pueda ser utilizada por el siguiente target como correccion inicial.
  * TODO HAY QUE PROBARLO
  */ 
-void SpecificWorker::storeTargetCorrection()
+void SpecificWorker::storeKinematicDeviation()
 {
-	//CALCULAMOS EL VECTOR DE ERROR ENTRE TARGET Y CORRECTED TARGET
-	QVec auxTarget = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
-	QVec auxCorrect= QVec::vec3(correctedTarget.getPose().x(), correctedTarget.getPose().y(), correctedTarget.getPose().z());
-	
-	firstCorrection = auxCorrect - auxTarget;
+	kinematicDeviation = rightHand->getInternalError();
+	kinematicDeviationTarget = currentTarget.getPose6D();
 }
 
 /**
@@ -443,10 +447,6 @@ void SpecificWorker::storeTargetCorrection()
  */
 bool SpecificWorker::correctRotation()
 {
-// 	static bool first = true;
-// 	if (not first) return true;
-// 	first = false;
-
 	qDebug()<<"\n\n\n-------------------------";
 	const float umbralMaxTime=250, umbralMinTime=3;
 	const float tagLostThresholdTime=1;
@@ -456,6 +456,7 @@ bool SpecificWorker::correctRotation()
 	QString rightTip = rightHand->getTip();
 	QVec rightHandVisualPose, rightHandInternalPose;
 	QVec errorInv;
+
 	{
 		QMutexLocker ml(mutexRightHand);
 		updateInnerModel_motors_target_and_visual();
@@ -466,7 +467,7 @@ bool SpecificWorker::correctRotation()
 			rightHand->setVisualPosewithInternalError();
 		}
 		// COMPROBAMOS EL ERROR:
-		errorInv = rightHand->getTargetErrorInverse(); //error: mano visualdesde el target
+		errorInv = rightHand->getTargetErrorInverse(); // error: visual hand from the target's perspective
 		rightHandVisualPose = rightHand->getVisualPose();
 		rightHandInternalPose = rightHand->getInternalPose();
 	}
@@ -480,32 +481,39 @@ bool SpecificWorker::correctRotation()
 		solvedList.enqueue(currentTarget);
 		return false;
 	}
-	// Si el error es miserable no hacemos nada y acabamos la corrección.
+
+	storeKinematicDeviation();
+	
+	// If the error is below a threshold accept the current kinematic configuration
 	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR and currentTarget.getRunTime()>umbralMinTime)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		errorInv.print("done with error INV");
-		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
 	}
 
 	// CORREGIR TRASLACION
-	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.5);
+	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z());
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
- 
+	errorInvP_from_root.print("err1");
+	errorInvP_from_root = errorInvP_from_root.operator*(0.5);
+	innerModel->transformS("root", "target").print("target");
+	innerModel->transformS("root", "visual_hand").print("visual_hand");
+	errorInvP_from_root.print("err2");
 	QVec poseCorregida   = innerModel->transform("root", "target") + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
-	correccionFinal.inject(poseCorregida,0);
+	for (int i=0; i<3; i++) correccionFinal(i) = poseCorregida(i);
 	
 	// CORREGIR ROTACION
 	//Pasamos los angulos a matriz de rotacion
 	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz());
 	// multiplicamos la matriz del tip en el root por la matriz generada antes
 	//extraemos los angulos de la nueva matriz y esos son los angulas ya corregidos
-	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
-	correccionFinal.inject(QVec::vec3(angulosFinales(0), angulosFinales(1), angulosFinales(2)), 3);
+// 	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
+	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")).extractAnglesR_min();
+	for (int i=0; i<3; i++) correccionFinal(i+3) = angulosFinales(i);
 
 	
 	correctedTarget.setPose(correccionFinal);

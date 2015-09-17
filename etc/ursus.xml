@@ -17,7 +17,7 @@
 
 		<!-- 'ideal' grasp position of the robot for its right arm -->
 		<transform id="right_shoulder_grasp_pose" tx="120" ty="900" tz="320">
-<!-- 			<axes id="dewetrteuj53" /> -->
+			<axes id="dewetrteuj53" />
 		</transform>
 
 
