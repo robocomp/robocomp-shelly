@@ -149,7 +149,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 	/*timer.start(10);*/	
-	initFile();
+// 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
@@ -218,18 +218,18 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -50, 400);
-	yrange = std::pair<float, float>( 700, 1300);
-	zrange = std::pair<float, float>( 140, 570);
+	xrange = std::pair<float, float>( 0, 400);
+	yrange = std::pair<float, float>( 750, 1100);
+	zrange = std::pair<float, float>( 250, 550);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
-	float XR = abs(xrange.second - xrange.first);
-	float YR = abs(yrange.second - yrange.first);
-	float ZR = abs(zrange.second - zrange.first);
-	float max = MAX(MAX(XR, YR), ZR);
-	XR = XR/max;
-	YR = YR/max;
-	ZR = ZR/max;
+// 	float XR = abs(xrange.second - xrange.first);
+// 	float YR = abs(yrange.second - yrange.first);
+// 	float ZR = abs(zrange.second - zrange.first);
+// 	float max = MAX(MAX(XR, YR), ZR);
+// 	XR = XR/max;
+// 	YR = YR/max;
+// 	ZR = ZR/max;
 
 // 	float step = 0.5001*sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
 	float step = STEP_DISTANCE;
@@ -243,12 +243,12 @@ void SpecificWorker::initGenerate()
 			{
 
 				QVec pos = QVec::vec3(xpos, ypos, zpos);
-				QVec diff = center-pos;
-				diff(0) = abs(diff(0))/XR;
-				diff(1) = abs(diff(1))/YR;
-				diff(2) = abs(diff(2))/ZR;
+// 				QVec diff = center-pos;
+// 				diff(0) = abs(diff(0))/XR;
+// 				diff(1) = abs(diff(1))/YR;
+// 				diff(2) = abs(diff(2))/ZR;
 
-				if (diff.norm2() < 400)
+// 				if (diff.norm2() < 400)
 				{
 					graph->addVertex(ConnectivityGraph::VertexData());
 					QString id = QString("node_") + QString::number(included);
@@ -391,6 +391,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	target.y = y;
 	target.z = z;
 
+	
 	float rely = (y - yrange.first) / (yrange.second - yrange.first);
 	if (rely < 0.33)
 		target.rx = 0.3;
@@ -400,26 +401,35 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 		target.rx = -0.3;
 	target.rx = 0;
 
-	float relx = (x - xrange.first) / (xrange.second - xrange.first);
-	if (relx < 0.33)
-		target.ry = -1.8;
-	else if (relx < 0.66)
-		target.ry = -1.47;
+// 	float relx = (x - xrange.first) / (xrange.second - xrange.first);
+// 	if (relx < 0.33)
+// 		target.ry = -1.8;
+// 	else if (relx < 0.66)
+// 		target.ry = -1.47;
+// 	else
+// 		target.ry = -0.47;
+
+
+	if (x < 50)
+		target.ry = -1.5;
+	else if (x > 400)
+		target.ry = 0;
 	else
-		target.ry = -0.47;
+		target.ry = -0.785398163397448;
+	
 
-	float relz = (z - zrange.first) / (zrange.second - zrange.first);
-	if (relz < 0.33)
-		target.ry += -0.8;
-	else if (relz < 0.5)
-		target.ry += -0.4;
-	else
-		target.ry += 0.3;
+// 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
+// 	if (relz < 0.33)
+// 		target.ry += -0.8;
+// 	else if (relz < 0.5)
+// 		target.ry += -0.4;
+// 	else
+// 		target.ry += 0.3;
+// 
+// 	if (target.ry < -1.57)
+// 		target.ry = -1.57;
 
-	if (target.ry < -1.57)
-		target.ry = -1.57;
-
-	target.rz = -3.14;
+	target.rz = 0;
 
 	WeightVector weights;
  	weights.x = weights.y = weights.z = 1;
