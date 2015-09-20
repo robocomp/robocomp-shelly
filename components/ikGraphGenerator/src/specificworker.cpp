@@ -166,7 +166,8 @@ void SpecificWorker::initFile()
 	try
 	{
 		//graph = new ConnectivityGraph("ursus.ikg");
-		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
+		//graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursusRt.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
@@ -218,9 +219,9 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( 0, 400);
+	xrange = std::pair<float, float>( 50, 400);
 	yrange = std::pair<float, float>( 750, 1100);
-	zrange = std::pair<float, float>( 250, 550);
+	zrange = std::pair<float, float>( 180, 450);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 // 	float XR = abs(xrange.second - xrange.first);
@@ -668,10 +669,10 @@ void SpecificWorker::compute()
 		printf("GIK_GoToEnd\n");
 		break;
 	case GIK_GoToActualTargetSend:
-		printf("GIK_GoToActualTargetSend\n");
+// 		printf("GIK_GoToActualTargetSend\n");
 		break;
 	case GIK_GoToActualTargetSent:
-		printf("GIK_GoToActualTargetSent\n");
+// 		printf("GIK_GoToActualTargetSent\n");
 		break;
 	default:
 		printf("%s: %d\n", __FILE__, __LINE__);
@@ -681,9 +682,9 @@ void SpecificWorker::compute()
 	switch(state)
 	{
 	case GIK_NoTarget:
-	return;
+		return;
 	//--------------------------------------------------------------------------------------------------//
-	case GIK_GoToInit:
+	case GIK_GoToInit :
 		goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 		pathIndex = 0;
 		if (path.size() > 1) pathIndex = 1;
@@ -874,7 +875,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	innerModel->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	float distancia = innerModel->transform("target", "grabPositionHandR").norm2();
  	printf("ERROR AL TARGET: %f\n", distancia);
-	if (distancia<50)
+	if (distancia<100)
 	{
  		qDebug()<<"DIRECTO";
  		qDebug()<<"DIRECTO";
@@ -896,19 +897,56 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		const float *poseInit = graph->vertices[closestToInit].pose;
 		innerVisual->updateTransformValues("init", poseInit[0], poseInit[1], poseInit[2], 0,0,0);
 #endif
+
 		// Get closest node to target and update it in IMV
 		closestToEnd = graph->getCloserTo(target.x, target.y, target.z);
-
 #ifdef USE_QTGUI
 		const float *poseEnd = graph->vertices[closestToEnd].pose;
 		innerVisual->updateTransformValues("end", poseEnd[0], poseEnd[1], poseEnd[2], 0,0,0);
 #endif
+		
 		// Compute path and update state
 		Dijkstra d = Dijkstra(&(graph->edges));
 		d.calculateDistance(closestToInit);
-		path.clear();
-		d.go(closestToEnd, path);
+		std::vector<int> tempPath;
+		d.go(closestToEnd, tempPath);
 		
+ 		path.clear();
+
+		if (tempPath.size() > 0)
+		{
+			printf("path A: ");
+			for (uint i=0; i<tempPath.size(); i++) printf("%d", tempPath[i]);
+			printf("\n");
+
+			// Should we skip the first node?
+			int first = 0;
+			QVec firstNodePosition = QVec::vec3(graph->vertices[first].pose[0], graph->vertices[first].pose[1], graph->vertices[first].pose[2]);
+			float distF = innerModel->transform("grabPositionHandR", firstNodePosition, "root").norm2();
+			if (distF < 75)
+			{
+				printf("skipping first node!\n");
+				first += 1;
+			}
+			// Should we skip the last node?
+			int last = tempPath.size()>0?tempPath.size()-1:0;
+			QVec lastNodePosition = QVec::vec3(graph->vertices[last].pose[0], graph->vertices[last].pose[1], graph->vertices[last].pose[2]);
+			float distL = innerModel->transform("target", lastNodePosition, "root").norm2();
+			if (last > first and last > 0 and distL < 75)
+			{
+				printf("skipping last node!\n");
+				last -= 1;
+			}
+			// Generate resulting path vector
+			for (int i = first; i<=last; i++)
+			{
+				path.push_back(tempPath[i]);
+			}
+			printf("path B: ");
+			for (uint i=0; i<path.size(); i++) printf("%d", path[i]);
+			printf("\n");
+		}
+
 		state = GIK_GoToInit;
 	}
 	targetCounter++;
@@ -1105,15 +1143,6 @@ void SpecificWorker::waitForMotorsToStop()
 		return;
 	}
 }
-
-
-
-
-
-
-
-
-
 
 
 
