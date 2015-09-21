@@ -114,6 +114,7 @@ private:
 	void changeInner (InnerModel *inner);
 	void fillItemList();
 
+	QTime lastChange;
 
 };
 

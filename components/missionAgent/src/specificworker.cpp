@@ -82,6 +82,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	osgView->setCameraManipulator(manipulator, true);
 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 	timer.start(90);
+	
+	
+	lastChange = QTime::currentTime();
 }
 
 /**
@@ -94,6 +97,7 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	secondsLabel->setText(QString::number(float(lastChange.elapsed())/1000));
 // 	printf("compute 1\n");
 	static QTime taim = QTime::currentTime();
 
@@ -176,8 +180,8 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	}
 
 	innerViewer = new InnerModelViewer(inner, "root", osgView->getRootGroup(), true);
-	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
-	
+// 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+	lastChange = QTime::currentTime();
 }
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& params)
