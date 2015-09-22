@@ -23,15 +23,15 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	goMotorsGO         = false;
-	stateMachine       = State::IDLE;
-	abortCorrection    = false;
-	innerModel         = NULL;
-	contador           = 0;
-	timeSinMarca       = 0.0;
-	mutexSolved        = new QMutex(QMutex::Recursive);
-	mutexRightHand     = new QMutex(QMutex::Recursive);
-	storedErrInv       = QVec::zeros(6);
+	goMotorsGO      = false;
+	stateMachine    = State::IDLE;
+	abortCorrection = false;
+	innerModel      = NULL;
+	contador        = 0;
+	timeSinMarca    = 0.0;
+	mutexSolved     = new QMutex(QMutex::Recursive);
+	mutexRightHand  = new QMutex(QMutex::Recursive);
+	lastErrInv      = QVec::zeros(6);
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -315,69 +315,47 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 	}
 }
 
+
+
 void SpecificWorker::applyFirstApproximation()
 {
-		innerModel->updateTransformValues("target",
-		  currentTarget.getPose6D().x,  currentTarget.getPose6D().y,  currentTarget.getPose6D().z,
-		  currentTarget.getPose6D().rx, currentTarget.getPose6D().ry, currentTarget.getPose6D().rz);
-
-	QVec targetFirstCorrection = innerModel->transform("root", storedErrInv, "target");
-	
-	Pose6D firstCorrectedTarget;
-	firstCorrectedTarget.x  = targetFirstCorrection.x();
-	firstCorrectedTarget.y  = targetFirstCorrection.y();
-	firstCorrectedTarget.z  = targetFirstCorrection.z();
-	firstCorrectedTarget.rx = targetFirstCorrection.rx();
-	firstCorrectedTarget.ry = targetFirstCorrection.ry();
-	firstCorrectedTarget.rz = targetFirstCorrection.rz();
-
-	
-	innerModel->updateTransformValues("corrected",
-	  firstCorrectedTarget.x, firstCorrectedTarget.y, firstCorrectedTarget.z,
-		firstCorrectedTarget.rx, firstCorrectedTarget.ry, firstCorrectedTarget.rz
-	);
-
-	
-	printf("first pose command [ %f %f %f]\n", firstCorrectedTarget.x, firstCorrectedTarget.y, firstCorrectedTarget.z);
-	
-	try
-	{
-		int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), firstCorrectedTarget, currentTarget.getWeights6D());
-		currentTarget.setID_IK(identifier);
-	}
-	catch (const Ice::Exception &ex)
-	{
-		std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
-	}
+	printf("call applyFirstApproximation\n");
+	correctPoseWithErrInv(lastErrInv, true);
 }
-
-
 
 bool SpecificWorker::correctPose()
 {
-// 	static bool first = true;
-// 	if (not first) return true;
-// 	first = false;
+	QVec errorInv;
+	{
+		QMutexLocker ml(mutexRightHand);
+		errorInv = rightHand->getTargetErrorInverse();
+	}
+	
+	printf("call correctPose\n");
+	return correctPoseWithErrInv(errorInv);
+}
 
+
+bool SpecificWorker::correctPoseWithErrInv(QVec errorInv, bool firstAttempt)
+{
 	qDebug()<<"\n\n\n-------------------------";
-	const float umbralMaxTime=25;
+	const float umbralMaxTime=50;
 	const float tagLostThresholdTime=1;
 	const float umbralErrorT=20.0, umbralErrorR=0.15;
 
 
 	QString rightTip = rightHand->getTip();
 	QVec rightHandVisualPose, rightHandInternalPose;
-	QVec errorInv;
 	{
 		QMutexLocker ml(mutexRightHand);
 		updateInnerModel_motors_target_and_visual();
-		if (rightHand->getSecondsElapsed() > tagLostThresholdTime) // If the hand's tag is lost we assume that the internal position (according to the direct kinematics) is correct
+		printf("ignoreTagTimestamp %d\n", ignoreTagTimestamp);
+		if (rightHand->getSecondsElapsed() > tagLostThresholdTime and firstAttempt==false) // If the hand's tag is lost we assume that the internal position (according to the direct kinematics) is correct
 		{
-			qFatal("tag lost!");
+// 			qFatal("tag lost!");
 			timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
 			rightHand->setVisualPosewithInternalError();
 		}
-		errorInv = rightHand->getTargetErrorInverse();
 		rightHandVisualPose = rightHand->getVisualPose();
 		printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 		rightHandInternalPose = rightHand->getInternalPose();
@@ -405,7 +383,7 @@ bool SpecificWorker::correctPose()
 	}
 
 	// CORRECT TRANSLATION
-	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.85);
+	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(1.0);
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
  
 
@@ -433,7 +411,7 @@ bool SpecificWorker::correctPose()
 	innerModel->updateTransformValues("corrected", correccionFinal(0), correccionFinal(1), correccionFinal(2), correccionFinal(3), correccionFinal(4), correccionFinal(5));
 
 	// Store target correction 
-	storedErrInv = errorInvP_from_root;
+	lastErrInv = errorInv;
 
 
 	// Call BIK and wait for it to finish

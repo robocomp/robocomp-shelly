@@ -89,12 +89,14 @@ private:
 	InnerModelViewer  *innerViewer;
 #endif
 
-	QVec storedErrInv;
+	QVec lastErrInv;
 	
 	
-	void applyFirstApproximation ();
+	void applyFirstApproximation();
+	bool correctPose();
+	bool correctPoseWithErrInv(QVec errInv, bool firstAttempt=false);
+
 	void storeTargetCorrection (QVec errInv);
-	bool correctPose           ();
 	void updateInnerModel_motors_target_and_visual();
 	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
 
