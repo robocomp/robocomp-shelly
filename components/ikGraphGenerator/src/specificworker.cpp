@@ -149,7 +149,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 
 	/*timer.start(10);*/	
-// 	initFile();
+ 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }

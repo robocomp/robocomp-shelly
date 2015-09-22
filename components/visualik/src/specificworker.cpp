@@ -23,10 +23,6 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-// 	file.open("/home/robocomp/robocomp/components/robocomp-ursus/components/visualik/data.txt", ios::out | ios::app);
-// 	if (file.is_open() == false)
-// 		qFatal("ARCHIVO NO ABIERTO");
-
 	goMotorsGO         = false;
 	stateMachine       = State::IDLE;
 	abortCorrection    = false;
@@ -37,13 +33,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	mutexRightHand     = new QMutex(QMutex::Recursive);
 	firstCorrection    = QVec::zeros(3);
 	
-	kinematicDeviationTarget.x = kinematicDeviationTarget.y = kinematicDeviationTarget.z = 0;
-	kinematicDeviation       = QVec::vec6();
-	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
 	innerViewer        = NULL;
-	//osgView          = new OsgView(this);
 	osgView            = new OsgView(this->widget);
  	show();
 #endif
@@ -56,30 +48,18 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-// 	file.close();
 }
 
 
-/**
- * \brief Metodo SET PARAM
- * Metodo desde el cual se cargaran los elementos que especifiquemos dentro del fichero config
- * del componente. Carga el innermodel, el osgview y actualiza el nodo target.
- * @param params mapa de parametros
- */
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	qDebug()<<"YEAAAAAAAAH: 11111";
-
 	try
 	{
 		RoboCompCommonBehavior::Parameter par = params.at("InnerModel") ;
 		if( QFile(QString::fromStdString(par.value)).exists() == true)
 		{
-			qDebug()<<"YEAAAAAAAAH: 22222";
-
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innerModel = new InnerModel(par.value);
-			qDebug()<<"YEAAAAAAAAH: 333333"<<QString::fromStdString(par.value);
 		}
 		else
 			qFatal("Exiting now.");
@@ -109,24 +89,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-/**
- * \brief Slot COMPUTE
- * Bucle ejecutado por el hilo del programa. Se encarga de actualizar el innermodel de la clase y de pintar la
- * posicion del target que ha llegado y la posición de la marca que esta viendo la camara.
- * MAQUINA DE ESTADOS:
- * 	-IDLE: estado en espera. Inicialmente el currentTarget se crea con estado IDLE, indicando que no tiene nada
- * 		   Pero cuando cambia a WAITING indica que ha llegado un target que espera ser ejecutado. En ese momento
- * 		   pasamos a INIT_BIK.
- * 	-INIT_BIK: independientemente de los pesos del currentTarget, enviamos el target al BIK para que se ejecute.
- * 			   Luego pasamos al estado WAIT_BIK.
- * 	-WAIT_BIK: esperamos a que el brazo deje de moverse para empezar con la correccion. Cuando se pare pasamos
- * 			   al estado CORRECT_TRASLATION.
- * 	-CORRECT_ROTATION: corrige los errores de la pose del tip del robot, arreglando tanto traslacion como rotacion.
- * 	-CORRECT_TRASLATION: corrige solo los errores de traslacion del tip.
- */
+
 void SpecificWorker::compute()
 {
 #ifdef USE_QTGUI
@@ -152,28 +115,26 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::INIT_BIK:
-			applyFirstCorrection();
-			currentTarget.setState(Target::State::IN_PROCESS); // El currentTarget pasa a estar siendo ejecutado:
+			applyFirstApproximation();
+			currentTarget.setState(Target::State::IN_PROCESS);
 			correctedTarget = currentTarget;
-			stateMachine    = State::WAIT_BIK; // Esperamos a que el BIK termine.
+			stateMachine    = State::WAIT_BIK;
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::WAIT_BIK:
-			// Esperamos a que el BIK termine de mover el brazo para comenzar con las correcciones.
-			// Dependiendo de si las rotaciones pesan o no tendremos dos metodos de correccion:
-			if(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
+			// Wait for IK's lower levels to start corrections
+			if (inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
 			{
 				qDebug()<<"---> El IK ha terminado.";
-				//updateMotors(inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).motors);
 				stateMachine = State::CORRECT_ROTATION;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
-			//la primera vez el ID de corrected es igaula al anterior así que entra seguro
-			if(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
+
+			if (inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
 			//updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
-			if (correctRotation()==true or abortCorrection==true)
+			if (correctPose()==true or abortCorrection==true)
 			{
 				if(nextTargets.isEmpty()==false)
 				{
@@ -192,9 +153,6 @@ void SpecificWorker::compute()
 			break;
 	}
 }
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -262,7 +220,6 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		auxnextTargets.setWeights  (weights);
 		auxnextTargets.setState    (Target::State::WAITING);
 		auxnextTargets.setID_VIK   (contador);
-		//nextTargets.clear();
 		nextTargets.enqueue(auxnextTargets);
 	}
 	contador++;
@@ -335,7 +292,7 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 
 /**
  * @brief Set the fingers of the right hand position so there is d mm between them
- * @param d millimeters between fingers
+ * @param d milimeters between fingers
  */
 void SpecificWorker::setFingers(const float d)
 {
@@ -343,133 +300,99 @@ void SpecificWorker::setFingers(const float d)
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::newAprilTag(const tagsList &tags)
 {
-	// Recibimos las marcas que la camara esta viendo: marca mano y marca target.
 	if(INITIALIZED == true)
 	{
 		for (auto tag : tags)
 		{
 			if (tag.id == 25)
 			{
-// 				tag.tx *= 0.65;
-// 				tag.ty *= 0.65;
-// 				tag.tz *= 0.65;
 				QMutexLocker ml(mutexRightHand);
 				rightHand->setVisualPose(tag);
 			}
 		}
 	}
 }
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////////////
-/**
- * \brief Metodo auxiliar que guarda en el fichero el resultado de la correccion de un target.
- * @param errorInv 
- */ 
-void SpecificWorker::printXXX(const QVec errorInv/*, bool camaraNoVista*/)
-{	
-// 	file<<"P: ("      <<currentTarget.getPose();
-// 	file<<")   ErrorVisual_T:"<<QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2();
-// 	file<<"   ErrorVisual_R:" <<QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2();
-// 	file<<"   ErrorDirecto_T:" <<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorT;
-// 	file<<"   ErrorDirecto_R: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).errorR;
-// 	file<<"   END: "    <<currentTarget.getRunTime();
-// 	file<<"   WHY?: "<<inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), correctedTarget.getID_IK()).state;
-// 	if(timeSinMarca > (60/4))
-// 		file<<"   CAMARA PERDIDA: "<<1<<" - "<<timeSinMarca<<endl;
-// 	else
-// 		file<<"   CAMARA PERDIDA: "<<0<<" - "<<timeSinMarca<<endl;
-// 	flush(file);	
-}
 
-/**
- * \brief Metodo Aniadido APPLY CORRECTION
- * Metodo aniadido para aplicar a la cinematica inversa una correccion inicial del target.
- * La primera vez que se ejecuta la correccion vale 0, pero a medida que se van ejecutando 
- * los targets, el error calculado entre el target y el target corregido se almacena y se
- * aplica en esta correcion inicial.
- * TODO HAY QUE PROBARLO MUUUUUUUUCHO
- */ 
-void SpecificWorker::applyFirstCorrection()
+void SpecificWorker::applyFirstApproximation()
 {
-	// Use stored deviation only if the current target is close to the one the last deviation was associated with
-	if (0)
-	{
-		// Here we just send the IK the target we get
-		// That's all
-		return;
-	}
+	QVec target = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
 	
-	// If it is close, then and only then, we try to guess the error and fix it...
+// 	QVec targetFirstCorrection = target + firstCorrection;
+	Pose6D firstCorrectedTarget;
+// 	firstCorrectedTarget.x = targetFirstCorrection.x();
+// 	firstCorrectedTarget.y = targetFirstCorrection.y();
+// 	firstCorrectedTarget.z = targetFirstCorrection.z();
+// 	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
+// 	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
+// 	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
+	firstCorrectedTarget.x  = currentTarget.getPose().x();
+	firstCorrectedTarget.y  = currentTarget.getPose().y();
+	firstCorrectedTarget.z  = currentTarget.getPose().z();
+	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
+	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
+	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
 
-	// Compute a matrix containing the corrected target
-	RTMat targetM(
-	  currentTarget.getPose6D().rx, currentTarget.getPose6D().ry, currentTarget.getPose6D().rz,
-	  currentTarget.getPose6D().x,  currentTarget.getPose6D().y,  currentTarget.getPose6D().z
+	
+	innerModel->updateTransformValues("corrected",
+	  firstCorrectedTarget.x, firstCorrectedTarget.y, firstCorrectedTarget.z,
+		firstCorrectedTarget.rx, firstCorrectedTarget.ry, firstCorrectedTarget.rz
 	);
-	// Create a matrix for the stored kinematic deviation 
-	RTMat initCorrM(
-	  kinematicDeviation.rx(), kinematicDeviation.ry(), kinematicDeviation.rz(), 
-	  kinematicDeviation.x(),  kinematicDeviation.y(), kinematicDeviation.z()
-	);
-	RTMat result = initCorrM * targetM;
-	// Create a target (translation & rotation vector) based on the resulting matrix
-	QVec correccion = QVec::vec6(0,0,0,  0,0,0);
-	for (int i=0; i<3; i++) correccion(i) = result(i, 3);	
-	for (int i=0; i<3; i++) correccion(i+3) = result.extractAnglesR_min()(i);
-	// Set and send the corrected target
-	correctedTarget.setPose(correccion);
-	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
-	correctedTarget.setID_IK(identifier);	
+
+	
+	printf("first pose command [ %f %f %f]\n", firstCorrectedTarget.x, firstCorrectedTarget.y, firstCorrectedTarget.z);
+	
+	try
+	{
+		int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), firstCorrectedTarget, currentTarget.getWeights6D());
+		currentTarget.setID_IK(identifier);
+	}
+	catch (const Ice::Exception &ex){
+		std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
+	}
 }
 
-/**
- * \brief Metodo aniadido STORE TARGET CORRECTION
- * Almacena en la variable de clase firstCorrection, la correccion entre el target original y la última posicion corregida
- * asociada a ese target para que pueda ser utilizada por el siguiente target como correccion inicial.
- * TODO HAY QUE PROBARLO
- */ 
-void SpecificWorker::storeKinematicDeviation()
+/*
+void SpecificWorker::storeTargetCorrection()
 {
-	kinematicDeviation = rightHand->getInternalError();
-	kinematicDeviationTarget = currentTarget.getPose6D();
+	QVec auxTarget = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
+	QVec auxCorrect= QVec::vec3(correctedTarget.getPose().x(), correctedTarget.getPose().y(), correctedTarget.getPose().z());
+	
+	firstCorrection = auxCorrect - auxTarget;
 }
+*/
 
-/**
- * \brief Metodo CORRECT ROTATION
- * Corrige la posicion de la mano en traslacion y en rotacion.
- * @return bool TRUE si el target esta perfecto o FALSE si no lo esta.
- */
-bool SpecificWorker::correctRotation()
+bool SpecificWorker::correctPose()
 {
+// 	static bool first = true;
+// 	if (not first) return true;
+// 	first = false;
+
 	qDebug()<<"\n\n\n-------------------------";
-	const float umbralMaxTime=250, umbralMinTime=3;
+	const float umbralMaxTime=25;
 	const float tagLostThresholdTime=1;
-	const float umbralErrorT=10.0, umbralErrorR=0.1;
+	const float umbralErrorT=20.0, umbralErrorR=0.15;
 
 
 	QString rightTip = rightHand->getTip();
 	QVec rightHandVisualPose, rightHandInternalPose;
 	QVec errorInv;
-
 	{
 		QMutexLocker ml(mutexRightHand);
 		updateInnerModel_motors_target_and_visual();
-		if (rightHand->getSecondsElapsed() > tagLostThresholdTime) // If the hand's tag is lost we assume that the internal possition (according to the direct kinematics) is correct
+		if (rightHand->getSecondsElapsed() > tagLostThresholdTime) // If the hand's tag is lost we assume that the internal position (according to the direct kinematics) is correct
 		{
-			//qFatal("tag lost!");
+			qFatal("tag lost!");
 			timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
 			rightHand->setVisualPosewithInternalError();
 		}
-		// COMPROBAMOS EL ERROR:
-		errorInv = rightHand->getTargetErrorInverse(); // error: visual hand from the target's perspective
+		errorInv = rightHand->getTargetErrorInverse();
 		rightHandVisualPose = rightHand->getVisualPose();
+		printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 		rightHandInternalPose = rightHand->getInternalPose();
+		printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
+
 	}
 
 	if (currentTarget.getRunTime()>umbralMaxTime)
@@ -482,61 +405,63 @@ bool SpecificWorker::correctRotation()
 		return false;
 	}
 
-	storeKinematicDeviation();
-	
-	// If the error is below a threshold accept the current kinematic configuration
-	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR and currentTarget.getRunTime()>umbralMinTime)
+	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		errorInv.print("done with error INV");
+// 		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
 	}
 
-	// CORREGIR TRASLACION
-	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z());
+	// CORRECT TRANSLATION
+	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(0.85);
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
-	errorInvP_from_root.print("err1");
-	errorInvP_from_root = errorInvP_from_root.operator*(0.5);
-	innerModel->transformS("root", "target").print("target");
-	innerModel->transformS("root", "visual_hand").print("visual_hand");
-	errorInvP_from_root.print("err2");
-	QVec poseCorregida   = innerModel->transform("root", "target") + errorInvP_from_root;
+ 
+
+	printf("suma a la pose     [ %f %f %f ]\n", errorInvP_from_root(0), errorInvP_from_root(1), errorInvP_from_root(2));
+
+
+	QVec poseCorregida   = innerModel->transform("root", "corrected") + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
-	for (int i=0; i<3; i++) correccionFinal(i) = poseCorregida(i);
+	correccionFinal(0) = poseCorregida(0);
+	correccionFinal(1) = poseCorregida(1);
+	correccionFinal(2) = poseCorregida(2);
 	
-	// CORREGIR ROTACION
-	//Pasamos los angulos a matriz de rotacion
+
+	printf("correccion nueva   [ %f %f %f ]\n", poseCorregida(0), poseCorregida(1), poseCorregida(2));
+	
+	
+	// CORRECT ROTATION
 	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz());
-	// multiplicamos la matriz del tip en el root por la matriz generada antes
-	//extraemos los angulos de la nueva matriz y esos son los angulas ya corregidos
-// 	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
-	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")).extractAnglesR_min();
-	for (int i=0; i<3; i++) correccionFinal(i+3) = angulosFinales(i);
+ 	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
+// 	QVec angulosFinales = QVec::vec3(0, -1.5707, 0);
+	correccionFinal(3) = angulosFinales(0);
+	correccionFinal(4) = angulosFinales(1);
+	correccionFinal(5) = angulosFinales(2);
 
 	
 	correctedTarget.setPose(correccionFinal);
 	
-	errorInv.print("ERROR INVERSE: ");
-	correccionFinal.print("CORRECCION: ");
+	printf("correction pose    [ %f %f %f ]\n", correccionFinal(0), correccionFinal(1), correccionFinal(2));
+	innerModel->updateTransformValues("corrected", correccionFinal(0), correccionFinal(1), correccionFinal(2), correccionFinal(3), correccionFinal(4), correccionFinal(5));
+	
+// 	qFatal("info 1");
+	
+// return false;
 
-	// Llamamos al BIK con el nuevo target corregido y esperamos
+
+
+	// Call BIK and wait for it to finish
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
 	correctedTarget.setID_IK(identifier);
 
-// 	stateMachine = State::IDLE;
-
-// 	sleep(1);
 	return false;
 }
 
 
-/**
- * \brief Metodo UPDATE ALL
- * Se encarga de actualizar la posicion de los motores del robot (el innerModel),
- * la pose del target que le enviamos y la pose de la marca visual que ve.
- */
+
 void SpecificWorker::updateInnerModel_motors_target_and_visual()
 {
 	//qDebug() << "--------";
@@ -563,7 +488,7 @@ void SpecificWorker::updateInnerModel_motors_target_and_visual()
 
 
 /**
- * \brief Metodo UPDATE MOTORS
+ * \brief UPDATE MOTORS
  */
 void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 {
@@ -573,14 +498,13 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 		{
 			RoboCompJointMotor::MotorGoalPosition nodo;
 			nodo.name = motor.name;
-			nodo.position = motor.angle; // posición en radianes
-			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+			nodo.position = motor.angle;
+			nodo.maxSpeed = 1;
 			jointmotor_proxy->setPosition(nodo);
 		}
 		catch (const Ice::Exception &ex)
 		{
 			std::cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<std::endl;
-			//ABANDONAMOS TARGET SI LA IK NO PUEDE MOVERSE NI SIQUIERA CERCA DEL TARGET
 		}
 	}
 	

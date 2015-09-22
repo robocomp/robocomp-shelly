@@ -78,7 +78,6 @@ private:
 	QMutex           *mutexSolved;        // MUTEX PARA ZONAS CRITICAS
 	QMutex           *mutexRightHand;        // MUTEX PARA ZONAS CRITICAS
 	InnerModel       *innerModel;         // EL MODELO INTERNO DEL ROBOT
-	ofstream         file;                // EL FICHERO DONDE GUARDAR DATOS
 	bool             abortCorrection;     // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TARGET
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
 	int              contador;
@@ -91,16 +90,13 @@ private:
 	#endif
 
 	// METODOS PRIVADOS
-	void applyFirstCorrection  ();
-	void storeKinematicDeviation ();
+	void applyFirstApproximation ();
+//	void storeTargetCorrection ();
 	//bool correctTraslation   ();
-	bool correctRotation      ();
+	bool correctPose           ();
 	void updateInnerModel_motors_target_and_visual();
 	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
-	void printXXX             (QVec errorInv/*, bool camaraNoVista*/);
 
-	Pose6D kinematicDeviationTarget;
-	QVec kinematicDeviation;
 };
 
 #endif

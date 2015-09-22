@@ -66,9 +66,10 @@ void VisualHand::setVisualPosewithInternalError()
 	QMat rotErrorInv = Rot3D(internalErrorINV.rx(), internalErrorINV.ry(), internalErrorINV.rz());
 	QVec correctedR  = (im->getRotationMatrixTo("root", "visual_hand")*rotErrorInv.invert()).extractAnglesR_min();
 	
-	QVec finalCorrection = QVec::vec6(0,0,0,0,0,0);
-	finalCorrection.inject(correctedT,0);
-	finalCorrection.inject(correctedR,3);	
+	QVec finalCorrection = QVec::vec6(
+		correctedT(0), correctedT(1), correctedT(2), 
+		correctedR(0), correctedR(1), correctedR(2)
+	);
 	
 	visualPose = finalCorrection;
 }
