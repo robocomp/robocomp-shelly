@@ -31,7 +31,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	timeSinMarca       = 0.0;
 	mutexSolved        = new QMutex(QMutex::Recursive);
 	mutexRightHand     = new QMutex(QMutex::Recursive);
-	firstCorrection    = QVec::zeros(3);
+	storedErrInv       = QVec::zeros(6);
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -317,22 +317,19 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 
 void SpecificWorker::applyFirstApproximation()
 {
-	QVec target = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
+		innerModel->updateTransformValues("target",
+		  currentTarget.getPose6D().x,  currentTarget.getPose6D().y,  currentTarget.getPose6D().z,
+		  currentTarget.getPose6D().rx, currentTarget.getPose6D().ry, currentTarget.getPose6D().rz);
+
+	QVec targetFirstCorrection = innerModel->transform("root", storedErrInv, "target");
 	
-// 	QVec targetFirstCorrection = target + firstCorrection;
 	Pose6D firstCorrectedTarget;
-// 	firstCorrectedTarget.x = targetFirstCorrection.x();
-// 	firstCorrectedTarget.y = targetFirstCorrection.y();
-// 	firstCorrectedTarget.z = targetFirstCorrection.z();
-// 	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
-// 	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
-// 	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
-	firstCorrectedTarget.x  = currentTarget.getPose().x();
-	firstCorrectedTarget.y  = currentTarget.getPose().y();
-	firstCorrectedTarget.z  = currentTarget.getPose().z();
-	firstCorrectedTarget.rx = currentTarget.getPose6D().rx;
-	firstCorrectedTarget.ry = currentTarget.getPose6D().ry;
-	firstCorrectedTarget.rz = currentTarget.getPose6D().rz;
+	firstCorrectedTarget.x  = targetFirstCorrection.x();
+	firstCorrectedTarget.y  = targetFirstCorrection.y();
+	firstCorrectedTarget.z  = targetFirstCorrection.z();
+	firstCorrectedTarget.rx = targetFirstCorrection.rx();
+	firstCorrectedTarget.ry = targetFirstCorrection.ry();
+	firstCorrectedTarget.rz = targetFirstCorrection.rz();
 
 	
 	innerModel->updateTransformValues("corrected",
@@ -348,20 +345,13 @@ void SpecificWorker::applyFirstApproximation()
 		int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), firstCorrectedTarget, currentTarget.getWeights6D());
 		currentTarget.setID_IK(identifier);
 	}
-	catch (const Ice::Exception &ex){
+	catch (const Ice::Exception &ex)
+	{
 		std::cout<<"EXCEPCION EN SET TARGET POSE 6D --> INIT IK: "<<ex<<std::endl;
 	}
 }
 
-/*
-void SpecificWorker::storeTargetCorrection()
-{
-	QVec auxTarget = QVec::vec3(currentTarget.getPose().x(), currentTarget.getPose().y(), currentTarget.getPose().z());
-	QVec auxCorrect= QVec::vec3(correctedTarget.getPose().x(), correctedTarget.getPose().y(), correctedTarget.getPose().z());
-	
-	firstCorrection = auxCorrect - auxTarget;
-}
-*/
+
 
 bool SpecificWorker::correctPose()
 {
@@ -409,7 +399,6 @@ bool SpecificWorker::correctPose()
 	{
 		currentTarget.setState(Target::State::RESOLVED);
 		errorInv.print("done with error INV");
-// 		storeTargetCorrection();
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
@@ -436,21 +425,15 @@ bool SpecificWorker::correctPose()
 	// CORRECT ROTATION
 	QMat rotErrorInv = Rot3D(errorInv.rx(), errorInv.ry(), errorInv.rz());
  	QVec angulosFinales = (innerModel->getRotationMatrixTo("root", "target")*rotErrorInv.invert()).extractAnglesR_min();
-// 	QVec angulosFinales = QVec::vec3(0, -1.5707, 0);
 	correccionFinal(3) = angulosFinales(0);
 	correccionFinal(4) = angulosFinales(1);
 	correccionFinal(5) = angulosFinales(2);
-
-	
 	correctedTarget.setPose(correccionFinal);
-	
 	printf("correction pose    [ %f %f %f ]\n", correccionFinal(0), correccionFinal(1), correccionFinal(2));
 	innerModel->updateTransformValues("corrected", correccionFinal(0), correccionFinal(1), correccionFinal(2), correccionFinal(3), correccionFinal(4), correccionFinal(5));
-	
-// 	qFatal("info 1");
-	
-// return false;
 
+	// Store target correction 
+	storedErrInv = errorInvP_from_root;
 
 
 	// Call BIK and wait for it to finish

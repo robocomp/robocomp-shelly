@@ -84,15 +84,16 @@ private:
 	float            timeSinMarca;
 	QVec             firstCorrection;
 
-	#ifdef USE_QTGUI
+#ifdef USE_QTGUI
 	OsgView           *osgView;
 	InnerModelViewer  *innerViewer;
-	#endif
+#endif
 
-	// METODOS PRIVADOS
+	QVec storedErrInv;
+	
+	
 	void applyFirstApproximation ();
-//	void storeTargetCorrection ();
-	//bool correctTraslation   ();
+	void storeTargetCorrection (QVec errInv);
 	bool correctPose           ();
 	void updateInnerModel_motors_target_and_visual();
 	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
