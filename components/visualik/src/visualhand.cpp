@@ -23,6 +23,8 @@ VisualHand::VisualHand(InnerModel *im_, QString tip_)
 		nodeMarca2 = im->newTransform("marca-" + tip + "-segun-head2", "static", nodeMarca, 0, 0, 0,       0., 0, 0,      0.);
 		nodeMarca->addChild(nodeMarca2);
 	}
+	
+	lastUpdate->tv_sec = 0;
 }
 
 
@@ -55,23 +57,16 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 
 void VisualHand::setVisualPosewithInternalError()
 {
-	qDebug()<<"The camera is not seeing the April Tag!!";
-	qFatal("that");
-	// Correct TRASLATION: We add to the internal pose of the end effector (tip) the internal error between the tip and 
-	// the visual tag in order to correct the internal position.
-	QVec internalErrorINV_T = QVec::vec3(internalErrorINV.x(), internalErrorINV.y(), internalErrorINV.z());
-	QVec errorInv_root      = im->getRotationMatrixTo("root", "visual_hand") * internalErrorINV_T;
-	QVec correctedT         = im->transform("root", "visual_hand") + errorInv_root;
-	// Correct ROTATION: 
-	QMat rotErrorInv = Rot3D(internalErrorINV.rx(), internalErrorINV.ry(), internalErrorINV.rz());
-	QVec correctedR  = (im->getRotationMatrixTo("root", "visual_hand")*rotErrorInv.invert()).extractAnglesR_min();
-	
-	QVec finalCorrection = QVec::vec6(
-		correctedT(0), correctedT(1), correctedT(2), 
-		correctedR(0), correctedR(1), correctedR(2)
-	);
-	
-	visualPose = finalCorrection;
+	internalErrorINV.print("setVisualPosewithInternalError:: internalErrorINV");
+	// Obtain the visual pose of the hand from the root reference frame and update innermodel accordingly
+	visualPose = im->transform6D("root", internalErrorINV, "grabPositionHandR");
+	visualPose.print("me imagino la mano (no la veo) en ");
+	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
+
+// 	gettimeofday(lastUpdate, NULL);
+
+// 	updateInternalError();
+// 	updateTargetError();
 }
 
 void VisualHand::updateTargetError()
@@ -119,7 +114,7 @@ double VisualHand::getSecondsElapsed()
 	if (first)
 	{
 		first = false;
-		return 0;
+		return 99999999999;
 	}
 
 	const double secs  = currentTimeval.tv_sec  - lastUpdate->tv_sec;

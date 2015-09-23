@@ -81,7 +81,6 @@ private:
 	bool             abortCorrection;     // PARA QUE NO SE QUEDE COLGADO CUANDO CORRIGE TARGET
 	bool             INITIALIZED;         // PARA QUE NO SE ADELANTE AL SETPARAMS
 	int              contador;
-	float            timeSinMarca;
 	QVec             firstCorrection;
 
 #ifdef USE_QTGUI
@@ -89,16 +88,19 @@ private:
 	InnerModelViewer  *innerViewer;
 #endif
 
-	QVec lastErrInv;
+	QVec errorInv;
 	
 	
 	void applyFirstApproximation();
 	bool correctPose();
-	bool correctPoseWithErrInv(QVec errInv, bool firstAttempt=false);
+	bool correctPoseWithErrInv();
 
-	void storeTargetCorrection (QVec errInv);
 	void updateInnerModel_motors_target_and_visual();
-	void updateMotors         (RoboCompInverseKinematics::MotorList motors);
+	void updateMotors(RoboCompInverseKinematics::MotorList motors);
+
+	
+	QString rightTip;
+	QVec rightHandVisualPose, rightHandInternalPose;
 
 };
 

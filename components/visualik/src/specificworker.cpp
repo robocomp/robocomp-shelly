@@ -28,10 +28,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	abortCorrection = false;
 	innerModel      = NULL;
 	contador        = 0;
-	timeSinMarca    = 0.0;
 	mutexSolved     = new QMutex(QMutex::Recursive);
 	mutexRightHand  = new QMutex(QMutex::Recursive);
-	lastErrInv      = QVec::zeros(6);
+	errorInv      = QVec::zeros(6);
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -85,6 +84,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	QMutexLocker ml(mutex);
 	INITIALIZED = true;
 	
+	
+	rightTip = rightHand->getTip();
+
 	return true;
 }
 
@@ -92,6 +94,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+	const float tagLostThresholdTime=1;
+
 #ifdef USE_QTGUI
 		if (innerViewer)
 		{
@@ -100,7 +104,29 @@ void SpecificWorker::compute()
 			osgView->frame();
 		}
 #endif
+
 	updateInnerModel_motors_target_and_visual();
+	{
+		QMutexLocker ml(mutexRightHand);
+		printf("seconds without tag: %f\n", rightHand->getSecondsElapsed());
+		if (rightHand->getSecondsElapsed() > tagLostThresholdTime )
+		{
+			rightHand->setVisualPosewithInternalError();
+		}
+		else
+		{
+			errorInv = rightHand->getInternalErrorInverse();
+			errorInv.print("update errorInv");
+		}
+		rightHandVisualPose = rightHand->getVisualPose();
+		printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
+		rightHandInternalPose = rightHand->getInternalPose();
+		printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
+	}
+
+	
+	
+	
 	QMutexLocker ml(mutex);
 	switch(stateMachine)
 	{
@@ -110,7 +136,6 @@ void SpecificWorker::compute()
 				stateMachine     = State::INIT_BIK;
 				abortCorrection = false;
 				qDebug()<<"Ha llegado un TARGET: "<<currentTarget.getPose();
-				timeSinMarca = 0.0;
 			}
 		break;
 		//---------------------------------------------------------------------------------------------
@@ -119,21 +144,22 @@ void SpecificWorker::compute()
 			currentTarget.setState(Target::State::IN_PROCESS);
 			correctedTarget = currentTarget;
 			stateMachine    = State::WAIT_BIK;
+			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::WAIT_BIK:
 			// Wait for IK's lower levels to start corrections
-			if (inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == true)
-			{
-				qDebug()<<"---> El IK ha terminado.";
-				stateMachine = State::CORRECT_ROTATION;
-			}
+			if (inversekinematics_proxy->getTargetState(currentTarget.getBodyPart(), currentTarget.getID_IK()).finish == false)
+				return;
+			qDebug()<<"---> El IK ha terminado.";
+			stateMachine = State::CORRECT_ROTATION;
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
 
-			if (inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false) return;
-			//updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			if (inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false)
+				return;
+			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctPose()==true or abortCorrection==true)
 			{
 				if(nextTargets.isEmpty()==false)
@@ -274,7 +300,7 @@ void SpecificWorker::stop(const string &bodyPart)
 	nextTargets.clear();
 	currentTarget.setState(Target::State::IDLE);
 	stateMachine = State::IDLE;
-	
+
 	inversekinematics_proxy->stop(bodyPart);
 }
 
@@ -319,49 +345,26 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 
 void SpecificWorker::applyFirstApproximation()
 {
-	printf("call applyFirstApproximation\n");
-	correctPoseWithErrInv(lastErrInv, true);
+	printf("\n\n\ncall applyFirstApproximation\n");
+	const Pose6D tt = currentTarget.getPose6D();
+	innerModel->updateTransformValues("target", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
+	
+// 	QVec t = innerModel->transform6D("root", "grabPositionHandR");
+// 	innerModel->updateTransformValues("corrected", t(0), t(1), t(2), t(3), t(4), t(5));
+
+	correctPoseWithErrInv();
+	sleep(100);
 }
 
 bool SpecificWorker::correctPose()
 {
-	QVec errorInv;
-	{
-		QMutexLocker ml(mutexRightHand);
-		errorInv = rightHand->getTargetErrorInverse();
-	}
-	
-	printf("call correctPose\n");
-	return correctPoseWithErrInv(errorInv);
-}
-
-
-bool SpecificWorker::correctPoseWithErrInv(QVec errorInv, bool firstAttempt)
-{
-	qDebug()<<"\n\n\n-------------------------";
 	const float umbralMaxTime=50;
-	const float tagLostThresholdTime=1;
 	const float umbralErrorT=20.0, umbralErrorR=0.15;
 
 
-	QString rightTip = rightHand->getTip();
-	QVec rightHandVisualPose, rightHandInternalPose;
-	{
-		QMutexLocker ml(mutexRightHand);
-		updateInnerModel_motors_target_and_visual();
-		printf("firstAttempt %d\n", firstAttempt);
-		if (rightHand->getSecondsElapsed() > tagLostThresholdTime and firstAttempt==false) // If the hand's tag is lost we assume that the internal position (according to the direct kinematics) is correct
-		{
-// 			qFatal("tag lost!");
-			timeSinMarca = timeSinMarca+rightHand->getSecondsElapsed();
-			rightHand->setVisualPosewithInternalError();
-		}
-		rightHandVisualPose = rightHand->getVisualPose();
-		printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
-		rightHandInternalPose = rightHand->getInternalPose();
-		printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
+	
+	printf("\n\n\ncall correctPose\n");
 
-	}
 
 	if (currentTarget.getRunTime()>umbralMaxTime)
 	{
@@ -381,6 +384,18 @@ bool SpecificWorker::correctPoseWithErrInv(QVec errorInv, bool firstAttempt)
 		solvedList.enqueue(currentTarget);
 		return true;
 	}
+
+
+
+	bool r = correctPoseWithErrInv();
+	qFatal("pene");
+	return r;
+}
+
+
+bool SpecificWorker::correctPoseWithErrInv()
+{
+	qDebug()<<"-------------------------";
 
 	// CORRECT TRANSLATION
 	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(1.0);
@@ -409,9 +424,6 @@ bool SpecificWorker::correctPoseWithErrInv(QVec errorInv, bool firstAttempt)
 	correctedTarget.setPose(correccionFinal);
 	printf("correction pose    [ %f %f %f ]\n", correccionFinal(0), correccionFinal(1), correccionFinal(2));
 	innerModel->updateTransformValues("corrected", correccionFinal(0), correccionFinal(1), correccionFinal(2), correccionFinal(3), correccionFinal(4), correccionFinal(5));
-
-	// Store target correction 
-	lastErrInv = errorInv;
 
 
 	// Call BIK and wait for it to finish
