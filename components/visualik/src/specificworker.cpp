@@ -349,7 +349,7 @@ bool SpecificWorker::correctPoseWithErrInv(QVec errorInv, bool firstAttempt)
 	{
 		QMutexLocker ml(mutexRightHand);
 		updateInnerModel_motors_target_and_visual();
-		printf("ignoreTagTimestamp %d\n", ignoreTagTimestamp);
+		printf("firstAttempt %d\n", firstAttempt);
 		if (rightHand->getSecondsElapsed() > tagLostThresholdTime and firstAttempt==false) // If the hand's tag is lost we assume that the internal position (according to the direct kinematics) is correct
 		{
 // 			qFatal("tag lost!");
