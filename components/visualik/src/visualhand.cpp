@@ -57,10 +57,10 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 
 void VisualHand::setVisualPosewithInternalError()
 {
-	internalErrorINV.print("setVisualPosewithInternalError:: internalErrorINV");
+// 	internalErrorINV.print("setVisualPosewithInternalError:: internalErrorINV");
 	// Obtain the visual pose of the hand from the root reference frame and update innermodel accordingly
-	visualPose = im->transform6D("root", internalErrorINV, "grabPositionHandR");
-	visualPose.print("me imagino la mano (no la veo) en ");
+	visualPose = im->transform6D("root", internalError, "grabPositionHandR");
+// 	visualPose.print("me imagino la mano (no la veo) en ");
 	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
 
 // 	gettimeofday(lastUpdate, NULL);

@@ -96,7 +96,7 @@ private:
 	bool correctPoseWithErrInv();
 
 	void updateInnerModel_motors_target_and_visual();
-	void updateMotors(RoboCompInverseKinematics::MotorList motors);
+	void waitForMotorsToStop(RoboCompInverseKinematics::MotorList motors);
 
 	
 	QString rightTip;

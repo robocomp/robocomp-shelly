@@ -30,7 +30,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	contador        = 0;
 	mutexSolved     = new QMutex(QMutex::Recursive);
 	mutexRightHand  = new QMutex(QMutex::Recursive);
-	errorInv      = QVec::zeros(6);
+	errorInv        = QVec::zeros(6);
 	
 #ifdef USE_QTGUI
 	connect(this->goButton, SIGNAL(clicked()), this, SLOT(goYESButton()));
@@ -108,7 +108,6 @@ void SpecificWorker::compute()
 	updateInnerModel_motors_target_and_visual();
 	{
 		QMutexLocker ml(mutexRightHand);
-		printf("seconds without tag: %f\n", rightHand->getSecondsElapsed());
 		if (rightHand->getSecondsElapsed() > tagLostThresholdTime )
 		{
 			rightHand->setVisualPosewithInternalError();
@@ -116,12 +115,9 @@ void SpecificWorker::compute()
 		else
 		{
 			errorInv = rightHand->getInternalErrorInverse();
-			errorInv.print("update errorInv");
 		}
 		rightHandVisualPose = rightHand->getVisualPose();
-		printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 		rightHandInternalPose = rightHand->getInternalPose();
-		printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
 	}
 
 	
@@ -144,7 +140,7 @@ void SpecificWorker::compute()
 			currentTarget.setState(Target::State::IN_PROCESS);
 			correctedTarget = currentTarget;
 			stateMachine    = State::WAIT_BIK;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			waitForMotorsToStop(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::WAIT_BIK:
@@ -156,10 +152,9 @@ void SpecificWorker::compute()
 		break;
 		//---------------------------------------------------------------------------------------------
 		case State::CORRECT_ROTATION:
-
 			if (inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).finish == false)
 				return;
-			updateMotors(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
+			waitForMotorsToStop(inversekinematics_proxy->getTargetState(correctedTarget.getBodyPart(), correctedTarget.getID_IK()).motors);
 			if (correctPose()==true or abortCorrection==true)
 			{
 				if(nextTargets.isEmpty()==false)
@@ -278,7 +273,7 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 	//NOTE: When the VIK is connected to IK directly
 // 	int id = inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
 // 	while (inversekinematics_proxy->getTargetState(bodyPart, id).finish == false);
-// 	updateMotors(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
+// 	waitForMotorsToStop(inversekinematics_proxy->getTargetState(bodyPart, id).motors);
 // 	return id;
 	//NOTE: When the VIK is connected to GIK and GIK is connected to IK.
 	return inversekinematics_proxy->setTargetAlignaxis(bodyPart, target, ax);
@@ -346,22 +341,30 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 void SpecificWorker::applyFirstApproximation()
 {
 	printf("\n\n\ncall applyFirstApproximation\n");
-	const Pose6D tt = currentTarget.getPose6D();
-	innerModel->updateTransformValues("target", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
-	
-// 	QVec t = innerModel->transform6D("root", "grabPositionHandR");
-// 	innerModel->updateTransformValues("corrected", t(0), t(1), t(2), t(3), t(4), t(5));
 
+	const Pose6D tt = currentTarget.getPose6D();
+	innerModel->updateTransformValues("target",    tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
+	innerModel->updateTransformValues("corrected", tt.x, tt.y, tt.z, tt.rx, tt.ry, tt.rz);
+	
 	correctPoseWithErrInv();
-	sleep(100);
+	usleep(500000);
 }
 
 bool SpecificWorker::correctPose()
 {
-	const float umbralMaxTime=50;
+
+	const float umbralMaxTime=150;
 	const float umbralErrorT=20.0, umbralErrorR=0.15;
 
+	printf("seconds without tag: %f\n", rightHand->getSecondsElapsed());
+	
+	QVec errorInvP = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
+	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
+	errorInvP_from_root.print("errorInvP_from_root");
 
+
+	printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
+	printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
 	
 	printf("\n\n\ncall correctPose\n");
 
@@ -370,16 +373,19 @@ bool SpecificWorker::correctPose()
 	{
 		abortCorrection = true;
 		currentTarget.setState(Target::State::NOT_RESOLVED);
-		errorInv.print("abort with error INV");
+		innerModel->transform6D("target", "visual_hand").print("abort with visual error");
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return false;
 	}
 
-	if (QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).norm2()<umbralErrorT and QVec::vec3(errorInv.rx(), errorInv.ry(), errorInv.rz()).norm2()<umbralErrorR)
+	QVec visualError = innerModel->transform6D("target", "visual_hand");
+	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
+	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
+	if (Tnorm<umbralErrorT and Rnorm<umbralErrorR)
 	{
 		currentTarget.setState(Target::State::RESOLVED);
-		errorInv.print("done with error INV");
+		innerModel->transform6D("target", "visual_hand").print("done with visual error");
 		QMutexLocker ml(mutexSolved);
 		solvedList.enqueue(currentTarget);
 		return true;
@@ -388,7 +394,6 @@ bool SpecificWorker::correctPose()
 
 
 	bool r = correctPoseWithErrInv();
-	qFatal("pene");
 	return r;
 }
 
@@ -400,12 +405,13 @@ bool SpecificWorker::correctPoseWithErrInv()
 	// CORRECT TRANSLATION
 	QVec errorInvP           = QVec::vec3(errorInv.x(), errorInv.y(), errorInv.z()).operator*(1.0);
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
+// 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
  
 
 	printf("suma a la pose     [ %f %f %f ]\n", errorInvP_from_root(0), errorInvP_from_root(1), errorInvP_from_root(2));
 
 
-	QVec poseCorregida   = innerModel->transform("root", "corrected") + errorInvP_from_root;
+	QVec poseCorregida   = innerModel->transform("root", "target") + errorInvP_from_root;
 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
 	correccionFinal(0) = poseCorregida(0);
 	correccionFinal(1) = poseCorregida(1);
@@ -427,6 +433,7 @@ bool SpecificWorker::correctPoseWithErrInv()
 
 
 	// Call BIK and wait for it to finish
+	printf("Mandamos %f %f %f\n", correctedTarget.getPose6D().x, correctedTarget.getPose6D().y, correctedTarget.getPose6D().z);
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
 	correctedTarget.setID_IK(identifier);
 
@@ -463,29 +470,13 @@ void SpecificWorker::updateInnerModel_motors_target_and_visual()
 /**
  * \brief UPDATE MOTORS
  */
-void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
+void SpecificWorker::waitForMotorsToStop(RoboCompInverseKinematics::MotorList motors)
 {
-	for (auto motor : motors)
-	{
-		try
-		{
-			RoboCompJointMotor::MotorGoalPosition nodo;
-			nodo.name = motor.name;
-			nodo.position = motor.angle;
-			nodo.maxSpeed = 1;
-			jointmotor_proxy->setPosition(nodo);
-		}
-		catch (const Ice::Exception &ex)
-		{
-			std::cout<<"EXCEPTION IN UPDATE MOTORS: "<<ex<<std::endl;
-		}
-	}
-	
 	MotorStateMap allMotorsAct, allMotorsBack;
 	jointmotor_proxy->getAllMotorState(allMotorsBack);
-	for (bool allStill=false;   allStill==false;   allMotorsBack=allMotorsAct)
+	usleep(300000);
+	for (bool allStill=false; allStill==false; allMotorsBack=allMotorsAct)
 	{
-		usleep(500000);
 		jointmotor_proxy->getAllMotorState(allMotorsAct);
 		allStill = true;
 		for (auto v : allMotorsAct)
@@ -496,8 +487,10 @@ void SpecificWorker::updateMotors (RoboCompInverseKinematics::MotorList motors)
 				break;
 			}
 		}
+		if (allStill)
+			break;
+		usleep(100000);
 	} 
-	usleep(500000);
 
 }
 
