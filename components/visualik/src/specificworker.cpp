@@ -362,7 +362,9 @@ bool SpecificWorker::correctPose()
 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
 	errorInvP_from_root.print("errorInvP_from_root");
 
+	QVec target = innerModel->transform("root", "target");
 
+	printf("target             [ %f %f %f ]\n", target(0), target(1), target(2));
 	printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 	printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
 	
@@ -380,6 +382,7 @@ bool SpecificWorker::correctPose()
 	}
 
 	QVec visualError = innerModel->transform6D("target", "visual_hand");
+	printf("visualError         [ %f %f %f ]\n", visualError(0), visualError(1), visualError(2));
 	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
 	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
 	if (Tnorm<umbralErrorT and Rnorm<umbralErrorR)
