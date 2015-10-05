@@ -23,6 +23,8 @@ VisualHand::VisualHand(InnerModel *im_, QString tip_)
 		nodeMarca2 = im->newTransform("marca-" + tip + "-segun-head2", "static", nodeMarca, 0, 0, 0,       0., 0, 0,      0.);
 		nodeMarca->addChild(nodeMarca2);
 	}
+	
+	lastUpdate->tv_sec = 0;
 }
 
 
@@ -55,36 +57,21 @@ void VisualHand::setVisualPose(RoboCompAprilTags::tag tag)
 
 void VisualHand::setVisualPosewithInternalError()
 {
-	qDebug()<<"The camera is not seeing the April Tag!!";
-	
-	// Correct TRASLATION: We add to the internal pose of the end effector (tip) the internal error between the tip and 
-	// the visual tag in order to correct the internal position.
-	QVec internalErrorINV_T = QVec::vec3(internalErrorINV.x(), internalErrorINV.y(), internalErrorINV.z());
-	QVec errorInv_root      = im->getRotationMatrixTo("root", "visual_hand") * internalErrorINV_T;
-	QVec correctedT         = im->transform("root", "visual_hand") + errorInv_root;
-	// Correct ROTATION: 
-	QMat rotErrorInv = Rot3D(internalErrorINV.rx(), internalErrorINV.ry(), internalErrorINV.rz());
-	QVec correctedR  = (im->getRotationMatrixTo("root", "visual_hand")*rotErrorInv.invert()).extractAnglesR_min();
-	
-	QVec finalCorrection = QVec::vec6(0,0,0,0,0,0);
-	finalCorrection.inject(correctedT,0);
-	finalCorrection.inject(correctedR,3);	
-	
-	visualPose = finalCorrection;
-	
-	//NOTE CODIGO ANTERIOR
-// 	QVec aux = im->transform6D("root", tip);
-// 	QVec rotCorregida    = QVec::vec3(aux.rx(), aux.ry(), aux.rz());
-// 	QVec poseCorregida   = im->transform("root", QVec::zeros(3), tip) + QVec::vec3(internalError.x(), internalError.y(), internalError.z());
-// 	QVec correccionFinal = QVec::vec6(0,0,0,0,0,0);
-// 	correccionFinal.inject(poseCorregida,0);
-// 	correccionFinal.inject(rotCorregida,3); 	//ALERT Diremos que la rotacion es la misma que el tip CAMBIAR!!!!
-//	visualPose = correccionFinal;
+// 	internalErrorINV.print("setVisualPosewithInternalError:: internalErrorINV");
+	// Obtain the visual pose of the hand from the root reference frame and update innermodel accordingly
+	visualPose = im->transform6D("root", internalError, "grabPositionHandR");
+// 	visualPose.print("me imagino la mano (no la veo) en ");
+	im->updateTransformValues("visual_hand", visualPose.x(), visualPose.y(), visualPose.z(), visualPose.rx(), visualPose.ry(), visualPose.rz());
+
+// 	gettimeofday(lastUpdate, NULL);
+
+// 	updateInternalError();
+// 	updateTargetError();
 }
 
 void VisualHand::updateTargetError()
 {
-	getErrors("visual_hand", "target", targetError, targetErrorINV);
+	getErrors("visual_hand", "target", targetError, targetErrorINV/*, true*/);
 }
 
 void VisualHand::updateInternalError()
@@ -92,17 +79,29 @@ void VisualHand::updateInternalError()
 	getErrors("visual_hand", tip, internalError, internalErrorINV);
 }
 
-void VisualHand::getErrors(QString visual, QString source, QVec &normal, QVec &inverse)
+void VisualHand::getErrors(QString visual, QString source, QVec &normal, QVec &inverse, bool debug)
 {
 	// Compute translation error
 	const QVec errorT = im->transform(source, visual);
+	if (debug)
+	{
+		qDebug() << "getErrors v(" << visual << ") src(" << source << ")";
+		errorT.print("T");
+	}
+
 	// Compute rotation error
 	QMat error_from_tip = im->getRotationMatrixTo(visual, source);
+	
 	// Generate resulting vectors
-	normal.inject(errorT, 0);
-	normal.inject(error_from_tip.extractAnglesR_min(),3);
-	inverse.inject(-errorT, 0);
-	inverse.inject(error_from_tip.invert().extractAnglesR_min(),3);
+	for (int i=0; i<3; i++) normal(i) = errorT(i);
+	if (debug)
+		normal.print("nT");
+	for (int i=0; i<3; i++) normal(i+3) = error_from_tip.extractAnglesR_min()(i);
+	
+	for (int i=0; i<3; i++) inverse(i) = -errorT(i);
+	if (debug)
+		inverse.print("iT");
+	for (int i=0; i<3; i++) inverse(i+3) = error_from_tip.invert().extractAnglesR_min()(i);
 }
 
 
@@ -115,7 +114,7 @@ double VisualHand::getSecondsElapsed()
 	if (first)
 	{
 		first = false;
-		return 0;
+		return 99999999999;
 	}
 
 	const double secs  = currentTimeval.tv_sec  - lastUpdate->tv_sec;

@@ -90,7 +90,7 @@ public:
 	QString getTip             ();
 
 private:
-	void        getErrors(QString visual, QString source, QVec &normal, QVec &inverse);
+	void        getErrors(QString visual, QString source, QVec &normal, QVec &inverse, bool debug=false);
 
 	QVec        visualPose;
 	QVec        tagPose;

@@ -23,6 +23,10 @@
 								<transform id="rgbd_transform" tz="15">
 <!-- 																<axes id="00000" length="200" width="8" />															 -->
 										<rgbd id="rgbd" focal="523.5" width="640" height="480" port="10096" ifconfig="20000,10004" />
+<!-- 										<transform id="only_for_testing" tz="500" rx="-1.5707963267948966"> -->
+<!-- 										  <plane id="shandMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" /> -->
+<!-- 										  <plane id="shandMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/> -->
+<!-- 										</transform> -->
 								</transform>
 								<mesh id="sensorRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 								<!--<plane id="sensorRGBD" nz="1" pz="-20" size="100,16,20" repeat="1" texture="#000000" /> -->

@@ -147,7 +147,7 @@ void SpecificWorker::initializeMotors()
 		goalPosition.position=0;
 		goalPosition.maxSpeed=1;
 		goalPosition.name=params.name;
-		setPosition(goalPosition);
+// 		setPosition(goalPosition);
 	}
 	
 

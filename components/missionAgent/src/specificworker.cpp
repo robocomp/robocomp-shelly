@@ -47,7 +47,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	secondTimer->start(1000);
 	connect(secondTimer, SIGNAL(timeout()), this, SLOT(setGeometry()));
 
-	set3DViewer();
+//	set3DViewer();
 
 	connect(quitButton,           SIGNAL(clicked()), this, SLOT(quitButtonClicked()));
 	connect(broadcastModelButton, SIGNAL(clicked()), this, SLOT(broadcastModelButtonClicked()));
@@ -82,6 +82,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	osgView->setCameraManipulator(manipulator, true);
 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 	timer.start(90);
+	
+	
+	lastChange = QTime::currentTime();
 }
 
 /**
@@ -94,6 +97,7 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	secondsLabel->setText(QString::number(float(lastChange.elapsed())/1000));
 // 	printf("compute 1\n");
 	static QTime taim = QTime::currentTime();
 
@@ -134,23 +138,20 @@ void SpecificWorker::compute( )
 			modelDrawer->update(worldModel);
 			targetDrawer->update(targetModel);
 			//void QScrollArea::ensureVisible ( int x, int y, int xmargin = 50, int ymargin = 50 )
-			
-
- 			
 // 			qDebug()<<"***************************************************";
 // 			qDebug()<<"widgetSize"<<widgetSize;
 // 			qDebug()<<"***************************************************";
 // 			qDebug()<<"rcdraw1->getWindow()"<<rcdraw1->getWindow();
 		}
-		else if (tabWidget->currentIndex()==1 )
-		{
-			
-			graphViewer->update(worldModel);
-			graphViewer->animateStep();
-		}
-		else
+// 		else if (tabWidget->currentIndex()==1 )
+// 		{
+// 			graphViewer->update(worldModel);
+// 			graphViewer->animateStep();
+// 		}
+		else if (tabWidget->currentIndex() == 1 )
 		{
 			targetDrawer->update(targetModel);
+			modelDrawer->update(worldModel);
 			modelDrawer->drawTable();
 			innerViewer->update();
 			osgView->autoResize();		
@@ -179,8 +180,8 @@ void SpecificWorker::changeInner (InnerModel *inner)
 	}
 
 	innerViewer = new InnerModelViewer(inner, "root", osgView->getRootGroup(), true);
-	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
-	
+// 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+	lastChange = QTime::currentTime();
 }
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& params)
@@ -382,7 +383,7 @@ void SpecificWorker::resetClicked()
 	}
 }
 
-
+/*
 void SpecificWorker::set3DViewer()
 {
 // #if QT_VERSION >= 0x050000
@@ -397,10 +398,11 @@ void SpecificWorker::set3DViewer()
 	setGeometry();
 	graphViewer->show();
 }
+*/
 
 void SpecificWorker::setGeometry()
 {
-	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
+// 	graphViewer->setGeometry(0, 0, widget3D->width(), widget3D->height());
 }
 
 

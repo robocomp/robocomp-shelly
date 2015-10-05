@@ -34,7 +34,7 @@
 #endif
 
 #include <innermodeldraw.h>
-#include <nabo/nabo.h>
+//#include <nabo/nabo.h>
 #include <djk.h>
 #include <graph.h>
 
