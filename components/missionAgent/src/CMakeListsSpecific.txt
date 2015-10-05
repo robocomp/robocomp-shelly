@@ -5,9 +5,6 @@ SET ( SOURCES
   specificmonitor.cpp
   $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.cpp
   $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
-
-
-
 )
 
 # Headers set
@@ -16,7 +13,7 @@ SET ( HEADERS
   specificmonitor.h
   $ENV{ROBOCOMP}/classes/rcdraw/rcdraw.h
   /usr/local/include/agm_modelDrawer.h
-   $ENV{ROBOCOMP}/classes/agmInner/agmInner.h
+  $ENV{ROBOCOMP}/classes/agmInner/agmInner.h
 )
 
 
@@ -24,9 +21,14 @@ SET (LIBS ${LIBS}
   -lagm
   -lboost_system
 )
+
 SET (LIBS ${LIBS} -losgViewer )
+
 INCLUDE_DIRECTORIES( /usr/local/include/osg /usr/include/osgViewer )
+
 SET( LIBS ${LIBS} -L/usr/local/lib64/ -losg -losgViewer -losgGA -losgText -losgDB -losgUtil )
 
 ADD_DEFINITIONS( -std=c++11 )
+
+
 
