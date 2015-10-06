@@ -269,7 +269,7 @@
   <xpos value="-20.46320722" />
   <ypos value="177.077272824" />
   <radius value="10.0" />
-  <color value="#FF3333" />
+  <color value="#3333FF" />
  </node>
 
  <node alias="laserRGBD" endpoint="laser:tcp -h robonuc1.local -p 10033">
