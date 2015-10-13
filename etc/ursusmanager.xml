@@ -30,7 +30,7 @@
   <xpos value="63.752311966" />
   <ypos value="-183.426255582" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="ik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10240">
@@ -42,7 +42,7 @@
   <xpos value="98.3116283765" />
   <ypos value="20.9152413377" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="gik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10241">
@@ -55,7 +55,7 @@
   <xpos value="100.806702471" />
   <ypos value="-28.0770762277" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="vik" endpoint="inversekinematics:tcp -h robonuc1.local -p 10242">
@@ -68,20 +68,20 @@
   <xpos value="101.694115871" />
   <ypos value="-89.8401152894" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
- <node alias="april" endpoint="commonbehavior:tcp -h robonuc1.local -p 14358">
+ <node alias="april" endpoint="commonbehavior:tcp -h odroid2.local -p 14358">
   <dependence alias="rgbd" />
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
+  <upCommand command="rcremote odroid2.local aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 apriltagscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="15.0576526502" />
   <ypos value="0.525766835724" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#3333FF" />
  </node>
 
  <node alias="humanA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10333">
@@ -92,7 +92,7 @@
   <xpos value="152.736905987" />
   <ypos value="-133.366307268" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="innerA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10334">
@@ -103,7 +103,7 @@
   <xpos value="-142.125142801" />
   <ypos value="-134.129035163" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="objectA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10331">
@@ -115,19 +115,18 @@
   <xpos value="33.098172328" />
   <ypos value="-133.657381945" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
- <node alias="rgbd" endpoint="rgbd:tcp -h robonuc1.local -p 10096">
-  <dependence alias="comJoint" />
+ <node alias="rgbd" endpoint="rgbd:tcp -h odroid2.local -p 10096">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/experimental/primeSenseComp ./bin/primeSenseComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 primeSenseComp" />
+  <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/ bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 openNI2Comp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="50.5832318805" />
   <ypos value="62.7961048059" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#3333FF" />
  </node>
 
  <node alias="aprilL" endpoint="commonbehavior:tcp -h robonuc2.local -p 12244">
@@ -141,7 +140,7 @@
   <xpos value="-45.8947676292" />
   <ypos value="20.3677168745" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="aprilT" endpoint="commonbehavior:tcp -h robonuc2.local -p 11258">
@@ -154,7 +153,7 @@
   <xpos value="-48.2584662392" />
   <ypos value="79.1279610293" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="camT" endpoint="rgbdbus:tcp -h robonuc2.local -p 13239">
@@ -165,7 +164,7 @@
   <xpos value="-51.2216965921" />
   <ypos value="121.374179478" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="dunker" endpoint="jointmotor:tcp -h robonuc2.local -p 10066">
@@ -176,7 +175,7 @@
   <xpos value="-94.0789668344" />
   <ypos value="180.476315902" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="IS" endpoint="IceStorm/TopicManager:default -h robonuc1.local -p 9999">
@@ -187,7 +186,7 @@
   <xpos value="10.183276349" />
   <ypos value="134.066552605" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="dynamixel" endpoint="jointmotor:tcp -h robonuc1.local -p 10068">
@@ -198,7 +197,7 @@
   <xpos value="27.5572324532" />
   <ypos value="178.577162068" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="faulhaber" endpoint="jointmotor:tcp -h robonuc1.local -p 10067">
@@ -209,7 +208,7 @@
   <xpos value="112.751918591" />
   <ypos value="178.957596423" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="comJoint" endpoint="jointmotor:tcp -h robonuc1.local -p 20000">
@@ -222,7 +221,7 @@
   <xpos value="101.208670855" />
   <ypos value="104.42132195" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="base" endpoint="omnirobot:tcp -h robonuc1.local -p 12238">
@@ -234,7 +233,7 @@
   <xpos value="-95.4088138072" />
   <ypos value="114.631742704" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="js" endpoint="joystick:tcp -h robonuc1.local -p 10002">
@@ -246,7 +245,7 @@
   <xpos value="-142.198303742" />
   <ypos value="130.960005986" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="jsLocal" endpoint="joystick:tcp -h localhost -p 10002">
@@ -258,18 +257,18 @@
   <xpos value="-142.920688658" />
   <ypos value="87.1357166374" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
- <node alias="laser" endpoint="laser:tcp -h robonuc1.local -p 10003">
+ <node alias="laser" endpoint="laser:tcp -h odroid2.local -p 10003">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 hokuyoComp" />
+  <upCommand command="rcremote odroid2.local lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
+  <downCommand command="ssh odroid@odroid2.local killall -9 hokuyoComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
   <xpos value="-20.46320722" />
   <ypos value="177.077272824" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#3333FF" />
  </node>
 
  <node alias="laserRGBD" endpoint="laser:tcp -h robonuc1.local -p 10033">
@@ -283,7 +282,7 @@
   <xpos value="51.1242499922" />
   <ypos value="14.2660258163" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h robonuc1.local -p 12204">
@@ -297,7 +296,7 @@
   <xpos value="-31.5151665082" />
   <ypos value="-80.6014225048" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="localization" endpoint="commonbehavior:tcp -h robonuc1.local -p 15542">
@@ -311,7 +310,7 @@
   <xpos value="-98.401448424" />
   <ypos value="-50.1956501322" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
@@ -335,7 +334,7 @@
   <xpos value="90.3123410928" />
   <ypos value="-134.371380445" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="ppcptnA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10335">
@@ -348,7 +347,7 @@
   <xpos value="-32.6576871597" />
   <ypos value="-132.363068495" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h robonuc2.local -p 10330">
@@ -360,7 +359,7 @@
   <xpos value="-87.3485760403" />
   <ypos value="-133.942650582" />
   <radius value="10.0" />
-  <color value="#DDFF22" />
+  <color value="#33FF33" />
  </node>
 
  <node alias="CGR" endpoint="commonbehavior:tcp -h robonuc1.local -p 12010">
@@ -373,7 +372,7 @@
   <xpos value="-104.658644016" />
   <ypos value="35.0299423688" />
   <radius value="10.0" />
-  <color value="#4422FF" />
+  <color value="#33FF33" />
  </node>
 
 </rcmanager>
