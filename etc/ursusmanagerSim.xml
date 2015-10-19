@@ -50,7 +50,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h highlevelcomps -p 15542">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote highlevelcomps mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission_sim.conf" />
+  <upCommand command="rcremote highlevelcomps mission agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission_sim.conf" />
   <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission_sim.conf" />
   <xpos value="31.1212929057" />

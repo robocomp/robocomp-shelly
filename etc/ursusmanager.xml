@@ -71,11 +71,11 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="april" endpoint="commonbehavior:tcp -h odroid-xtion.local -p 14358">
+ <node alias="april" endpoint="commonbehavior:tcp -h odroid2.local -p 14358">
   <dependence alias="rgbd" />
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote odroid-xtion.local aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
+  <upCommand command="rcremote odroid2.local aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 apriltagscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="15.0576526502" />
@@ -118,11 +118,11 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="rgbd" endpoint="rgbd:tcp -h odroid-xtion.local -p 10096">
+ <node alias="rgbd" endpoint="rgbd:tcp -h odroid2.local -p 10096">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote odroid-xtion.local rgbd /home/robocomp/bin bash openni2rgbd.sh" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 openNI2Comp" />
+  <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
+  <downCommand command="ssh robolab@odroid2.local killall -9 openNI2Comp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="50.5832318805" />
   <ypos value="62.7961048059" />
@@ -261,10 +261,10 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="laser" endpoint="laser:tcp -h odroid-xtion.local -p 10003">
+ <node alias="laser" endpoint="laser:tcp -h odroid2.local -p 10003">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote odroid-xtion.local lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
-  <downCommand command="ssh odroid@odroid-xtion.local killall -9 hokuyoComp" />
+  <upCommand command="rcremote odroid2.local lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
+  <downCommand command="ssh odroid@odroid2.local killall -9 hokuyoComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
   <xpos value="-20.46320722" />
   <ypos value="177.077272824" />
@@ -317,7 +317,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent/ ./bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/ agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <xpos value="-14.3367350024" />
