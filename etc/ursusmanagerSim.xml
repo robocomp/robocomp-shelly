@@ -78,7 +78,7 @@
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote lowlevelcomps lsrRGBD /home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp/ ./bin/laserrgbdComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laserrgbdSim.conf" />
-  <downCommand command="ssh lowlevelcomps killall -9 laserrgbdComp" />
+  <downCommand command="rcremote lowlevelcomps X / pkill -9 -f laserrgbdComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laserrgbd.conf" />
   <xpos value="-91.4117160147" />
   <ypos value="20.5553387629" />
@@ -101,7 +101,7 @@
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote lowlevelcomps jstck /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/ ./bin/joystickOmniComp --Ice.Config=config" />
-  <downCommand command="ssh lowlevelcomps killall -9 joystickOmniComp" />
+  <downCommand command="rcremote lowlevelcomps X / pkill -9 -f joystickOmniComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="9.22255679298" />
   <ypos value="68.1236501197" />

@@ -18,6 +18,8 @@
  */
 #include "specificworker.h"
 
+#define MAX_SPEED 0.7
+
 #define STEP_DISTANCE 50
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
@@ -461,7 +463,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	{
 		MotorGoalPosition mgp;
 		mgp.position = gp.angle;
-		mgp.maxSpeed = 2.;
+		mgp.maxSpeed = MAX_SPEED;
 		mgp.name = gp.name;
 		mpl.push_back(mgp);
 	}
@@ -736,7 +738,7 @@ void SpecificWorker::compute()
 				{
 					MotorGoalPosition mgp;
 					mgp.position = gp.angle;
-					mgp.maxSpeed = 3;//0.4;
+					mgp.maxSpeed = MAX_SPEED;
 					mgp.name = gp.name;
 					mpl.push_back(mgp);
 				}
@@ -834,7 +836,7 @@ void SpecificWorker::goHome()
 
 	for (int i=0; i<7; i++)
 	{
-		listGoals[i].maxSpeed = 4;//0.6;
+		listGoals[i].maxSpeed = MAX_SPEED;
 	}
 
 	jointmotor_proxy->setSyncPosition(listGoals);
@@ -976,8 +978,8 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 		{
 			RoboCompJointMotor::MotorGoalPosition nodo;
 			nodo.name = motor.name;
-			nodo.position = motor.angle; // posición en radianes
-			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+			nodo.position = motor.angle; // position in radians
+			nodo.maxSpeed = MAX_SPEED;   // rads per second
 			jointmotor_proxy->setPosition(nodo);
 		} catch (const Ice::Exception &ex) {
 			cout<<"EXCEPTION IN UPDATE MOTORS [TARGET ALING AXIS]: "<<ex<<endl;
@@ -1014,8 +1016,8 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 		{
 			RoboCompJointMotor::MotorGoalPosition nodo;
 			nodo.name = motor.name;
-			nodo.position = motor.angle; // posición en radianes
-			nodo.maxSpeed = 3; //radianes por segundo TODO Bajar velocidad.
+			nodo.position = motor.angle;
+			nodo.maxSpeed = MAX_SPEED;
 			jointmotor_proxy->setPosition(nodo);
 		} catch (const Ice::Exception &ex) {
 			cout<<"EXCEPTION IN UPDATE MOTORS [TARGET ADVANCE AXIS]: "<<ex<<endl;
