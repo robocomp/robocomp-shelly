@@ -119,9 +119,10 @@
  </node>
 
  <node alias="rgbd" endpoint="rgbd:tcp -h odroid2.local -p 10096">
+  <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/ bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
-  <downCommand command="ssh robolab@robonuc1.local killall -9 openNI2Comp" />
+  <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
+  <downCommand command="ssh robolab@odroid2.local killall -9 openNI2Comp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="50.5832318805" />
   <ypos value="62.7961048059" />
@@ -316,7 +317,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/robocomp/components/robocomp-ursus/components/missionAgent/ ./bin/missionagent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/ agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <xpos value="-14.3367350024" />

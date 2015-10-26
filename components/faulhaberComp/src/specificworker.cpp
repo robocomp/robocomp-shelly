@@ -30,7 +30,7 @@
 #define V__90_GRADOS_M3 1899
 #define V_0_GRADOS_M3   4737
 #define V_90_GRADOS_M3  8722
-#define OFFSET_M3 -180			// AJUSTE DEL CENTRO
+#define OFFSET_M3 330			// AJUSTE DEL CENTRO
 
 #define V__90_GRADOS_M4 1692
 #define V_0_GRADOS_M4   4951
