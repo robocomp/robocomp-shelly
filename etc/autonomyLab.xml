@@ -64,6 +64,9 @@
 		<transform id="pared18" tx="1400.0" tz="3610.0" ty="400" >
 			<plane id="muro18" nx="-0.0" nz="-700.0" size="700.0,800"  texture="/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg" />
 		</transform>
+		<transform id="pared19" tx="3810.0" tz="410.0" ty="400" >
+			<plane id="muro19" nz="-0.0" nx="-700.0" size="820.0,800"  texture="/home/robocomp/robocomp/files/osgModels/textures/Metal.jpg" />
+		</transform>
 
 
 	</transform>
