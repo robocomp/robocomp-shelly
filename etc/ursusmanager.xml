@@ -120,8 +120,13 @@
 
  <node alias="rgbd" endpoint="rgbd:tcp -h odroid2.local -p 10096">
   <workingDir path="/home/robocomp/" />
+<<<<<<< HEAD
   <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/ bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <downCommand command="ssh robolab@robonuc1.local killall -9 openNI2Comp" />
+=======
+  <upCommand command="rcremote odroid2.local rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
+  <downCommand command="ssh odroid@odroid2.local killall -9 openNI2Comp" />
+>>>>>>> 6e9384928bdeb92b2b62a9b9e24ff450475a5145
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="50.5832318805" />
   <ypos value="62.7961048059" />
@@ -290,10 +295,24 @@
   <dependence alias="localization" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc1.local trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
+  <upCommand command="rcremote robonuc1.local trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/ ./bin/TrajectoryRobot2DComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/trajectoryrobot2d.conf" />
+  <downCommand command="ssh robolab@robonuc1.local killall -9 TrajectoryRobot2DComp" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/trajectoryrobot2d.conf" />
+  <xpos value="-31.5151665082" />
+  <ypos value="-80.6014225048" />
+  <radius value="10.0" />
+  <color value="#FF3333" />
+ </node>
+
+ <node alias="trajCaca" endpoint="trajectoryrobot2d:tcp -h robonuc1.local -p 12204">
+  <dependence alias="laserRGBD" />
+  <dependence alias="localization" />
+  <dependence alias="base" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote robonuc1.local trjtCaca /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
   <downCommand command="ssh robolab@robonuc1.local pkill -9 -f dumbTrajectoryRobot2DComp.py" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
-  <xpos value="-31.5151665082" />
+  <xpos value="-151.5151665082" />
   <ypos value="-80.6014225048" />
   <radius value="10.0" />
   <color value="#FF3333" />
@@ -316,7 +335,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/ agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <downCommand command="killall -9 missionagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
   <xpos value="-14.3367350024" />
