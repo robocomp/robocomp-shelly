@@ -3,8 +3,8 @@
 
 	<omnirobot id="robot" port="12238" >
 		<!-- laser position -->
-		<transform id="laserPose" tx="200" ty="240" tz="180" rx="0" >
-                        <laser id="laser" measures="100" min="100" max="30000" angle="3.14" port="10003" />
+		<transform id="laserPose" tx="0" ty="370" tz="240" rx="0" >
+                        <laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" />
 		</transform>
 
 		<!-- some meshes useful for avoiding colliding with its own body -->
@@ -36,6 +36,7 @@
 				<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracolumna.osg" tx="30" ty="-15" tz="1165" rz="1.5707963267948966" scale="850" collide="1" />
 
 				<transform id="base_bodypost" rx="1.5707963267948966" ty="0" tz="0" >
+					<transform id="rgbdHuman" />
 					<!-- head -->
 					<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus_head.xml"/>
 				</transform>
