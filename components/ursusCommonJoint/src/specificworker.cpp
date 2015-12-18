@@ -107,7 +107,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	//NOTE Movemos a pelo la cabeza hacia abajo... se puede quitar para despues
-	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.8}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
+	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.95}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
 	MotorGoalPosition goal;
 	for (auto init : initializations)
 	{
