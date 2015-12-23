@@ -27,6 +27,7 @@
 	#include <osgviewer/osgview.h>
 	#include <innermodel/innermodelviewer.h>
 #endif
+
 /**
        \brief
        @author authorname
@@ -35,36 +36,36 @@ class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	     SpecificWorker (MapPrx &mprx);
-	    ~SpecificWorker ();
+	SpecificWorker(MapPrx &mprx);
+	~SpecificWorker();
 	bool setParams      (RoboCompCommonBehavior::ParameterList params);
 	
-	void setPosition     (const MotorGoalPosition& goal);
-	void setVelocity     (const MotorGoalVelocity& goal);
-	void setZeroPos      (const string& name);
-	void setSyncPosition (const MotorGoalPositionList& listGoals);
-	void setSyncVelocity (const MotorGoalVelocityList& listGoals);
-	void setSyncZeroPos  ();
+	void setPosition(const MotorGoalPosition& goal);
+	void setVelocity(const MotorGoalVelocity& goal);
+	void setZeroPos(const string& name);
+	void setSyncPosition(const MotorGoalPositionList& listGoals);
+	void setSyncVelocity(const MotorGoalVelocityList& listGoals);
+	void setSyncZeroPos();
 	
-	MotorParams     getMotorParams    (const string& motor);
-	MotorState      getMotorState     (const string& motor);
-	MotorStateMap   getMotorStateMap  (const MotorList& mList);
-	void            getAllMotorState  (MotorStateMap& mstateMap);
-	MotorParamsList getAllMotorParams ();
-	BusParams       getBusParams      ();
+	MotorParams getMotorParams(const string& motor);
+	MotorState getMotorState(const string& motor);
+	MotorStateMap getMotorStateMap(const MotorList& mList);
+	void getAllMotorState(MotorStateMap& mstateMap);
+	MotorParamsList getAllMotorParams();
+	BusParams getBusParams();
 
 public slots:
 	void compute();
 	
 private:
 	// Attributes
-	RoboCompJointMotor::MotorParamsList                motorList1, motorList0;
-	std::vector< std::pair<QString, QString> >         pairs; //parejas de meshes que no pueden chocar entre si.
+	RoboCompJointMotor::MotorParamsList motorList1, motorList0;
+	std::vector< std::pair<QString, QString> > pairs; //parejas de meshes que no pueden chocar entre si.
 	std::map<string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 
-	InnerModel       *innerModel;
+	InnerModel *innerModel;
 #ifdef USE_QTGUI
-	OsgView          *osgView;
+	OsgView *osgView;
 	InnerModelViewer *imv;
 #endif
 

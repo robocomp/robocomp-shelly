@@ -29,7 +29,7 @@
 <!-- 										  <plane id="shandMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/> -->
 <!-- 										</transform> -->
 								</transform>
-								<mesh id="sensorRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
+								<mesh id="sensorRGBD" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="100,21,30" collide="1" />
 								<!--<plane id="sensorRGBD" nz="1" pz="-20" size="100,16,20" repeat="1" texture="#000000" /> -->
 							</transform>
 
@@ -38,7 +38,7 @@
 								<transform id="left_rgb_pan_pre" rx="-1.57079632679">
 									<joint id="leftEye" port="20000" min="-1" max="1" axis="z" >
 										<transform id="left_rgb_pan_post" rx="1.57079632679">
-											<mesh id="left_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
+											<mesh id="left_rgb_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="30,30,50" collide="1" />
 										</transform>
 									</joint>
 								</transform>
@@ -49,7 +49,7 @@
 								<transform id="right_rgb_pan_pre" rx="-1.57079632679">
 									<joint id="rightEye" port="20000" min="-1" max="1" axis="z" >
 										<transform id="right_rgb_pan_post" rx="1.57079632679">
-											<mesh id="right_rgb_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="30,30,50" collide="1" />
+											<mesh id="right_rgb_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="30,30,50" collide="1" />
 										</transform>
 									</joint>
 								</transform>
