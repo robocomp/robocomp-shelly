@@ -22,6 +22,17 @@
   <color value="#AAAAAA" />
  </node>
 
+ <node alias="initPose" endpoint="">
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
+  <downCommand command="pkill -9 -f shellyPanel.py" />
+  <configFile path="xxx" />
+  <xpos value="142.309899809" />
+  <ypos value="-189.869393554" />
+  <radius value="10.0" />
+  <color value="#AAAAAA" />
+ </node>
+
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
@@ -155,7 +166,7 @@
  <node alias="dynamixel" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10068">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 dyxl /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp/ ./bin/dynamixelComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 dynamixelComp" />
+  <downCommand command="rcremote 10.0.30.11 X / killall -9 dynamixelComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <xpos value="27.5572324532" />
   <ypos value="178.577162068" />
@@ -166,7 +177,7 @@
  <node alias="faulhaber" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10067">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 flhbr /home/robocomp/robocomp/components/robocomp-ursus/components/faulhaberComp/ ./bin/faulhaberComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/faulhaber.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 faulhaberComp" />
+  <downCommand command="rcremote 10.0.30.11 X / killall -9 faulhaberComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="112.751918591" />
   <ypos value="178.957596423" />
@@ -179,7 +190,7 @@
   <dependence alias="dynamixel" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-ursus/components/ursusCommonJoint/ ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCommon.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 ursuscommonjointcomp" />
+  <downCommand command="rcremote 10.0.30.11 X killall -9 ursuscommonjointcomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="101.208670855" />
   <ypos value="104.42132195" />
