@@ -130,44 +130,6 @@
   <color value="#3333FF" />
  </node>
 
- <node alias="aprilL" endpoint="commonbehavior:tcp -h robonuc2.local -p 12244">
-  <dependence alias="IS" />
-  <dependence alias="aprilT" />
-  <dependence alias="base" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local relocT /home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/ ./bin/AprilBasedLocalization --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 AprilBasedLocalization" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <xpos value="-45.8947676292" />
-  <ypos value="20.3677168745" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
- <node alias="aprilT" endpoint="commonbehavior:tcp -h robonuc2.local -p 11258">
-  <dependence alias="IS" />
-  <dependence alias="camT" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local aprilT /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/ ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilTecho.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 apriltagscomp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-48.2584662392" />
-  <ypos value="79.1279610293" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
- <node alias="camT" endpoint="rgbdbus:tcp -h robonuc2.local -p 13239">
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote robonuc2.local camT /home/robocomp/robocomp/components/robocomp-robolab/components/cameraV4lComp/ ./bin/camerav4l --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/camaraTecho.conf" />
-  <downCommand command="ssh robolab@robonuc2.local killall -9 camerav4l" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-51.2216965921" />
-  <ypos value="121.374179478" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
  <node alias="dunker" endpoint="jointmotor:tcp -h robonuc2.local -p 10066">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote robonuc2.local dnkr /home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp/ ./bin/dunkermotorenComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dunker.conf" />
@@ -316,7 +278,6 @@
 
  <node alias="localization" endpoint="commonbehavior:tcp -h robonuc1.local -p 15542">
   <dependence alias="CGR" />
-  <dependence alias="aprilL" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote robonuc1.local stblOdom /home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry ./bin/stableOdometry --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/stableodometry.conf" />
