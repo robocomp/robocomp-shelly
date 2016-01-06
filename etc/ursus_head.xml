@@ -1,10 +1,10 @@
 <innerModel>
 	<transform id="base_head" tz="0" ty="1225"  rx="-1.5707963267948966" >  <!-- Head begins -->
-<!--		<transform id="rgbdHumanPose" tz="40" ty="-40" rx="1.57079632679">
+		<transform id="rgbdHumanPose" tz="40" ty="-40" rx="1.57079632679">
 			<rgbd id="rgbdHuman" focal="600" width="640" height="480" /> 
 			<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 		</transform>
--->
+
 		<joint id="head_yaw_joint" port="20000" axis="z" home="0" min="-1" max="1">
 			<transform id="head_yaw_pose" tz="1000" rx="1.5707963267948966">
 <!-- 				<axes id="e" /> -->
