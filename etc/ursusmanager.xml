@@ -22,6 +22,17 @@
   <color value="#AAAAAA" />
  </node>
 
+ <node alias="initPose" endpoint="">
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
+  <downCommand command="pkill -9 -f shellyPanel.py" />
+  <configFile path="xxx" />
+  <xpos value="142.309899809" />
+  <ypos value="-189.869393554" />
+  <radius value="10.0" />
+  <color value="#AAAAAA" />
+ </node>
+
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
@@ -119,6 +130,7 @@
  </node>
 
  <node alias="rgbd" endpoint="rgbd:tcp -h 10.0.30.88 -p 10096">
+  <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.88 rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <downCommand command="ssh odroid@10.0.30.88 killall -9 openNI2Comp" />
@@ -127,44 +139,6 @@
   <ypos value="62.7961048059" />
   <radius value="10.0" />
   <color value="#3333FF" />
- </node>
-
- <node alias="aprilL" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 12244">
-  <dependence alias="IS" />
-  <dependence alias="aprilT" />
-  <dependence alias="base" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 relocT /home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/ ./bin/AprilBasedLocalization --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 AprilBasedLocalization" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilLocalization.conf" />
-  <xpos value="-45.8947676292" />
-  <ypos value="20.3677168745" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
- <node alias="aprilT" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 11258">
-  <dependence alias="IS" />
-  <dependence alias="camT" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 aprilT /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/ ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/aprilTecho.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 apriltagscomp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-48.2584662392" />
-  <ypos value="79.1279610293" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
- <node alias="camT" endpoint="rgbdbus:tcp -h 10.0.30.22 -p 13239">
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 camT /home/robocomp/robocomp/components/robocomp-robolab/components/cameraV4lComp/ ./bin/camerav4l --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/camaraTecho.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 camerav4l" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
-  <xpos value="-51.2216965921" />
-  <ypos value="121.374179478" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
  </node>
 
  <node alias="dunker" endpoint="jointmotor:tcp -h 10.0.30.22 -p 10066">
@@ -192,7 +166,7 @@
  <node alias="dynamixel" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10068">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 dyxl /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp/ ./bin/dynamixelComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 dynamixelComp" />
+  <downCommand command="rcremote 10.0.30.11 X / killall -9 dynamixelComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/dynamixel.conf" />
   <xpos value="27.5572324532" />
   <ypos value="178.577162068" />
@@ -203,7 +177,7 @@
  <node alias="faulhaber" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10067">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 flhbr /home/robocomp/robocomp/components/robocomp-ursus/components/faulhaberComp/ ./bin/faulhaberComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/faulhaber.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 faulhaberComp" />
+  <downCommand command="rcremote 10.0.30.11 X / killall -9 faulhaberComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="112.751918591" />
   <ypos value="178.957596423" />
@@ -216,7 +190,7 @@
   <dependence alias="dynamixel" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-ursus/components/ursusCommonJoint/ ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCommon.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 ursuscommonjointcomp" />
+  <downCommand command="rcremote 10.0.30.11 X killall -9 ursuscommonjointcomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="101.208670855" />
   <ypos value="104.42132195" />
@@ -315,7 +289,6 @@
 
  <node alias="localization" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 15542">
   <dependence alias="CGR" />
-  <dependence alias="aprilL" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 stblOdom /home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry ./bin/stableOdometry --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/stableodometry.conf" />
