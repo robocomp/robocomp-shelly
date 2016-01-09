@@ -131,7 +131,7 @@
  <node alias="laser" endpoint="laser:tcp -h 10.0.30.88 -p 10003">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.88 lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
-  <downCommand command="ssh odroid@10.0.30.88 killall -9 hokuyoComp" />
+  <downCommand command="rcremote 10.0.30.88 X / killall -9 hokuyoComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/laser.conf" />
   <xpos value="-16.895930465" />
   <ypos value="194.776297235" />
@@ -179,8 +179,8 @@
   <dependence alias="faulhaber" />
   <dependence alias="dynamixel" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-ursus/components/ursusCommonJoint/ ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCommon.conf" />
-  <downCommand command="rcremote 10.0.30.11 X killall -9 ursuscommonjointcomp" />
+  <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-ursus/components/ursusCommonJoint/bin ./ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/ursusCommon.conf" />
+  <downCommand command="rcremote 10.0.30.11 X / killall -9 ursuscommonjointcomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="104.77594761" />
   <ypos value="122.120346361" />
@@ -236,7 +236,7 @@
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.88 rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
-  <downCommand command="ssh odroid@10.0.30.88 killall -9 openNI2Comp" />
+  <downCommand command="rcremote 10.0.30.88 X / killall -9 openNI2Comp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="54.1505086355" />
   <ypos value="80.495129217" />
@@ -283,7 +283,7 @@
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.88 aprl /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp ./bin/apriltagscomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/apriltags.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 apriltagscomp" />
+  <downCommand command="rcremote 10.0.30.88 X / killall -9 apriltagscomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/primesense.conf" />
   <xpos value="18.6249294052" />
   <ypos value="18.2247912468" />
