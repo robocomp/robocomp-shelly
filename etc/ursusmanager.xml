@@ -151,11 +151,11 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="js" endpoint="joystick:tcp -h 10.0.30.11 -p 10002">
+ <node alias="js" endpoint="joystick:tcp -h 10.0.30.88 -p 10002">
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 jstck /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/ ./bin/joystickOmniComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/joystick.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 joystickOmniComp" />
+  <upCommand command="rcremote 10.0.30.88 jstck /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/ ./bin/joystickOmniComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/joystick.conf" />
+  <downCommand command="ssh robolab@10.0.30.88 killall -9 joystickOmniComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.conf" />
   <xpos value="-138.631026987" />
   <ypos value="148.659030397" />

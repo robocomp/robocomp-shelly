@@ -38,7 +38,6 @@ void SpecificMonitor::run()
 	initialize();
 	forever
 	{
-		rDebug("specific monitor run");
 		this->sleep(period);
 	}
 }
