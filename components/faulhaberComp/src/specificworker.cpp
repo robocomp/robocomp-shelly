@@ -124,8 +124,8 @@ void SpecificWorker::initializeMotors()
 		rInfo("enable command");
 		
 		int ids[1];
-	ids[0]=params.busId;
-	int positions[1];
+		ids[0]=params.busId;
+		int positions[1];
 		
 		cout<<"getPosition: "<<params.busId<<" "<<faulhaber->getPosition(params.busId)<<endl;
 		cout<<"getPositionExternalEncoder: "<<params.busId<<" "<<faulhaber->getPositionExternalEncoder(params.busId)<<endl;
@@ -310,7 +310,10 @@ void SpecificWorker::run( )
 		for(int i=0;i<busParams.numMotors;i++)
 		{
 			//qDebug()<<ids[i];
-			float pos = faulhaber->getPosition(ids[i]);
+			int32_t pos1 = faulhaber->getPosition(ids[i]);
+			if (pos1 == -1)
+				continue;
+			float pos = pos1;
 			QString  name =names.at(i);
 			///todo poner define para debug
 #ifdef FaulHaberDebug 		
@@ -469,7 +472,7 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 		state.p = s->data.currentPos;
 		state.isMoving = s->data.isMoving;
 //		state.temperature = s->data.temperature;
-		mstateMap[s->params.name] = state ;
+		mstateMap[s->params.name] = state;
 	}
 	memory_mutex->unlock();
 }
