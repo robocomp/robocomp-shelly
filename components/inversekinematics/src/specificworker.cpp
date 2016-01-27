@@ -608,6 +608,14 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 	targetsSolved.enqueue(ts);
 }
 
+
+int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
+{
+
+}
+
+
+
 // TODO QUITAR DESPUES
 // void SpecificWorker::updateMotors (BodyPart bp, QVec angles)
 // {

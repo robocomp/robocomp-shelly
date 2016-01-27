@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -205,6 +205,8 @@ int ::ikGraphGenerator::run(int argc, char* argv[])
 		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
 		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
 		adapterInverseKinematics->activate();
+		cout << "[" << PROGRAM_NAME << "]: InverseKinematics adapter created in port " << tmp << endl;
+
 
 
 

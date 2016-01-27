@@ -8,12 +8,14 @@
  */
 Target::Target()
 {
-	idIK	= 0;
-	state 		= State::IDLE;
-	bodyPart 	= "";
-	pose 		= QVec::vec6(0,0,0,0,0,0);
-	weights		= QVec::vec6(0,0,0,0,0,0);
-	runTime 	= QTime::currentTime();
+	idIK           = 0;
+	VIK_thresholdT = 0.0;     // Umbral de error de traslacion
+	VIK_thresholdR = 0.0;
+	state          = State::IDLE;
+	bodyPart       = "";
+	pose           = QVec::vec6(0,0,0,0,0,0);
+	weights        = QVec::vec6(0,0,0,0,0,0);
+	runTime        = QTime::currentTime();
 }
  /**
  * \brief Constructor parametrizado
@@ -54,6 +56,18 @@ void Target::setID_IK(int id_)			{	idIK = id_; }
  * @param id_ nuevo identificador numerico
  */ 
 void Target::setID_VIK(int id_)			{	idVIK = id_; }
+
+/**
+ * \brief Metodo setThresholds
+ * Almacena los umbrales de error de traslacion y de rotacion 
+ * @param thresholdT umbral de traslacion
+ * @param thresholdR umbral de rotacion
+ */ 
+void Target::setThresholds(float thresholdT, float thresholdR)
+{
+	VIK_thresholdT = thresholdT;     // Umbral de error de traslacion
+	VIK_thresholdR = thresholdR;
+}
 /**
  * \brief Metodo SET STATE:
  * Cambia el valor del atributo STATE por el valor del parametro de entrada. Si cambia de WAITING a IN_PROCESS
@@ -123,6 +137,16 @@ int Target::getID_IK()							{ return idIK; }
  * @return  int el identificador numerico
  */ 
 int Target::getID_VIK()							{ return idVIK; }
+/**
+ * \brief Metodo getThresholds.
+ * Devuelve los valores umbrales del error
+ * @return   qvec con los valores de los umbrales
+ */ 
+QVec Target::getThresholds()
+{
+	QVec thresholds = QVec::vec2(VIK_thresholdT, VIK_thresholdR);
+	return thresholds;
+}
 /**
  * \brief Metodo GET STATE
  * Devuelve el valor del atributo STATE: IDLE, IN PROCESS, RESOLVED

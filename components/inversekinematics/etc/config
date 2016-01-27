@@ -19,7 +19,7 @@ HEAD=head_yaw_joint;head_pitch_joint
 HEADTIP=rgbd
 
 This property is used by the clients to connect to IceStorm.
-TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999 -h localhost
 
 Ice.Warn.Connections=0
 Ice.Trace.Network=0

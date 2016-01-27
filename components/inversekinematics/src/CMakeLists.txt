@@ -39,6 +39,9 @@ SET ( HEADERS
   specificworker.h
   inversekinematicsI.h
 )
+
+
+
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
 ROBOCOMP_WRAP_ICE( CommonBehavior InnerModelManager InverseKinematics JointMotor JoystickAdapter )
