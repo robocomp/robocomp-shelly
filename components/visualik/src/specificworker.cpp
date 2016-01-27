@@ -511,8 +511,21 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	WeightVector weights;
 	float thresholdT = 25.0;
 	float thresholdR = 0.18;
-	target.x = 250;
 
+	target.x = 0.0;
+	target.y = 0.0;
+	target.z = 0.0;
+	target.rx = 0.0;
+	target.ry = 0.0;
+	target.rz = 0.0;
+	weights.x = 0.0;
+	weights.y = 0.0;
+	weights.z = 0.0;
+	weights.rx = 0.0;
+	weights.ry = 0.0;
+	weights.rz = 0.0;
+	
+	
 
 	if (scalars.find("wtx") != scalars.end())
 	{
