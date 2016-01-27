@@ -511,37 +511,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	WeightVector weights;
 	float thresholdT = 25.0;
 	float thresholdR = 0.18;
-
-
-	if (scalars.find("ttx") != scalars.end())
-	{
-		target.x = scalars["ttx"];
-	}
-
-	if (scalars.find("tty") != scalars.end())
-	{
-		target.y = scalars["tty"];
-	}
-	if (scalars.find("ttz") != scalars.end())
-	{
-		target.z = scalars["ttz"];
-	}
-
-	if (scalars.find("trx") != scalars.end())
-	{
-		target.rx = scalars["trx"];
-	}
-	if (scalars.find("try") != scalars.end())
-	{
-		target.ry = scalars["try"];
-	}
-	if (scalars.find("trz") != scalars.end())
-	{
-		target.rz = scalars["trz"];
-	}
-
-
-
+	target.x = 250;
 
 
 	if (scalars.find("wtx") != scalars.end())
@@ -569,6 +539,59 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	if (scalars.find("wrz") != scalars.end())
 	{
 		weights.rz = scalars["wrz"];
+	}
+
+	
+	// ALERT: if tt is 0 then, weights 0 for no correction
+	if (scalars.find("ttx") != scalars.end())
+	{
+		target.x = scalars["ttx"];
+	}
+	else
+	{
+		weights.x = 0.0;
+	}
+
+	if (scalars.find("tty") != scalars.end())
+	{
+		target.y = scalars["tty"];
+	}
+	else
+	{
+		weights.y = 0.0;
+	}
+	if (scalars.find("ttz") != scalars.end())
+	{
+		target.z = scalars["ttz"];
+	}
+	else
+	{
+		weights.z = 0.0;
+	}
+	
+	if (scalars.find("trx") != scalars.end())
+	{
+		target.rx = scalars["trx"];
+	}
+	else
+	{
+		weights.rx = 0.0;
+	}
+	if (scalars.find("try") != scalars.end())
+	{
+		target.ry = scalars["try"];
+	}
+	else
+	{
+		weights.ry = 0.0;
+	}
+	if (scalars.find("trz") != scalars.end())
+	{
+		target.rz = scalars["trz"];
+	}
+	else
+	{
+		weights.rz = 0.0;
 	}
 
 
