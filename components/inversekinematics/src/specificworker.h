@@ -85,6 +85,7 @@ public:
 	void        setJoint             (const string &joint, const float angle, const float maxSpeed);
 	void        setFingers           (const float d);
 	void        sendData             (const TData &data);
+	int mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars);
 	
 public slots:
 	void compute(); 	

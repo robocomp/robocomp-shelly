@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -77,6 +77,7 @@ public:
 	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
 	virtual bool getPartState(const string &bodyPart) = 0;
 	virtual void setJoint(const string &joint, const float angle, const float maxSpeed) = 0;
+	virtual int mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars) = 0;
 	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
 
 

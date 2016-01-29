@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -167,7 +167,7 @@ int ::VisualBIK::run(int argc, char* argv[])
 	rInfo("JointMotorProxy initialized Ok!");
 	mprx["JointMotorProxy"] = (::IceProxy::Ice::Object*)(&jointmotor_proxy);//Remote server proxy creation example
 
-IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
 
 
 	SpecificWorker *worker = new SpecificWorker(mprx);
@@ -209,6 +209,8 @@ IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(
 		InverseKinematicsI *inversekinematics = new InverseKinematicsI(worker);
 		adapterInverseKinematics->add(inversekinematics, communicator()->stringToIdentity("inversekinematics"));
 		adapterInverseKinematics->activate();
+		cout << "[" << PROGRAM_NAME << "]: InverseKinematics adapter created in port " << tmp << endl;
+
 
 
 

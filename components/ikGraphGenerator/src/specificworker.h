@@ -38,7 +38,7 @@
 #include <djk.h>
 #include <graph.h>
 
-using namespace boost;
+// using namespace boost;
 
 #define MAX_ERROR_IK 5.
 #define MIN(X,Y) (((X) < (Y)) ? (X) : (Y))
@@ -86,6 +86,7 @@ public:
 
 	bool        getPartState         (const string &bodyPart);
 	TargetState getTargetState       (const string &bodyPart, const int targetID);
+	int mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars);
 
 
 public slots:
