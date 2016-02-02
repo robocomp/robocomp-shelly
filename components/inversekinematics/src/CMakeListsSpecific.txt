@@ -22,7 +22,8 @@ SET ( HEADERS
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
 
-SET ( LIBS ${LIBS} -lReflexxesTypeII -lgsl)
-ADD_DEFINITIONS( -I/usr/local/include/Reflexxes )
+# SET ( LIBS ${LIBS} -lReflexxesTypeII -lgsl)
+# ADD_DEFINITIONS( -I/usr/local/include/Reflexxes )
+SET ( LIBS ${LIBS} -lgsl)
 SET (LIBS ${LIBS} -lfcl -lboost_system  -lboost_filesystem -lrt -lompl -lboost_graph -losg -losgDB)
 ADD_DEFINITIONS( -std=c++11 )

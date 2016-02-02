@@ -79,7 +79,8 @@ bool InversedKinematic::deleteTarget()
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 
 	if(
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+// 	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<1 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
 	   and
 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
 
@@ -133,6 +134,7 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		QVec error_Rotations_in_FrameBase = matResulInFrameBase.extractAnglesR_min();
 
 		finalError.inject(error_Traslations_in_FrameBase,0);
+        error_Rotations_in_FrameBase = error_Rotations_in_FrameBase*1000; /// ESCALAMOS ROTACIONES CON MILIMETROS
 		finalError.inject(error_Rotations_in_FrameBase, 3);
 	}
 	if(target.getTargetType()==Target::ALIGNAXIS)
@@ -281,7 +283,8 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 			}
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION";	}
 
-			if(incrementos.norm2() <= 0.0001)   ///Too small increments
+// 			if(incrementos.norm2() <= 0.0001)   ///Too small increments
+			if(incrementos.norm2() <= 0.001)   ///Too small increments
 			{
 				//stop = true;
 				smallInc = true;
@@ -307,7 +310,8 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 				{
 					motors.set((T)0);
 					// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo.
-					stop = (We*computeErrorVector(target)).norm2() <= 0.001; //1 milimetro de error
+// 					stop = (We*computeErrorVector(target)).norm2() <= 0.001; //1 milimetro de error
+					stop = (We*computeErrorVector(target)).norm2() <= 1; //1 milimetro de error
 					angles = aux;
 					// Recalculamos con nuevos datos.
 					error = We*computeErrorVector(target);
@@ -327,7 +331,8 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 				}
 			}//fin else incrementos no despreciables.
 		}while(ro<=0 and stop==false);
-		stop = error.norm2() <= 0.001; //1 milimetro de error
+// 		stop = error.norm2() <= 0.001; //1 milimetro de error
+		stop = error.norm2() <= 1; //1 milimetro de error
 	}
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 
