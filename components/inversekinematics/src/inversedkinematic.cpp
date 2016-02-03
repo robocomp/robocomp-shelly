@@ -8,6 +8,10 @@
 InversedKinematic::InversedKinematic()
 {
 	repetitions = 0;
+    corrector_factor = 1000.0;
+    error_threshold = 0.1;
+    errorT_threshold = 0.1;
+    errorR_threshold = 0.001;
 }
 /**
  * \brief default destructor
@@ -80,7 +84,7 @@ bool InversedKinematic::deleteTarget()
 
 	if(
 // 	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<1 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<errorT_threshold and errorR.norm2()<errorR_threshold)/* or restaAngles.norm2()<0.0001*/)
 	   and
 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
 
@@ -132,9 +136,10 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
 		// Extraemos los ángulos de la matriz calculada que ya equivalen a las rotaciones del tip vistas desde el frameBase
 		QVec error_Rotations_in_FrameBase = matResulInFrameBase.extractAnglesR_min();
-
+        
+        error_Rotations_in_FrameBase = error_Rotations_in_FrameBase*corrector_factor; /// ESCALAMOS ROTACIONES CON MILIMETROS
+		
 		finalError.inject(error_Traslations_in_FrameBase,0);
-        error_Rotations_in_FrameBase = error_Rotations_in_FrameBase*1000; /// ESCALAMOS ROTACIONES CON MILIMETROS
 		finalError.inject(error_Rotations_in_FrameBase, 3);
 	}
 	if(target.getTargetType()==Target::ALIGNAXIS)
@@ -245,13 +250,13 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 	int k=0, v=2, auxInt;                                        //iterador, variable para descenso y un entero auxiliar
 	QVec incrementos, aux;                                       //vector de incrementos y vector auxiliar para guardar cambios
 	QVec motors (checkMotors().size());                          // lista de motores para rellenar el jacobiano.
-	QVec angles = computeAngles();                               // ángulos iniciales de los motores.
-	QMat We     = QMat::makeDiagonal(target.getTargetWeight());  //matriz de pesos para compensar milímietros con radianes.
-	QVec error  = We * computeErrorVector(target);               //error de la posición actual con la deseada.
-	QMat J      = jacobian(motors);                              //JACOBIANO
-	QMat H      = J.transpose()*(We*J);                          // HESSIANO -->ERROR
-	QVec g      = J.transpose()*(error);
-	bool stop   = false;
+	QVec angles   = computeAngles();                               // ángulos iniciales de los motores.
+	QMat We       = QMat::makeDiagonal(target.getTargetWeight());  //matriz de pesos para compensar milímietros con radianes.
+	QVec error    = We * computeErrorVector(target);               //error de la posición actual con la deseada.
+	QMat J        = jacobian(motors);                              //JACOBIANO
+	QMat H        = J.transpose()*(We*J);                          // HESSIANO -->ERROR
+	QVec g        = J.transpose()*(error);
+	bool stop     = false;
 	bool smallInc = false;
 	bool nanInc   = false;
 	float ro      = 0;
@@ -262,8 +267,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 // 	J.print("J");
 // 	H.print("H");
 // 	g.print("g");
-	
-	
 
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
@@ -311,7 +314,7 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 					motors.set((T)0);
 					// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo.
 // 					stop = (We*computeErrorVector(target)).norm2() <= 0.001; //1 milimetro de error
-					stop = (We*computeErrorVector(target)).norm2() <= 1; //1 milimetro de error
+					stop = (We*computeErrorVector(target)).norm2() <= error_threshold; //1 milimetro de error
 					angles = aux;
 					// Recalculamos con nuevos datos.
 					error = We*computeErrorVector(target);
@@ -332,7 +335,7 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 			}//fin else incrementos no despreciables.
 		}while(ro<=0 and stop==false);
 // 		stop = error.norm2() <= 0.001; //1 milimetro de error
-		stop = error.norm2() <= 1; //1 milimetro de error
+		stop = error.norm2() <= error_threshold; //1 milimetro de error
 	}
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 
