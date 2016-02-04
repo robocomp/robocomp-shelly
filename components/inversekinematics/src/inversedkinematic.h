@@ -45,6 +45,5 @@ private:
     float error_threshold;
     float errorT_threshold;
     float errorR_threshold;
-    float corrector_factor;
 };
 #endif

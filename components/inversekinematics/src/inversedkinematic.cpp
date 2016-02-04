@@ -8,7 +8,6 @@
 InversedKinematic::InversedKinematic()
 {
 	repetitions = 0;
-    corrector_factor = 1000.0;
     error_threshold = 0.1;
     errorT_threshold = 0.1;
     errorR_threshold = 0.001;
@@ -137,7 +136,10 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		// Extraemos los ángulos de la matriz calculada que ya equivalen a las rotaciones del tip vistas desde el frameBase
 		QVec error_Rotations_in_FrameBase = matResulInFrameBase.extractAnglesR_min();
         
-        error_Rotations_in_FrameBase = error_Rotations_in_FrameBase*corrector_factor; /// ESCALAMOS ROTACIONES CON MILIMETROS
+        error_Rotations_in_FrameBase[0] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[0])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
+        error_Rotations_in_FrameBase[1] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[1])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
+        error_Rotations_in_FrameBase[2] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[2])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
+
 		
 		finalError.inject(error_Traslations_in_FrameBase,0);
 		finalError.inject(error_Rotations_in_FrameBase, 3);
