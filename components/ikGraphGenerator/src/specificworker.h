@@ -38,6 +38,10 @@
 #include <djk.h>
 #include <graph.h>
 
+#include <RGBD.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 // using namespace boost;
 
 #define MAX_ERROR_IK 5.
