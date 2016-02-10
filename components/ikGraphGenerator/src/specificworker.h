@@ -38,6 +38,10 @@
 #include <djk.h>
 #include <graph.h>
 
+#include <RGBD.h>
+#include <pcl/io/pcd_io.h>
+#include <pcl/point_types.h>
+
 // using namespace boost;
 
 #define MAX_ERROR_IK 5.
@@ -110,12 +114,13 @@ private:
 	};
 	
 	
-	void updateFrame      (uint wait_usecs=0);
-	bool goAndWait        (int nodeId, MotorGoalPositionList &mpl, int &recursive);
-	bool goAndWait        (float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
-	void goAndWaitDirect  (const MotorGoalPositionList &mpl);
-	void updateInnerModel ();
-	void waitForMotorsToStop       ();
+	void updateFrame             (uint wait_usecs=0);
+	bool goAndWait               (int nodeId, MotorGoalPositionList &mpl, int &recursive);
+	bool goAndWait               (float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive);
+	void goAndWaitDirect         (const MotorGoalPositionList &mpl);
+	void updateInnerModel        ();
+	void waitForMotorsToStop     ();
+    void delete_collision_points ();
 
 	////////////////////////////////////////
 	bool                    READY;
