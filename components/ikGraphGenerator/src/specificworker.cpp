@@ -784,9 +784,11 @@ void SpecificWorker::delete_collision_points()
     
     cloud->points.resize(point_cloud.size());
     
+    
     for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
     {
-        QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
+    //    QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
+        QVec p = QVec::vec3(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z);
         cloud->points[ioi].x =  p(0);
         cloud->points[ioi].y =  p(1);
         cloud->points[ioi].z =  p(2);
