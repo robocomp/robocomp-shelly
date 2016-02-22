@@ -365,6 +365,52 @@ void SpecificWorker::applyFirstApproximation()
 	usleep(500000);
 }
 
+// bool SpecificWorker::correctPose()
+// {
+// 	printf("\n\n\nCall correctPose\n");
+// 	const float umbralMaxTime=15;
+// 	//const float umbralErrorT=25.0, umbralErrorR=0.18;
+// 	printf("Seconds without tag: %f\n", rightHand->getSecondsElapsed());
+// 	
+// 	QVec errorInvP           = QVec::vec3(errorInv(0), errorInv(1), errorInv(2));
+// 	QVec errorInvP_from_root = innerModel->getRotationMatrixTo("root", "target") * errorInvP;
+// 	errorInvP_from_root.print("errorInvP_from_root");
+// 
+// 	QVec target = innerModel->transform("root", "target");
+// 	printf("target             [ %f %f %f ]\n", target(0), target(1), target(2));
+// 	printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
+// 	printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
+// 
+// 	if (currentTarget.getRunTime()>umbralMaxTime)
+// 	{
+// 		abortCorrection = true;
+// 		currentTarget.setState(Target::State::NOT_RESOLVED);
+// 		innerModel->transform6D("target", "visual_hand").print("abort with visual error");
+// 		QMutexLocker ml(mutexSolved);
+// 		solvedList.enqueue(currentTarget);
+// 		return false;
+// 	}
+// 
+// 	QVec visualError = innerModel->transform6D("target", "visual_hand");
+// 	printf("visualError         [ %f %f %f ]\n", visualError(0), visualError(1), visualError(2));
+// 	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
+// 	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
+// 	if (Tnorm<currentTarget.getThresholds()[0] and Rnorm<currentTarget.getThresholds()[1])
+// 	{
+// 		currentTarget.setState(Target::State::RESOLVED);
+// 		innerModel->transform6D("target", "visual_hand").print("done with visual error");
+// 		QMutexLocker ml(mutexSolved);
+// 		solvedList.enqueue(currentTarget);
+// 		return true;
+// 	}
+// 
+// 
+// 
+// 	bool r = correctPoseWithErrInv();
+// 	return r;
+// }
+
+
 bool SpecificWorker::correctPose()
 {
 	printf("\n\n\nCall correctPose\n");
@@ -391,24 +437,42 @@ bool SpecificWorker::correctPose()
 		return false;
 	}
 
-	QVec visualError = innerModel->transform6D("target", "visual_hand");
-	printf("visualError         [ %f %f %f ]\n", visualError(0), visualError(1), visualError(2));
-	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
-	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
-	if (Tnorm<currentTarget.getThresholds()[0] and Rnorm<currentTarget.getThresholds()[1])
-	{
-		currentTarget.setState(Target::State::RESOLVED);
-		innerModel->transform6D("target", "visual_hand").print("done with visual error");
-		QMutexLocker ml(mutexSolved);
-		solvedList.enqueue(currentTarget);
-		return true;
-	}
+// 	QVec visualError = innerModel->transform6D("target", "visual_hand");
+// 	printf("visualError         [ %f %f %f ]\n", visualError(0), visualError(1), visualError(2));
+// 	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
+// 	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
+// 	if (Tnorm<currentTarget.getThresholds()[0] and Rnorm<currentTarget.getThresholds()[1])
+// 	{
+// 		currentTarget.setState(Target::State::RESOLVED);
+// 		innerModel->transform6D("target", "visual_hand").print("done with visual error");
+// 		QMutexLocker ml(mutexSolved);
+// 		solvedList.enqueue(currentTarget);
+// 		return true;
+// 	}
 
+# TODO METER AQUÍ LA COMPARACIÓN
+// 	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
+// 	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
+// 	if (Tnorm<currentTarget.getThresholds()[0] and Rnorm<currentTarget.getThresholds()[1])
+// 	if (visualError.x() == ,  visualError.y(),  visualError.z())
+// 	{
+// 		currentTarget.setState(Target::State::RESOLVED);
+// 		innerModel->transform6D("target", "visual_hand").print("done with visual error");
+// 		QMutexLocker ml(mutexSolved);
+// 		solvedList.enqueue(currentTarget);
+// 		return true;
+// 	}
 
-
+	
+	
 	bool r = correctPoseWithErrInv();
 	return r;
 }
+
+
+
+
+
 
 
 bool SpecificWorker::correctPoseWithErrInv()
@@ -524,6 +588,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	target.rx = 0.0;
 	target.ry = 0.0;
 	target.rz = 0.0;
+	
 	weights.x = 0.0;
 	weights.y = 0.0;
 	weights.z = 0.0;
@@ -531,7 +596,12 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	weights.ry = 0.0;
 	weights.rz = 0.0;
 	
-	
+	float errortx = 800;
+	float errorty = 800;
+	float errortz = 800;
+	float errorrx = 3.14;
+	float errorry = 3.14;
+	float errorrz = 3.14;
 
 	if (scalars.find("wtx") != scalars.end())
 	{
@@ -614,16 +684,42 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	}
 
 
+	if (scalars.find("errortx") != scalars.end())
+	{
+		target.rx = scalars["trx"];
+	}
+	if (scalars.find("errorty") != scalars.end())
+	{
+		target.ry = scalars["try"];
+	}
+	if (scalars.find("errortz") != scalars.end())
+	{
+		target.rz = scalars["trz"];
+	}
+	if (scalars.find("errorrx") != scalars.end())
+	{
+		target.rx = scalars["trx"];
+	}
+	if (scalars.find("errorry") != scalars.end())
+	{
+		target.ry = scalars["try"];
+	}
+	if (scalars.find("errorrz") != scalars.end())
+	{
+		target.rz = scalars["trz"];
+	}
 
 	
-	if (scalars.find("thresholdT") != scalars.end())
-	{
-		thresholdT = scalars["thresholdT"];
-	}
-	if (scalars.find("thresholdR") != scalars.end())
-	{
-		thresholdR = scalars["thresholdR"];
-	}
+	
+	
+// 	if (scalars.find("thresholdT") != scalars.end())
+// 	{
+// 		thresholdT = scalars["thresholdT"];
+// 	}
+// 	if (scalars.find("thresholdR") != scalars.end())
+// 	{
+// 		thresholdR = scalars["thresholdR"];
+// 	}
 
 	
 	float VIK_thresholdT = thresholdT;
@@ -638,7 +734,8 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 		currentTarget.setWeights     (weights);
 		currentTarget.setState       (Target::State::WAITING);
 		currentTarget.setID_VIK      (contador);
-		currentTarget.setThresholds (VIK_thresholdT, VIK_thresholdR);
+// 		currentTarget.setThresholds (VIK_thresholdT, VIK_thresholdR);
+		currentTarget.setErrorThreshold(errortx,errorty,errortz,errorrx,errorry,errorrz);
 	}
 	else
 	{

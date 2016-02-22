@@ -27,7 +27,9 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
+#include <DifferentialRobot.h>
 #include <InverseKinematics.h>
+#include <RGBD.h>
 #include <JointMotor.h>
 
 
@@ -39,7 +41,9 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
+using namespace RoboCompDifferentialRobot;
 using namespace RoboCompInverseKinematics;
+using namespace RoboCompRGBD;
 using namespace RoboCompJointMotor;
 
 
@@ -65,6 +69,7 @@ public:
 
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
+	RGBDPrx rgbd_proxy;
 
 	virtual void setFingers(const float d) = 0;
 	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;

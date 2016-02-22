@@ -36,6 +36,7 @@ public:
 	string 	bodyPart;
 	QVec	pose;
 	QVec	weights;
+	QVec    errorThresold;
 	QTime 	runTime;
 	
 public:
@@ -48,6 +49,7 @@ public:
 	void	setID_IK        (int id_);
 	void	setID_VIK       (int id_);
 	void    setThresholds   (float thresholdT, float thresholdR);
+	void    setErrorThreshold   (float errortx, float errorty, float errortz, float errorrx, float errorry, float errorrz);
 	void 	setState	(Target::State state_);
 	void 	setBodyPart	(string bodyPart_);
 	void 	setPose		(QVec pose_);
@@ -60,6 +62,7 @@ public:
 	int                             getID_IK      ();
 	int                             getID_VIK     ();
 	QVec                            getThresholds ();
+	QVec                            getErrorThreshold ();
 	Target::State                   getState      ();
 	string                          getBodyPart   ();
 	QVec                            getPose       ();
