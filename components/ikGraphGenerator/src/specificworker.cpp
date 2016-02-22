@@ -124,7 +124,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	connect(generateButton, SIGNAL(clicked()), this, SLOT(initGenerate()));
 #endif
 
-
 	try
 	{
 		InnerModelNode *parent = innerModel->getNode("root");
@@ -148,8 +147,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
 		throw;
 	}
-
-
 	/*timer.start(10);*/	
  	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
@@ -334,8 +331,7 @@ void SpecificWorker::updateInnerModel()
 
 
 /** -------------------------------------------------------------------
- * \brief goAndWaitDirect. Mueve el brazo en base a la posicion de los
- * motores almacenada en mpl.
+ * \brief goAndWaitDirect. Mueve el brazo en base a la posicion de los motores almacenada en mpl.
  * @param mpl motores y posiciones de los motores.
  * ------------------------------------------------------*/
 void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
@@ -681,6 +677,14 @@ void SpecificWorker::compute()
 	}
 	
 	
+    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	delete_collision_points();
+       
+
 	switch(state)
 	{
 	case GIK_NoTarget:
@@ -762,6 +766,33 @@ void SpecificWorker::compute()
 		}
 		break;
 	}
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+void SpecificWorker::delete_collision_points()
+{
+    qDebug()<<"HEY";
+    RoboCompRGBD::PointSeq point_cloud;
+    RoboCompJointMotor::MotorStateMap hState;
+    RoboCompDifferentialRobot::TBaseState bState;
+    rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
+    
+    // Pasamos puntos a pcl 
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // PCL
+    
+    cloud->points.resize(point_cloud.size());
+    
+    
+    for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
+    {
+    //    QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
+        QVec p = QVec::vec3(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z);
+        cloud->points[ioi].x =  p(0);
+        cloud->points[ioi].y =  p(1);
+        cloud->points[ioi].z =  p(2);
+    }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1147,6 +1178,11 @@ void SpecificWorker::waitForMotorsToStop()
 }
 
 
+
+int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
+{
+
+}
 
 
 

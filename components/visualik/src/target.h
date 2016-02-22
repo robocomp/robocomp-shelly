@@ -30,10 +30,13 @@ public:
 	//Atributos privados:
 	int 	idIK;
 	int     idVIK;
+	float   VIK_thresholdT;     // Umbral de error de traslacion
+	float   VIK_thresholdR;     // Umbral de error de rotacion
 	State 	state;
 	string 	bodyPart;
 	QVec	pose;
 	QVec	weights;
+	QVec    errorThresold;
 	QTime 	runTime;
 	
 public:
@@ -43,8 +46,10 @@ public:
 	~Target	();
 	
 	//METODOS PUT
-	void	setID_IK	(int id_);
-	void	setID_VIK   (int id_);
+	void	setID_IK        (int id_);
+	void	setID_VIK       (int id_);
+	void    setThresholds   (float thresholdT, float thresholdR);
+	void    setErrorThreshold   (float errortx, float errorty, float errortz, float errorrx, float errorry, float errorrz);
 	void 	setState	(Target::State state_);
 	void 	setBodyPart	(string bodyPart_);
 	void 	setPose		(QVec pose_);
@@ -54,14 +59,16 @@ public:
 	void	setRunTime	();
 
 	//METODOS GET:
-	int                             getID_IK	();
-	int                             getID_VIK   ();
-	Target::State                   getState	();
-	string                          getBodyPart	();
-	QVec                            getPose		();
-	QVec			getWeights	();
-	float			getRunTime	();
-	RoboCompInverseKinematics::Pose6D 		getPose6D	();
+	int                             getID_IK      ();
+	int                             getID_VIK     ();
+	QVec                            getThresholds ();
+	QVec                            getErrorThreshold ();
+	Target::State                   getState      ();
+	string                          getBodyPart   ();
+	QVec                            getPose       ();
+	QVec			getWeights            ();
+	float			getRunTime            ();
+	RoboCompInverseKinematics::Pose6D getPose6D   ();
 	RoboCompInverseKinematics::WeightVector getWeights6D();
 
 };

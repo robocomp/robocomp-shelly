@@ -63,7 +63,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		{
 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
 			innermodel = new InnerModel(par.value);
-			Metric::moveInnerModelFromMillimetersToMeters(innermodel->getRoot()); /// CONVERT THE METRIC
+            // ALERT ALERT ALERT ALERT
+			//Metric::moveInnerModelFromMillimetersToMeters(innermodel->getRoot()); /// CONVERT THE METRIC
 		}
 		else
 			qFatal("Exiting now.");
@@ -151,12 +152,12 @@ void SpecificWorker::compute()
 			
 			createInnerModelTarget(partsIterator.value().getTargetList()[0]);
 			inversedkinematic->solveTarget(&partsIterator.value(), innermodel);
-			UPDATE_READY = false;
+			UPDATE_READY = false; // evitamos que se actualice
 
 			if(partsIterator.value().getTargetList()[0].getTargetState() == Target::FINISH) /// The inversedkinematic has finished
 			{
 				//TODO QUITAR DESPUES
-				//updateMotors(partsIterator.value(), partsIterator.value().getTargetList()[0].getTargetFinalAngles());
+// 				updateMotors(partsIterator.value(), partsIterator.value().getTargetList()[0].getTargetFinalAngles());
 				updateAngles(partsIterator.value().getTargetList()[0].getTargetFinalAngles(), partsIterator.value());
 
 				if(inversedkinematic->deleteTarget() == true)
@@ -206,9 +207,10 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		throw ex;
 	}
 
-	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
-	qDebug()<<"PESOS: "<<weights.x<<", "<<weights.y<<", "<<weights.z<<", "<<weights.rx<<", "<<weights.ry<<", "<<weights.rz;
-	QVec weights_ = QVec::vec6(weights.x,           weights.y,         weights.z,         weights.rx, weights.ry, weights.rz);
+// 	QVec pose_    = QVec::vec6( target.x /(T)1000,  target.y/(T)1000,  target.z/(T)1000,  target.rx,  target.ry,  target.rz);
+	QVec pose_    = QVec::vec6( target.x,  target.y,  target.z,   target.rx,  target.ry,  target.rz);
+	QVec weights_ = QVec::vec6(weights.x, weights.y,  weights.z, weights.rx, weights.ry, weights.rz);
+//    	qDebug()<<"PESOS: "<<weights.x<<", "<<weights.y<<", "<<weights.z<<", "<<weights.rx<<", "<<weights.ry<<", "<<weights.rz;
 	
 	if(weights_.x()<=0 and weights_.y()<=0 and weights_.z()<=0 and weights_.rx()<=0 and weights_.ry()<=0 and weights_.rz()<=0)
 	{
@@ -252,8 +254,9 @@ int SpecificWorker::setTargetAlignaxis(const string &bodyPart, const Pose6D &tar
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
-	QVec pose_    = QVec::vec6(target.x /(T)1000, target.y/(T)1000, target.z/(T)1000, target.rx, target.ry, target.rz);
-	QVec weights_ = QVec::vec6(                0,                0,                0,         1,         1,         1); //Weights vector ONLY ROTATION
+// 	QVec pose_    = QVec::vec6(target.x /(T)1000, target.y/(T)1000, target.z/(T)1000, target.rx, target.ry, target.rz);
+	QVec pose_    = QVec::vec6(target.x, target.y, target.z, target.rx, target.ry, target.rz);
+	QVec weights_ = QVec::vec6(       0,        0,        0,         1,         1,         1); //Weights vector ONLY ROTATION
 	QVec axis_    = QVec::vec3(ax.x , ax.y, ax.z);
 	Target newTarget = Target(0, pose_, weights_, axis_,Target::TargetType::ALIGNAXIS);
 
@@ -289,7 +292,8 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
 	float step_;
 	if(dist > 300)  step_ = 300;
 	if(dist < -300) step_ = -300;
-	step_ = dist / 1000.;   //PASANDO A METROS
+// 	step_ = dist / 1000.;   //PASANDO A METROS
+   	step_ = dist;
 	Target newTarget  = Target(0, axis_, step_, Target::TargetType::ADVANCEAXIS);
 
 	qDebug() << "----------------------------------------------------------------------------------";
@@ -449,7 +453,7 @@ void SpecificWorker::setFingers(const float d)
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
 /**
- * @brief SED DATA
+ * @brief SEND DATA
  * 		  The BodyInverseKinematics component is subscribed to
  * 		  joystickAdapter in order to take the position that the
  * 		  publisher joystick (FALCON) send to him.
@@ -563,7 +567,8 @@ void SpecificWorker::showInformation(BodyPart part, Target target)
 
 	float errorT, errorR;
 	qDebug()<<"Vector error:   "<<target.getTargetError(errorT, errorR)<<"\\";
-	qDebug()<<"(T: "<<abs(errorT)*1000<<"mm , R: "<<abs(errorR)<<"rad)";
+   	qDebug()<<"(T: "<<abs(errorT)<<"mm , R: "<<abs(errorR)<<"rad)";
+// 	qDebug()<<"(T: "<<abs(errorT)*1000<<"mm , R: "<<abs(errorR)<<"rad)";
 
 // 	file<<"P: ("      <<target.getTargetPose();
 // 	file<<")    ERROR_T:"<<abs(errorT)*1000;
@@ -585,7 +590,8 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 	state.finish = true;
 	state.elapsedTime = t.getTargetTimeExecution();
 	t.getTargetError(state.errorT, state.errorR);
-	state.errorT = state.errorT*1000; //a milimetros
+	state.errorT = state.errorT;
+// 	state.errorT = state.errorT*1000; //a milimetros
 	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_ERROR) state.state = "LOW_ERROR";
 	if(t.getTargetFinalState() == Target::TargetFinalState::LOW_INCS)  state.state = "LOW_INCS";
 	if(t.getTargetFinalState() == Target::TargetFinalState::NAN_INCS)  state.state = "NAN_INCS";
@@ -607,6 +613,14 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 	QMutexLocker mm(mutexSolved);
 	targetsSolved.enqueue(ts);
 }
+
+
+int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
+{
+
+}
+
+
 
 // TODO QUITAR DESPUES
 // void SpecificWorker::updateMotors (BodyPart bp, QVec angles)

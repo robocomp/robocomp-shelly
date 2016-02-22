@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -67,6 +67,11 @@ bool InverseKinematicsI::getPartState(const string  &bodyPart, const Ice::Curren
 void InverseKinematicsI::setJoint(const string  &joint, const float  angle, const float  maxSpeed, const Ice::Current&)
 {
 	worker->setJoint(joint, angle, maxSpeed);
+}
+
+int InverseKinematicsI::mapBasedTarget(const string  &bodyPart, const StringMap  &strings, const ScalarMap  &scalars, const Ice::Current&)
+{
+	return worker->mapBasedTarget(bodyPart, strings, scalars);
 }
 
 int InverseKinematicsI::setTargetAlignaxis(const string  &bodyPart, const Pose6D  &target, const Axis  &ax, const Ice::Current&)

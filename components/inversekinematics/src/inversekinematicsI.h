@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -46,6 +46,7 @@ public:
 	int setTargetPose6D(const string  &bodyPart, const Pose6D  &target, const WeightVector  &weights, const Ice::Current&);
 	bool getPartState(const string  &bodyPart, const Ice::Current&);
 	void setJoint(const string  &joint, const float  angle, const float  maxSpeed, const Ice::Current&);
+	int mapBasedTarget(const string  &bodyPart, const StringMap  &strings, const ScalarMap  &scalars, const Ice::Current&);
 	int setTargetAlignaxis(const string  &bodyPart, const Pose6D  &target, const Axis  &ax, const Ice::Current&);
 
 	QMutex *mutex;

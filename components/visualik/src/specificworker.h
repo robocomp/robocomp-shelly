@@ -50,15 +50,17 @@ Q_OBJECT
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
-	TargetState getTargetState       (const string &bodyPart, const int targetID);
 	int         setTargetAdvanceAxis (const string &bodyPart, const Axis &ax, const float dist);
-	void        goHome               (const string &bodyPart);
-	void        stop                 (const string &bodyPart);
 	int         setTargetPose6D      (const string &bodyPart, const Pose6D &target, const WeightVector &weights);
-	bool        getPartState         (const string &bodyPart);
 	int         setTargetAlignaxis   (const string &bodyPart, const Pose6D &target, const Axis &ax);
 	void        setJoint             (const string &joint, const float angle, const float maxSpeed);
 	void        setFingers           (const float d);
+	void        goHome               (const string &bodyPart);
+	void        stop                 (const string &bodyPart);
+	bool        getPartState         (const string &bodyPart);
+	TargetState getTargetState       (const string &bodyPart, const int targetID);
+	int mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars);
+
 	void        newAprilTag          (const tagsList &tags);
 
 public slots:

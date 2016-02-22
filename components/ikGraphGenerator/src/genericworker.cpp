@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -30,6 +30,7 @@ QObject()
 {
 	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
+	rgbd_proxy = (*(RGBDPrx*)mprx["RGBDProxy"]);
 
 
 	mutex = new QMutex(QMutex::Recursive);

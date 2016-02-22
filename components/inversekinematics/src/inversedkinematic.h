@@ -41,6 +41,9 @@ private:
 	InnerModel *innermodel;
 	BodyPart *bodypart;
 	
-	int repetitions;	
+	int repetitions;
+    float error_threshold;
+    float errorT_threshold;
+    float errorR_threshold;
 };
 #endif

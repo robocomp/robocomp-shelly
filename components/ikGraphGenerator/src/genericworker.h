@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2016 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -27,7 +27,9 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
+#include <DifferentialRobot.h>
 #include <InverseKinematics.h>
+#include <RGBD.h>
 #include <JointMotor.h>
 
 
@@ -39,7 +41,9 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
+using namespace RoboCompDifferentialRobot;
 using namespace RoboCompInverseKinematics;
+using namespace RoboCompRGBD;
 using namespace RoboCompJointMotor;
 
 
@@ -65,6 +69,7 @@ public:
 
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
+	RGBDPrx rgbd_proxy;
 
 	virtual void setFingers(const float d) = 0;
 	virtual TargetState getTargetState(const string &bodyPart, const int targetID) = 0;
@@ -74,6 +79,7 @@ public:
 	virtual int setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights) = 0;
 	virtual bool getPartState(const string &bodyPart) = 0;
 	virtual void setJoint(const string &joint, const float angle, const float maxSpeed) = 0;
+	virtual int mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars) = 0;
 	virtual int setTargetAlignaxis(const string &bodyPart, const Pose6D &target, const Axis &ax) = 0;
 
 
