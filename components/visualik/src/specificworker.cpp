@@ -351,6 +351,10 @@ void SpecificWorker::newAprilTag(const tagsList &tags)
 
 void SpecificWorker::applyFirstApproximation()
 {
+	if (stateMachine == State::INIT_BIK)
+	{
+		printf("\n\n\neeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecall applyFirstApproximation\n");
+	}
 	printf("\n\n\ncall applyFirstApproximation\n");
 
 	const Pose6D tt = currentTarget.getPose6D();
@@ -507,6 +511,8 @@ bool SpecificWorker::correctPoseWithErrInv()
 
 	// Call BIK and wait for it to finish
 	printf("Mandamos %f %f %f\n", correctedTarget.getPose6D().x, correctedTarget.getPose6D().y, correctedTarget.getPose6D().z);
+	printf("Pesos que mandamos %f %f %f\n", correctedTarget.getWeights6D().x, correctedTarget.getWeights6D().y, correctedTarget.getWeights6D().z);
+	
 	int identifier = inversekinematics_proxy->setTargetPose6D(currentTarget.getBodyPart(), correctedTarget.getPose6D(), currentTarget.getWeights6D());
 	correctedTarget.setID_IK(identifier);
 

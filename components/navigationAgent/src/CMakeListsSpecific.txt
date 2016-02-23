@@ -1,0 +1,18 @@
+
+SET(LIBS ${LIBS} -lagm)
+# Sources set
+SET ( SOURCES
+  specificworker.cpp
+  specificmonitor.cpp
+  $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
+)
+
+# Headers set
+SET ( HEADERS
+  specificworker.h
+  specificmonitor.h
+  $ENV{ROBOCOMP}/classes/agmInner/agmInner.h
+)
+
+ADD_DEFINITIONS( -std=c++11 )
+
