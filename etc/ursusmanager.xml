@@ -120,7 +120,7 @@
 
  <node alias="innerA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10334">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 agmInner /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/agmInnerAgent ./bin/agmInnerComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 agmInner . agmInnerComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 agmInnerComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
   <xpos value="-169.199146032" />
