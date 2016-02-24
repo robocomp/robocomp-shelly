@@ -365,7 +365,7 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
   <dependence alias="trajectory" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/robocomp-ursus/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <xpos value="-116.148167536" />

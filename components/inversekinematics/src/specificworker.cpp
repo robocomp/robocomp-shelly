@@ -617,7 +617,7 @@ void SpecificWorker::addTargetSolved(QString part, Target t)
 
 int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
 {
-
+	return -1;
 }
 
 
