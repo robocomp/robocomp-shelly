@@ -450,7 +450,7 @@ bool SpecificWorker::correctPose()
 // 		return true;
 // 	}
 
-# TODO METER AQUÍ LA COMPARACIÓN
+// TODO METER AQUÍ LA COMPARACIÓN
 // 	float Tnorm = QVec::vec3(visualError.x(),  visualError.y(),  visualError.z()).norm2();
 // 	float Rnorm = QVec::vec3(visualError.rx(), visualError.ry(), visualError.rz()).norm2();
 // 	if (Tnorm<currentTarget.getThresholds()[0] and Rnorm<currentTarget.getThresholds()[1])
