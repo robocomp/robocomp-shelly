@@ -41,7 +41,11 @@
 #include <RGBD.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-
+#include <pcl/point_cloud.h>
+// #include <pcl/kdtree/kdtree_flann.h>
+// #include <pcl/kdtree/impl/kdtree_flann.hpp>
+#include <pcl/features/normal_3d.h>
+#include <pcl/features/pfh.h>
 // using namespace boost;
 
 #define MAX_ERROR_IK 5.
