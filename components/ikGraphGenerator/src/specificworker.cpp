@@ -33,6 +33,14 @@
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//      http://pointclouds.org/documentation/tutorials/kdtree_search.php
+//      http://robotica.unileon.es/mediawiki/index.php/PCL/OpenNI_tutorial_3:_Cloud_processing_%28advanced%29
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////        
+        
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -644,6 +652,7 @@ void SpecificWorker::computeHard()
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
+  
 	if (not READY) return;
 	static int tick = 0;
 	if (tick++ % 10 != 0) return;
@@ -773,26 +782,45 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
-    qDebug()<<"HEY";
-    RoboCompRGBD::PointSeq point_cloud;
-    RoboCompJointMotor::MotorStateMap hState;
-    RoboCompDifferentialRobot::TBaseState bState;
-    rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
-    
-    // Pasamos puntos a pcl 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // PCL
-    
-    cloud->points.resize(point_cloud.size());
-    
-    
-    for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
-    {
-    //    QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
-        QVec p = QVec::vec3(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z);
-        cloud->points[ioi].x =  p(0);
-        cloud->points[ioi].y =  p(1);
-        cloud->points[ioi].z =  p(2);
-    }
+	qDebug()<<"HEY";
+	RoboCompRGBD::PointSeq point_cloud;
+	RoboCompJointMotor::MotorStateMap hState;
+	RoboCompDifferentialRobot::TBaseState bState;
+	rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
+	
+	// Pasamos puntos a pcl: cloud es un array que contiene estructuras del tipo PointXYZ
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // PCL
+	cloud->points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
+	// Guardamos los puntos dentro del array
+	for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
+	{
+		//QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
+		//Coordenadas cartesianas RGBD
+		cloud->points[ioi].x =  point_cloud[ioi].x;
+		cloud->points[ioi].y =  point_cloud[ioi].y;
+		cloud->points[ioi].z =  point_cloud[ioi].z;
+	}
+	// Transformamos el array PointCloud a un KD-TREE para manejarlo mejor: 
+	// http://pointclouds.org/documentation/tutorials/kdtree_search.php#kdtree-search
+	//pcl::KdTreeFLANN<pcl::PointXYZ> cloud_kdtree;
+	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+//     cloud_kdtree.setInputCloud (cloud);
+	//TODO Filtramos los puntos: sólo se quedan los del volúmen de trabajo.
+	//TODO Quitamos densidad
+	//TODO Transformamos los puntos al robot desde RGBD.
+	// Comparamos 2cm y eliminamos
+	std::cout<<"Longitud grafo: "<<graph<<std::endl;
+	// Matriz de transformacion                              DESTINO, ORIGEN
+	RTMat M_robot_RGBD = innerModel->getTransformationMatrix("robot", "rgbd");
+	// Transformamos los puntos:
+// 	for (uint32_t point=0; point<point_cloud.size(); point+=3)
+// 	{
+// 		QVec p = (M_robot_RGBD * QVec::vec4(point_cloud[point].x, point_cloud[point].y, point_cloud[point].z, 1)).fromHomogeneousCoordinates();
+// 		cloud->points[point].x =  p[0];
+// 		cloud->points[point].y =  p[1];
+// 		cloud->points[point].z =  p[2];
+// 	}
+	
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////

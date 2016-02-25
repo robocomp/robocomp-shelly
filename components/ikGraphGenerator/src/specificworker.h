@@ -42,6 +42,9 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
+
+#include <pcl/search/impl/kdtree.hpp>
+
 // using namespace boost;
 
 #define MAX_ERROR_IK 5.
