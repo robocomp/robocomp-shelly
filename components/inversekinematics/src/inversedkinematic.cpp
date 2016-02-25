@@ -112,8 +112,8 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 	if(target.getTargetType()==Target::POSE6D or target.getTargetType()==Target::ADVANCEAXIS)
 	{
 		QVec target_Traslations_in_FrameBase = innermodel->transform(frameBase, QVec::zeros(3), target.getTargetNameInInnerModel());
-		QVec tip_Traslations_in_FrameBase 	 = innermodel->transform(frameBase, QVec::zeros(3), bodypart->getTipName());
-		QVec error_Traslations_in_FrameBase	 = target_Traslations_in_FrameBase - tip_Traslations_in_FrameBase;
+		QVec tip_Traslations_in_FrameBase    = innermodel->transform(frameBase, QVec::zeros(3), bodypart->getTipName());
+		QVec error_Traslations_in_FrameBase  = target_Traslations_in_FrameBase - tip_Traslations_in_FrameBase;
 
 		// Calculamos el error de rotación: ¿Cúanto debe girar last Joint para que el tip quede orientado como el target?
 		// 1) Calculamos la matriz de rotación que nos devuelve los ángulos que debe girar el tip para orientarse como el target:
@@ -135,11 +135,11 @@ QVec InversedKinematic::computeErrorVector(Target& target)
 		QMat matResulInFrameBase =  (matFirtRot * matSecondRot) * matThirdRot;
 		// Extraemos los ángulos de la matriz calculada que ya equivalen a las rotaciones del tip vistas desde el frameBase
 		QVec error_Rotations_in_FrameBase = matResulInFrameBase.extractAnglesR_min();
-        
-        error_Rotations_in_FrameBase[0] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[0])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
-        error_Rotations_in_FrameBase[1] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[1])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
-        error_Rotations_in_FrameBase[2] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[2])/M_PI))); /// ESCALAMOS ROTACIONES CON MILIMETROS
-
+                
+		/// ESCALAMOS ROTACIONES CON MILIMETROS
+		error_Rotations_in_FrameBase[0] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[0])/M_PI)));
+		error_Rotations_in_FrameBase[1] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[1])/M_PI))); 
+		error_Rotations_in_FrameBase[2] = 1000/(360/(2 * M_PI* ((180*error_Rotations_in_FrameBase[2])/M_PI))); 
 		
 		finalError.inject(error_Traslations_in_FrameBase,0);
 		finalError.inject(error_Rotations_in_FrameBase, 3);
