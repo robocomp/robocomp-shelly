@@ -15,9 +15,9 @@ SET ( HEADERS
 include_directories( "/usr/include/eigen3" )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
-INCLUDE($ENV{ROBOCOMP}/cmake/modules/FindPCL.cmake)
+INCLUDE($ENV{ROBOCOMP}/cmake/modules/pcl.cmake)
 
-find_package(OMPL)
+#find_package(OMPL)
 
 SET (LIBS ${LIBS} ${PCL_LIBRARIES} -losgViewer)
 
