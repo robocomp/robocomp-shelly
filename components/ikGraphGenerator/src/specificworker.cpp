@@ -27,20 +27,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//      http://pointclouds.org/documentation/tutorials/kdtree_search.php
+//      http://robotica.unileon.es/mediawiki/index.php/PCL/OpenNI_tutorial_3:_Cloud_processing_%28advanced%29
+//--->        pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////    
 /** ------------------------------------------------------
 * \brief Default constructor
 * @param mprx 
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
-{
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////
-//      http://pointclouds.org/documentation/tutorials/kdtree_search.php
-//      http://robotica.unileon.es/mediawiki/index.php/PCL/OpenNI_tutorial_3:_Cloud_processing_%28advanced%29
-        pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
-/////////////////////////////////////////////////////////////////////////////////////////
-/////////////////////////////////////////////////////////////////////////////////////////        
-        
+{ 
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -61,7 +60,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
  	osgView->setCameraManipulator(tb);
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-	
+
 	timer.start(10);
 }
 
@@ -782,36 +781,68 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
-	qDebug()<<"HEY";
+	qDebug()<<"---------> EMPIEZO CON ESTO";
 	RoboCompRGBD::PointSeq point_cloud;
 	RoboCompJointMotor::MotorStateMap hState;
 	RoboCompDifferentialRobot::TBaseState bState;
 	rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
 	
-	// Pasamos puntos a pcl: cloud es un array que contiene estructuras del tipo PointXYZ
+	// 1) Pasamos puntos a pcl: cloud es un array que contiene estructuras del tipo PointXYZ
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // PCL
 	cloud->points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
 	// Guardamos los puntos dentro del array
 	for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
 	{
-		//QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
-		//Coordenadas cartesianas RGBD
+//		QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
+		// Coordenadas cartesianas RGBD
 		cloud->points[ioi].x =  point_cloud[ioi].x;
 		cloud->points[ioi].y =  point_cloud[ioi].y;
 		cloud->points[ioi].z =  point_cloud[ioi].z;
 	}
+	
+	// 2) Filtramos los puntos: sólo se quedan los del volúmen de trabajo
+	// http://pointclouds.org/documentation/tutorials/remove_outliers.php
+	// Pasamos las coordenadas del mundo a la RGBD
+	QVec min_coordinates = QVec::vec3( 50.0,  750.0, 180.0);
+	QVec max_coordinates = QVec::vec3(400.0, 1100.0, 450.0);
+	//                                               DESTINO                  ORIGEN
+	QVec min_rgb_coordinates = innerModel->transform("rgbd", min_coordinates, "root");
+	qDebug()<<min_rgb_coordinates;
+	qFatal("kkk");
+	
+	pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond (new pcl::ConditionAnd<pcl::PointXYZ> ()); //Condicion
+	// Comparacion con la X
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("x", pcl::ComparisonOps::GT, 50.0)));
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("x", pcl::ComparisonOps::LT, 400.0)));
+	// Comparacion con la Y
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("y", pcl::ComparisonOps::GT, 750.0)));
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("y", pcl::ComparisonOps::LT, 1100.0)));
+	// Comparacion con la Z
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("z", pcl::ComparisonOps::GT, 180.0)));
+	range_cond->addComparison (pcl::FieldComparison<pcl::PointXYZ>::ConstPtr (new pcl::FieldComparison<pcl::PointXYZ> ("z", pcl::ComparisonOps::LT, 450.0)));
+	// build the filter
+	pcl::ConditionalRemoval<pcl::PointXYZ> condremoval_filter;
+	condremoval_filter.setCondition(range_cond);
+	condremoval_filter.setInputCloud(cloud);
+	condremoval_filter.setKeepOrganized(true);
+	// apply filter
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+	condremoval_filter.filter (*cloud_filtered);
+	
 	// Transformamos el array PointCloud a un KD-TREE para manejarlo mejor: 
-	// http://pointclouds.org/documentation/tutorials/kdtree_search.php#kdtree-search
-	//pcl::KdTreeFLANN<pcl::PointXYZ> cloud_kdtree;
-	pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
-//     cloud_kdtree.setInputCloud (cloud);
-	//TODO Filtramos los puntos: sólo se quedan los del volúmen de trabajo.
+	pcl::search::KdTree<pcl::PointXYZ> kdtree;
+	kdtree.setInputCloud(cloud_filtered);
+	
+	
+	qDebug()<<"ORIGINAL: "<<cloud->points.size ();
+	qDebug()<<"REMOVAL:  "<<cloud_filtered->points.size ();
+	
 	//TODO Quitamos densidad
 	//TODO Transformamos los puntos al robot desde RGBD.
 	// Comparamos 2cm y eliminamos
-	std::cout<<"Longitud grafo: "<<graph<<std::endl;
+// 	std::cout<<"Longitud grafo: "<<graph<<std::endl;
 	// Matriz de transformacion                              DESTINO, ORIGEN
-	RTMat M_robot_RGBD = innerModel->getTransformationMatrix("robot", "rgbd");
+// 	RTMat M_robot_RGBD = innerModel->getTransformationMatrix("robot", "rgbd");
 	// Transformamos los puntos:
 // 	for (uint32_t point=0; point<point_cloud.size(); point+=3)
 // 	{

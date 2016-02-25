@@ -41,9 +41,8 @@
 #include <RGBD.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
-
-
 #include <pcl/search/impl/kdtree.hpp>
+#include <pcl/filters/conditional_removal.h>
 
 // using namespace boost;
 
