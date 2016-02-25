@@ -33,6 +33,14 @@
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//      http://pointclouds.org/documentation/tutorials/kdtree_search.php
+//      http://robotica.unileon.es/mediawiki/index.php/PCL/OpenNI_tutorial_3:_Cloud_processing_%28advanced%29
+        pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////        
+        
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -644,6 +652,7 @@ void SpecificWorker::computeHard()
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
+  
 	if (not READY) return;
 	static int tick = 0;
 	if (tick++ % 10 != 0) return;
