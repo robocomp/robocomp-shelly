@@ -804,6 +804,9 @@ void SpecificWorker::delete_collision_points()
 	//----------------------------------------------DESTINO------------------------------------ORIGEN
 	QVec min_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3( 50.0,  750.0, 180.0), "root");
 	QVec max_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3(400.0, 1100.0, 450.0), "root");
+	
+	
+	
 // METODO DE FILTRADO 1: NO FUNCIONA ALERT--------------------------
 // 	vector<int> indices;
 // 	Eigen::Vector4f min_pt (min_rgb_coordinates[0], min_rgb_coordinates[1], min_rgb_coordinates[2], 1); 
@@ -814,7 +817,7 @@ void SpecificWorker::delete_collision_points()
 // 	
 // 	qDebug()<<"INDEX SIZE: "<<indices.size();
 // 	pcl::PointCloud<pcl::PointXYZ>::Ptr final_cloud(new pcl::PointCloud<pcl::PointXYZ>); 
-// 	final_cloud->points.resize(indices.size());
+// 	final_cloud->points.resize(indices.size()); // NOTE Indices no tiene nada, por queeeeeee???? se supone que debe guardar los puntos buenos ahi!!!!! JOERRRRR
 // 	
 // 	// Guardamos los puntos dentro del array
 // 	for (uint32_t p=0; p<indices.size(); p++)
@@ -825,11 +828,13 @@ void SpecificWorker::delete_collision_points()
 // 	}
 // 	qDebug()<<"CHANGE SIZE: "<<final_cloud->size();
 //------------------------------------------------------------------------------------
-// METODO DE FILTRADO 2: NO FUNCIONA ALERT--------------------------
-	// Generamos la Condicion
-	pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond; //Condicion
-
-	// Comparacion con la X
+	
+	
+// METODO DE FILTRADO 2: NO FUNCIONA ALERT-------------------------- NOTE PERO ME MOLA MAS QUE EL ANTERIOR
+	// Generamos las Condiciones de comparacion--> GT mayor que, LT menor que
+	pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond;
+	
+	// Comparacion con la X --> X entre 50.0 y 400.0
 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
 					(new pcl::FieldComparison<pcl::PointXYZ> 
 						("x", pcl::ComparisonOps::GT, min_rgb_coordinates[0])));
@@ -863,9 +868,6 @@ void SpecificWorker::delete_collision_points()
 // 	pcl::search::KdTree<pcl::PointXYZ> kdtree;
 // 	kdtree.setInputCloud(cloud_filtered);
 // 	
-// 	
-// 	qDebug()<<"ORIGINAL: "<<cloud->points.size ();
-// 	qDebug()<<"REMOVAL:  "<<cloud_filtered->points.size ();
 // 	
 // 	//TODO Quitamos densidad
 // 	//TODO Transformamos los puntos al robot desde RGBD.
