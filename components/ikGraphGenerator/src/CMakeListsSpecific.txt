@@ -12,7 +12,7 @@ SET ( HEADERS
   specificmonitor.h
 )
 
-include_directories( "/usr/include/eigen3" "/usr/local/include/pcl-1.7/")
+include_directories( "/usr/include/eigen3" "/usr/local/include/pcl-1.8" )
 
 INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
 

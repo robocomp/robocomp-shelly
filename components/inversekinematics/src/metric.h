@@ -20,7 +20,7 @@ class Metric
 public:
 	Metric();
 	~Metric();
-
+    InnerModel innermodel;
 	static void moveInnerModelFromMillimetersToMeters(InnerModelNode* node);
 };
 #endif
