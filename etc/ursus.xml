@@ -1,5 +1,10 @@
 ﻿<innerModel>
 	<!-- <axes id="sl3" /> -->
+	
+<!-- 	quitar depues -->
+	<transform id="box_t" tx="100" ty="700" tz="200">
+		<mesh id="box_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="200"/>
+	</transform>
 
 	<omnirobot id="robot" port="12238" >
 		<!-- laser position -->

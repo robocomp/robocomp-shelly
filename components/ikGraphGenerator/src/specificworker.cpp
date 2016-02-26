@@ -27,12 +27,19 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//      http://pointclouds.org/documentation/tutorials/kdtree_search.php
+//      http://robotica.unileon.es/mediawiki/index.php/PCL/OpenNI_tutorial_3:_Cloud_processing_%28advanced%29
+//--->        pcl::search::KdTree<pcl::PointXYZ>::Ptr kdtree(new pcl::search::KdTree<pcl::PointXYZ>);
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////    
 /** ------------------------------------------------------
 * \brief Default constructor
 * @param mprx 
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
-{
+{ 
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -53,7 +60,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
  	osgView->setCameraManipulator(tb);
 #endif
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-	
+
 	timer.start(10);
 }
 
@@ -644,6 +651,7 @@ void SpecificWorker::computeHard()
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
+  
 	if (not READY) return;
 	static int tick = 0;
 	if (tick++ % 10 != 0) return;
@@ -773,26 +781,109 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
-    qDebug()<<"HEY";
-    RoboCompRGBD::PointSeq point_cloud;
-    RoboCompJointMotor::MotorStateMap hState;
-    RoboCompDifferentialRobot::TBaseState bState;
-    rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
-    
-    // Pasamos puntos a pcl 
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>); // PCL
-    
-    cloud->points.resize(point_cloud.size());
-    
-    
-    for (uint32_t ioi=0; ioi<point_cloud.size(); ioi+=3)
-    {
-    //    QVec p = (TR * QVec::vec4(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z, 1)).fromHomogeneousCoordinates();
-        QVec p = QVec::vec3(point_cloud[ioi].x, point_cloud[ioi].y, point_cloud[ioi].z);
-        cloud->points[ioi].x =  p(0);
-        cloud->points[ioi].y =  p(1);
-        cloud->points[ioi].z =  p(2);
-    }
+	qDebug()<<"---------> EMPIEZO CON ESTO";
+	RoboCompRGBD::PointSeq point_cloud;
+	RoboCompJointMotor::MotorStateMap hState;
+	RoboCompDifferentialRobot::TBaseState bState;
+	rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
+	
+	// 1) Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
+	full_cloud.points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
+	// Guardamos los puntos dentro del array
+	for (uint32_t i=0; i<point_cloud.size(); i+=3)
+	{
+		full_cloud.points[i].x =  point_cloud[i].x;
+		full_cloud.points[i].y =  point_cloud[i].y;
+		full_cloud.points[i].z =  point_cloud[i].z;
+	}
+	
+	// 2) Filtramos los puntos: sólo se quedan los del volúmen de trabajo
+	// http://pointclouds.org/documentation/tutorials/remove_outliers.php
+	// http://mapinect.googlecode.com/svn-history/r320/openFrameworks/apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
+	// Pasamos las coordenadas del mundo a la RGBD
+	//----------------------------------------------DESTINO------------------------------------ORIGEN
+	QVec min_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3( 50.0,  750.0, 180.0), "root");
+	QVec max_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3(400.0, 1100.0, 450.0), "root");
+	
+	
+	
+// METODO DE FILTRADO 1: NO FUNCIONA ALERT--------------------------
+// 	vector<int> indices;
+// 	Eigen::Vector4f min_pt (min_rgb_coordinates[0], min_rgb_coordinates[1], min_rgb_coordinates[2], 1); 
+// 	Eigen::Vector4f max_pt (max_rgb_coordinates[0], max_rgb_coordinates[1], max_rgb_coordinates[2], 1);
+//
+// 	qDebug()<<"ORIGINAL SIZE: "<<all_cloud->size();
+// 	pcl::getPointsInBox(*all_cloud, min_pt, max_pt, indices);
+// 	
+// 	qDebug()<<"INDEX SIZE: "<<indices.size();
+// 	pcl::PointCloud<pcl::PointXYZ>::Ptr final_cloud(new pcl::PointCloud<pcl::PointXYZ>); 
+// 	final_cloud->points.resize(indices.size()); // NOTE Indices no tiene nada, por queeeeeee???? se supone que debe guardar los puntos buenos ahi!!!!! JOERRRRR
+// 	
+// 	// Guardamos los puntos dentro del array
+// 	for (uint32_t p=0; p<indices.size(); p++)
+// 	{
+// 		qDebug()<<"P: "<<p;
+// 		// Coordenadas cartesianas RGBD
+// // 		final_cloud->points[p] = indices.at(p);
+// 	}
+// 	qDebug()<<"CHANGE SIZE: "<<final_cloud->size();
+//------------------------------------------------------------------------------------
+	
+	
+// METODO DE FILTRADO 2: NO FUNCIONA ALERT-------------------------- NOTE PERO ME MOLA MAS QUE EL ANTERIOR
+	// Generamos las Condiciones de comparacion--> GT mayor que, LT menor que
+	pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond;
+	
+	// Comparacion con la X --> X entre 50.0 y 400.0
+	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+					(new pcl::FieldComparison<pcl::PointXYZ> 
+						("x", pcl::ComparisonOps::GT, min_rgb_coordinates[0])));
+// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+// 					(new pcl::FieldComparison<pcl::PointXYZ> 
+// 						("x", pcl::ComparisonOps::LT, max_rgb_coordinates[0])));
+// 	// Comparacion con la Y
+// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+// 					(new pcl::FieldComparison<pcl::PointXYZ> 
+// 						("y", pcl::ComparisonOps::GT, min_rgb_coordinates[1])));
+// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+// 					(new pcl::FieldComparison<pcl::PointXYZ> 
+// 						("y", pcl::ComparisonOps::LT, max_rgb_coordinates[1])));
+// 	// Comparacion con la Z
+// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+// 					(new pcl::FieldComparison<pcl::PointXYZ> 
+// 						("z", pcl::ComparisonOps::GT, min_rgb_coordinates[2])));
+// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
+// 					(new pcl::FieldComparison<pcl::PointXYZ> 
+// 						("z", pcl::ComparisonOps::LT, max_rgb_coordinates[2])));
+// 	// build the filter
+// 	pcl::ConditionalRemoval<pcl::PointXYZ> condremoval_filter;
+// 	condremoval_filter.setCondition(range_cond);
+// 	condremoval_filter.setInputCloud(cloud);
+// 	condremoval_filter.setKeepOrganized(true);
+// 	// apply filter
+// 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+// 	condremoval_filter.filter (*cloud_filtered);
+//------------------------------------------------------------------------------------
+// 	// Transformamos el array PointCloud a un KD-TREE para manejarlo mejor: 
+// 	pcl::search::KdTree<pcl::PointXYZ> kdtree;
+// 	kdtree.setInputCloud(cloud_filtered);
+// 	
+// 	
+// 	//TODO Quitamos densidad
+// 	//TODO Transformamos los puntos al robot desde RGBD.
+// 	// Comparamos 2cm y eliminamos
+// // 	std::cout<<"Longitud grafo: "<<graph<<std::endl;
+// 	// Matriz de transformacion                              DESTINO, ORIGEN
+// // 	RTMat M_robot_RGBD = innerModel->getTransformationMatrix("robot", "rgbd");
+// 	// Transformamos los puntos:
+// // 	for (uint32_t point=0; point<point_cloud.size(); point+=3)
+// // 	{
+// // 		QVec p = (M_robot_RGBD * QVec::vec4(point_cloud[point].x, point_cloud[point].y, point_cloud[point].z, 1)).fromHomogeneousCoordinates();
+// // 		cloud->points[point].x =  p[0];
+// // 		cloud->points[point].y =  p[1];
+// // 		cloud->points[point].z =  p[2];
+// // 	}
+// 	
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
