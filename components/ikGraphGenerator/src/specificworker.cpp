@@ -790,84 +790,26 @@ void SpecificWorker::delete_collision_points()
 	// 1) Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
 	full_cloud.points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
 	// Guardamos los puntos dentro del array
-	for (uint32_t i=0; i<point_cloud.size(); i+=3)
+	
+	float minx= 50.0, miny= 750.0, minz=180.0;
+	float maxx=400.0, maxy=1100.0, maxz=450.0;
+
+	QMat mat = innerModel->getTransformationMatrix("robot", "rgbd");
+	int32_t usedPoints = 0;
+	for (uint32_t i=0; i<point_cloud.size(); i++)
 	{
-		full_cloud.points[i].x =  point_cloud[i].x;
-		full_cloud.points[i].y =  point_cloud[i].y;
-		full_cloud.points[i].z =  point_cloud[i].z;
+		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, point_cloud[i].w)).fromHomogeneousCoordinates();
+		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
+		{
+			full_cloud.points[usedPoints].x =  v(0);
+			full_cloud.points[usedPoints].y =  v(1);
+			full_cloud.points[usedPoints].z =  v(2);
+		}
 	}
+	full_cloud.width = usedPoints;
+	full_cloud.height = 1;
+	full_cloud.points.resize(usedPoints);
 	
-	// 2) Filtramos los puntos: sólo se quedan los del volúmen de trabajo
-	// http://pointclouds.org/documentation/tutorials/remove_outliers.php
-	// http://mapinect.googlecode.com/svn-history/r320/openFrameworks/apps/addonsExamples/mapinect/src/utils/pointUtils.cpp
-	// Pasamos las coordenadas del mundo a la RGBD
-	//----------------------------------------------DESTINO------------------------------------ORIGEN
-	QVec min_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3( 50.0,  750.0, 180.0), "root");
-	QVec max_rgb_coordinates = innerModel->transform("rgbd", QVec::vec3(400.0, 1100.0, 450.0), "root");
-	
-	
-	
-// METODO DE FILTRADO 1: NO FUNCIONA ALERT--------------------------
-// 	vector<int> indices;
-// 	Eigen::Vector4f min_pt (min_rgb_coordinates[0], min_rgb_coordinates[1], min_rgb_coordinates[2], 1); 
-// 	Eigen::Vector4f max_pt (max_rgb_coordinates[0], max_rgb_coordinates[1], max_rgb_coordinates[2], 1);
-//
-// 	qDebug()<<"ORIGINAL SIZE: "<<all_cloud->size();
-// 	pcl::getPointsInBox(*all_cloud, min_pt, max_pt, indices);
-// 	
-// 	qDebug()<<"INDEX SIZE: "<<indices.size();
-// 	pcl::PointCloud<pcl::PointXYZ>::Ptr final_cloud(new pcl::PointCloud<pcl::PointXYZ>); 
-// 	final_cloud->points.resize(indices.size()); // NOTE Indices no tiene nada, por queeeeeee???? se supone que debe guardar los puntos buenos ahi!!!!! JOERRRRR
-// 	
-// 	// Guardamos los puntos dentro del array
-// 	for (uint32_t p=0; p<indices.size(); p++)
-// 	{
-// 		qDebug()<<"P: "<<p;
-// 		// Coordenadas cartesianas RGBD
-// // 		final_cloud->points[p] = indices.at(p);
-// 	}
-// 	qDebug()<<"CHANGE SIZE: "<<final_cloud->size();
-//------------------------------------------------------------------------------------
-	
-	
-// METODO DE FILTRADO 2: NO FUNCIONA ALERT-------------------------- NOTE PERO ME MOLA MAS QUE EL ANTERIOR
-	// Generamos las Condiciones de comparacion--> GT mayor que, LT menor que
-	pcl::ConditionAnd<pcl::PointXYZ>::Ptr range_cond;
-	
-	// Comparacion con la X --> X entre 50.0 y 400.0
-	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-					(new pcl::FieldComparison<pcl::PointXYZ> 
-						("x", pcl::ComparisonOps::GT, min_rgb_coordinates[0])));
-// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-// 					(new pcl::FieldComparison<pcl::PointXYZ> 
-// 						("x", pcl::ComparisonOps::LT, max_rgb_coordinates[0])));
-// 	// Comparacion con la Y
-// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-// 					(new pcl::FieldComparison<pcl::PointXYZ> 
-// 						("y", pcl::ComparisonOps::GT, min_rgb_coordinates[1])));
-// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-// 					(new pcl::FieldComparison<pcl::PointXYZ> 
-// 						("y", pcl::ComparisonOps::LT, max_rgb_coordinates[1])));
-// 	// Comparacion con la Z
-// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-// 					(new pcl::FieldComparison<pcl::PointXYZ> 
-// 						("z", pcl::ComparisonOps::GT, min_rgb_coordinates[2])));
-// 	range_cond->addComparison(pcl::FieldComparison<pcl::PointXYZ>::ConstPtr 
-// 					(new pcl::FieldComparison<pcl::PointXYZ> 
-// 						("z", pcl::ComparisonOps::LT, max_rgb_coordinates[2])));
-// 	// build the filter
-// 	pcl::ConditionalRemoval<pcl::PointXYZ> condremoval_filter;
-// 	condremoval_filter.setCondition(range_cond);
-// 	condremoval_filter.setInputCloud(cloud);
-// 	condremoval_filter.setKeepOrganized(true);
-// 	// apply filter
-// 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-// 	condremoval_filter.filter (*cloud_filtered);
-//------------------------------------------------------------------------------------
-// 	// Transformamos el array PointCloud a un KD-TREE para manejarlo mejor: 
-// 	pcl::search::KdTree<pcl::PointXYZ> kdtree;
-// 	kdtree.setInputCloud(cloud_filtered);
-// 	
 // 	
 // 	//TODO Quitamos densidad
 // 	//TODO Transformamos los puntos al robot desde RGBD.
@@ -885,6 +827,8 @@ void SpecificWorker::delete_collision_points()
 // // 	}
 // 	
 }
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -892,7 +836,7 @@ void SpecificWorker::delete_collision_points()
 void WorkerThread::run()
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
-	while(true)
+	while (true)
 	{
 		((SpecificWorker*)data)->computeHard();
 		usleep(10000);
