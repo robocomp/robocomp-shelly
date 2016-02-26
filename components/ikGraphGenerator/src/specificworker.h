@@ -43,7 +43,7 @@
 #include <pcl/point_types.h>
 #include <pcl/search/impl/kdtree.hpp>
 // #include <pcl/filters/conditional_removal.h>
-#include <pcl/filters/impl/conditional_removal.hpp>
+// #include <pcl/filters/impl/conditional_removal.hpp>
 // #include <pcl/common/common.h>
 
 // using namespace boost;
@@ -144,8 +144,7 @@ private:
 	std::pair<float, float> zrange;
 	std::string             lastFinish;
 	
-	pcl::PointCloud<pcl::PointXYZ> full_cloud;
-	pcl::PointCloud<pcl::PointXYZ> work_space_cloud;
+	pcl::PointCloud<pcl::PointXYZ>          full_cloud;
 	
 	MotorGoalPositionList   centerConfiguration;
 	MotorGoalPositionList   lastMotorGoalPositionList;

@@ -781,7 +781,6 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
-	qDebug()<<"---------> EMPIEZO CON ESTO";
 	RoboCompRGBD::PointSeq point_cloud;
 	RoboCompJointMotor::MotorStateMap hState;
 	RoboCompDifferentialRobot::TBaseState bState;
@@ -789,16 +788,17 @@ void SpecificWorker::delete_collision_points()
 	
 	// 1) Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
 	full_cloud.points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
-	// Guardamos los puntos dentro del array
 	
+	// Guardamos los puntos dentro del array si estan dentro del volumen de trabajo del robot.
 	float minx= 50.0, miny= 750.0, minz=180.0;
 	float maxx=400.0, maxy=1100.0, maxz=450.0;
-
-	QMat mat = innerModel->getTransformationMatrix("robot", "rgbd");
+	
+	QMat mat = innerModel->getTransformationMatrix("robot", "rgbd"); //matriz de transformacion
 	int32_t usedPoints = 0;
 	for (uint32_t i=0; i<point_cloud.size(); i++)
 	{
-		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, point_cloud[i].w)).fromHomogeneousCoordinates();
+		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
+					   point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
 		{
 			full_cloud.points[usedPoints].x =  v(0);
@@ -809,23 +809,14 @@ void SpecificWorker::delete_collision_points()
 	full_cloud.width = usedPoints;
 	full_cloud.height = 1;
 	full_cloud.points.resize(usedPoints);
+	qDebug()<<"N POINT BEFORE: "<<point_cloud.size()<<" N POINT AFTER: "<<usedPoints;
 	
-// 	
-// 	//TODO Quitamos densidad
-// 	//TODO Transformamos los puntos al robot desde RGBD.
-// 	// Comparamos 2cm y eliminamos
-// // 	std::cout<<"Longitud grafo: "<<graph<<std::endl;
-// 	// Matriz de transformacion                              DESTINO, ORIGEN
-// // 	RTMat M_robot_RGBD = innerModel->getTransformationMatrix("robot", "rgbd");
-// 	// Transformamos los puntos:
-// // 	for (uint32_t point=0; point<point_cloud.size(); point+=3)
-// // 	{
-// // 		QVec p = (M_robot_RGBD * QVec::vec4(point_cloud[point].x, point_cloud[point].y, point_cloud[point].z, 1)).fromHomogeneousCoordinates();
-// // 		cloud->points[point].x =  p[0];
-// // 		cloud->points[point].y =  p[1];
-// // 		cloud->points[point].z =  p[2];
-// // 	}
-// 	
+	//TODO Quitamos densidad
+	// Pasamos a un kdtree para realizar mejor las busquedas.
+ 	pcl::search::KdTree<pcl::PointXYZ>::Ptr cloud_kdtree (new pcl::search::KdTree<pcl::PointXYZ>);
+	cloud_kdtree->setInputCloud(full_cloud);
+	
+	cloud_kdtree = NULL;
 }
 
 
