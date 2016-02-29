@@ -42,9 +42,12 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/search/impl/kdtree.hpp>
+#include <pcl/filters/statistical_outlier_removal.h>
 // #include <pcl/filters/conditional_removal.h>
 // #include <pcl/filters/impl/conditional_removal.hpp>
 // #include <pcl/common/common.h>
+# include <omp.h>
+
 
 // using namespace boost;
 
@@ -128,29 +131,30 @@ private:
 
 	////////////////////////////////////////
 	bool                    READY;
-	InnerModel              *innerModel;
-	GIKTargetState          state;
-	//QQueue<Target>          nextTargets;     // lista de targets ejecutandose o en espera de ser ejecutados
-	Target                  currentTarget;
-	QQueue<Target>          solvedList;      // lista de targets resueltos.
-	QMutex                  *mutexSolved;
-	int                     targetCounter;   // contador de targets
-	int                     closestToInit;
-	int                     closestToEnd;
-	int                     targetId;
-	std::vector<int>        path;
-	std::pair<float, float> xrange;
-	std::pair<float, float> yrange;
-	std::pair<float, float> zrange;
-	std::string             lastFinish;
+	InnerModel                     *innerModel;
+	GIKTargetState                 state;
+	//QQueue<Target>                 nextTargets;     // lista de targets ejecutandose o en espera de ser ejecutados
+	Target                         currentTarget;
+	QQueue<Target>                 solvedList;      // lista de targets resueltos.
+	QMutex                         *mutexSolved;
+	int                            targetCounter;   // contador de targets
+	int                            closestToInit;
+	int                            closestToEnd;
+	int                            targetId;
+	std::vector<int>               path;
+	std::pair<float, float>        xrange;
+	std::pair<float, float>        yrange;
+	std::pair<float, float>        zrange;
+	std::string                    lastFinish;
 	
-	pcl::PointCloud<pcl::PointXYZ>          full_cloud;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr full_cloud;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered;
 	
-	MotorGoalPositionList   centerConfiguration;
-	MotorGoalPositionList   lastMotorGoalPositionList;
+	MotorGoalPositionList          centerConfiguration;
+	MotorGoalPositionList          lastMotorGoalPositionList;
 	
-	ConnectivityGraph       *graph;
-	WorkerThread            *workerThread;
+	ConnectivityGraph              *graph;
+	WorkerThread                   *workerThread;
 
 #ifdef USE_QTGUI
 	OsgView                 *osgView;
