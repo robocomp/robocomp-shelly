@@ -5,6 +5,8 @@
 class ConnectivityGraph
 {
 public:
+	// ATRIBUTOS DE LA CLASE ConnectivityGraph
+	
 	struct VertexData
 	{
 		bool valid;
@@ -53,6 +55,18 @@ public:
 			return 1000000000000;
 		}
 	};
+	
+	std::vector<VertexData>             vertices;
+	std::vector< std::vector< float > > edges;
+	
+	/////////////////////////////////////////////
+	//  METODOS DE LA CLASE ConnectivityGraph  //
+	/////////////////////////////////////////////
+	// ---------------------------------------CONSTRUCTORES
+	/**
+	 * \brief ConnectivityGraph constructor SIZE
+	 * @param size
+	 */
 	ConnectivityGraph(int32_t size)
 	{
 		for (int32_t i=0;i<size; i++)
@@ -66,7 +80,10 @@ public:
 			edges.push_back(eds);
 		}
 	}
-
+	/**
+	 * \brief ConnectivityGraph constructor FILE_PATH
+	 * @param path
+	 */
 	ConnectivityGraph(QString path)
 	{
 		QFile file(path);
@@ -88,7 +105,6 @@ public:
 				vertices[size()-1].id = parts[1].toInt();
 				vertices[size()-1].setPose(     parts[2].toFloat(), parts[3].toFloat(), parts[4].toFloat());
 				vertices[size()-1].setElbowPose(parts[5].toFloat(), parts[6].toFloat(), parts[7].toFloat());
-
 // 				printf("parts %d\n", parts.size());
 				if (parts.size()>8)
 				{
@@ -115,7 +131,13 @@ public:
 			lineN++;
 		}
 	}
-
+	
+	// ---------------------------------------OTROS METODOS
+	/**
+	 * \brief This method save the ConnectivityGraph data into a file
+	 * @param path file path
+	 * @return FALSE when the file isn't open or TRUE when all is correct
+	 */
 	bool save(QString path)
 	{
 		QFile file(path);
@@ -149,6 +171,10 @@ public:
 		return true;
 	}
 
+	/**
+	 * \brief This method add a new vertex to the ConnectivityGraph.
+	 * @param v the new vertex
+	 */ 
 	void addVertex(const VertexData &v)
 	{
 		// Add vertex
@@ -166,28 +192,45 @@ public:
 		}
 		edges.push_back(eds);
 	}
-
+	
+	/**
+	 * \brief this method returns the number of vertices into the ConnectivityGraph
+	 * @return int, number of vertices
+	 */
 	int size()
 	{
 		return vertices.size();
 	}
-
-
-
-	std::vector<VertexData> vertices;
-	std::vector< std::vector< float > > edges;
-
+	
+	/**
+	 * \brief This method adds an edge between two vertices
+	 * @param a first vertex.
+	 * @param b second vertex.
+	 * @param dist distance between a and b
+	 */ 
 	void add_edge(int a, int b, float dist)
 	{
 		edges[a][b] = dist;
 		edges[b][a] = dist;
 	}
 
+	/**
+	 * \brief This method adds a new configuration to a vertex or node.
+	 * @param node the index of the node-vertex.
+	 * @param gpl the configuration of the motors in this vertex.
+	 */ 
 	void add_configurationToNode(int node, MotorGoalPositionList gpl)
 	{
 		vertices[node].configurations.push_back(gpl);
 	}
 
+	/**
+	 * \brief This method calculates the path between a source vertex and a golat vertex using Dijkstra algorithm.
+	 * @param source index of the original or init vertex.
+	 * @param dest index of the goal vertex.
+	 * @param path is an in/out param. It has the path between source and dest.
+	 * @return the path
+	 */ 
 	int path(int source, int dest, std::vector<int> &path)
 	{
 		Dijkstra d = Dijkstra(&edges);
@@ -195,7 +238,13 @@ public:
 		return d.go(dest, path);
 	}
 
-
+	/**
+	 * \brief This method returns the vertex index closer to a point define by x, y and z coordinates
+	 * @param x coordinate x.
+	 * @param y coordinate y.
+	 * @param z coordinate z.
+	 * @return the vertex closer to p
+	 */ 
 	int getCloserTo(float x, float y, float z)
 	{
 		float p[3];
@@ -204,7 +253,11 @@ public:
 		p[2] = z;
 		return getCloserTo(p);
 	}
-
+	/**
+	 * \brief This auxiliar method returns the vertex index closer to P
+	 * @param p is an vector of three elementos (x, y, z)
+	 * @return the vertex closer to p
+	 */ 
 	int getCloserTo(float *p)
 	{
 		float minDist = -1;
