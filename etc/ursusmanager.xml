@@ -11,10 +11,10 @@
   <simulation hookes="0.07" springlength="0.5" friction="0.4" step="0.5" fieldforce="20000.0" />
  </generalInformation>
 
- <node alias="oracleA" endpoint="agmcommonbehavior:tcp -p 10332">
+ <node alias="oracleA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10338">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/prp/etc/objectoracle.conf" />
+  <upCommand command="rcremote 10.0.30.22 objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-ursus/etc/objectoracle.conf" />
   <downCommand command="killall -9 objectoracle" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/etc/inneragent.conf" />
   <xpos value="197.892332151" />
@@ -132,7 +132,7 @@
  <node alias="objectA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10331">
   <dependence alias="april" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/objectAgent ./bin/objectComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/objectAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/prp/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/objectAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 objectComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/objectComp.conf" />
   <xpos value="0.593508865055" />
@@ -365,7 +365,7 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
   <dependence alias="trajectory" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/robocomp-ursus/components/navigationAgent ./bin/navigationComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationComp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <xpos value="-116.148167536" />
