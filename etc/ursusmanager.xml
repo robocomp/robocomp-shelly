@@ -45,6 +45,18 @@
   <color value="#AAAAAA" />
  </node>
 
+ <node alias="objectD" endpoint="commonbehavior:tcp -p 12332 ">
+  <dependence alias="IS" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/etc/objectDetection.conf" />
+  <downCommand command="killall -9 objectDetectionComp" />
+  <configFile path="kate /home/robocomp/robocomp/components/prp/etc/objectDetection.conf" />
+  <xpos value="-112.46787229" />
+  <ypos value="-31.8065474829" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
