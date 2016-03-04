@@ -49,8 +49,24 @@
   <color value="#33FF33" />
  </node>
 
+<<<<<<< HEAD
  <node alias="graspingA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10332">
   <dependence alias="vik" />
+=======
+ <node alias="objectD" endpoint="commonbehavior:tcp -p 12332 ">
+  <dependence alias="IS" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/etc/objectDetection.conf" />
+  <downCommand command="killall -9 objectDetectionComp" />
+  <configFile path="kate /home/robocomp/robocomp/components/prp/etc/objectDetection.conf" />
+  <xpos value="-112.46787229" />
+  <ypos value="-31.8065474829" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+
+ <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
+>>>>>>> 967d709568c2ac470aae95c5dd42f4d4c704b247
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 graspingAgnt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/graspingAgent ./bin/graspingComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/graspingAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 graspingComp" />
