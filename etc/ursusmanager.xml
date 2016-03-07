@@ -49,10 +49,18 @@
   <color value="#33FF33" />
  </node>
 
-<<<<<<< HEAD
  <node alias="graspingA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10332">
   <dependence alias="vik" />
-=======
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote 10.0.30.22 graspingAgnt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/graspingAgent ./bin/graspingComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/graspingAgent.conf" />
+  <downCommand command="ssh robolab@10.0.30.22 killall -9 graspingComp" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <xpos value="64.2415550568" />
+  <ypos value="-157.52181821" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+
  <node alias="objectD" endpoint="commonbehavior:tcp -p 12332 ">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
@@ -66,16 +74,19 @@
  </node>
 
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
->>>>>>> 967d709568c2ac470aae95c5dd42f4d4c704b247
+  <dependence alias="IS" />
+  <dependence alias="innerA" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 graspingAgnt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/graspingAgent ./bin/graspingComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/graspingAgent.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 graspingComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
-  <xpos value="64.2415550568" />
-  <ypos value="-157.52181821" />
+  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
+  <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
+  <configFile path="xxx" />
+  <xpos value="54.3423231258" />
+  <ypos value="-207.649881864" />
   <radius value="10.0" />
   <color value="#33FF33" />
  </node>
+
+ 
 
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
