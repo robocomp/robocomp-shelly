@@ -28,7 +28,7 @@
   <dependence alias="trajectory" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationComp" />
+  <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationAgent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
   <xpos value="-136.713047842" />
   <ypos value="-196.326558168" />
@@ -273,7 +273,7 @@
   <color value="#3333FF" />
  </node>
 
- <node alias="objectD" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 12332 ">
+ <node alias="objectD" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 17332 ">
   <dependence alias="IS" />
   <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
