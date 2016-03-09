@@ -27,9 +27,9 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
   <dependence alias="trajectory" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationAgent" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/navigationAgent.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/navigationAgent.conf" />
   <xpos value="-136.713047842" />
   <ypos value="-196.326558168" />
   <radius value="10.0" />
@@ -40,9 +40,9 @@
   <dependence alias="IS" />
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 ppcptnAg /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/proprioceptionAgent ./bin/proprioceptionAgent /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/proprioceptionAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 ppcptnAg /home/robocomp/robocomp/components/robocomp-ursus/components/proprioceptionAgent ./bin/proprioceptionAgent /home/robocomp/robocomp/components/robocomp-ursus/etc/proprioceptionAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 proprioceptionAgent" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/proprioceptionAgent.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/proprioceptionAgent.conf" />
   <xpos value="-74.2782159938" />
   <ypos value="-172.109230015" />
   <radius value="10.0" />
