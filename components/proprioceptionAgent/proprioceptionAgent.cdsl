@@ -1,0 +1,12 @@
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+
+Component proprioceptionAgent
+{
+	Communications
+	{
+		requires JointMotor;
+	};
+	language Cpp;
+	gui Qt(QWidget);
+	options agmagent;
+};
