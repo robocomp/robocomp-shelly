@@ -300,9 +300,9 @@
  <node alias="humanA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10333">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/humanAgent ./bin/humanComp /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 humanComp /home/robocomp/robocomp/components/robocomp-ursus/components/humanAgent ./bin/humanComp /home/robocomp/robocomp/components/robocomp-ursus/etc/hriAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 humanComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/hriAgent.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/hriAgent.conf" />
   <xpos value="150.162576896" />
   <ypos value="-175.327491399" />
   <radius value="10.0" />
