@@ -1,0 +1,10 @@
+TrajectoryRobot2D.Endpoints=tcp -p 12204
+CommonBehavior.Endpoints=tcp -p 15299
+JoystickAdapterTopic.Endpoints=tcp -p 12226
+
+OmniRobotProxy = omnirobot:tcp -h localhost -p 12238
+
+TopicManager.Proxy=IceStorm/TopicManager:default -p 9999
+
+
+Ice.MessageSizeMax=800000

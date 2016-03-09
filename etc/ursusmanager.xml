@@ -377,7 +377,7 @@
   <dependence alias="IS" />
   <dependence alias="innerA" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/executiveAUTONOMY.conf" />
+  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/executiveAUTONOMY.conf" />
   <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
   <configFile path="xxx" />
   <xpos value="54.3423231258" />
@@ -389,7 +389,7 @@
  <node alias="initPose" endpoint="">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
+  <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-ursus/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
   <downCommand command="pkill -9 -f shellyPanel.py" />
   <configFile path="xxx" />
   <xpos value="172.018865949" />
