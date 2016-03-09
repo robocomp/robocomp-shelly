@@ -26,13 +26,9 @@ git pull
 echo "update robocomp-robolab"
 cd /home/robocomp/robocomp/components/robocomp-robolab
 git pull
-# robocomp-ursus
-echo "update robocomp-ursus"
-cd /home/robocomp/robocomp/components/robocomp-ursus
-git pull
-# robocomp-ursus-rockin
-echo "update robocomp-ursus-rockin"
-cd /home/robocomp/robocomp/components/robocomp-ursus-rockin
+# robocomp-shelly
+echo "update robocomp-shelly"
+cd /home/robocomp/robocomp/components/robocomp-shelly
 git pull
 # prp
 echo "update prp"
@@ -129,7 +125,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
         
     # trajectory
     echo "make trajectory"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -149,7 +145,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # base
     echo "make baseursus"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/baseursus/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/baseursus/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -159,7 +155,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # ursuscommonjoint
     echo "make ursuscommonjoint"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/ursusCommonJoint/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -191,7 +187,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # faulhaber
     echo "make faulhaber"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/faulhaberComp
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/faulhaberComp
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -201,7 +197,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # inversekinematics
     echo "make ik"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/inversekinematics
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/inversekinematics
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -211,7 +207,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # gik visual
     echo "make gik"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -221,7 +217,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 
     # ik visual
     echo "make ik visual"
-    cd /home/robocomp/robocomp/components/robocomp-ursus/components/visualik/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/visualik/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -237,7 +233,7 @@ if [ "$1" == 2 ] || [ $# == 0 ]; then
 
     # navigationAgent
     echo "make navigation agent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/navigationAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -247,7 +243,7 @@ if [ "$1" == 2 ] || [ $# == 0 ]; then
 
     # proprioceptionAgent
     echo "make proprioceptionAgent agent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/proprioceptionAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/proprioceptionAgent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -257,7 +253,7 @@ if [ "$1" == 2 ] || [ $# == 0 ]; then
 
     # graspingAgent
     echo "make grasping agent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/graspingAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -267,7 +263,7 @@ if [ "$1" == 2 ] || [ $# == 0 ]; then
 
     # objectAgent
     echo "make object agent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/objectAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/objectAgent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
@@ -275,19 +271,9 @@ if [ "$1" == 2 ] || [ $# == 0 ]; then
             exit
     fi
 
-    # AgmInnerAgent
-    echo "make AgmInnerAgent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/agmInnerAgent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling agminner agent"
-            exit
-    fi
-
     # human
     echo "make human agent"
-    cd /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/humanAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
