@@ -1,0 +1,13 @@
+import "/robocomp/interfaces/IDSLs/AprilBasedLocalization.idsl";
+import "/robocomp/interfaces/IDSLs/CommonBehavior.idsl";
+
+Component manualLocalization
+{
+	Communications
+	{
+		implements CommonBehavior;
+		publishes AprilBasedLocalization;
+	};
+	gui Qt(QWidget);
+	language python;
+};
