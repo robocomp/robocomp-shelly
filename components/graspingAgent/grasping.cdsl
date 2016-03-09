@@ -1,0 +1,13 @@
+import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "/robocomp/interfaces/IDSLs/InverseKinematics.idsl";
+
+Component graspingComp
+{
+	Communications
+	{
+		requires JointMotor, InverseKinematics; 
+	};
+	language Cpp;
+	gui Qt(QWidget);
+	options agmagent;
+};
