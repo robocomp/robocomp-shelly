@@ -25,7 +25,7 @@
  </node>
 
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
-  <dependence alias="trajectory" />
+  <dependence alias="trajCaca2" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationAgent" />
@@ -120,7 +120,7 @@
   <dependence alias="localization" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 trjtCaca1 /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
+  <upCommand command="rcremote 10.0.30.11 trjtCaca1 /home/robocomp/robocomp/components/robocomp-ursus/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
   <downCommand command="ssh robolab@10.0.30.11 pkill -9 -f dumbTrajectoryRobot2DComp.py" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/trajectoryrobot2d.conf" />
   <xpos value="-161.970971537" />
@@ -129,19 +129,6 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="trajectory" endpoint="trajectoryrobot2d:tcp -h 10.0.30.11 -p 12204">
-  <dependence alias="laserRGBD" />
-  <dependence alias="localization" />
-  <dependence alias="base" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 trjt /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/ ./bin/TrajectoryRobot2DComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/trajectoryrobot2d.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 TrajectoryRobot2DComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d/trajectoryrobot2d.conf" />
-  <xpos value="-29.5713877707" />
-  <ypos value="-46.0237970738" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
 
  <node alias="laserRGBD" endpoint="laser:tcp -h 10.0.30.11 -p 10033">
   <dependence alias="laser" />
@@ -290,9 +277,9 @@
   <dependence alias="april" />
   <dependence alias="objectD" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/prp/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/objectAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/prp/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-ursus/etc/objectAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 objectAgent" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/objectComp.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/objectAgent.conf" />
   <xpos value="-1.28279840047" />
   <ypos value="-148.516531527" />
   <radius value="10.0" />
@@ -303,7 +290,7 @@
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 agmInner . agmInnerComp /home/robocomp/robocomp/components/prp/etc/agminneragent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 agmInnerComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/agmInnerAgent.conf" />
+  <configFile path="/home/robocomp/robocomp/components/prp/etc/agmInnerAgent.conf" />
   <xpos value="-187.568429333" />
   <ypos value="-224.226684887" />
   <radius value="10.0" />
