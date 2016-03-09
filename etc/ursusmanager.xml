@@ -80,9 +80,9 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-ursus/etc/mission.conf" />
   <downCommand command="killall -9 missionagent" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus-rockin/etc/mission.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-ursus/etc/mission.conf" />
   <xpos value="-12.6207453439" />
   <ypos value="-252.187378421" />
   <radius value="10.0" />
