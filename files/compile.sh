@@ -15,11 +15,10 @@ if [ $# -eq 0 ]; then
 	help
 fi
 
-if [ "$1" -ne "1" ] && [ "$1" -ne "2" ] && [ "$1" -ne "3" ] && [ "$1" -ne 0 ]; then
+if [ $1 -ne 1 ] && [ $1 -ne 2 ] && [ $1 -ne 3 ] && [ $1 -ne 0 ]; then
 	help
 fi
 
-echo "1: $1"
 
 
 
