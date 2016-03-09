@@ -1,15 +1,28 @@
 ### 
 ### Help
 ###
-if [ $# != 0 ]; then
-    if [ "$1" != 1 ] && [ "$1" != 2 ] && [ "$1" != 3 ]; then
-        echo "./compile.sh whitout argument will compile everything"
-        echo "./compile.sh 1 ==> Compile NUC1 components"
-        echo "./compile.sh 2 ==> Compile NUC2 components"
-        echo "./compile.sh 3 ==> Compile NUC3 components"
-        exit
-    fi
+
+help()
+{
+	echo "./compile.sh 0 --> update and compile all components"
+	echo "./compile.sh 1 --> compile NUC1 components"
+	echo "./compile.sh 2 --> compile NUC2 components"
+	echo "./compile.sh 3 --> compile NUC3 components"
+	exit
+}
+
+if [ $# -eq 0 ]; then
+	help
 fi
+
+if [ "$1" -ne "1" ] && [ "$1" -ne "2" ] && [ "$1" -ne "3" ] && [ "$1" -ne 0 ]; then
+	help
+fi
+
+echo "1: $1"
+
+
+
 ###
 ### Update repositories
 ###
@@ -36,6 +49,7 @@ cd /home/robocomp/robocomp/components/prp
 git pull
 
 sleep 4
+
 N=2
 
 ###
@@ -99,8 +113,11 @@ if [ $? -ne 0 ]; then
         exit
 fi
 
+
+echo 'a'
+
 # NUC 1
-if [ "$1" == 1 ] || [ $# == 0 ]; then
+if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC1 components"
 
     # cgr
@@ -228,7 +245,7 @@ if [ "$1" == 1 ] || [ $# == 0 ]; then
 fi
 
 # NUC 2
-if [ "$1" == 2 ] || [ $# == 0 ]; then
+if [ $1 -eq 2 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC2 components"
 
     # navigationAgent
@@ -285,7 +302,7 @@ fi
 
 
 # NUC 3
-if [ "$1" == 3 ] || [ $# == 0 ]; then
+if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC3 components"
 
     # primesense
