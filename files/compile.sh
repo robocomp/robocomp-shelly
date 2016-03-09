@@ -49,7 +49,7 @@ git pull
 
 sleep 4
 
-N=2
+N=3
 
 ###
 ### RoboComp
