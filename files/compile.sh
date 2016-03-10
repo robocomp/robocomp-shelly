@@ -89,6 +89,9 @@ fi
 ###
 echo "make agm"
 cd /home/robocomp/AGM
+if [ ! -f Makefile ]; then
+	cmake . -DROBOCOMP_SUPPORT=True
+fi
 make -j$N
 if [ $? -ne 0 ]; then
 	echo "error compiling agm"
@@ -107,12 +110,14 @@ fi
 ###
 
 # ALWAYS
-
 # april localization
 compile "april localization" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/"
-
+# manual localization 
+compile "manual localization" "/home/robocomp/robocomp/components/robocomp-shelly/components/manualLocalization"
 # joystickcomp
 compile "joystickcomp" "/home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/"
+
+
 
 # NUC 1
 if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
@@ -122,7 +127,7 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
     # stable odometry
     compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
     # trajectory
-    compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
+	#compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
     # laserRGBD
     compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
     # base
@@ -141,6 +146,8 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
     compile "gik" "/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/"
     # ik visual
     compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
+    # dumb trajectory
+    compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
 fi
 
 # NUC 2

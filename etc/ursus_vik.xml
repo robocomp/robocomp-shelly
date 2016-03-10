@@ -1,4 +1,3 @@
-<!-- FICHERO MUNDO PARA HACER PRUEBA DE ROCKIN: PONER OBJETOS DELANTE DEL ROBOT PARA QUE LOS ALCANCE CON LA MANO-->
 <innerModel>
 		
 		<transform id="target">
@@ -17,7 +16,7 @@
 <!--			<transform id="correctedMenosError" />-->
 		</transform>
 		
-		<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml"/>
+		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus.xml"/>
 
 
 </innerModel>
