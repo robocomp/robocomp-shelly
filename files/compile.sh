@@ -279,7 +279,7 @@ if [ $1 -eq 2 ] || [ $1 -eq 0 ]; then
 
     # objectAgent
     echo "make object agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/objectAgent/
+    cd /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/
     cmake .
     make -j$N
     if [ $? -ne 0 ]; then
