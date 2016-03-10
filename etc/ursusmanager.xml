@@ -338,6 +338,7 @@
  <node alias="gik" endpoint="inversekinematics:tcp -h 10.0.30.11 -p 10241">
   <dependence alias="comJoint" />
   <dependence alias="ik" />
+  <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 GIK /home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/ ./bin/ikGraphGenerator /home/robocomp/robocomp/components/robocomp-shelly/etc/ikg.conf" />
   <downCommand command="ssh robolab@10.0.30.11 killall -9 ikGraphGenerator" />

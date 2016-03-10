@@ -173,7 +173,7 @@ void SpecificWorker::initFile()
 	{
 		//graph = new ConnectivityGraph("ursus.ikg");
 		//graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
-		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursusRt.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/ursusRt.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
@@ -690,7 +690,7 @@ void SpecificWorker::compute()
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	delete_collision_points();
+	//delete_collision_points();
        
 
 	switch(state)
