@@ -1,0 +1,25 @@
+
+# Sources set
+SET ( SOURCES
+  specificworker.cpp
+  specificmonitor.cpp
+  #temporary
+  $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
+)
+
+# Headers set
+SET ( HEADERS
+  specificworker.h
+  specificmonitor.h
+  #temporary
+  $ENV{ROBOCOMP}/classes/agmInner/agmInner.h
+)
+
+INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
+
+SET (LIBS ${LIBS} -losgViewer )
+INCLUDE_DIRECTORIES( /usr/local/include/osg /usr/include/osgViewer )
+SET( LIBS ${LIBS} -L/usr/local/lib64/ -losg -losgViewer -losgGA -losgText -losgDB -losgUtil -lopencv_objdetect -lopencv_features2d -lopencv_imgproc -lopencv_highgui -lopencv_core)
+
+
+ADD_DEFINITIONS( -std=c++11 )

@@ -1,0 +1,12 @@
+import "/robocomp/interfaces/IDSLs/MSKBody.idsl";
+
+Component humanComp
+{
+	Communications
+	{
+		subscribesTo MSKBodyEvent;		
+	};
+	language Cpp;
+	gui Qt(QWidget);	
+	options agmagent;
+};

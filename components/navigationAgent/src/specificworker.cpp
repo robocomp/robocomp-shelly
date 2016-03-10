@@ -439,15 +439,18 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	if (robotId < 0)
 	{
 		printf("Robot symbol not found, Waiting for the executive...\n");
+		usleep(1000000);
 		return false;
 	}
 
 	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
 	for (auto edge = robot->edgesBegin(worldModel); edge != robot->edgesEnd(worldModel); edge++)
 	{
+		const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
+
 		if (edge->getLabel() == "RT")
 		{
-			const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
+			printf("%d ---[%s]---> %d\n", symbolPair.first, edge->getLabel().c_str(), symbolPair.second);
 			const string secondType = worldModel->getSymbol(symbolPair.first)->symbolType;
 			if (symbolPair.second == robotId and secondType == "room")
 			{
@@ -459,6 +462,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	if (roomId < 0)
 	{
 		printf("roomId not found, Waiting for Insert innerModel...\n");
+		usleep(1000000);
 		return false;
 	}
 

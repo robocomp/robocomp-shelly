@@ -1,0 +1,8 @@
+{
+	1:robot(1,1)
+	22:object(1,1)
+	23:objectSt(1,1)
+	1->22(know)
+	22->23(table)
+	22->23(reach)
+}
