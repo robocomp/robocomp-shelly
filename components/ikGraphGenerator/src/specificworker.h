@@ -34,19 +34,21 @@
 #endif
 
 #include <innermodeldraw.h>
-//#include <nabo/nabo.h>
-#include <djk.h>
-#include <graph.h>
-
-#include <RGBD.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/point_types.h>
-#include <pcl/search/impl/kdtree.hpp>
-#include <pcl/filters/statistical_outlier_removal.h>
-// #include <pcl/filters/conditional_removal.h>
-// #include <pcl/filters/impl/conditional_removal.hpp>
-// #include <pcl/common/common.h>
-# include <omp.h>
+#ifndef Q_MOC_RUN
+	//#include <nabo/nabo.h>
+	#include <djk.h>
+	#include <graph.h>
+	
+	#include <RGBD.h>
+	#include <pcl/io/pcd_io.h>
+	#include <pcl/point_types.h>
+	#include <pcl/search/impl/kdtree.hpp>
+		#include <pcl/filters/statistical_outlier_removal.h>
+	// #include <pcl/filters/conditional_removal.h>
+	// #include <pcl/filters/impl/conditional_removal.hpp>
+	// #include <pcl/common/common.h>
+	#include <omp.h>
+#endif
 
 
 // using namespace boost;
