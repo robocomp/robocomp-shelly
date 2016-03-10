@@ -1,7 +1,9 @@
-### 
-### Help
-###
 
+#number of compiling threads
+N=3
+
+
+### Help
 help()
 {
 	echo "./compile.sh 0 --> update and compile all components"
@@ -10,6 +12,21 @@ help()
 	echo "./compile.sh 3 --> compile NUC3 components"
 	exit
 }
+
+compile()
+{
+	echo "make $1"
+	cd $2
+	if [ ! -f Makefile ]; then
+		cmake .
+	fi
+	make -j$N
+	if [ $? -ne 0 ]; then
+		echo "error compiling $1"
+		exit
+	fi
+}
+
 
 if [ $# -eq 0 ]; then
 	help
@@ -49,7 +66,6 @@ git pull
 
 sleep 4
 
-N=3
 
 ###
 ### RoboComp
@@ -93,245 +109,63 @@ fi
 # ALWAYS
 
 # april localization
-echo "make april localization"
-cd /home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/
-cmake .
-make -j$N
-if [ $? -ne 0 ]; then
-        echo "error compiling april localization"
-        exit
-fi
+compile "april localization" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/"
 
 # joystickcomp
-echo "make joystickcomp"
-cd /home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/
-cmake .
-make -j$N
-if [ $? -ne 0 ]; then
-        echo "error compiling joystickOmni"
-        exit
-fi
-
-
-echo 'a'
+compile "joystickcomp" "/home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/"
 
 # NUC 1
 if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC1 components"
-
     # cgr
-    echo "make cgr"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling CGR"
-            exit
-    fi
-    
+    compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/"
     # stable odometry
-    echo "make stable odometry"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling stableOdometry"
-            exit
-    fi
-        
+    compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
     # trajectory
-    echo "make trajectory"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling trajectory"
-    #	exit
-    fi 
-
+    compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
     # laserRGBD
-    echo "make laserRGBD"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling laserrgbd"
-            exit
-    fi
-
+    compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
     # base
-    echo "make baseursus"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/baseursus/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling baseursus"
-            exit
-    fi
-
+    compile "baseursus" "/home/robocomp/robocomp/components/robocomp-shelly/components/baseursus/"
     # ursuscommonjoint
-    echo "make ursuscommonjoint"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling ursuscommonjoint"
-            exit
-    fi
-
+    compile "ursuscommonjoint" "/home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint/"
     # dunker
-    echo "make dunker"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling dunker"
-            exit
-    fi
-
-
-
+    compile "dunker" "/home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp"
     # dynamixel
-    echo "make dynamixel"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling dynamixel"
-            exit
-    fi
-
+    compile "dynamixel" "/home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp"
     # faulhaber
-    echo "make faulhaber"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/faulhaberComp
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling faulhaber"
-            exit
-    fi
-
+    compile "faulhaber" "/home/robocomp/robocomp/components/robocomp-shelly/components/faulhaberComp"
     # inversekinematics
-    echo "make ik"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/inversekinematics
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling IK"
-            exit
-    fi
-
+    compile "ik" "/home/robocomp/robocomp/components/robocomp-shelly/components/inversekinematics"
     # gik visual
-    echo "make gik"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling gik"
-            exit
-    fi
-
+    compile "gik" "/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/"
     # ik visual
-    echo "make ik visual"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/visualik/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling visualik"
-            exit
-    fi
-
+    compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
 fi
 
 # NUC 2
 if [ $1 -eq 2 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC2 components"
-
     # navigationAgent
-    echo "make navigation agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling navigation agent"
-            exit
-    fi
-
+    compile "navigation agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/"
     # proprioceptionAgent
-    echo "make proprioceptionAgent agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/proprioceptionAgent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling proprioception agent"
-            exit
-    fi
-
+    compile "proprioceptionAgent agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/proprioceptionAgent/"
     # graspingAgent
-    echo "make grasping agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling grasping agent"
-            exit
-    fi
-
+    compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
     # objectAgent
-    echo "make object agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling object agent"
-            exit
-    fi
-
+    compile "object agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/"
     # human
-    echo "make human agent"
-    cd /home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling human agent"
-            exit
-    fi
-
+    compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
 fi
 
 
 # NUC 3
 if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
     echo "Compiling NUC3 components"
-
     # primesense
-    echo "make primesense"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling openni2RGBD"
-            exit
-    fi    
-
+    compile "primesense" "/home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/"
     # apriltags
-    echo "make apriltags"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling apriltags"
-            exit
-    fi
-
+    compile "apriltags" "/home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/"
     # hokuyo
-    echo "make hokuyo"
-    cd /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp
-    cmake .
-    make -j$N
-    if [ $? -ne 0 ]; then
-            echo "error compiling hokuyo"
-            exit
-    fi
-    
+    compile "hokuyo" "/home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp"
 fi
