@@ -41,13 +41,13 @@
 
 				<transform id="base_bodypost" rx="1.5707963267948966" ty="0" tz="0" >
 					<!-- head -->
-					<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus_head.xml"/>
+					<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus_head.xml"/>
 				</transform>
 
 				<!-- left arm -->
-				<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus_leftArm.xml"/>
+				<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus_leftArm.xml"/>
 				<!-- right arm -->
-				<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus_rightArm.xml"/>
+				<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus_rightArm.xml"/>
 
 			</transform>
 		</transform>

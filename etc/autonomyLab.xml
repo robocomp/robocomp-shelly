@@ -1,5 +1,5 @@
 <innerModel>
-	<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml"/>
+	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus.xml"/>
 	<transform id="world">
 
 		<transform id="aprilOdometryReference0_pose" tx="1947" ty="3000" tz="716" rx="-1.57" rz="3.1415" />
