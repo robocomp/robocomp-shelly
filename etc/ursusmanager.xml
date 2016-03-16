@@ -59,23 +59,7 @@
   <ypos value="-157.52181821" />
   <radius value="10.0" />
   <color value="#33FF33" />
- </node>
-
-
- <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
-  <dependence alias="IS" />
-  <dependence alias="innerA" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
-  <configFile path="xxx" />
-  <xpos value="54.3423231258" />
-  <ypos value="-207.649881864" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
- 
+ </node> 
 
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
@@ -286,17 +270,6 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="innerA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10329">
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 agmInner . agmInnerComp /home/robocomp/robocomp/components/prp/etc/agminneragent.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 agmInnerComp" />
-  <configFile path="/home/robocomp/robocomp/components/prp/etc/agmInnerAgent.conf" />
-  <xpos value="-187.568429333" />
-  <ypos value="-224.226684887" />
-  <radius value="10.0" />
-  <color value="#33FF33" />
- </node>
-
  <node alias="humanA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10333">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
@@ -363,7 +336,6 @@
 
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <dependence alias="IS" />
-  <dependence alias="innerA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
   <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
