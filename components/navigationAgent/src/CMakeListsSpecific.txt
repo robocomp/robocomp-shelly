@@ -15,4 +15,4 @@ SET ( HEADERS
 )
 
 ADD_DEFINITIONS( -std=c++11 )
-
+INCLUDE_DIRECTORIES( /usr/include/libxml2 )
