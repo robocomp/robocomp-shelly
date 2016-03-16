@@ -1,0 +1,3792 @@
+<AGMModel>
+
+<symbol id="20" type="object">
+	<attribute key="imName" value="tableA" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="21" type="objectSt"/>
+<symbol id="30" type="objectSt">
+	<attribute key="imName" value="tableA_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="22" type="object">
+	<attribute key="imName" value="tableB" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="23" type="objectSt"/>
+<symbol id="31" type="objectSt">
+	<attribute key="imName" value="tableB_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="24" type="object">
+	<attribute key="imName" value="tableC" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="25" type="objectSt"/>
+<symbol id="32" type="objectSt">
+	<attribute key="imName" value="tableC_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="26" type="object">
+	<attribute key="imName" value="tableD" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="27" type="objectSt"/>
+<symbol id="33" type="objectSt">
+	<attribute key="imName" value="tableD_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="28" type="object">
+	<attribute key="imName" value="tableE" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="29" type="objectSt"/>
+<symbol id="34" type="objectSt">
+	<attribute key="imName" value="tableE_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="1" type="robot">
+	<attribute key="imName" value="robot" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="2" type="status"/>
+<symbol id="3" type="room">
+	<attribute key="imName" value="room_3" />
+	<attribute key="imType" value="transform" />
+	<attribute key="x" value="3300" />
+	<attribute key="z" value="1000" />
+</symbol>
+<symbol id="4" type="roomSt"/>
+<symbol id="5" type="room">
+	<attribute key="imName" value="room_5" />
+	<attribute key="imType" value="transform" />
+	<attribute key="x" value="3300" />
+	<attribute key="z" value="-1000" />
+</symbol>
+<symbol id="6" type="roomSt"/>
+<symbol id="100" type="world">
+	<attribute key="imName" value="world" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="11" type="object">
+	<attribute key="imName" value="mugRP" />
+	<attribute key="imType" value="transform" />
+	<attribute key="tag" value="31" />
+</symbol>
+<symbol id="12" type="objectSt"/>
+<symbol id="101" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="laserPose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="102" type="laser">
+	<attribute key="angle" value="4.2" />
+	<attribute key="ifconfig" value="" />
+	<attribute key="imName" value="laser" />
+	<attribute key="imType" value="laser" />
+	<attribute key="max" value="30000" />
+	<attribute key="measures" value="100" />
+	<attribute key="min" value="100" />
+	<attribute key="port" value="10003" />
+</symbol>
+<symbol id="103" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="laserPose2" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="104" type="laser">
+	<attribute key="angle" value="4.2" />
+	<attribute key="ifconfig" value="" />
+	<attribute key="imName" value="laser2" />
+	<attribute key="imType" value="laser" />
+	<attribute key="max" value="30000" />
+	<attribute key="measures" value="100" />
+	<attribute key="min" value="100" />
+	<attribute key="port" value="10003" />
+</symbol>
+<symbol id="105" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="monitor_pose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="106" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="50" />
+	<attribute key="height" value="400" />
+	<attribute key="imName" value="monitor_mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#222266" />
+	<attribute key="width" value="300" />
+</symbol>
+<symbol id="107" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="caja_pose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="108" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="150" />
+	<attribute key="height" value="250" />
+	<attribute key="imName" value="caja_mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#662222" />
+	<attribute key="width" value="350" />
+</symbol>
+<symbol id="109" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="right_shoulder_grasp_pose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="110" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="base_trans" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="111" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="cameraAprilPosition" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="112" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="cameraAprilRotation" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="113" type="camera">
+	<attribute key="focal" value="746.2" />
+	<attribute key="height" value="0" />
+	<attribute key="imName" value="RGBCeiling" />
+	<attribute key="imType" value="camera" />
+	<attribute key="width" value="0" />
+</symbol>
+<symbol id="114" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="base_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="115" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="base_body" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="116" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="barrahombro" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="117" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="barracuello" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/barracuello.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="118" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="barracolumna" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/barracolumna.osg" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="850" />
+	<attribute key="scaley" value="850" />
+	<attribute key="scalez" value="850" />
+</symbol>
+<symbol id="119" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="base_bodypost" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="120" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="base_head" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="121" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="rgbdHumanPose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="122" type="rgbd">
+	<attribute key="focal" value="600" />
+	<attribute key="height" value="480" />
+	<attribute key="ifconfig" value="" />
+	<attribute key="imName" value="rgbdHuman" />
+	<attribute key="imType" value="rgbd" />
+	<attribute key="noise" value="0" />
+	<attribute key="port" value="0" />
+	<attribute key="width" value="640" />
+</symbol>
+<symbol id="123" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="sensorHumanRGBD" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="100" />
+	<attribute key="scaley" value="21" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="124" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="head_yaw_joint" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1" />
+	<attribute key="min" value="-1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="125" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="head_yaw_pose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="126" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="head_base_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="25" />
+	<attribute key="scaley" value="25" />
+	<attribute key="scalez" value="87.5" />
+</symbol>
+<symbol id="127" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="head_rot_tilt_pose" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="128" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="head_pre_tilt" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="129" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="head_pitch_joint" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1" />
+	<attribute key="min" value="-1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="130" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="head_post_tilt" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="131" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="head_center_mesh1" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="95" />
+	<attribute key="scaley" value="20" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="132" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="head_center_mesh2" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="35" />
+	<attribute key="scaley" value="35" />
+	<attribute key="scalez" value="35" />
+</symbol>
+<symbol id="133" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="rgbd_transform0" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="134" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="rgbd_transform" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="135" type="rgbd">
+	<attribute key="focal" value="523.5" />
+	<attribute key="height" value="480" />
+	<attribute key="ifconfig" value="20000,10004" />
+	<attribute key="imName" value="rgbd" />
+	<attribute key="imType" value="rgbd" />
+	<attribute key="noise" value="0" />
+	<attribute key="port" value="10096" />
+	<attribute key="width" value="640" />
+</symbol>
+<symbol id="136" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="sensorRGBD" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="100" />
+	<attribute key="scaley" value="21" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="137" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="left_rgb" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="138" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="left_rgb_pan_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="139" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftEye" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1" />
+	<attribute key="min" value="-1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="140" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="left_rgb_pan_post" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="141" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="left_rgb_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="30" />
+	<attribute key="scaley" value="30" />
+	<attribute key="scalez" value="50" />
+</symbol>
+<symbol id="142" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="right_rgb" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="143" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="right_rgb_pan_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="144" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="rightEye" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1" />
+	<attribute key="min" value="-1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="145" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="right_rgb_pan_post" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="146" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="right_rgb_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="30" />
+	<attribute key="scaley" value="30" />
+	<attribute key="scalez" value="50" />
+</symbol>
+<symbol id="147" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_1" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="148" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="niapa_arm_left_1" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="149" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="arm_left_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="150" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0.1" />
+	<attribute key="imName" value="leftShoulder1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="3.14" />
+	<attribute key="min" value="-0.54" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="151" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_left_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="152" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_2" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="153" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="0.1" />
+	<attribute key="imName" value="leftShoulder2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="3.14" />
+	<attribute key="min" value="-0.34" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="154" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_left_2_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="155" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_3" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="156" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="-0.1" />
+	<attribute key="imName" value="leftShoulder3" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.8" />
+	<attribute key="min" value="-1.8" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="157" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_left_3_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="158" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_4" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="159" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="-0.15" />
+	<attribute key="imName" value="leftElbow" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="inf" />
+	<attribute key="min" value="-inf" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="160" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="elbow_left_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="161" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_5" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="162" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftForeArm" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="2.3" />
+	<attribute key="min" value="-2.3" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="163" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="wrist_left_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="2" />
+	<attribute key="scaley" value="2" />
+	<attribute key="scalez" value="2" />
+</symbol>
+<symbol id="164" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_6" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="165" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="-40" />
+	<attribute key="height" value="66" />
+	<attribute key="imName" value="motorleftWrist1Mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="-20" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#152115" />
+	<attribute key="width" value="40" />
+</symbol>
+<symbol id="166" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftWrist1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-1.5708" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="167" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_7" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="168" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="-40" />
+	<attribute key="height" value="40" />
+	<attribute key="imName" value="motolefrWrist2Mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="-15" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="-20" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#152115" />
+	<attribute key="width" value="66" />
+</symbol>
+<symbol id="169" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftWrist2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-0.1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="170" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_8" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="171" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="20" />
+	<attribute key="scaley" value="20" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="172" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftFinger1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-1.5708" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="173" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh2" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="174" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_1_1_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="175" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh3" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="176" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_1_2_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="177" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh4" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="178" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh5" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="179" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_1_3_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="180" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh6" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="181" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_1_4_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="182" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_1_mesh7" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="183" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_left_9" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="184" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_2_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="20" />
+	<attribute key="scaley" value="20" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="185" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="leftFinger2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-1.5708" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="186" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_2_mesh2" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="-18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="187" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_2_1_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="188" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_2_mesh3" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="189" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_left_2_2_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="190" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_left_2_mesh4" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="191" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="192" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="193" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1_2" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="194" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1_3" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="195" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1_4" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="196" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="errorMarcaPruebas" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="197" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="5" />
+	<attribute key="height" value="-70" />
+	<attribute key="imName" value="handMesh1" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00024.png" />
+	<attribute key="width" value="70" />
+</symbol>
+<symbol id="198" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh1_5" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="199" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="grabPositionHandL_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="200" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="grabPositionHandL" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="201" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_1" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="202" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="arm_right_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="203" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="-0.1" />
+	<attribute key="imName" value="rightShoulder1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="0.54" />
+	<attribute key="min" value="-3.14" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="204" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_right_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="205" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_2" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="206" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="-0.1" />
+	<attribute key="imName" value="rightShoulder2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="0.34" />
+	<attribute key="min" value="-3.14" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="207" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_right_2_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo3.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="208" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_3" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="209" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0.1" />
+	<attribute key="imName" value="rightShoulder3" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.8" />
+	<attribute key="min" value="-1.8" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="210" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="shoulder_right_3_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo4.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="211" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_4" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="212" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="0.15" />
+	<attribute key="imName" value="rightElbow" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="2.6" />
+	<attribute key="min" value="0.01" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="213" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="elbow_right_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/brazo5.ive" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="1000" />
+	<attribute key="scaley" value="1000" />
+	<attribute key="scalez" value="1000" />
+</symbol>
+<symbol id="214" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_5" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="215" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="z" />
+	<attribute key="home" value="0.1" />
+	<attribute key="imName" value="rightForeArm" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.8" />
+	<attribute key="min" value="-1.8" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="216" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="wrist_right_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="2" />
+	<attribute key="scaley" value="2" />
+	<attribute key="scalez" value="2" />
+</symbol>
+<symbol id="217" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_6" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="218" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="-40" />
+	<attribute key="height" value="66" />
+	<attribute key="imName" value="motorWrist1Mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="-20" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#152115" />
+	<attribute key="width" value="40" />
+</symbol>
+<symbol id="219" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="x" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="rightWrist1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-1.5708" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="220" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_7" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="221" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="-40" />
+	<attribute key="height" value="40" />
+	<attribute key="imName" value="motorWrist2Mesh" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="-15" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="-20" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#152115" />
+	<attribute key="width" value="66" />
+</symbol>
+<symbol id="222" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="rightWrist2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="-0.1" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="223" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_8" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="224" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="20" />
+	<attribute key="scaley" value="20" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="225" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="rightFinger1" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="0" />
+	<attribute key="min" value="-1.5708" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="226" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh2" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="227" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_1_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="228" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh3" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="229" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_2_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="230" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh4" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="231" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_1_tip" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="232" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh5" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="233" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_3_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="234" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh6" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="235" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_4_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="236" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_1_mesh7" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="237" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_1_2_tip" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="238" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="arm_right_9" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="239" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_2_mesh" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="20" />
+	<attribute key="scaley" value="20" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="240" type="joint">
+	<attribute key="angle" value="0" />
+	<attribute key="axis" value="y" />
+	<attribute key="home" value="0" />
+	<attribute key="imName" value="rightFinger2" />
+	<attribute key="imType" value="joint" />
+	<attribute key="max" value="1.5708" />
+	<attribute key="min" value="0" />
+	<attribute key="port" value="20000" />
+</symbol>
+<symbol id="241" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_2_mesh2" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="-18" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="5" />
+</symbol>
+<symbol id="242" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_2_1_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="243" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_2_mesh3" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="30" />
+</symbol>
+<symbol id="244" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_2_2_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="245" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="finger_right_2_mesh4" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="5" />
+	<attribute key="scaley" value="5" />
+	<attribute key="scalez" value="20" />
+</symbol>
+<symbol id="246" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="finger_right_2_tip" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="247" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="ThandMesh2_pre" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="248" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="grabPositionHandR" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="249" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="1" />
+	<attribute key="height" value="-85" />
+	<attribute key="imName" value="handMeshBase" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="85" />
+</symbol>
+<symbol id="250" type="plane">
+	<attribute key="collidable" value="true" />
+	<attribute key="depth" value="2" />
+	<attribute key="height" value="-70" />
+	<attribute key="imName" value="handMesh2" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" />
+	<attribute key="width" value="70" />
+</symbol>
+<symbol id="251" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="200" />
+	<attribute key="height" value="30" />
+	<attribute key="imName" value="axx" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="1" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="100" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#ff0000" />
+	<attribute key="width" value="30" />
+</symbol>
+<symbol id="252" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="200" />
+	<attribute key="imName" value="axy" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="1" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="100" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#00ff00" />
+	<attribute key="width" value="30" />
+</symbol>
+<symbol id="253" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="30" />
+	<attribute key="imName" value="axz" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="1" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="100" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#0000ff" />
+	<attribute key="width" value="200" />
+</symbol>
+<symbol id="254" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="39" />
+	<attribute key="height" value="39" />
+	<attribute key="imName" value="axc" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="1" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="39" />
+</symbol>
+<symbol id="255" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="floor" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="256" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="8500" />
+	<attribute key="imName" value="back" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#eebb77" />
+	<attribute key="width" value="7500" />
+</symbol>
+<symbol id="257" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared0" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="258" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="21.5" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro0" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="2150" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ff8030" />
+	<attribute key="width" value="2150" />
+</symbol>
+<symbol id="259" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared2" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="260" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="16" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro2" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ff8030" />
+	<attribute key="width" value="1600" />
+</symbol>
+<symbol id="261" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared3" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="262" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="9.9" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro3" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-990" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="990" />
+</symbol>
+<symbol id="263" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared4" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="264" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="7.9" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro4" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="790" />
+</symbol>
+<symbol id="265" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared5" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="266" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="29.5" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro5" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-2950" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="2950" />
+</symbol>
+<symbol id="267" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared6" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="268" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="8" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro6" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="800" />
+</symbol>
+<symbol id="269" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared7" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="270" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="1.5" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro7" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="150" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="150" />
+</symbol>
+<symbol id="271" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared8" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="272" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="5.3" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro8" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="530" />
+</symbol>
+<symbol id="273" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared9" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="274" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="2.4" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro9" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-240" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="240" />
+</symbol>
+<symbol id="275" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared3A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="276" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro3A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-990" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="990" />
+</symbol>
+<symbol id="277" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared4A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="278" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro4A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="790" />
+</symbol>
+<symbol id="279" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared5A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="280" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro5A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-2950" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="2800" />
+</symbol>
+<symbol id="281" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared8A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="282" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro8A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-0" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-1" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="1330" />
+</symbol>
+<symbol id="283" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared9A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="284" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro9A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-240" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="290" />
+</symbol>
+<symbol id="285" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared10A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="286" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro10A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-50" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-5670" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="5670.22" />
+</symbol>
+<symbol id="287" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared10B" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="288" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro10B" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="-50" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="-5670" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="5670.22" />
+</symbol>
+<symbol id="289" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared11A" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="290" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro11A" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="4080" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="4080" />
+</symbol>
+<symbol id="291" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="pared11B" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="292" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="30" />
+	<attribute key="height" value="3000" />
+	<attribute key="imName" value="muro11B" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="4080" />
+	<attribute key="ny" value="0" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="4080" />
+</symbol>
+<symbol id="293" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="1750" />
+	<attribute key="imName" value="tableAC" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#cccccc" />
+	<attribute key="width" value="1000" />
+</symbol>
+<symbol id="294" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="tableBC" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="600" />
+	<attribute key="scaley" value="600" />
+	<attribute key="scalez" value="12" />
+</symbol>
+<symbol id="295" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="mesaRb" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="30" />
+	<attribute key="scaley" value="30" />
+	<attribute key="scalez" value="400" />
+</symbol>
+<symbol id="296" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="mesaRbb" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="325" />
+	<attribute key="scaley" value="325" />
+	<attribute key="scalez" value="9" />
+</symbol>
+<symbol id="297" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="3.5" />
+	<attribute key="height" value="-80" />
+	<attribute key="imName" value="mesaTagb" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="11" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="80" />
+</symbol>
+<symbol id="298" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="mugRPr" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="299" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="mugR" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="120" />
+	<attribute key="scaley" value="120" />
+	<attribute key="scalez" value="120" />
+</symbol>
+<symbol id="300" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="5" />
+	<attribute key="height" value="-70" />
+	<attribute key="imName" value="mugTag" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" />
+	<attribute key="width" value="70" />
+</symbol>
+<symbol id="301" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="3.5" />
+	<attribute key="height" value="-80" />
+	<attribute key="imName" value="mugTagb" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="80" />
+</symbol>
+<symbol id="302" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="1750" />
+	<attribute key="imName" value="tableCC" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#cccccc" />
+	<attribute key="width" value="1000" />
+</symbol>
+<symbol id="303" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="1750" />
+	<attribute key="imName" value="tableDC" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#cccccc" />
+	<attribute key="width" value="1000" />
+</symbol>
+<symbol id="304" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="10" />
+	<attribute key="height" value="1750" />
+	<attribute key="imName" value="tableEC" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#cccccc" />
+	<attribute key="width" value="1000" />
+</symbol>
+
+
+<link src="100" dst="5" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="3" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="3" dst="4" label="room"/>
+<link src="1" dst="3" label="in"/>
+<link src="3" dst="1" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="1" dst="3" label="know"/>
+<link src="5" dst="6" label="room"/>
+<link src="1" dst="5" label="know"/>
+<link src="20" dst="3" label="in"/>
+<link src="20" dst="21" label="hasStatus"/>
+<link src="20" dst="21" label="noReach"/>
+<link src="20" dst="21" label="reachable"/>
+<link src="20" dst="21" label="table"/>
+<link src="1" dst="20" label="know"/>
+<link src="3" dst="20" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="1400" />
+	<linkAttribute key="ty" value="800" />
+	<linkAttribute key="tz" value="3180" />
+</link>
+<link src="20" dst="30" label="reachPosition"/>
+<link src="20" dst="30" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-1.5707" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="500" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="22" dst="3" label="in"/>
+<link src="22" dst="23" label="hasStatus"/>
+<link src="22" dst="23" label="noReach"/>
+<link src="22" dst="23" label="reachable"/>
+<link src="22" dst="23" label="table"/>
+<link src="1" dst="22" label="know"/>
+<link src="3" dst="22" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="3800" />
+	<linkAttribute key="ty" value="800" />
+	<linkAttribute key="tz" value="3200" />
+</link>
+<link src="22" dst="31" label="reachPosition"/>
+<link src="22" dst="31" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-500" />
+</link>
+<link src="24" dst="3" label="in"/>
+<link src="24" dst="25" label="hasStatus"/>
+<link src="24" dst="25" label="noReach"/>
+<link src="24" dst="25" label="reachable"/>
+<link src="24" dst="25" label="table"/>
+<link src="1" dst="24" label="know"/>
+<link src="3" dst="24" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5800" />
+	<linkAttribute key="ty" value="800" />
+	<linkAttribute key="tz" value="2400" />
+</link>
+<link src="24" dst="32" label="reachPosition"/>
+<link src="24" dst="32" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5707" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-500" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="26" dst="5" label="in"/>
+<link src="26" dst="27" label="hasStatus"/>
+<link src="26" dst="27" label="noReach"/>
+<link src="26" dst="27" label="reachable"/>
+<link src="26" dst="27" label="table"/>
+<link src="1" dst="26" label="know"/>
+<link src="5" dst="26" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5707" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5300" />
+	<linkAttribute key="ty" value="800" />
+	<linkAttribute key="tz" value="-500" />
+</link>
+<link src="26" dst="33" label="reachPosition"/>
+<link src="26" dst="33" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-1.5707" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="600" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="28" dst="5" label="in"/>
+<link src="28" dst="29" label="hasStatus"/>
+<link src="28" dst="29" label="noReach"/>
+<link src="28" dst="29" label="reachable"/>
+<link src="28" dst="29" label="table"/>
+<link src="1" dst="28" label="know"/>
+<link src="5" dst="28" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6500" />
+	<linkAttribute key="ty" value="800" />
+	<linkAttribute key="tz" value="-2900" />
+</link>
+<link src="28" dst="34" label="reachPosition"/>
+<link src="28" dst="34" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5707" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-300" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="3" dst="5" label="transitable"/>
+<link src="5" dst="3" label="transitable"/>
+<link src="1" dst="2" label="hasStatus"/>
+<link src="1" dst="11" label="know"/>
+<link src="11" dst="12" label="hasStatus"/>
+<link src="11" dst="12" label="mug"/>
+<link src="11" dst="12" label="classified"/>
+<link src="11" dst="12" label="noReach"/>
+<link src="11" dst="12" label="reachable"/>
+<link src="11" dst="12" label="notSee"/>
+<link src="11" dst="12" label="position"/>
+<link src="11" dst="3" label="in"/>
+<link src="11" dst="22" label="in"/>
+<link src="22" dst="11" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="110" />
+	<linkAttribute key="tz" value="-500" />
+</link>
+<link src="1" dst="101" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="370" />
+	<linkAttribute key="tz" value="240" />
+</link>
+<link src="101" dst="102" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="1" dst="103" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="370" />
+	<linkAttribute key="tz" value="240" />
+</link>
+<link src="103" dst="104" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="1" dst="105" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="935" />
+	<linkAttribute key="tz" value="35" />
+</link>
+<link src="105" dst="106" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="1" dst="107" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="330" />
+	<linkAttribute key="tz" value="-120" />
+</link>
+<link src="107" dst="108" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="1" dst="109" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="100" />
+	<linkAttribute key="ty" value="900" />
+	<linkAttribute key="tz" value="400" />
+</link>
+<link src="1" dst="110" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="110" dst="111" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="945" />
+	<linkAttribute key="tz" value="-245" />
+</link>
+<link src="111" dst="112" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="3.14159" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="112" dst="113" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="110" dst="114" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="10" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="110" dst="115" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="115" dst="116" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-1.5708" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-150" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="1180" />
+</link>
+<link src="115" dst="117" label="RT">
+	<linkAttribute key="rx" value="3.14159" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="1165" />
+</link>
+<link src="115" dst="118" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="1.5708" />
+	<linkAttribute key="tx" value="30" />
+	<linkAttribute key="ty" value="-15" />
+	<linkAttribute key="tz" value="1165" />
+</link>
+<link src="115" dst="119" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="119" dst="120" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="1225" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="120" dst="121" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-40" />
+	<linkAttribute key="tz" value="40" />
+</link>
+<link src="121" dst="122" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="121" dst="123" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="120" dst="124" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="124" dst="125" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="1000" />
+</link>
+<link src="124" dst="126" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="87.5" />
+</link>
+<link src="124" dst="127" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="175" />
+</link>
+<link src="127" dst="128" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5708" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="128" dst="129" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="129" dst="130" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-1.5708" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="130" dst="131" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="50" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="130" dst="132" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5708" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="130" dst="133" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="82" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="133" dst="134" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="15" />
+</link>
+<link src="134" dst="135" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="133" dst="136" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="130" dst="137" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-75" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="137" dst="138" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="138" dst="139" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="139" dst="140" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="140" dst="141" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="130" dst="142" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="75" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="142" dst="143" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="143" dst="144" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="144" dst="145" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="145" dst="146" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="115" dst="147" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-1.5708" />
+	<linkAttribute key="rz" value="1.5708" />
+	<linkAttribute key="tx" value="-174" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="1192" />
+</link>
+<link src="147" dst="148" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="148" dst="149" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="3.14159" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="30" />
+	<linkAttribute key="tz" value="-55" />
+</link>
+<link src="148" dst="150" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="150" dst="151" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="150" dst="152" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="41" />
+</link>
+<link src="152" dst="153" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="153" dst="154" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="153" dst="155" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="1.5708" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="234" />
+</link>
+<link src="155" dst="156" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="156" dst="157" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="156" dst="158" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="28" />
+	<linkAttribute key="tz" value="20" />
+</link>
+<link src="158" dst="159" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="159" dst="160" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="159" dst="161" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-28" />
+	<linkAttribute key="tz" value="166" />
+</link>
+<link src="161" dst="162" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="162" dst="163" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="162" dst="164" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="63" />
+</link>
+<link src="164" dst="165" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="164" dst="166" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="166" dst="167" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="60" />
+</link>
+<link src="167" dst="168" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="167" dst="169" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="169" dst="170" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="20" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="95" />
+</link>
+<link src="170" dst="171" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-22" />
+</link>
+<link src="170" dst="172" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="172" dst="173" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="18" />
+	<linkAttribute key="ty" value="12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="172" dst="174" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="30" />
+	<linkAttribute key="ty" value="12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="174" dst="175" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="174" dst="176" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="176" dst="177" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="172" dst="178" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="18" />
+	<linkAttribute key="ty" value="-12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="172" dst="179" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="30" />
+	<linkAttribute key="ty" value="-12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="179" dst="180" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="179" dst="181" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="181" dst="182" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="169" dst="183" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-20" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="95" />
+</link>
+<link src="183" dst="184" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-22" />
+</link>
+<link src="183" dst="185" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="185" dst="186" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-18" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="185" dst="187" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-30" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="187" dst="188" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="187" dst="189" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="189" dst="190" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="169" dst="191" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="20" />
+	<linkAttribute key="tz" value="50" />
+</link>
+<link src="191" dst="192" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="192" dst="193" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="193" dst="194" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="194" dst="195" label="RT">
+	<linkAttribute key="rx" value="-1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="195" dst="196" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="196" dst="197" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="195" dst="198" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-20" />
+	<linkAttribute key="tz" value="-50" />
+</link>
+<link src="198" dst="199" label="RT">
+	<linkAttribute key="rx" value="3.14159" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="199" dst="200" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-100" />
+</link>
+<link src="115" dst="201" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="1.5708" />
+	<linkAttribute key="rz" value="1.5708" />
+	<linkAttribute key="tx" value="174" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="1192" />
+</link>
+<link src="201" dst="202" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-30" />
+	<linkAttribute key="tz" value="-55" />
+</link>
+<link src="201" dst="203" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="203" dst="204" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="203" dst="205" label="RT">
+	<linkAttribute key="rx" value="1.5708" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="41" />
+</link>
+<link src="205" dst="206" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="206" dst="207" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="206" dst="208" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="-1.5708" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="234" />
+</link>
+<link src="208" dst="209" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="209" dst="210" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="3.14159" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="209" dst="211" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-28" />
+	<linkAttribute key="tz" value="20" />
+</link>
+<link src="211" dst="212" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="212" dst="213" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="3.14159" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="212" dst="214" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="28" />
+	<linkAttribute key="tz" value="166" />
+</link>
+<link src="214" dst="215" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="215" dst="216" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="215" dst="217" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="60" />
+</link>
+<link src="217" dst="218" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="217" dst="219" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="219" dst="220" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="60" />
+</link>
+<link src="220" dst="221" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="220" dst="222" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="222" dst="223" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="20" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="95" />
+</link>
+<link src="223" dst="224" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-22" />
+</link>
+<link src="223" dst="225" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="225" dst="226" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="18" />
+	<linkAttribute key="ty" value="12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="225" dst="227" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="30" />
+	<linkAttribute key="ty" value="12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="227" dst="228" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="227" dst="229" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="229" dst="230" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="229" dst="231" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="20" />
+</link>
+<link src="225" dst="232" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="18" />
+	<linkAttribute key="ty" value="-12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="225" dst="233" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="30" />
+	<linkAttribute key="ty" value="-12" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="233" dst="234" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="233" dst="235" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="235" dst="236" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="235" dst="237" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="20" />
+</link>
+<link src="222" dst="238" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-20" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="95" />
+</link>
+<link src="238" dst="239" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-22" />
+</link>
+<link src="238" dst="240" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="240" dst="241" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-18" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="240" dst="242" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.7" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-30" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="242" dst="243" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="30" />
+</link>
+<link src="242" dst="244" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0.4" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-25" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="244" dst="245" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="80" />
+</link>
+<link src="244" dst="246" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="20" />
+</link>
+<link src="222" dst="247" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-25" />
+	<linkAttribute key="tz" value="55" />
+</link>
+<link src="247" dst="248" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="3.14159" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="248" dst="249" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="248" dst="250" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="251" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="252" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="253" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="254" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="255" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="3500" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="255" dst="256" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="257" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="1075" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="257" dst="258" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="259" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5410" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="259" dst="260" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="261" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6210" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="495" />
+</link>
+<link src="261" dst="262" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="263" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6605" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="990" />
+</link>
+<link src="263" dst="264" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="265" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="7000" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="2465" />
+</link>
+<link src="265" dst="266" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="267" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6600" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="3940" />
+</link>
+<link src="267" dst="268" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="269" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6200" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="3865" />
+</link>
+<link src="269" dst="270" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="271" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5935" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="3790" />
+</link>
+<link src="271" dst="272" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="273" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5670" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="3910" />
+</link>
+<link src="273" dst="274" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="275" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6210" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-495" />
+</link>
+<link src="275" dst="276" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="277" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6605" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-990" />
+</link>
+<link src="277" dst="278" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="279" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="7000" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-2390" />
+</link>
+<link src="279" dst="280" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="281" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="6330" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-3790" />
+</link>
+<link src="281" dst="282" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="283" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="5670" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-3930" />
+</link>
+<link src="283" dst="284" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="285" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="2835" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-4055" />
+</link>
+<link src="285" dst="286" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="287" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="2835" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="4055" />
+</link>
+<link src="287" dst="288" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="289" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="-2040" />
+</link>
+<link src="289" dst="290" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="100" dst="291" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="1500" />
+	<linkAttribute key="tz" value="2040" />
+</link>
+<link src="291" dst="292" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="20" dst="293" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="22" dst="294" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="22" dst="295" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-400" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="22" dst="296" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="-800" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="22" dst="297" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="11" dst="298" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-10" />
+	<linkAttribute key="ty" value="-50" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="298" dst="299" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="-1.5707" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="11" dst="300" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="11" dst="301" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="24" dst="302" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="26" dst="303" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="28" dst="304" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+
+</AGMModel>
