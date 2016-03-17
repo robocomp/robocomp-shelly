@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2015 by YOUR NAME HERE
+ *    Copyright (C) 2015-2016 by RoboLab - University of Extremadura
  *
  *    This file is part of RoboComp
  *
@@ -16,19 +16,6 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-/**
-       \brief
-       @author authorname
-*/
-
-
-
-// THIS IS AN AGENT
-
-
-
-
 #ifndef SPECIFICWORKER_H
 #define SPECIFICWORKER_H
 
@@ -39,37 +26,52 @@ class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
 public:
-	SpecificWorker(MapPrx& mprx);	
+	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 
 	bool reloadConfigAgent();
 	bool activateAgent(const ParameterMap &prs);
-	bool setAgentParameters(const ParameterMap &prs);
-	ParameterMap getAgentParameters();
+	bool deactivateAgent();
 	void killAgent();
 	int uptimeAgent();
-	bool deactivateAgent();
 	StateStruct getAgentState();
-	void structuralChange(const RoboCompAGMWorldModel::World &modifications);
-	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
+	ParameterMap getAgentParameters();
+	bool setAgentParameters(const ParameterMap &prs);
+
+	void structuralChange(const RoboCompAGMWorldModel::World &modification);
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
+	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
 	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
 	bool detectAndLocateObject(std::string objectToDetect);
-	
+
 public slots:
-	void compute(); 	
+	void compute();
+
+private:
+	bool active;
+	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
+	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
+	
+	void action_FindObjectVisuallyInTable  (bool newAction);
+
+	void getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID);
+
+	void newAprilTag(const tagsList &list);
+
+	bool updateTable (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
+	bool updateMug   (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
+	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
+	bool updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
+
 
 private:
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
-	bool active;
-	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
-	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
-	
+
 };
 
 #endif

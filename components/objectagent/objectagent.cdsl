@@ -1,11 +1,13 @@
 import "/robocomp/interfaces/IDSLs/AGMWorldModel.idsl";
 import "/robocomp/interfaces/IDSLs/objectDetection.idsl";
+import "/robocomp/interfaces/IDSLs/AprilTags.idsl";
 
 Component objectagent
 {
 	Communications
 	{
 		requires objectDetection;
+		subscribesTo AprilTags;
 	};
 	language Cpp;
 	gui Qt(QWidget);

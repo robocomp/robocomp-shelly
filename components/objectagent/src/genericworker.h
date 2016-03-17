@@ -27,11 +27,12 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <objectDetection.h>
-#include <Planning.h>
+#include <AGMWorldModel.h>
 #include <AGMExecutive.h>
 #include <AGMCommonBehavior.h>
-#include <AGMWorldModel.h>
+#include <Planning.h>
+#include <objectDetection.h>
+#include <AprilTags.h>
 
 #include <agm.h>
 #include <agmInner/agmInner.h>
@@ -44,11 +45,12 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
-using namespace RoboCompobjectDetection;
-using namespace RoboCompPlanning;
+using namespace RoboCompAGMWorldModel;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMCommonBehavior;
-using namespace RoboCompAGMWorldModel;
+using namespace RoboCompPlanning;
+using namespace RoboCompobjectDetection;
+using namespace RoboCompAprilTags;
 
 
 struct BehaviorParameters 
@@ -92,10 +94,11 @@ public:
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;
 	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
-	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &es) = 0;
-	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &e) = 0;
-	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &n) = 0;
-	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &ns) = 0;
+	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification) = 0;
+	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
+	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
+	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
+	virtual void newAprilTag(const tagsList &tags) = 0;
 
 
 protected:

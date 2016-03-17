@@ -28,6 +28,7 @@ SET ( SOURCES
   specificworker.cpp
   agmcommonbehaviorI.cpp
   agmexecutivetopicI.cpp
+  apriltagsI.cpp
   $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
 )
 
@@ -41,13 +42,14 @@ SET ( HEADERS
   specificworker.h
   agmcommonbehaviorI.h
   agmexecutivetopicI.h
+  apriltagsI.h
 )
 
 
 
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior AGMExecutive AGMWorldModel Planning AGMCommonBehavior AGMWorldModel objectDetection )
+ROBOCOMP_WRAP_ICE( CommonBehavior AGMExecutive AGMWorldModel Planning AGMCommonBehavior AGMWorldModel objectDetection AprilTags )
 SET (EXECUTABLE_OUTPUT_PATH ${RC_COMPONENT_DEVEL_PATH}/bin)
 
 # Qt4

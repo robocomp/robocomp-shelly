@@ -80,11 +80,13 @@
 
 #include <agmcommonbehaviorI.h>
 #include <agmexecutivetopicI.h>
+#include <apriltagsI.h>
 
 #include <AGMExecutive.h>
 #include <AGMCommonBehavior.h>
 #include <AGMWorldModel.h>
 #include <objectDetection.h>
+#include <AprilTags.h>
 
 
 // User includes here
@@ -97,6 +99,7 @@ using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMWorldModel;
 using namespace RoboCompobjectDetection;
+using namespace RoboCompAprilTags;
 
 
 
@@ -216,6 +219,34 @@ int ::objectagent::run(int argc, char* argv[])
 
 
 
+
+		// Server adapter creation and publication
+		if (not GenericMonitor::configGetString(communicator(), prefix, "AprilTagsTopic.Endpoints", tmp, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AprilTagsProxy";
+		}
+		Ice::ObjectAdapterPtr AprilTags_adapter = communicator()->createObjectAdapterWithEndpoints("apriltags", tmp);
+		AprilTagsPtr apriltagsI_ = new AprilTagsI(worker);
+		Ice::ObjectPrx apriltags = AprilTags_adapter->addWithUUID(apriltagsI_)->ice_oneway();
+		IceStorm::TopicPrx apriltags_topic;
+		if(!apriltags_topic){
+		try {
+			apriltags_topic = topicManager->create("AprilTags");
+		}
+		catch (const IceStorm::TopicExists&) {
+		//Another client created the topic
+		try{
+			apriltags_topic = topicManager->retrieve("AprilTags");
+		}
+		catch(const IceStorm::NoSuchTopic&)
+		{
+			//Error. Topic does not exist
+			}
+		}
+		IceStorm::QoS qos;
+		apriltags_topic->subscribeAndGetPublisher(qos, apriltags);
+		}
+		AprilTags_adapter->activate();
 
 		// Server adapter creation and publication
 		if (not GenericMonitor::configGetString(communicator(), prefix, "AGMExecutiveTopicTopic.Endpoints", tmp, ""))
