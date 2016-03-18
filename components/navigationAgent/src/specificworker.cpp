@@ -887,6 +887,9 @@ void SpecificWorker::action_NoAction(bool newAction)
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+	structuralChange(w);
+
 	timer.start(20);
 	return true;
 }

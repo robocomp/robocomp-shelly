@@ -370,8 +370,8 @@ void SpecificWorker::updatePeopleInnerFullB()
 		//state está en personList
 		try
 		{
-			int state = personList.at(TrackingId).state;
-			newSymbolPerson->setAttribute("State",int2str(state));
+// 			int state = personList.at(TrackingId).state;
+// 			newSymbolPerson->setAttribute("State",int2str(state));
 // 			newSymbolPerson->setAttribute("Red",int2str(personList.at(TrackingId).spineJointColor.R));
 // 			newSymbolPerson->setAttribute("Green",int2str(personList.at(TrackingId).spineJointColor.G));
 // 			newSymbolPerson->setAttribute("Blue",int2str(personList.at(TrackingId).spineJointColor.B));
@@ -775,30 +775,9 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+	structuralChange(w);
 
-
-//       THE FOLLOWING IS JUST AN EXAMPLE for AGENTS
-// 	try
-// 	{
-// 		RoboCompCommonBehavior::Parameter par = params.at("NameAgent.InnerModel") ;
-// 		if( QFile(QString::fromStdString(par.value)).exists() == true)
-// 		{
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
-// 			innerModel = new InnerModel(par.value);
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;
-// 		}
-// 		else
-// 		{
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
-// 			qFatal("Exiting now.");
-// 		}
-// 	}
-// 	catch(std::exception e)
-// 	{
-// 		qFatal("Error reading config params");
-// 	}
-
-	
 	timer.start(Period);
 
 	return true;

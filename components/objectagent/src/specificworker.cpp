@@ -39,9 +39,10 @@ SpecificWorker::~SpecificWorker()
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	timer.start(Period);
 	RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
 	structuralChange(w);
+
+	timer.start(Period);
 	return true;
 }
 
