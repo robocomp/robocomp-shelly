@@ -658,7 +658,7 @@ StateStruct SpecificWorker::getAgentState()
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modification)
 {
-	QMutexLocker m (mutex);	
+	QMutexLocker m (mutex);
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
 	
 	if (innerModelAGM) 
@@ -775,8 +775,15 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-	structuralChange(w);
+	try
+	{
+		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+		structuralChange(w);
+	}
+	catch(...)
+	{
+		printf("The executive is probably not running, waiting for first AGM model publication...");
+	}
 
 	timer.start(Period);
 
