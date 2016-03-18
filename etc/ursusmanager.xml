@@ -249,7 +249,7 @@
   <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/robocomp-shelly/etc/objectDetection.conf" />
-  <downCommand command="killall -9 objectDetectionComp" />
+  <downCommand command="ssh robolab@10.0.30.22 killall -9 objectDetectionComp" />..
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/objectDetection.conf" />
   <xpos value="48.6616086908" />
   <ypos value="-36.2527993809" />
@@ -261,7 +261,7 @@
   <dependence alias="april" />
   <dependence alias="objectD" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/prp/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 objectAgent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
   <xpos value="-1.28279840047" />
