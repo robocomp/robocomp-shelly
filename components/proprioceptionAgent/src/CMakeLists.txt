@@ -31,18 +31,6 @@ SET ( SOURCES
   $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
 )
 
-# Headers set
-SET ( HEADERS
-  ${HEADERS}
-  genericmonitor.h
-  specificmonitor.h
-  commonbehaviorI.h
-  genericworker.h
-  specificworker.h
-  agmcommonbehaviorI.h
-  agmexecutivetopicI.h
-)
-
 
 
 #ROBOCOMP

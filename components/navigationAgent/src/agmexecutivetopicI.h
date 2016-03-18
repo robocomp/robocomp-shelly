@@ -39,10 +39,10 @@ public:
 	~AGMExecutiveTopicI();
 	
 	void structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&);
-	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &es, const Ice::Current&);
-	void edgeUpdated(const RoboCompAGMWorldModel::Edge  &e, const Ice::Current&);
-	void symbolUpdated(const RoboCompAGMWorldModel::Node  &n, const Ice::Current&);
-	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &ns, const Ice::Current&);
+	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modification, const Ice::Current&);
+	void edgeUpdated(const RoboCompAGMWorldModel::Edge  &modification, const Ice::Current&);
+	void symbolUpdated(const RoboCompAGMWorldModel::Node  &modification, const Ice::Current&);
+	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modification, const Ice::Current&);
 
 	QMutex *mutex;
 private:

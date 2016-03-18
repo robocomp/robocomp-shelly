@@ -298,25 +298,16 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
 	QMutexLocker locker(mutex);
-// 	try
-// 	{
-// 		RoboCompCommonBehavior::Parameter par = params.at("GraspingAgent.InnerModel") ;
-// 		if( QFile(QString::fromStdString(par.value)).exists() == true)
-// 		{
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
-// 			innerModel = new InnerModel(par.value);
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;
-// 		}
-// 		else
-// 		{
-// 			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
-// 			qFatal("Exiting now.");
-// 		}
-// 	}
-// 	catch(std::exception e)
-// 	{
-// 		qFatal("Error reading config params");
-// 	}
+
+	try
+	{
+		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+		structuralChange(w);
+	}
+	catch(...)
+	{
+		printf("The executive is probably not running, waiting for first AGM model publication...");
+	}
 
 	timer.start(Period);
 	return true;

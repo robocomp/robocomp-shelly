@@ -82,9 +82,9 @@ public:
 	bool isActive() { return active; }
 	
 
-	AGMExecutivePrx agmexecutive_proxy;
-	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
+	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;
 	virtual bool activateAgent(const ParameterMap &prs) = 0;
@@ -95,10 +95,10 @@ public:
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;
 	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
-	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &es) = 0;
-	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &e) = 0;
-	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &n) = 0;
-	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &ns) = 0;
+	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification) = 0;
+	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
+	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
+	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
 
 
 protected:
