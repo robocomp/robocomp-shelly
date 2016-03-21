@@ -39,8 +39,10 @@ SpecificWorker::~SpecificWorker()
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+
 	try
 	{
+		QMutexLocker l(mutex);
 		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
 		structuralChange(w);
 	}
@@ -56,6 +58,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+	QMutexLocker l(mutex);
+
 	//TEMPORAL
 	printf("Distance: %f\n", innerModel->transform("mugTag", "rgbd").norm2());
 	//
@@ -166,12 +170,12 @@ bool SpecificWorker::reloadConfigAgent()
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modification)
 {
-	mutex->lock();
+	QMutexLocker l(mutex);
+
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
  
 	delete innerModel;
 	innerModel = agmInner.extractInnerModel(worldModel);
-	mutex->unlock();
 }
 
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
@@ -198,30 +202,28 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
 {
-	mutex->lock();
+	QMutexLocker l(mutex);
  	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
 	delete innerModel;
 	innerModel = agmInner.extractInnerModel(worldModel);
-	mutex->unlock();
 }
 
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
 {
-	mutex->lock();
-	
+	QMutexLocker l(mutex);
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
  
 	delete innerModel;
 	innerModel = agmInner.extractInnerModel(worldModel);
-	mutex->unlock();
 }
 
 
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
 {
+	QMutexLocker l(mutex);
+
 	printf("<<< setParametersAndPossibleActivation\n");
 	// We didn't reactivate the component
 	reactivated = false;
@@ -282,6 +284,8 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 // Get new apriltags!
 void SpecificWorker::newAprilTag(const tagsList &list)
 {
+	QMutexLocker l(mutex);
+
 	if (worldModel->numberOfSymbols() == 0)
 		return;
 
@@ -589,6 +593,8 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 
 bool SpecificWorker::updateMilk(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
 {
+	QMutexLocker l(mutex);
+
 	bool existing = false;
 
 	for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
@@ -676,6 +682,8 @@ void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t
 
 void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 {
+	QMutexLocker l(mutex);
+
 	static QTime lastTime;
 
 	if (newAction)
