@@ -12,6 +12,7 @@
 <symbol id="22" type="object">
 	<attribute key="imName" value="tableB" />
 	<attribute key="imType" value="transform" />
+	<attribute key="tag" value="30" />
 </symbol>
 <symbol id="23" type="objectSt"/>
 <symbol id="31" type="objectSt">
