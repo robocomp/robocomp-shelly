@@ -23,6 +23,48 @@
 * \brief Default constructor
 */
 
+class TimedList
+{
+	class TimedDatum
+	{
+	public:
+		TimedDatum(float d)
+		{
+			datum = d;
+			datum_time = QTime::currentTime();
+		}
+		float datum;
+		QTime datum_time;
+	};
+
+public:
+	TimedList(float msecs)
+	{
+		maxMSec = msecs;
+	}
+	void add(float datum)
+	{
+		data.push_back(TimedDatum(datum));
+	}
+	float get()
+	{
+		while (data.size()>0)
+		{
+			if (data[0].datum_time.elapsed() > maxMSec)
+				data.pop_front();
+			else
+				break;
+		}
+		float acc = 0.;
+		for (int i=0; i<data.size(); i++)
+			acc += data[i].datum;
+		return acc;
+	}
+private:
+	float maxMSec;
+	QList<TimedDatum> data;
+};
+
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	Period = 20;
