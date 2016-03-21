@@ -297,7 +297,7 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 					publishModel = true;
 					printf("New table was detected!\n");
 				}
-				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("room", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
+				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("robot", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
 				break;
 			case 31:
 				if (updateMug(ap2, newModel))
@@ -305,7 +305,7 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 					publishModel = true;
 					printf("New mug was detected!\n");
 				}
-				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("room", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
+				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("robot", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
 				break;
 		}
 	}
