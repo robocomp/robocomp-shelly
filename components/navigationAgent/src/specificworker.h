@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
+ *    Copyright (C) 2015 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -16,17 +16,20 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef SPECIFICWORKER_H
-#define SPECIFICWORKER_H
-
-#include <genericworker.h>
-
-#include <innermodel/innermodel.h>
 
 /**
        \brief
        @author authorname
 */
+
+#ifndef SPECIFICWORKER_H
+#define SPECIFICWORKER_H
+
+#include <genericworker.h>
+#include <innermodel/innermodel.h>
+#include <innermodel/innermodelviewer.h>
+
+#include <agm.h>
 
 class SpecificWorker : public GenericWorker
 {
@@ -40,69 +43,75 @@ public:
 	StateStruct getAgentState();
 	ParameterMap getAgentParameters();
 	bool setAgentParameters(const ParameterMap& prs);
-	void  killAgent();
+	void killAgent();
 	Ice::Int uptimeAgent();
 	bool reloadConfigAgent();
-	void  structuralChange(const RoboCompAGMWorldModel::World & modification);
-	void  symbolUpdated(const RoboCompAGMWorldModel::Node& modification);
-	void  symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence & modification);
-	void  edgeUpdated(const RoboCompAGMWorldModel::Edge& modification);
+	void structuralChange(const RoboCompAGMWorldModel::World& modification);
+	void symbolUpdated(const RoboCompAGMWorldModel::Node& modification);
+	void edgeUpdated(const RoboCompAGMWorldModel::Edge& modification);
 	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
-
+	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
 
 public slots:
- 	void compute();
+	void compute();
+	
+	void startManualMode();
 
 private:
+	bool manualMode;
+
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
-	bool active;
-	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
+	void sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, std::string m="");
 
 
+	QVec getObjectsLocationInRobot(std::map<std::string, AGMModelSymbol::SPtr> &symbols, AGMModelSymbol::SPtr &object);
+	QVec fromRobotToRoom(std::map<std::string, AGMModelSymbol::SPtr> &symbols, const QVec vector);
+	int sendRightArmToPose(QVec p);
 
+	void manageReachedObjects();
+	void leaveObjectSimulation();
 
+	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 
-
-	void go(float x, float z, float alpha=0, bool rot=false, float threshold=200, float xRef=0, float zRef=0);
-	void stop();
-	void updateRobotsCognitiveLocation();
 	void actionExecution();
-	int32_t getIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel);
-	void setIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel, int32_t identifier);
+	void action_FindObjectVisuallyInTable(bool first=false);
+	void action_SetObjectReach(bool first=false);
+	void action_GraspObject(bool first=false);
 
+	void directGazeTowards(AGMModelSymbol::SPtr symbol);
+	void saccadic3D(QVec point, QVec axis);
+	void saccadic3D(float tx, float ty, float tz, float axx, float axy, float axz);
+
+
+	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
+	float distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr symbol);
+// 	float distanceToPolygon(QVec reference, QVec position, std::string polygon_str);
+
+	void setRightArmUp_Reflex();
+
+	void updateViewer();
+	void changeInner ();
+
+        void waitRobotStopped();
 
 private:
-	std::string action;
+	
+	std::string action, backAction;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
-	bool haveTarget;
+	osgGA::TrackballManipulator *manipulator;
+	OsgView *osgView;	
+	InnerModelViewer *innerViewer; 
 	
-	RoboCompTrajectoryRobot2D::TargetPose currentTarget;
+	bool active;
+
+	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols);
 	
-
-	RoboCompOmniRobot::TBaseState bState;
-	RoboCompTrajectoryRobot2D::NavState planningState;
-
-
-	std::map<int32_t, QPolygonF> roomsPolygons;
-	std::map<int32_t, QPolygonF> extractPolygonsFromModel(AGMModel::SPtr &worldModel);
-
-
-private:
-	void action_ChangeRoom(bool newAction = true);
-	void action_FindObjectVisuallyInTable(bool newAction = true);
-	void action_SetObjectReach(bool newAction = true);
-//	void action_GraspObject(bool newAction = true);
-	void action_DetectPerson (bool newAction = true);
-	void action_HandObject(bool newAction = true);
-	void action_NoAction(bool newAction = true);
-
-
-	bool odometryAndLocationIssues(bool force=false);
-
+	
+public slots:
+	void on_state1_clicked();
 };
 
 #endif
-
 

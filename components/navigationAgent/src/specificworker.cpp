@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
+ *    Copyright (C) 2015 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -16,23 +16,45 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
+#include "specificworker.h"
 
- #include "specificworker.h"
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <boost/geometry/geometries/polygon.hpp>
+
+
 
 /**
 * \brief Default constructor
 */
-
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	Period = 20;
 	active = false;
 
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
-	haveTarget = false;
+#ifdef USE_QTGUI	
+	osgView = new OsgView(widget);
+	show();
+//  	printf("%s: %d\n", __FILE__, __LINE__);
+	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
+	manipulator = new osgGA::TrackballManipulator;
+	osgView->setCameraManipulator(manipulator, true);
+// 	printf("%s: %d\n", __FILE__, __LINE__);
+	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+#endif
+	
+	manualMode = false;
+	show();
 
+	setRightArmUp_Reflex();
+	
+	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
+	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
+	
+	
 }
 
 /**
@@ -40,853 +62,243 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-
+	
+}
+void SpecificWorker::updateViewer()
+{
+	if (!innerModel) return;
+	
+	innerViewer->update();
+	osgView->autoResize();
+	osgView->frame();
 }
 
 void SpecificWorker::compute( )
 {
-	// ODOMETRY AND LOCATION-RELATED ISSUES
-	if (odometryAndLocationIssues() == false)
-		return;
-// 	innerModel->treePrint();
+	QMutexLocker locker(mutex);
+	{
+		if (not manualMode)
+		{
+			printf("Not in manual mode\n");
+			if (not innerModel->getNode("right_shoulder_grasp_pose"))
+			{
+				printf("waiting for AGM*\n");
+				innerModel->save("extractInnerModel.xml");
+				return;
+			}
+		}
+	}
+	manageReachedObjects();
 
 	
-	actionExecution();
-
-// 	printf("ae>\n");
+	if (manualMode)
+	{
+		action_GraspObject();
+	}
+	else
+	{
+		// ACTION EXECUTION
+		actionExecution();
+	}
+#ifdef USE_QTGUI
+	updateViewer();
+#endif	
 }
 
-/**
- * \brief ESTE ES EL VERDADERO COMPUTE
- */ 
-void SpecificWorker::actionExecution()
+
+void SpecificWorker::manageReachedObjects()
 {
-// 	return;
+	float schmittTriggerThreshold = 30;
+	float THRESHOLD_mug = 100;
+	float THRESHOLD_table = 400;
+	std::string m ="  ";
+
+	bool changed = false;
 	
 	QMutexLocker locker(mutex);
-	qDebug()<<"ACTION: "<<QString::fromStdString(action);
-
-	static std::string previousAction = "";
-	bool newAction = (previousAction != action);
-
-	if (newAction)
-	{
-		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-	}
-
-// 	try
-// 	{
-// 		planningState = trajectoryrobot2d_proxy->getState();
-// 	}
-// 	catch(const Ice::Exception &ex)
-// 	{
-// 		std::cout << ex << "Error talking to TrajectoryRobot2D" <<  std::endl;
-// 	}
-// 	catch(...)
-// 	{
-// 		printf("something else %d\n", __LINE__);
-// 	}
-
-	if (action == "changeroom")
-	{
-		action_ChangeRoom(newAction);
-	}
-	else if (action == "findobjectvisuallyintable")
-	{
-		action_FindObjectVisuallyInTable(newAction);
-	}
-	else if (action == "setobjectreach" or action == "graspobject")
-	{
-		action_SetObjectReach(newAction);
-	}
-	else if (action == "detectperson")
-	{
-		action_DetectPerson(newAction);
-	}
-	else if (action == "handobject")
-	{
-		action_HandObject(newAction);
-	}
-	else
-	{
-		action_NoAction(newAction);
-	}
-
-
-	if (newAction)
-	{
-		previousAction = action;
-		printf("New action: %s\n", action.c_str());
-	}
-	printf("actionExecution>>\n");
-}
-
-void SpecificWorker::action_DetectPerson(bool newAction)
-{
-
-	static bool b=false;
-	if (b==false)
-        {
-		trajectoryrobot2d_proxy->stop();
-		b=true;
-	}
-	try
-	{
-		omnirobot_proxy->setSpeedBase(0.,0.,0.1);
-	}
-	catch(...)
-	{
-		printf("Can't connect to the robot!!\n");
-	}
-
-}
-
-void SpecificWorker::action_HandObject(bool newAction)
-{
-	// Get symbols' map
-	std::map<std::string, AGMModelSymbol::SPtr> symbols;
-	try
-	{
-		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
-	}
-	catch(...)
-	{
-		printf("navigationAgent, action_HandObject: Couldn't retrieve action's parameters\n");
-		printf("<<WORLD\n");
-		AGMModelPrinter::printWorld(worldModel);
-		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
-	}
-
-	// Get target
-	int roomID, personID, robotID;
-	try
-	{
-		if (symbols["room"].get() and symbols["person"].get() and symbols["robot"].get())
-		{
-			roomID = symbols["room"]->identifier;   //7 ROOM
-			personID =symbols["person"]->identifier;//  PERSON
-			robotID = symbols["robot"]->identifier; //1 ROBOT
-		}
-		else
-		{
-			printf("navigationAgent, action_HandObject: parameters not in the model yet\n");
-			return;
-		}
-	}
-	catch(...)
-	{
-		printf("navigationAgent, action_HandObject ERROR: SYMBOL DOESN'T EXIST \n");
-		exit(2);
-	}
 	
-	// GET THE INNERMODEL NAMES OF TH SYMBOLS
-	QString robotIMID;
-	QString roomIMID;
-	QString personIMID;
-	try
-	{
-		robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
-		roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
-		//we need to obtain the imName of the torso node. TrackingId+"XN_SKEL_TORSO"
-		QString trackingId= QString::fromStdString(worldModel->getSymbol(personID)->getAttribute("TrackingId"));
-		personIMID = trackingId +"XN_SKEL_TORSO";
-	}
-	catch(...)
-	{
-		printf("navigationAgent, action_HandObject: ERROR IN GET THE INNERMODEL NAMES\n");
-		qDebug()<<"[robotIMID"<<robotIMID<<"roomIMID"<<roomIMID<<"personIMID"<<personIMID<<"]";
-		exit(2);
-	}
-	
-	// GET THE TARGET POSE: 
-	try
-	{
-		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(personIMID)))    return;
-		
-		QVec poseInRoom = innerModel->transform6D(roomIMID, personIMID); // FROM OBJECT TO ROOM
-		qDebug()<<"[robotIMID"<<robotIMID<<"roomIMID"<<roomIMID<<"personIMID"<<personIMID<<"]";
-		qDebug()<<" TARGET POSE: "<< poseInRoom;
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
-// 		currentTarget.first = objectID;
-		currentTarget.x = poseInRoom.x();
-		currentTarget.y = 0;
-		currentTarget.z = poseInRoom.z();
-		currentTarget.rx = 0;
-		currentTarget.ry = 0;
-		currentTarget.rz = 0;
-		currentTarget.doRotation = false;
-	}
-	catch (...) 
-	{ 
-		qDebug()<<"navigationAgent, action_HandObject: innerModel exception";
-	}
 
-	try
+	int robotID = newModel->getIdentifierByType("robot");
+
+
+	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
-// 		if (!haveTarget)
+		AGMModelSymbol::SPtr node = *symbol_itr;
+		if (node->symboltype() == "object")
 		{
+			printf("OBJECT: %d\n", node->identifier);
+			// Avoid working with rooms
+			if (isObjectType(newModel, node, "room")) continue;
+			// Avoid working with rooms
+// 			if (isObjectType(newModel, node, "table")) continue;
+
+			//if the object is in robot continue
 			try
 			{
-				QVec graspRef = innerModel->transform("robot", "right_shoulder_grasp_pose");
-				float th=20;
-				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
-				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
-				haveTarget = true;
-			}
-			catch(const Ice::Exception &ex)
-			{
-				std::cout <<"navigationAgent, action_HandObject: ERROR trajectoryrobot2d->go "<< ex << std::endl;
-				throw ex;
-			}
-		}
-		string state;
-		try
-		{
-			state = trajectoryrobot2d_proxy->getState().state;
-		}
-		catch(const Ice::Exception &ex)
-		{
-			std::cout <<"navigationAgent, action_HandObject: trajectoryrobot2d->getState().state "<< ex << std::endl;
-			throw ex;
-		}
-
-		//state="IDLE";
-		std::cout<<state<<" haveTarget "<<haveTarget;
-		if (state=="IDLE" && haveTarget)
-		{
-			//std::cout<<"\ttrajectoryrobot2d_proxy->getState() "<<trajectoryrobot2d_proxy->getState().state<<"\n";
-			try
-			{
-// 				AGMModel::SPtr newModel(new AGMModel(worldModel));
-// 				int statusID =symbols["status"]->identifier;
-// 				newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
-// 				sendModificationProposal(worldModel, newModel);
-				haveTarget=false;
+				AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
+				qDebug()<<"MUG IN ROBOT";
+				continue;
 			}
 			catch (...)
 			{
-				std::cout<<"\neeeee"<< "\n";
+				qDebug()<<"MUG NOT IN ROBOT";
 			}
-		}
-	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
-	}
-	
-
-}
 
 
-/**
- * \brief elmeollo dl asunto
- */ 
-void SpecificWorker::action_SetObjectReach(bool newAction)
-{
-	// Get symbols' map
-	std::map<std::string, AGMModelSymbol::SPtr> symbols;
-	try
-	{
-		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
-	}
-	catch(...)
-	{
-		printf("navigationAgent: Couldn't retrieve action's parameters\n");
-		printf("<<WORLD\n");
-		AGMModelPrinter::printWorld(worldModel);
-		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
-	}
 
-	// Get target
-	int roomID, objectID, robotID;
-	try
-	{
-		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get())
-		{
-			roomID = symbols["room"]->identifier;
-			objectID =symbols["object"]->identifier;
-			robotID = symbols["robot"]->identifier;
-		}
-		else
-		{
-			printf("parameters not in the model yet\n");
-			return;
-		}
-	}
-	catch(...)
-	{
-		printf("ERROR: SYMBOL DOESN'T EXIST \n");
-		exit(2);
-	}
-	
 
-	// GET THE INNERMODEL NAMES OF TH SYMBOLS
-	QString robotIMID;
-	QString roomIMID;
-	QString objectIMID;
-	try
-	{
-		robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
-		roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
-		objectIMID = QString::fromStdString(worldModel->getSymbol(objectID)->getAttribute("imName"));
-	}
-	catch(...)
-	{
-		printf("ERROR IN GET THE INNERMODEL NAMES\n");
-		exit(2);
-	}
-	
-
-	// GET THE TARGET POSE: 
-	try
-	{
-		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))    return;
-		QVec poseInRoom = innerModel->transform6D(roomIMID, objectIMID); // FROM OBJECT TO ROOM
-		qDebug()<<" TARGET POSE: "<< poseInRoom;
-
-// 		currentTarget.first = objectID;
-		currentTarget.x = poseInRoom.x();
-		currentTarget.y = 0;
-		currentTarget.z = poseInRoom.z();
-		currentTarget.rx = 0;
-		currentTarget.ry = 0;
-		currentTarget.rz = 0;
-		currentTarget.doRotation = true;
-	}
-	catch (...) 
-	{ 
-		qDebug()<<"innerModel exception";
-	}
-
-	// Execute target
-	try
-	{
-// 		if (!haveTarget)
-		{
+			/// Compute distance and new state
+			float d2n;
 			try
 			{
-				QVec O = innerModel->transform("right_shoulder_grasp_pose", objectIMID);
-				O.print("pose relativa");
-				printf("__%f__\n", O.norm2());
-				QVec graspRef = innerModel->transform("robot", "right_shoulder_grasp_pose");
-				float th=20;
-				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
-				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
-				haveTarget = true;
+				d2n = distanceToNode("right_shoulder_grasp_pose", newModel, node);
 			}
-			catch(const Ice::Exception &ex)
+			catch(...)
 			{
-				std::cout <<"ERROR trajectoryrobot2d->go "<< ex << std::endl;
-				throw ex;
+				printf("Ref: right_shoulder_grasp_pose: %p\n", (void *)innerModel->getNode("right_shoulder_grasp_pose"));
+				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
 			}
-		}
-		string state;
-		try
-		{
-				state = trajectoryrobot2d_proxy->getState().state;
-		}
-		catch(const Ice::Exception &ex)
-		{
-				std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
-				throw ex;
-		}
 
-		//state="IDLE";
-		std::cout<<state<<" haveTarget "<<haveTarget;
-		if (state=="IDLE" && haveTarget)
-		{
-			//std::cout<<"\ttrajectoryrobot2d_proxy->getState() "<<trajectoryrobot2d_proxy->getState().state<<"\n";
-			try
-			{
-// 				AGMModel::SPtr newModel(new AGMModel(worldModel));
-// 				int statusID =symbols["status"]->identifier;
-// 				newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
-// 				sendModificationProposal(worldModel, newModel);
-				haveTarget=false;
-			}
-			catch (...)
-			{
-				std::cout<<"\neeeee"<< "\n";
-			}
-		}
-	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
-	}
-}
-
-
-bool SpecificWorker::odometryAndLocationIssues(bool force)
-{
-	//
-	// Get ODOMETRY and update it in the graph. If there's a problem talking to the robot's platform, abort
-	try
-	{
-		omnirobot_proxy->getBaseState(bState);
-	}
-	catch (...)
-	{
-		printf("Can't connect to the robot!!\n");
-		return false;
-	}
-
-	int32_t robotId=-1, roomId=-1;
-
-	robotId = worldModel->getIdentifierByType("robot");
-	if (robotId < 0)
-	{
-		printf("Robot symbol not found, Waiting for the executive...\n");
-		usleep(1000000);
-		return false;
-	}
-
-	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
-	for (auto edge = robot->edgesBegin(worldModel); edge != robot->edgesEnd(worldModel); edge++)
-	{
-		const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
-
-		if (edge->getLabel() == "RT")
-		{
-			printf("%d ---[%s]---> %d\n", symbolPair.first, edge->getLabel().c_str(), symbolPair.second);
-			const string secondType = worldModel->getSymbol(symbolPair.first)->symbolType;
-			if (symbolPair.second == robotId and secondType == "room")
-			{
-				roomId = symbolPair.first;
-			}
-		}
-	}
-
-	if (roomId < 0)
-	{
-		printf("roomId not found, Waiting for Insert innerModel...\n");
-		usleep(1000000);
-		return false;
-	}
-
-	
-	int32_t robotIsActuallyInRoom;
-	if (bState.z<0)
-		robotIsActuallyInRoom = 5;
-	else
-		robotIsActuallyInRoom = 3;
-
-// 	for (const AGMModelEdge &edge : worldModel->edges)
-// 	{
-// 		if (edge->getSymbolPair().first == robotId and edge->getLabel() == "in")
-// 		{
-// 		}
-// 	}
-
-	if (roomId != robotIsActuallyInRoom)
-	{
-		try
-		{
-			AGMModel::SPtr newModel(new AGMModel(worldModel));
-
-			// Modify IN edge
-			newModel->removeEdgeByIdentifiers(robotId, roomId, "in");
-			newModel->addEdgeByIdentifiers(robotId, robotIsActuallyInRoom, "in");
-
-			// Modify RT edge
-			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("(was %d now %d) ---[rt]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
-			try
-			{
-				float bStatex = str2float(edgeRT->getAttribute("tx"));
-				float bStatez = str2float(edgeRT->getAttribute("tz"));
-				float bStatealpha = str2float(edgeRT->getAttribute("ry"));
-				
-				// to reduce the publication frequency
-				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
-				{
-					//Publish update edge
-					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
-
-					edgeRT->setAttribute("tx", float2str(bState.correctedX));
-					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
-					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
-				}
-				printf(".");
-				fflush(stdout);
-				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
-				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
-			}
-			catch (...)
-			{
-				printf("Can't update odometry in RT, edge exists but we encountered other problem!!\n");
-				return false;
-			}
-		}
-		catch (...)
-		{
-			printf("Can't update room... do edges exist? !!!\n");
-			return false;
-		}	}
-	else
-	{
-		try
-		{
-			AGMModelEdge edge  = worldModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("%d ---[rt]---> %d  (%d\n", roomId, robotId, __LINE__);
-			try
-			{
-				float bStatex = str2float(edge->getAttribute("tx"));
-				float bStatez = str2float(edge->getAttribute("tz"));
-				float bStatealpha = str2float(edge->getAttribute("ry"));
-				
-				// to reduce the publication frequency
-				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
-				{
-					//Publish update edge
-					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
-
-					edge->setAttribute("tx", float2str(bState.correctedX));
-					edge->setAttribute("tz", float2str(bState.correctedZ));
-					edge->setAttribute("ry", float2str(bState.correctedAlpha));
-					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
-					printf("done\n");
-				}
-				printf(".");
-				fflush(stdout);
-
-			}
-			catch (...)
-			{
-				printf("Can't update odometry in RT, edge exists but we encountered other problem!!\n");
-				return false;
-			}
-		}
-		catch (...)
-		{
-			printf("Can't update odometry in RT, edge does not exist? !!!\n");
-			return false;
-		}
-	}
-
-
-	return true;
-}
-
-void SpecificWorker::updateRobotsCognitiveLocation()
-{
-	// If the polygons are not set yet, there's nothing to do...
-	if (roomsPolygons.size()==0)
-		return;
-
-	// Get current location according to the model, if the location is not set yet, there's nothing to do either
-	const int32_t currentLocation = getIdentifierOfRobotsLocation(worldModel);
-	if (currentLocation == -1) return;
-
-	// Compute the robot's location according to the odometry and the set of polygons
-	// If we can't find the room where the robot is, we assume it didn't change, so there's nothing else to do
-	int32_t newLocation = -1;
-	for (auto &kv : roomsPolygons)
-	{
-		if (kv.second.containsPoint(QPointF(bState.x,  bState.z), Qt::OddEvenFill))
-		{
-			newLocation = kv.first;
-			break;
-		}
-	}
-	if (newLocation == -1) return;
-
-	// If everyting is ok AND the robot changed its location, update the new location in the model and
-	// propose the change to the executive
-	if (newLocation != currentLocation and newLocation != -1)
-	{
-		printf("sending modification!\n");
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
-		setIdentifierOfRobotsLocation(newModel, newLocation);
-		AGMModelPrinter::printWorld(newModel);
-		sendModificationProposal(worldModel, newModel);
-	}
-}
-
-
-std::map<int32_t, QPolygonF> SpecificWorker::extractPolygonsFromModel(AGMModel::SPtr &worldModel)
-{
-	std::map<int32_t, QPolygonF> ret;
-
-	for (AGMModel::iterator symbol_itRR=worldModel->begin(); symbol_itRR!=worldModel->end(); symbol_itRR++)
-	{
-		const AGMModelSymbol::SPtr &symbolRR = *symbol_itRR;
-		if (symbolRR->symbolType == "robot")
-		{
-			for (AGMModelSymbol::iterator edge_itRR=symbolRR->edgesBegin(worldModel); edge_itRR!=symbolRR->edgesEnd(worldModel); edge_itRR++)
-			{
-				AGMModelEdge edgeRR = *edge_itRR;
-				if (edgeRR.linking == "know")
-				{
-					const AGMModelSymbol::SPtr &symbol = worldModel->getSymbol(edgeRR.symbolPair.first);
-					if (symbol->symbolType == "object")
-					{
-						printf("object: %d\n", symbol->identifier);
-						for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
-						{
-							AGMModelEdge edge = *edge_it;
-							if (edge.linking == "room")
-							{
-								const QString polygonString = QString::fromStdString(symbol->getAttribute("polygon"));
-								const QStringList coords = polygonString.split(";");
-								printf("  it is a room\n");
-								qDebug() << " " << coords.size() << " ___ " << polygonString ;
-								if (coords.size() < 3)
-								{
-									qDebug() << coords.size() << " ___ " << polygonString ;
-									qDebug() << polygonString;
-									for (int32_t i=0; i<coords.size(); i++)
-										qDebug() << coords[i];
-									qFatal("ABORT %s %d", __FILE__, __LINE__);
-								}
-
-								QVector<QPointF> points;
-								for (int32_t ci=0; ci<coords.size(); ci++)
-								{
-									const QString &pointStr = coords[ci];
-									if (pointStr.size() < 5) qFatal("%s %d", __FILE__, __LINE__);
-									const QStringList coords2 = pointStr.split(",");
-									if (coords2.size() < 2) qFatal("%s %d", __FILE__, __LINE__);
-									QString a = coords2[0];
-									QString b = coords2[1];
-									a.remove(0,1);
-									b.remove(b.size()-1,1);
-									float x = a.toFloat();
-									float z = b.toFloat();
-									points.push_back(QPointF(x, z));
-								}
-								if (points.size() < 3) qFatal("%s %d", __FILE__, __LINE__);
-								ret[symbol->identifier] = QPolygonF(points);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return ret;
-}
-
-int32_t SpecificWorker::getIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel)
-{
-	for (AGMModel::iterator symbol_it=worldModel->begin(); symbol_it!=worldModel->end(); symbol_it++)
-	{
-		const AGMModelSymbol::SPtr &symbol = *symbol_it;
-		if (symbol->symbolType == "robot")
-		{
-			for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
-			{
-				AGMModelEdge edge = *edge_it;
-				if (edge.linking == "in")
-				{
-					return edge.symbolPair.second;
-				}
-			}
-		}
-	}
-
-	printf("wheres's the robot?\n");
-	return -1;
-}
-
-void SpecificWorker::setIdentifierOfRobotsLocation(AGMModel::SPtr &model, int32_t identifier)
-{
-	bool didSomethin = false;
-	for (AGMModel::iterator symbol_it=worldModel->begin(); symbol_it!=worldModel->end(); symbol_it++)
-	{
-		const AGMModelSymbol::SPtr &symbol = *symbol_it;
-		if (symbol->symbolType == "robot")
-		{
-
-			for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
-			{
-				if (edge_it->linking == "in")
-				{
-					printf("it was %d\n", edge_it->symbolPair.second);
-				}
-			}
-			for (int32_t edgeIndex=0; edgeIndex<model->numberOfEdges(); edgeIndex++)
-			{
-				if (model->edges[edgeIndex].linking == "in")
-				{
-					if (model->edges[edgeIndex].symbolPair.first == symbol->identifier)
-					{
-						model->edges[edgeIndex].symbolPair.second = identifier;
-						didSomethin = true;
-					}
-				}
-			}
-			for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
-			{
-				if (edge_it->linking == "in")
-				{
-					printf("now is %d\n", edge_it->symbolPair.second);
-				}
-			}
-		}
-	}
-	if (not didSomethin)
-		qFatal("couldn't update robot's room in the cog graph");
-}
-
-
-void SpecificWorker::action_ChangeRoom(bool newAction)
-{
-	static float lastX = std::numeric_limits<float>::quiet_NaN();
-	static float lastZ = std::numeric_limits<float>::quiet_NaN();
-
-	auto symbols = worldModel->getSymbolsMap(params, "r2");
-	
-	int32_t roomId = symbols["r2"]->identifier;
-	printf("room symbol: %d\n",  roomId);
-	std::string imName = symbols["r2"]->getAttribute("imName");
-	printf("imName: <%s>\n", imName.c_str());
-
-	const float refX = str2float(symbols["r2"]->getAttribute("x"));
-	const float refZ = str2float(symbols["r2"]->getAttribute("z"));
-	
-	QVec roomPose = innerModel->transformS("world", QVec::vec3(refX, 0, refZ), imName);
-	roomPose.print("goal pose");
-// 	AGMModelSymbol::SPtr goalRoom = worldModel->getSymbol(str2int(params["r2"].value));
-// 	const float x = str2float(goalRoom->getAttribute("tx"));
-// 	const float z = str2float(goalRoom->getAttribute("tz"));
-	const float x = roomPose(0);
-	const float z = roomPose(2);
-
-	bool proceed = true;
-	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
-	{
-		if (abs(lastX-x)<10 and abs(lastZ-z)<10)
-			proceed = false;
-		else
-			printf("proceed because the coordinates differ (%f, %f), (%f, %f)\n", x, z, lastX, lastZ);
-	}
-	else
-	{
-		printf("proceed because it's stoped\n");
-	}
-
-	if (proceed)
-	{
-		lastX = x;
-		lastZ = z;
-		printf("changeroom to %d\n", symbols["r2"]->identifier);
-		go(x, z);
-	}
-	else
-	{
-	}
-}
-
-
-void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
-{
-// 	stop();
-
-
-	static float lastX = std::numeric_limits<float>::quiet_NaN();
-	static float lastZ = std::numeric_limits<float>::quiet_NaN();
-
-	AGMModelSymbol::SPtr goalTable;
-	AGMModelSymbol::SPtr robot;
-	int32_t tableId = -1;
-	try
-	{
-		tableId = str2int(params["container"].value);
-		goalTable = worldModel->getSymbol(tableId);
-		robot = worldModel->getSymbol(worldModel->getIdentifierByType("robot"));
-	}
-	catch(...)
-	{
-		printf("can't access robot or table\n");
-		return;
-	}
-
-	const float x = str2float(goalTable->getAttribute("tx"));
-	const float z = str2float(goalTable->getAttribute("tz"));
-	float alpha = tableId==7?-3.141592:0;
-// printf("%s: %d\n", __FILE__, __LINE__);
-
-	const float rx = str2float(robot->getAttribute("tx"));
-	const float rz = str2float(robot->getAttribute("tz"));
-	const float ralpha = str2float(robot->getAttribute("alpha"));
-// printf("%s: %d\n", __FILE__, __LINE__);
-
-	// Avoid repeating the same goal and confuse the navigator
-	const float errX = abs(rx-x);
-	const float errZ = abs(rz-z);
-	float errAlpha = abs(ralpha-alpha);
-	while (errAlpha > +M_PIl) errAlpha -= 2.*M_PIl;
-	while (errAlpha < -M_PIl) errAlpha += 2.*M_PIl;
-	errAlpha = abs(errAlpha);
-	if (errX<20 and errZ<20 and errAlpha<0.02)
-		return;
-// printf("%s: %d\n", __FILE__, __LINE__);
-
-	bool proceed = true;
-	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
-	{
-		if (abs(lastX-x)<10 and abs(lastZ-z)<10)
-			proceed = false;
-		else
-			printf("proceed because the coordinates differ (%f, %f), (%f, %f)\n", x, z, lastX, lastZ);
-	}
-	else
-	{
-		printf("proceed because it's stoped\n");
-	}
-
-	if (proceed)
-	{
-		lastX = x;
-		lastZ = z;
-		printf("find objects in table %d\n", tableId);
-		go(x, tableId==7?z+550:z-550, tableId==7?-3.141592:0, true, 0, 500, 500);
-	}
-	else
-	{
-	}
-}
-
-
-
-
-
-
-/*
-
-void SpecificWorker::action_GraspObject(bool newAction)
-{
-	std::string state = trajectoryrobot2d_proxy->getState().state;
-	printf("action_GraspObject: %s\n", state.c_str());
-	if (state != "IDLE")
-		trajectoryrobot2d_proxy->stop();
-}
-
+/*			
+			QVec graspPosition = innerModel->transform("room", "right_shoulder_grasp_pose");
+			graspPosition(1) = 0;
+			QVec obj = innerModel->transformS("room", node->getAttribute("imName"));
+			obj(1) = 0;
+ 			graspPosition.print("  no");
+ 			obj.print("  obj");
+// 			printf("%s: %f  (th:%f)\n", node->getAttribute("imName").c_str(), (graspPosition-obj).norm2(), THRESHOLD);
 */
+			float THRESHOLD;
+			if (isObjectType(newModel, node, "mug"))
+			{
+				THRESHOLD = THRESHOLD_mug;
+			}
+			else if (isObjectType(newModel, node, "table"))
+			{
+				THRESHOLD = THRESHOLD_table;
+			}
+			else
+			{
+				qFatal("dededcef or4j ");
+			}
+			QString name = QString::fromStdString(node->toString());
+			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
-void SpecificWorker::action_NoAction(bool newAction)
-{
-	std::string state = trajectoryrobot2d_proxy->getState().state;
-	if (state != "IDLE")
+
+			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
+			{
+				AGMModelEdge &edge = *edge_itr;
+				if (edge->getLabel() == "reach" and d2n > THRESHOLD+schmittTriggerThreshold )
+				{
+					edge->setLabel("noReach");
+					printf("object %d STOPS REACH\n", node->identifier);
+					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
+					changed = true;
+				}
+				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD-schmittTriggerThreshold)
+				{
+					edge->setLabel("reach");
+					printf("___ %s ___\n", edge->getLabel().c_str());
+					printf("object %d STARTS REACH\n", node->identifier);
+					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
+					changed = true;
+				}
+			}
+		}
+	}
+
+	/// Publish new model if changed
+	if (changed)
 	{
-		printf("trajectoryrobot2d state : %s\n", state.c_str());
-		stop();
+		printf("PUBLISH!!!!\n");
+		printf("PUBLISH!!!!\n");
+		printf("PUBLISH!!!!\n");
+		printf("PUBLISH!!!!\n");
+		printf("PUBLISH!!!!\n");
+		sendModificationProposal(newModel, worldModel,m);
 	}
 }
+
+bool SpecificWorker::isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t)
+{
+	QMutexLocker locker(mutex);
+
+	for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(model); edge_itr!=node->edgesEnd(model); edge_itr++)
+	{
+		AGMModelEdge edge = *edge_itr;
+		if (edge->getLabel() == t)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+// std::vector<std::pair<float, float>> getCoordinates
+
+float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr node)
+{
+	QMutexLocker locker(mutex);
+	
+	// check if it's a polygon
+// 	bool isPolygon = false;
+// 	for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(model); edge_itr!=node->edgesEnd(model) and isPolygon == false; edge_itr++)
+// 	{
+// 		if ((*edge_itr)->getLabel() == "table")
+// 			isPolygon = true;
+// 	}
+
+// 	if (isPolygon)
+// 	{
+// 		const std::string polygon = node->getAttribute("polygon");
+// 		const QVec head_in_floor = innerModel->transform("room", reference_name.c_str());
+// 		return distanceToPolygon(head_in_floor, QVec::vec3(x, y, z), polygon);
+// 	}
+// 	else
+// 	{
+		QVec arm = innerModel->transformS("world", reference_name);
+		arm(1) = 0;
+		QVec obj = innerModel->transformS("world", node->getAttribute("imName"));
+		obj(1) = 0;
+		return (arm-obj).norm2();
+// 	}
+}
+
+// float SpecificWorker::distanceToPolygon(QVec reference, QVec position, std::string polygon_str)
+// {
+// 	boost::geometry::model::d2::point_xy<int> point(reference(0), reference(2));
+// 	boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<float> > poly;
+// 
+// // 	printf("p %s\n", polygon_str.c_str());
+// 	std::vector<std::string> strs;
+// 	boost::split(strs, polygon_str, boost::is_any_of(";"));
+// // 	printf("d %f  %f\n", position(0);
+// 	for (auto coords : strs)
+// 	{
+// // 		printf("pp %s\n", coords.c_str());
+// 		std::vector<std::string> strs_coords;
+// 		boost::split(strs_coords, coords, boost::is_any_of("(),"));
+// 		if (strs_coords.size()<2)
+// 			return std::nan("1");
+// // 		for (auto ss : strs_coords) printf("<%d %s\n", ddd++, ss.c_str());
+// // 		printf(" s %d\n", strs_coords.size());
+// 		const float x = atof(strs_coords[1].c_str());
+// 		const float z = atof(strs_coords[2].c_str());
+// 		printf("< %f %f\n", x, z);
+// 		boost::geometry::model::d2::point_xy<float> vertex(x, z);
+// 		boost::geometry::append(poly, vertex);
+// 	}
+// 
+// 
+// 	return boost::geometry::distance(poly, point);
+// }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	QMutexLocker locker(mutex);
+
 	try
 	{
 		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
@@ -897,38 +309,37 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("The executive is probably not running, waiting for first AGM model publication...");
 	}
 
-	timer.start(20);
+	timer.start(Period);
 	return true;
 }
 
 bool SpecificWorker::activateAgent(const ParameterMap& prs)
 {
+	QMutexLocker locker(mutex);
 	bool activated = false;
-	printf("<<activateAgent\n");
 	if (setParametersAndPossibleActivation(prs, activated))
 	{
-			if (not activated)
-			{
-				printf("activateAgent 0 >>\n");
-				return activate(p);
-			}
+		if (not activated)
+		{
+			return activate(p);
+		}
 	}
 	else
 	{
-		printf("activateAgent 1 >>\n");
 		return false;
 	}
-	printf("activateAgent 2 >>\n");
 	return true;
 }
 
 bool SpecificWorker::deactivateAgent()
 {
-		return deactivate();
+	QMutexLocker locker(mutex);
+	return deactivate();
 }
 
 StateStruct SpecificWorker::getAgentState()
 {
+	QMutexLocker locker(mutex);
 	StateStruct s;
 	if (isActive())
 	{
@@ -949,6 +360,7 @@ ParameterMap SpecificWorker::getAgentParameters()
 
 bool SpecificWorker::setAgentParameters(const ParameterMap& prs)
 {
+	QMutexLocker locker(mutex);
 	bool activated = false;
 	return setParametersAndPossibleActivation(prs, activated);
 }
@@ -967,31 +379,70 @@ bool SpecificWorker::reloadConfigAgent()
 	return true;
 }
 
+void SpecificWorker::changeInner ()
+{	
+	if (innerViewer)
+	{
+		//borra innermodel dentro de InnerModelViewer
+		osgView->getRootGroup()->removeChild(innerViewer);
+	}
+	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+
+}
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modification)
 {
-	printf("pre <<structuralChange\n");
-	QMutexLocker l(mutex);
-	printf("<<structuralChange\n");
+	QMutexLocker locker(mutex);
 
 	AGMModelConverter::fromIceToInternal(modification, worldModel);
-	//if (roomsPolygons.size()==0 and worldModel->numberOfSymbols()>0)
-		//roomsPolygons = extractPolygonsFromModel(worldModel);
+	
+#ifdef USE_QTGUI
+	changeInner();
+#else
 
-// 	agmInner.setWorld(worldModel);
 	if (innerModel) delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "world", true);
-	printf("structuralChange>>\n");
+	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+#endif
 }
 
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
-	QMutexLocker l(mutex);
+	QMutexLocker locker(mutex);
 
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-
+#ifdef USE_QTGUI
+	changeInner( );
+#else
 	if (innerModel) delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "world", true);
+	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+#endif
+}
+
+void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
+{
+	QMutexLocker lockIM(mutex);
+	for (auto modification : modifications)
+	{
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		AGMModelEdge dst;
+		AGMModelConverter::fromIceToInternal(modification,dst);
+		agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+	}
+}
+
+void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
+{
+	QMutexLocker locker(mutex);
+	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+	try {
+		agmInner.updateImNodeFromEdge(worldModel, modification, innerModel);
+	}
+	catch (...)
+	{
+		qDebug()<<"\n";
+	}
 }
 
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
@@ -1006,36 +457,10 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 }
 
 
-void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
-{
-	QMutexLocker lockIM(mutex);
-// 	agmInner.setWorld(worldModel);
-	for (auto modification : modifications)
-	{
-		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-		AGMModelEdge dst;
-		AGMModelConverter::fromIceToInternal(modification,dst);
-		agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
-	}
-}
-
-
-/**
- * \brief ACTUALIZACION DEL ENLACE EN INNERMODEL
- */ 
-void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
-{
-	QMutexLocker lockIM(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-// 	agmInner.setWorld(worldModel);
-	AGMModelEdge dst;
-	AGMModelConverter::fromIceToInternal(modification,dst);
-	agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
-}
-
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
 {
-	printf("<<< setParametersAndPossibleActivation\n");
+	QMutexLocker locker(mutex);
+
 	// We didn't reactivate the component
 	reactivated = false;
 
@@ -1043,13 +468,12 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	params.clear();
 	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
 	{
-		printf("param:%s   value:%s\n", it->first.c_str(), it->second.value.c_str());
 		params[it->first] = it->second;
 	}
-	printf("----\n");
 
 	try
 	{
+		backAction = action;
 		action = params["action"].value;
 		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
 
@@ -1075,16 +499,16 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 		reactivated = true;
 	}
 
-	printf("setParametersAndPossibleActivation >>>\n");
-
 	return true;
 }
 
-void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
+void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m)
 {
+	QMutexLocker locker(mutex);
+
 	try
 	{
-		AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
+		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "graspingAgent")+m);
 	}
 	catch(...)
 	{
@@ -1092,55 +516,569 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	}
 }
 
-void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, float zRef, float threshold)
+void SpecificWorker::actionExecution()
 {
-	RoboCompTrajectoryRobot2D::TargetPose tp;
-	tp.x = x;
-	tp.z = z;
-	tp.y = 0;
-	tp.rx = 0;
-	tp.ry = 0;
-	tp.rz = 0;
-	if (rot)
+	QMutexLocker locker(mutex);
+
+	static std::string previousAction = "";
+	bool newAction = (previousAction != action);
+
+	qDebug()<<"---------------------------------";
+	cout<<action<<endl;
+	qDebug()<<"---------------------------------";
+
+	if (newAction)
+		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
+
+	if (action == "findobjectvisuallyintable")
 	{
-		tp.ry = alpha;
-		tp.doRotation = true;
+		action_FindObjectVisuallyInTable(newAction);
+	}
+	else if (action == "setobjectreach")
+	{
+		action_SetObjectReach(newAction);
+	}
+	else if (action == "graspobject")
+	{
+                waitRobotStopped();
+		action_GraspObject(newAction);
+	}
+
+	if (newAction)
+	{
+		previousAction = action;
+		printf("New action: %s\n", action.c_str());
+	}
+}
+
+// Check if robot is stopped befora calling to graspAction
+void SpecificWorker::waitRobotStopped()
+{
+        int MOVEMENT_THRESHOLD = 20; // in mm
+        static int iter = 0;
+        while (iter < 5)
+        {
+        
+            iter++;
+            AGMModel::SPtr newModel(new AGMModel(worldModel));
+            int robotID = newModel->getIdentifierByType("robot");
+            int robotMovement = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("movedInLastSecond")).toInt();
+            printf("Last second robot movement %i\n",robotMovement);
+            if (robotMovement <= MOVEMENT_THRESHOLD )
+                break;
+            else
+            {
+                printf("Waiting robot is stopped, iter %i\n", iter);
+                usleep(1000000);
+            }
+        }
+        if (iter == 5){
+            qFatal("Robot still moving");
+        }
+}
+
+
+void SpecificWorker::directGazeTowards(AGMModelSymbol::SPtr symbol)
+{
+	QMutexLocker locker(mutex);
+	try
+	{
+		const float x = str2float(symbol->getAttribute("tx"));
+		const float y = str2float(symbol->getAttribute("ty"));
+		const float z = str2float(symbol->getAttribute("tz"));
+		QVec worldRef = QVec::vec3(x, y, z);
+		QVec robotRef = innerModel->transform("robot", worldRef, "world");
+		printf("saccadic3D\n");
+		printf("\n");
+		saccadic3D(robotRef, QVec::vec3(0,0,1));
+	}
+	catch(...)
+	{
+		printf("directGazeTowards\n");
+		throw;
+	}
+}
+
+
+void SpecificWorker::action_FindObjectVisuallyInTable(bool first)
+{
+	qFatal("ddd");
+	try
+	{
+		int32_t tableId = str2int(params["container"].value);
+		QMutexLocker locker(mutex);
+		directGazeTowards(worldModel->getSymbol(tableId));
+	}
+	catch(...)
+	{
+		printf("Can't get the symbol for the container (table)\n[%s: %d]\n", __FILE__, __LINE__);
+		throw;
+	}
+}
+
+
+void SpecificWorker::startManualMode()
+{
+	manualMode = true;
+	action_GraspObject(true);
+}
+
+
+void SpecificWorker::action_GraspObject(bool first)
+{
+	static int32_t state = 0;
+	static QTime time;
+
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	TargetState ikState;
+	static int lastTargetId = 0;
+
+	if (first) state = 0;
+	printf("action_GraspObject: first:%d  state=%d\n", (int)first, state);
+
+
+	QVec pose = QVec::vec6();
+	if (not manualMode)
+	{
+		try
+		{
+			symbols = newModel->getSymbolsMap(params, "object", "room", "robot", "table");
+		}
+		catch(...)
+		{
+			printf("graspingAgent: Couldn't retrieve action's parameters\n");
+		}
 	}
 	else
 	{
-		tp.doRotation = false;
+		pose(0) = xspin->value();
+		pose(1) = yspin->value();
+		pose(2) = zspin->value();
+		pose(3) = 0;
+		pose(4) = -0.7853981633974;
+		pose(5) = 0;
 	}
-	try
+
+	static QVec offset = QVec::vec3(0,0,0);
+	offset.print("offset");
+	switch (state)
 	{
-		trajectoryrobot2d_proxy->goReferenced(tp, 80, 350, threshold);
+		//
+		// APPROACH 1 AND OPEN FINGERS
+		//
+		case 0:
+			printf("%d\n", __LINE__);
+			try
+			{
+				inversekinematics_proxy->setJoint("rightFinger1", -0., 0.5);
+				inversekinematics_proxy->setJoint("rightFinger2", +0., 0.5);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
+			}
+			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
+			offset = QVec::vec3(120, 120, -120);
+			if (manualMode)
+			{
+				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
+				lastTargetId = sendRightArmToPose(pose);
+			}
+			else
+			{
+				lastTargetId = sendHandToSymbol(symbols["object"],  offset, symbols);
+			}
+			state=1;
+			break;
+		//
+		// Wait for last movement (it can be the first one or a intermediate one)
+		//
+		case 1:
+			printf("%d\n", __LINE__);
+			ikState = inversekinematics_proxy->getTargetState("RIGHTARM", lastTargetId);
+			if (ikState.finish)
+			{
+				printf("ik finished! te:%f re:%f\n", ikState.errorT, ikState.errorR);
+// 				if (ikState.errorT < 40 and ikState.errorR < 0.5)
+				{
+					printf("next state!\n");
+					if (offset.norm2() >= QVec::vec3(70, 0 -70).norm2())
+						state = 2;
+					else
+						state = 3;
+				}
+			}
+			else
+			{
+				printf("not finished yet\n");
+			}
+			break;
+		//
+		// APPROACH 2
+		//
+		case 2:
+			printf("%d\n", __LINE__);
+			if (offset(1) > 0)
+			{
+				if (offset(1) > 61)
+					offset(1) -= 60;
+				else
+					offset(1) = -10;
+			}
+			else
+			{
+				offset(0) -= 30;
+				offset(2) += 30;
+			}
+			if (manualMode)
+			{
+				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
+				lastTargetId = sendRightArmToPose(pose);
+			}
+			else
+			{
+				lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols);
+			}
+			state = 1; // Go back to wait state
+			break;
+		case 3:
+			try
+			{
+				inversekinematics_proxy->setJoint("rightFinger1", -0.9, 1.5);
+				inversekinematics_proxy->setJoint("rightFinger2", +0.9, 1.5);
+			}
+			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
+			state = 4;
+			break;
+		case 4:
+			try
+			{
+				usleep(200000);
+				if (not manualMode)
+				{
+					newModel->removeEdge(symbols["object"], symbols["table"], "in");
+					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
+					{
+						QMutexLocker locker(mutex);
+						sendModificationProposal(newModel, worldModel);
+					}
+				}
+				offset(1)+=80;
+				if (manualMode)
+				{
+					for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
+					lastTargetId = sendRightArmToPose(pose);
+				}
+				else
+				{
+					lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols);
+				}
+				state++;
+			}
+			catch(...)
+			{
+				printf("graspingAgent: Couldn't publish new model\n");
+				qFatal("wfuieey78 ");
+			}
+			state = 9999;
+			break;
+		////////////////////////////////////////////////////////////////////////////////////////////
+		default:
+			break;
 	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
-	}
-	catch(...)
-	{
-		printf("something else %d\n", __LINE__);
-	}
+
+	usleep(200000);
 }
 
-
-void SpecificWorker::stop()
+void SpecificWorker::leaveObjectSimulation()
 {
+	QMutexLocker locker(mutex);
+
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
-		trajectoryrobot2d_proxy->stop();
-	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
+		newModel->addEdge(   symbols["object"], symbols["table"], "in");
+		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+		{
+			QMutexLocker locker(mutex);
+			sendModificationProposal(newModel, worldModel);
+		}
 	}
 	catch(...)
 	{
-		printf("something else %d\n", __LINE__);
+		printf("graspingAgent: Couldn't publish new model\n");
+		qFatal("2264w7ertytynvc8");
 	}
+
+}
+
+
+int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols)
+{
+	int32_t lastTargetId;
+	QVec objectsLocationInRobot;
+	// approach the hand
+	try
+	{
+		objectsLocationInRobot = getObjectsLocationInRobot(symbols, symbol); //POSE OBJECT IN ROBOT SYSTEM
+		objectsLocationInRobot.print("objectsLocationInRobot");
+		innerModel->transformS("robot", QVec::vec3(0,0,0), symbol->getAttribute("imName")).print("directo");
+	}
+	catch (...) { printf("%s: %d\n", __FILE__, __LINE__); }
+
+	objectsLocationInRobot.print("objectsLocationInRobot");
+	// add offset and put rotation
+	for (int i=0; i<3; i++) objectsLocationInRobot(i)  += offset(i);
+	objectsLocationInRobot(3) = 0;
+	objectsLocationInRobot(4) = -0.7853981633974;
+	objectsLocationInRobot(5) = 0;
+	objectsLocationInRobot.print("objectsLocationInRobot + offset");
+	try
+	{
+		lastTargetId = sendRightArmToPose(objectsLocationInRobot);
+		objectsLocationInRobot.print("sent");
+		qDebug()<<"------> 0 step execution";
+	}
+	catch (...)
+	{
+		lastTargetId = -1;
+		printf("%s: %d\n", __FILE__, __LINE__);
+		qFatal("dewer");
+	}
+	return lastTargetId;
+}
+
+
+
+/**
+ * \brief This method calculates the pose of the symbol OBJECT into the robot reference system.
+ * @param symbols the symbols of AGM model
+ * @param object the goal object
+ * @return POSE 6D
+ */
+QVec SpecificWorker::getObjectsLocationInRobot(std::map<std::string, AGMModelSymbol::SPtr> &symbols, AGMModelSymbol::SPtr &object)
+{
+	QMutexLocker locker(mutex);
+
+	// Get target
+	int robotID, objectID;
+	robotID = symbols["robot"]->identifier;
+	objectID = symbols["object"]->identifier;
+
+	QString  robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
+	QString  objectIMID = QString::fromStdString(worldModel->getSymbol(objectID)->getAttribute("imName"));
+
+	return innerModel->transform6D(robotIMID, objectIMID);
+}
+
+QVec SpecificWorker::fromRobotToRoom(std::map<std::string, AGMModelSymbol::SPtr> &symbols, const QVec vector)
+{
+	QMutexLocker locker(mutex);
+
+	// Get target
+	int roomID, robotID;
+	roomID = symbols["room"]->identifier;
+	robotID = symbols["robot"]->identifier;
+
+	QString  robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
+	QString  roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
+
+	qDebug() << roomIMID << "  " << robotIMID;
+
+	innerModel->getTransformationMatrix(roomIMID, robotIMID).print("robot to room");
+
+
+
+	innerModel->getTransformationMatrix(roomIMID, robotIMID).extractAnglesR_min().print("angles");
+
+	return innerModel->transform6D(roomIMID, vector, robotIMID);
+}
+
+int SpecificWorker::sendRightArmToPose(QVec targetPose)
+{
+	Pose6D target;
+	WeightVector weights;
+	try
+	{
+		target.x = targetPose.x();
+		target.y = targetPose.y();
+		target.z = targetPose.z();
+		weights.x = 1;
+		weights.y = 1;
+		weights.z = 1;
+		target.rx = targetPose.rx();
+		target.ry = targetPose.ry();
+		target.rz = targetPose.rz();
+		weights.rx = 1;
+		weights.ry = 1;
+		weights.rz = 1;
+	}
+	catch (...)
+	{
+		printf("graspingAgent: Error reading data from cognitive model: (%s:%d)\n", __FILE__, __LINE__);
+	}
+
+	return inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+}
+
+void SpecificWorker::action_SetObjectReach(bool first)
+{
+	QMutexLocker locker(mutex);
+	printf("void SpecificWorker::action_SetObjectReach()\n");
+
+	///
+	///  Lift the hand if it's down, to avoid collisions
+	///
+	printf("altura mano %f\n", innerModel->transform("world", "right_shoulder_grasp_pose")(1));
+	if (first or innerModel->transform("world", "right_shoulder_grasp_pose")(1)<1500)
+	{
+		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
+		backAction = action;
+		if (first) printf("first time, set arm for manipulation\n");
+		else  printf("arm is down, set arm for manipulation\n");
+		setRightArmUp_Reflex();
+	}
+
+
+	///
+	/// Track the target
+	///
+	int32_t objectId = -1;
+	try
+	{
+		objectId = str2int(params["object"].value);
+	}
+	catch (...)
+	{
+		printf("%s %d\n", __FILE__, __LINE__);
+	}
+	if (objectId > 0)
+	{
+		try
+		{
+			AGMModelSymbol::SPtr goalObject = worldModel->getSymbol(objectId);
+			// Get object's relative position from the robot's perspective
+			QVec poseRRobot = innerModel->transformS("robot", goalObject->getAttribute("imName"));
+			float angleRRobot = atan2(poseRRobot.x(), poseRRobot.z());
+			printf("angulo relativa robot %f\n", angleRRobot);
+			// Get object's relative position from the yaw's perspective
+			QVec poseRYaw = innerModel->transformS("head_yaw_pose", goalObject->getAttribute("imName"));
+			poseRYaw.print("relativo al yaw");
+			float angleRYaw = atan2(poseRYaw.x(), poseRYaw.z());
+			printf("angulo relativa a la camara %f\n", angleRYaw);
+			// Compute current head's yaw
+			float currentYaw = angleRRobot - angleRYaw;
+			printf("current yaw: %f\n", currentYaw);
+			float angle = 0.5*angleRRobot + 0.5*currentYaw;
+			printf("%f -> ", angle);
+			if (fabs(angle-currentYaw) > 10.*M_PI/180.)
+			{
+				printf(" ** ");
+				if (angle>currentYaw)
+					angle = currentYaw + 10.*M_PI/180.;
+				else
+					angle = currentYaw - 10.*M_PI/180.;
+			}
+			printf(" -> %f\n", angle);
+
+			if (angle > +.4) angle = +.4;
+			if (angle < -.4) angle = -.4;
+
+			// In the meantime we just move the head downwards:
+			inversekinematics_proxy->setJoint("head_pitch_joint", 0.9, 0.5);
+			printf("Mandamos angulo %f\n", angle);
+			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 0.5);
+// // // // // // // 			saccadic3D(QVec::vec3(x,y,z), QVec::vec3(0,0,1));
+		}
+		catch (...)
+		{
+			printf("%s %d\n", __FILE__, __LINE__);
+			qFatal("d");
+		}
+	}
+	else
+	{
+		printf("don't have the object to reach in my model %d\n", objectId);
+	}
+
+	printf("--------------------\n");
+
+	///
+	/// No more work to do. The label is set passively (from this agent's point of view)
+	///
+}
+
+
+void SpecificWorker::saccadic3D(QVec point, QVec axis)
+{
+	saccadic3D(point(0), point(1), point(2), axis(0), axis(1), axis(2));
+}
+
+void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float axy, float axz)
+{
+	QVec rel = innerModel->transform("rgbd", QVec::vec3(tx, ty, tz), "world");
+// 	rel.print("desde la camara");
+
+	float errYaw   = -atan2(rel(0), rel(2));
+	float errPitch = +atan2(rel(1), rel(2));
+
+	RoboCompJointMotor::MotorGoalPosition goal;
+
+	goal.name = "head_yaw_joint";
+	goal.maxSpeed = 0.5;
+	goal.position = jointmotor_proxy->getMotorState("head_yaw_joint").pos - errYaw;
+	jointmotor_proxy->setPosition(goal);
+
+	goal.name = "head_pitch_joint";
+	goal.maxSpeed = 0.5;
+	goal.position = jointmotor_proxy->getMotorState("head_pitch_joint").pos - errPitch;
+	jointmotor_proxy->setPosition(goal);
+
+/*
+	RoboCompInverseKinematics::Pose6D targetSight;
+	targetSight.x = tx;
+	targetSight.y = ty;
+	targetSight.z = tz;
+	RoboCompInverseKinematics::Axis axSight;
+	axSight.x = axx;
+	axSight.y = axy;
+	axSight.z = axz;
+	bool axisConstraint = false;
+	float axisAngleConstraint = 0;
+	try
+	{
+		inversekinematics_proxy->stop("HEAD");
+		usleep(500000);
+		inversekinematics_proxy->pointAxisTowardsTarget("HEAD", targetSight, axSight, axisConstraint, axisAngleConstraint);
+	}
+	catch(...)
+	{
+		printf("IK connection error\n");
+	}
+*/
+
 }
 
 
 
 
+void SpecificWorker::setRightArmUp_Reflex()
+{
+	inversekinematics_proxy->setJoint("rightShoulder1", -3, 0.3);
+	inversekinematics_proxy->setJoint("rightShoulder2", -0.2, 0.3);
+	inversekinematics_proxy->setJoint("rightShoulder3", 0.5, 0.3);
+	inversekinematics_proxy->setJoint("rightElbow", 0.1, 0.5);
+	inversekinematics_proxy->setJoint("rightForeArm", 0.1, 0.3);
+	inversekinematics_proxy->setJoint("rightWrist1", 0.0, 0.3);
+	inversekinematics_proxy->setJoint("rightWrist2", 0.0, 0.3);
+}
+
+
+
+void SpecificWorker::on_state1_clicked()
+{
+	action = "graspobject";
+	action_GraspObject(true);
+
+	params["object"].value = "11";
+	params["room"  ].value = "7";
+	params["robot" ].value = "1";
+}
