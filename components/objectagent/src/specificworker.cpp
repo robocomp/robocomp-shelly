@@ -56,6 +56,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+	//TEMPORAL
+	printf("Distance: %f\n", innerModel->transform("mugTag", "rgbd").norm2());
+	//
 	static bool first = true;
 	if (first)
 	{
