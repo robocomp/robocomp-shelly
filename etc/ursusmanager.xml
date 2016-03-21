@@ -27,7 +27,7 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
   <dependence alias="trajCaca2" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/navigationAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationAgent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/navigationAgent.conf" />
   <xpos value="-136.713047842" />
