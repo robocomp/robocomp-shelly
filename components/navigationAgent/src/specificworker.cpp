@@ -46,7 +46,7 @@ public:
 	{
 		data.push_back(TimedDatum(datum));
 	}
-	float get()
+	float getSum()
 	{
 		while (data.size()>0)
 		{
@@ -463,6 +463,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
+	
 	//
 	// Get ODOMETRY and update it in the graph. If there's a problem talking to the robot's platform, abort
 	try
@@ -501,6 +502,11 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		}
 	}
 
+	
+	includeMovementInRobotSymbol(robot);
+	
+	
+	
 	if (roomId < 0)
 	{
 		printf("roomId not found, Waiting for Insert innerModel...\n");
@@ -618,6 +624,25 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 
 	return true;
 }
+
+
+void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
+{
+	static TimedList list(3000);
+	static RoboCompOmniRobot::TBaseState lastBaseState = bState;
+	
+	const float movX = abs(bState.x - lastBaseState.x);
+	const float movZ = abs(bState.z - lastBaseState.z);
+	const float movA = abs(bState.alpha - lastBaseState.alpha);
+	const float mov = sqrt(movX*movX+movZ*movZ) + 20.*movA;
+	list.add(mov);
+	lastBaseState = bState;
+	
+	const std::string attrValue = float2str(list.getSum());
+	robot->setAttribute("movedInLastSecond", attrValue);
+	AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+}
+
 
 void SpecificWorker::updateRobotsCognitiveLocation()
 {
