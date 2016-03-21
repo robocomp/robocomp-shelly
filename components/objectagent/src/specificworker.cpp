@@ -330,16 +330,16 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 {
 	printf("===========================\n===   updateTable   =========\n===========================\n");
 	bool existing = false;
-	AGMModelSymbol::SPtr symbol;
+	AGMModelSymbol::SPtr tableSymbol;
 	
 	for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 	{
-		symbol = *symbol_it;
-		if (symbol->symbolType == "object" and symbol->attributes.find("tag") != symbol->attributes.end())
+		tableSymbol = *symbol_it;
+		if (tableSymbol->symbolType == "object" and tableSymbol->attributes.find("tag") != tableSymbol->attributes.end())
 		{
 			try
 			{
-				const int32_t tag = str2int(symbol->getAttribute("tag"));
+				const int32_t tag = str2int(tableSymbol->getAttribute("tag"));
 				if (t.id == tag)
 				{
 					// Si el identificador del nodo coincide con el del tag entonces el simbolo existe.
@@ -353,87 +353,83 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 	}
 
 	// If the table already exists: update its position
-	if (existing)
+	if (not existing)
 	{
-		QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
-		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
-		QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
-// 		QVec resultingEuler = (rotationTag*rotationOffset.invert()).extractAnglesR_min();
-// 		QVec poseTag        = QVec::vec6(t.tx, t.ty, t.tz, resultingEuler.rx(), resultingEuler.ry(), resultingEuler.rz()); // tag pose from parent, takin into account mugs' offsets
+		qFatal("Table doesn't exist in AGM: we should create the symbol here but it's not implemented yet");
+	}
 
-		QString symbolIMName       = QString::fromStdString(symbol->getAttribute("imName"));
-// 		qDebug() << "Table IM name " << symbolIMName << "    agm identifer: " << symbol->identifier;
-		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
+	QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
+	QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
+	QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
+	//QVec resultingEuler = (rotationTag*rotationOffset.invert()).extractAnglesR_min();
+	//QVec poseTag        = QVec::vec6(t.tx, t.ty, t.tz, resultingEuler.rx(), resultingEuler.ry(), resultingEuler.rz()); // tag pose from parent, takin into account mugs' offsets
 
-		if (nodeSymbolIM)
+	QString tableIMName  = QString::fromStdString(tableSymbol->getAttribute("imName"));
+	// qDebug() << "Table IM name " << symbolIMName << "    agm identifer: " << symbol->identifier;
+	InnerModelNode *tableIM = innerModel->getNode(tableIMName);
+
+	if (not tableIM)
+	{
+		qDebug() << "Table's node doesnt exist in InnerModel";
+	}
+
+	InnerModelNode *parentNodeIM = tableIM->parent;
+	
+	if (not parentNodeIM)
+	{
+		qDebug() << "Parent node doesnt exist in InnerModel";
+	}
+
+	QString parentIMName = parentNodeIM->id;
+	//qDebug() << "Table's parent: " << parentIMName;
+	
+	
+	QVec positionFromParent  = innerModel->transform(parentIMName, positionTag, "rgbd");
+	//QVec poseFromParent  = innerModel->transform(parentIMName, poseTag, "rgbd");
+	QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(parentIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
+	QVec rotation;
+	//rotation.print("rotation");
+	rotation = (rotationRGBD2Parent * rotationTag * rotationOffset).invert().extractAnglesR_min(); 
+	// COMPONEMOS LA POSE ENTERA:
+	QVec poseFromParent = QVec::zeros(6);
+	poseFromParent.inject(positionFromParent, 0);
+	poseFromParent.inject(rotation, 3);
+	//poseFromParent.print("pose from parent");
+	
+	//BUSCAR EL ENLACE RT: NECESITAMOS EL SIMBOLO PADRE EN AGM
+	bool parentFound = false;
+	AGMModelSymbol::SPtr symbolParent;
+	for(AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+	{
+		symbolParent = *symbol_it;
+		if (symbolParent->attributes["imName"] == parentIMName.toStdString())
 		{
-			InnerModelNode *parentNodeIM = nodeSymbolIM->parent;
-			if (parentNodeIM)
-			{
-				QString parentIMName    = parentNodeIM->id;
-// 				qDebug() << "Table's parent: " << parentIMName;
-				QVec positionFromParent  = innerModel->transform(parentIMName, positionTag, "rgbd");
-// 				QVec poseFromParent  = innerModel->transform(parentIMName, poseTag, "rgbd");
-				QMat rotationTag         = Rot3D(t.rx, t.ry, t.rz); //rotacion propia de la marca
-				QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(parentIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
-				QVec rotation;
-// 				rotation.print("rotation");
-				rotation = (rotationRGBD2Parent * rotationTag * rotationOffset).invert().extractAnglesR_min(); 
-				// COMPONEMOS LA POSE ENTERA:
-				QVec poseFromParent = QVec::zeros(6);
-				poseFromParent.inject(positionFromParent, 0);
-				poseFromParent.inject(rotation, 3);
-// 				poseFromParent.print("pose from parent");
-				
-				//BUSCAR EL ENLACE RT: NECESITAMOS EL SIMBOLO PADRE EN AGM
-				bool parentFound = false;
-				AGMModelSymbol::SPtr symbolParent;
-				for(AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
-				{
-					symbolParent = *symbol_it;
-					if (symbolParent->symbolType == "object" and symbolParent->attributes["imName"]==parentIMName.toStdString())
-					{
-// 						qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
-						parentFound = true;
-						break;
-					}
-				}
-				if (parentFound)
-				{
-					// Si el padre existe en AGM sacamos el enlace RT que va desde el padre hasta el hijo y actualizamos sus valores
-					try
-					{
-						AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, symbol->identifier, "RT");
-						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
-						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
-						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
-						edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
-						edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
-						edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
-						
+			//qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
+			parentFound = true;
+			break;
+		}
+	}
+	if (parentFound)
+	{
+		// Si el padre existe en AGM sacamos el enlace RT que va desde el padre hasta el hijo y actualizamos sus valores
+		try
+		{
+			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, tableSymbol->identifier, "RT");
+			edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
+			edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
+			edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
+			edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
+			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
+			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
+			
 // 						AgmInner::updateAgmWithInnerModelAndPublish(innerModel, agmexecutive_proxy);
-						AgmInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
-						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-					}
-					catch(...){ qFatal("Impossible to update the RT edge"); }
-				}
-				else
-					qDebug() << "Parent node doesnt exist in AGM";
-			}
-			else
-			{
-				qDebug() << "Parent node doesnt exist in InnerModel";
-			}
+			AgmInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
+			AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
 		}
-		else
-		{
-			qDebug() << "Table's node doesnt exist in InnerModel";
-		}
+		catch(...){ qFatal("Impossible to update the RT edge"); }
 	}
 	else
-	{
-		qFatal("Table doesn't exist in innermodel: we should create the symbol here but it's not implemented yet");
-	}
+		qDebug() << "Parent node doesnt exist in AGM";
 
 	return not existing;
 }
