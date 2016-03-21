@@ -161,6 +161,8 @@ if [ $1 -eq 2 ] || [ $1 -eq 0 ]; then
 	compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
 	# objectAgent
 	compile "object agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/"
+	# oracle
+	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/"
 	# human
 # 	compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
 fi

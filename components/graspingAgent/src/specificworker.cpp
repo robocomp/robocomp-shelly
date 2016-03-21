@@ -101,7 +101,7 @@ void SpecificWorker::compute( )
 		actionExecution();
 	}
 #ifdef USE_QTGUI
-	updateViewer();
+	//updateViewer();
 #endif	
 }
 
@@ -540,7 +540,8 @@ void SpecificWorker::actionExecution()
 	}
 	else if (action == "graspobject")
 	{
-		action_GraspObject(newAction);
+		if (not robotIsMoving())
+			action_GraspObject(newAction);
 	}
 
 	if (newAction)
@@ -548,6 +549,18 @@ void SpecificWorker::actionExecution()
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
+}
+
+// Check if robot is stopped befora calling to graspAction
+bool SpecificWorker::robotIsMoving()
+{
+	int MOVEMENT_THRESHOLD = 20; // in mm
+	int robotID = worldModel->getIdentifierByType("robot");
+	int robotMovement = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("movedInLastSecond")).toInt();
+	printf("Last second robot movement %i\n",robotMovement);
+	if (robotMovement > MOVEMENT_THRESHOLD )
+                return true;
+	return false;
 }
 
 

@@ -92,7 +92,7 @@ private:
 	void updateViewer();
 	void changeInner ();
 
-
+        bool robotIsMoving();
 
 private:
 	
