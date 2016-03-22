@@ -65,7 +65,7 @@
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
-  <downCommand command="killall -9 missionagent" />
+  <downCommand command="killall -9 agmmission" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
   <xpos value="-12.6207453439" />
   <ypos value="-252.187378421" />
@@ -262,7 +262,7 @@
   <dependence alias="objectD" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
-  <downCommand command="ssh robolab@10.0.30.22 killall -9 objectAgent" />
+  <downCommand command="ssh robolab@10.0.30.22 killall -9 objectagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
   <xpos value="-1.28279840047" />
   <ypos value="-148.516531527" />
