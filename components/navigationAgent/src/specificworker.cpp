@@ -516,7 +516,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 
 	
 	int32_t robotIsActuallyInRoom;
-	if (bState.z<0)
+	if (bState.correctedZ<0)
 		robotIsActuallyInRoom = 5;
 	else
 		robotIsActuallyInRoom = 3;
