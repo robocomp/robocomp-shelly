@@ -263,8 +263,6 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modificati
 {
 	mutex->lock();
  	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "room", true);
 	mutex->unlock();
 }
 
@@ -273,8 +271,6 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 	mutex->lock();
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "room", true);
 	mutex->unlock();
 }
 

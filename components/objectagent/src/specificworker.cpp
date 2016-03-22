@@ -204,8 +204,6 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modificati
 {
 	QMutexLocker l(mutex);
  	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel);
 }
 
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
@@ -213,9 +211,6 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 	QMutexLocker l(mutex);
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel);
 }
 
 
