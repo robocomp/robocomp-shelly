@@ -34,7 +34,10 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
-#ifdef USE_QTGUI	
+
+	manualMode = false;
+
+#ifdef USE_QTGUI
 	osgView = new OsgView(widget);
 	show();
 //  	printf("%s: %d\n", __FILE__, __LINE__);
@@ -44,15 +47,14 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	osgView->setCameraManipulator(manipulator, true);
 // 	printf("%s: %d\n", __FILE__, __LINE__);
 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+	show();
+	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
+	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
 #endif
 	
-	manualMode = false;
-	show();
 
 	setRightArmUp_Reflex();
 	
-	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
-	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
 	
 	
 }
@@ -66,11 +68,13 @@ SpecificWorker::~SpecificWorker()
 }
 void SpecificWorker::updateViewer()
 {
+#ifdef USE_QTGUI
 	if (!innerModel) return;
 	
 	innerViewer->update();
 	osgView->autoResize();
 	osgView->frame();
+#endif
 }
 
 void SpecificWorker::compute( )
@@ -217,7 +221,7 @@ void SpecificWorker::manageReachedObjects()
 		printf("PUBLISH!!!!\n");
 		printf("PUBLISH!!!!\n");
 		printf("PUBLISH!!!!\n");
-		sendModificationProposal(newModel, worldModel,m);
+		sendModificationProposal(newModel, worldModel, m);
 	}
 }
 
@@ -379,18 +383,18 @@ bool SpecificWorker::reloadConfigAgent()
 	return true;
 }
 
-void SpecificWorker::changeInner ()
-{	
-	if (innerViewer)
-	{
-		//borra innermodel dentro de InnerModelViewer
-		osgView->getRootGroup()->removeChild(innerViewer);
-	}
-	innerModel = AgmInner::extractInnerModel(worldModel, "world");
-	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
-	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
-
-}
+// void SpecificWorker::changeInner ()
+// {	
+// 	if (innerViewer)
+// 	{
+// 		//borra innermodel dentro de InnerModelViewer
+// 		osgView->getRootGroup()->removeChild(innerViewer);
+// 	}
+// 	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+// 	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+// 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+// 
+// }
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modification)
 {
@@ -414,9 +418,6 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modificati
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 #ifdef USE_QTGUI
 	changeInner( );
-#else
-	if (innerModel) delete innerModel;
-	innerModel = AgmInner::extractInnerModel(worldModel, "world");
 #endif
 }
 
@@ -436,7 +437,8 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	try {
+	try
+	{
 		agmInner.updateImNodeFromEdge(worldModel, modification, innerModel);
 	}
 	catch (...)
@@ -451,9 +453,6 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-
-	if (innerModel) delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "world", true);
 }
 
 
@@ -638,12 +637,16 @@ void SpecificWorker::action_GraspObject(bool first)
 	}
 	else
 	{
+#ifdef USE_QTGUI
 		pose(0) = xspin->value();
 		pose(1) = yspin->value();
 		pose(2) = zspin->value();
 		pose(3) = 0;
 		pose(4) = -0.7853981633974;
 		pose(5) = 0;
+#else
+		qFatal("this shouldn't happen %d\n", __LINE__);
+#endif
 	}
 
 	static QVec offset = QVec::vec3(0,0,0);

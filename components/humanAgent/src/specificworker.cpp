@@ -694,7 +694,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification
 
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
 {
-	QMutexLocker m (mutex);	
+	QMutexLocker m (mutex);
  	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);		
 }
 

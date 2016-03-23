@@ -90,9 +90,9 @@ private:
 	void setRightArmUp_Reflex();
 
 	void updateViewer();
-	void changeInner ();
+// 	void changeInner ();
 
-        bool robotIsMoving();
+	bool robotIsMoving();
 
 private:
 	
