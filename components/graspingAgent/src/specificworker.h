@@ -30,6 +30,7 @@
 #include <innermodel/innermodelviewer.h>
 
 #include <agm.h>
+#include <agm_inner.h>
 
 class SpecificWorker : public GenericWorker
 {

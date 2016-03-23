@@ -28,7 +28,6 @@ SET ( SOURCES
   specificworker.cpp
   agmcommonbehaviorI.cpp
   agmexecutivetopicI.cpp
-  $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
 )
 
 

@@ -1045,9 +1045,8 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	//if (roomsPolygons.size()==0 and worldModel->numberOfSymbols()>0)
 		//roomsPolygons = extractPolygonsFromModel(worldModel);
 
-// 	agmInner.setWorld(worldModel);
 	if (innerModel) delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel, "world", true);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 	printf("structuralChange>>\n");
 }
 
@@ -1070,13 +1069,12 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
 {
 	QMutexLocker lockIM(mutex);
-// 	agmInner.setWorld(worldModel);
 	for (auto modification : modifications)
 	{
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMModelEdge dst;
 		AGMModelConverter::fromIceToInternal(modification,dst);
-		agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+		AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
 	}
 }
 
@@ -1088,10 +1086,9 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 {
 	QMutexLocker lockIM(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-// 	agmInner.setWorld(worldModel);
 	AGMModelEdge dst;
 	AGMModelConverter::fromIceToInternal(modification,dst);
-	agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+	AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
 }
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)

@@ -175,7 +175,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modifi
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
  
 	delete innerModel;
-	innerModel = agmInner.extractInnerModel(worldModel);
+	innerModel = AGMInner::extractInnerModel(worldModel);
 }
 
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
@@ -184,7 +184,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 	AGMModelEdge dst;
 	AGMModelConverter::fromIceToInternal(modification,dst);
-	agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+	AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
 }
 
 void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
@@ -195,7 +195,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMModelEdge dst;
 		AGMModelConverter::fromIceToInternal(modification,dst);
-		agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+		AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
 	}
 }
 
@@ -421,8 +421,8 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
 			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
 			
-// 						AgmInner::updateAgmWithInnerModelAndPublish(innerModel, agmexecutive_proxy);
-			AgmInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
+// 						AGMInner::updateAgmWithInnerModelAndPublish(innerModel, agmexecutive_proxy);
+			AGMInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
 			AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
 		}
 		catch(...){ qFatal("Impossible to update the RT edge"); }

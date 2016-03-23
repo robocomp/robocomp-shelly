@@ -29,7 +29,6 @@ SET ( SOURCES
   agmcommonbehaviorI.cpp
   agmexecutivetopicI.cpp
   apriltagsI.cpp
-  $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
 )
 
 

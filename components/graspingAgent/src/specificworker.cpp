@@ -390,7 +390,7 @@ bool SpecificWorker::reloadConfigAgent()
 // 		//borra innermodel dentro de InnerModelViewer
 // 		osgView->getRootGroup()->removeChild(innerViewer);
 // 	}
-// 	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+// 	innerModel = AGMInner::extractInnerModel(worldModel, "world");
 // 	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
 // 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 // 
@@ -407,7 +407,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 #else
 
 	if (innerModel) delete innerModel;
-	innerModel = AgmInner::extractInnerModel(worldModel, "world");
+	innerModel = AGMInner::extractInnerModel(worldModel, "world");
 #endif
 }
 
@@ -429,7 +429,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMModelEdge dst;
 		AGMModelConverter::fromIceToInternal(modification,dst);
-		agmInner.updateImNodeFromEdge(worldModel, dst, innerModel);
+		AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
 	}
 }
 
@@ -439,7 +439,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 	try
 	{
-		agmInner.updateImNodeFromEdge(worldModel, modification, innerModel);
+		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 	}
 	catch (...)
 	{

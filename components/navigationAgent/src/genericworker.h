@@ -35,7 +35,6 @@
 #include <AGMCommonBehavior.h>
 
 #include <agm.h>
-#include <agmInner/agmInner.h>
 
 
 #define CHECK_PERIOD 5000
@@ -108,7 +107,6 @@ protected:
 	AGMModel::SPtr worldModel;
 	BehaviorParameters p;
 	ParameterMap params;
-	AgmInner agmInner;
 	int iter;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	RoboCompPlanning::Action createAction(std::string s);
