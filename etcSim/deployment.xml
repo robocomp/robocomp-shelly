@@ -90,7 +90,7 @@
  <node alias="objectA" endpoint="agmcommonbehavior:tcp -h localhost -p 10331">
   <dependence alias="april" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost objAgnt /home/robocomp/robocomp/components/prp/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/objectAgent.conf" />
+  <upCommand command="rcremote localhost objAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/objectAgent.conf" />
   <downCommand command="killall -9 objectagent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/objectAgent.conf" />
   <xpos value="6.09315930498" />
@@ -251,7 +251,7 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h localhost -p 10330">
   <dependence alias="trajCaca2" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost navAgnt /home/robocomp/robocomp/components/prp/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
+  <upCommand command="rcremote localhost navAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent ./bin/navigationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
   <downCommand command="killall -9 navigationAgent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
   <xpos value="-110.574365794" />
