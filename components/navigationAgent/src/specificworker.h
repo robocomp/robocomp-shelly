@@ -23,6 +23,8 @@
 
 #include <innermodel/innermodel.h>
 
+#include <boost/format.hpp>
+
 /**
        \brief
        @author authorname

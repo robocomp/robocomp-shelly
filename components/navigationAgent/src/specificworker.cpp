@@ -90,12 +90,8 @@ void SpecificWorker::compute( )
 	// ODOMETRY AND LOCATION-RELATED ISSUES
 	if (odometryAndLocationIssues() == false)
 		return;
-// 	innerModel->treePrint();
-
 	
 	actionExecution();
-
-// 	printf("ae>\n");
 }
 
 /**
@@ -103,8 +99,6 @@ void SpecificWorker::compute( )
  */ 
 void SpecificWorker::actionExecution()
 {
-// 	return;
-	
 	QMutexLocker locker(mutex);
 	qDebug()<<"ACTION: "<<QString::fromStdString(action);
 
@@ -114,6 +108,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
+		rDebug(boost::str(boost::format("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() ));
 	}
 
 // 	try

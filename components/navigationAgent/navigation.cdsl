@@ -1,4 +1,5 @@
 import "/robocomp/interfaces/IDSLs/TrajectoryRobot2D.idsl";
+import "/robocomp/interfaces/IDSLs/Logger.idsl";
 import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
 
 Component navigationAgent
@@ -6,6 +7,7 @@ Component navigationAgent
 	Communications
 	{
 		requires TrajectoryRobot2D, OmniRobot;
+		publishes Logger;
 	};
 	language Cpp;
 	gui Qt(QWidget);
