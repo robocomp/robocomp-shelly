@@ -85,6 +85,7 @@
 #include <AGMCommonBehavior.h>
 #include <AGMWorldModel.h>
 #include <TrajectoryRobot2D.h>
+#include <Logger.h>
 #include <OmniRobot.h>
 
 
@@ -98,6 +99,7 @@ using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMWorldModel;
 using namespace RoboCompTrajectoryRobot2D;
+using namespace RoboCompLogger;
 using namespace RoboCompOmniRobot;
 
 
@@ -132,6 +134,7 @@ int ::navigationAgent::run(int argc, char* argv[])
 	int status=EXIT_SUCCESS;
 
 	TrajectoryRobot2DPrx trajectoryrobot2d_proxy;
+	LoggerPrx logger_proxy;
 	OmniRobotPrx omnirobot_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
@@ -190,6 +193,29 @@ int ::navigationAgent::run(int argc, char* argv[])
 	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);//Remote server proxy creation example
 
 	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+
+	IceStorm::TopicPrx logger_topic;
+	while (!logger_topic)
+	{
+		try
+		{
+			logger_topic = topicManager->retrieve("Logger");
+		}
+		catch (const IceStorm::NoSuchTopic&)
+		{
+			try
+			{
+				logger_topic = topicManager->create("Logger");
+			}
+			catch (const IceStorm::TopicExists&){
+				// Another client created the topic.
+			}
+		}
+	}
+	Ice::ObjectPrx logger_pub = logger_topic->getPublisher()->ice_oneway();
+	LoggerPrx logger = LoggerPrx::uncheckedCast(logger_pub);
+	mprx["LoggerPub"] = (::IceProxy::Ice::Object*)(&logger);
+
 
 
 	SpecificWorker *worker = new SpecificWorker(mprx);

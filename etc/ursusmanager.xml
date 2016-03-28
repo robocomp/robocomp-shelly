@@ -228,7 +228,7 @@
 
  <node alias="IS" endpoint="IceStorm/TopicManager:default -h 10.0.30.11 -p 9999">
   <workingDir path="/home/robocomp/robocomp/components/robocomp-shelly/etc/" />
-  <upCommand command="rcremote 10.0.30.11 IS /home/robocomp/robocomp/components/robocomp-shelly/etc/ icebox --Ice.Config=icebox.conf" />
+  <upCommand command="rcremote 10.0.30.11 IS /home/robocomp/robocomp/components/robocomp-shelly/etc/ rcnode" />
   <downCommand command="ssh robolab@10.0.30.11 killall -9 icebox" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus.conf" />
   <xpos value="12.1270550865" />
