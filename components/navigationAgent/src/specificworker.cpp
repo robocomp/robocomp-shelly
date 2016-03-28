@@ -87,6 +87,18 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	if (worldModel->getIdentifierByType("robot") < 0)
+	{
+		try
+		{
+			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+			structuralChange(w);
+		}
+		catch(...)
+		{
+			printf("The executive is probably not running, waiting for first AGM model publication...");
+		}
+	}
 	// ODOMETRY AND LOCATION-RELATED ISSUES
 	if (odometryAndLocationIssues() == false)
 		return;
@@ -541,7 +553,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			// Modify RT edge
 			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
 			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("(was %d now %d) ---[rt]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
+			printf("(was %d now %d) ---[RT]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
 			try
 			{
 				float bStatex = str2float(edgeRT->getAttribute("tx"));
@@ -582,7 +594,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		try
 		{
 			AGMModelEdge edge  = worldModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("%d ---[rt]---> %d  (%d\n", roomId, robotId, __LINE__);
+			printf("%d ---[RT]---> %d  (%d\n", roomId, robotId, __LINE__);
 			try
 			{
 				float bStatex = str2float(edge->getAttribute("tx"));
@@ -954,16 +966,6 @@ void SpecificWorker::action_NoAction(bool newAction)
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	try
-	{
-		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-		structuralChange(w);
-	}
-	catch(...)
-	{
-		printf("The executive is probably not running, waiting for first AGM model publication...");
-	}
-
 	timer.start(20);
 	return true;
 }
