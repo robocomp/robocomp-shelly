@@ -59,7 +59,7 @@
   <dependence alias="objectA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
-  <downCommand command="killall -9 missionagent" />
+  <downCommand command="killall -9 agmmission" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <xpos value="2.13694417962" />
   <ypos value="-282.601274811" />

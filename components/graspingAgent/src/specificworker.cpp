@@ -83,7 +83,7 @@ void SpecificWorker::compute( )
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
-		rDebug2(("graspingAgent started\n"));
+		rDebug2(("graspingAgent started"));
 		first = false;
 	}
 
@@ -208,6 +208,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STOPS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
+					rDebug2(("graspingAgent object %d no-reach") % node->identifier);
 				}
 				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD-schmittTriggerThreshold)
 				{
@@ -216,6 +217,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STARTS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
+					rDebug2(("graspingAgent object %d reach") % node->identifier);
 				}
 			}
 		}
@@ -230,7 +232,6 @@ void SpecificWorker::manageReachedObjects()
 		printf("PUBLISH!!!!\n");
 		printf("PUBLISH!!!!\n");
 		sendModificationProposal(newModel, worldModel, m);
-		rDebug2(("%s") % m.c_str());
 	}
 }
 
@@ -760,6 +761,7 @@ void SpecificWorker::action_GraspObject(bool first)
 					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
 					{
 						QMutexLocker locker(mutex);
+						rDebug2(("graspingAgent object %d grasped!") % symbols["object"]->identifier);
 						sendModificationProposal(newModel, worldModel);
 					}
 				}
@@ -801,6 +803,7 @@ void SpecificWorker::leaveObjectSimulation()
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 		{
 			QMutexLocker locker(mutex);
+			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
 			sendModificationProposal(newModel, worldModel);
 		}
 	}

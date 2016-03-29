@@ -91,7 +91,7 @@ void SpecificWorker::compute( )
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
-		rDebug2(("navigationAgent started\n"));
+		rDebug2(("navigationAgent started"));
 		first = false;
 	}
 
@@ -128,7 +128,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() );
+		rDebug2(("prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
 	}
 
 // 	try
@@ -442,12 +442,12 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		string state;
 		try
 		{
-				state = trajectoryrobot2d_proxy->getState().state;
+			state = trajectoryrobot2d_proxy->getState().state;
 		}
 		catch(const Ice::Exception &ex)
 		{
-				std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
-				throw ex;
+			std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
+			throw ex;
 		}
 
 		//state="IDLE";
@@ -580,6 +580,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 				fflush(stdout);
 				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
 				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
+				rDebug2(("navigationAgent added new edge"));
 			}
 			catch (...)
 			{
@@ -616,6 +617,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 					edge->setAttribute("tx", float2str(bState.correctedX));
 					edge->setAttribute("tz", float2str(bState.correctedZ));
 					edge->setAttribute("ry", float2str(bState.correctedAlpha));
+					rDebug2(("navigationAgent edgeupdate"));
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
 					printf("done\n");
 				}
@@ -655,6 +657,7 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 	
 	const std::string attrValue = float2str(list.getSum());
 	robot->setAttribute("movedInLastSecond", attrValue);
+	rDebug2(("navigationAgent nodeupdate"));
 	AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
 }
 
@@ -686,10 +689,10 @@ void SpecificWorker::updateRobotsCognitiveLocation()
 	// propose the change to the executive
 	if (newLocation != currentLocation and newLocation != -1)
 	{
-		printf("sending modification!\n");
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		setIdentifierOfRobotsLocation(newModel, newLocation);
 		AGMModelPrinter::printWorld(newModel);
+		rDebug2(("navigationAgent moved from room %d to room %d") % currentLocation % newLocation );
 		sendModificationProposal(worldModel, newModel);
 	}
 }

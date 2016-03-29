@@ -62,7 +62,7 @@ void SpecificWorker::compute()
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
-		rDebug2(("objectAgent started\n"));
+		rDebug2(("objectAgent started"));
 		first = false;
 	}
 
@@ -300,6 +300,7 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 				{
 					publishModel = true;
 					printf("New table was detected!\n");
+					rDebug2(("objectAgent new table detected"));
 				}
 				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("robot", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
 				break;
@@ -307,6 +308,7 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 				if (updateMug(ap2, newModel))
 				{
 					publishModel = true;
+					rDebug2(("objectAgent new mug detected"));
 					printf("New mug was detected!\n");
 				}
 				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("robot", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
@@ -423,9 +425,9 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
 			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
 			
-// 						AGMInner::updateAgmWithInnerModelAndPublish(innerModel, agmexecutive_proxy);
 			AGMInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
 			AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+			rDebug2(("objectAgent edgeupdate for table"));
 		}
 		catch(...){ qFatal("Impossible to update the RT edge"); }
 	}
@@ -528,8 +530,8 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
 						
 // 						qDebug() << "Updating edge!";
-	//					updateAgmWithInnerModelAndPublish(innerModel, agmexecutive_proxy);
 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+						rDebug2(("objectAgent edgeupdate for mug"));
 					}
 					catch(...){ qFatal("Impossible to update the RT edge"); }
 				}
@@ -697,6 +699,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 			if ((*edge_itr)->getLabel() == "noExplored")
 			{
 				(*edge_itr)->setLabel("explored");
+				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
 				sendModificationProposal(worldModel, newModel);
 				return;
 			}
