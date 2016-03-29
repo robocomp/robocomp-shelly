@@ -32,6 +32,7 @@ QObject()
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 
+	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
 

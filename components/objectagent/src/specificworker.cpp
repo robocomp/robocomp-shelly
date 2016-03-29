@@ -58,17 +58,19 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
-	QMutexLocker l(mutex);
-
-	//TEMPORAL
-	printf("Distance: %f\n", innerModel->transform("mugTag", "rgbd").norm2());
-	//
-	static bool first = true;
+	static bool first=true;
 	if (first)
 	{
+		qLog::getInstance()->setProxy("both", logger_proxy);
+		rDebug2(("objectAgent started\n"));
 		first = false;
-		printf("compute!\n");
 	}
+
+
+	QMutexLocker l(mutex);
+	//TEMPORAL
+// 	printf("Distance: %f\n", innerModel->transform("mugTag", "rgbd").norm2());
+	//
 	static std::string previousAction = "";
 
 	bool newAction = (previousAction != action);

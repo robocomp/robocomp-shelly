@@ -31,6 +31,7 @@ QObject()
 	objectdetection_proxy = (*(objectDetectionPrx*)mprx["objectDetectionProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 
+	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
 

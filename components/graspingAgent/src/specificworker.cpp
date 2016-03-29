@@ -79,6 +79,14 @@ void SpecificWorker::updateViewer()
 
 void SpecificWorker::compute( )
 {
+	static bool first=true;
+	if (first)
+	{
+		qLog::getInstance()->setProxy("both", logger_proxy);
+		rDebug2(("graspingAgent started\n"));
+		first = false;
+	}
+
 	QMutexLocker locker(mutex);
 	{
 		if (not manualMode)
@@ -222,6 +230,7 @@ void SpecificWorker::manageReachedObjects()
 		printf("PUBLISH!!!!\n");
 		printf("PUBLISH!!!!\n");
 		sendModificationProposal(newModel, worldModel, m);
+		rDebug2(("%s") % m.c_str());
 	}
 }
 
@@ -383,18 +392,18 @@ bool SpecificWorker::reloadConfigAgent()
 	return true;
 }
 
-// void SpecificWorker::changeInner ()
-// {	
-// 	if (innerViewer)
-// 	{
-// 		//borra innermodel dentro de InnerModelViewer
-// 		osgView->getRootGroup()->removeChild(innerViewer);
-// 	}
-// 	innerModel = AGMInner::extractInnerModel(worldModel, "world");
-// 	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
-// 	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
-// 
-// }
+void SpecificWorker::changeInner ()
+{	
+	if (innerViewer)
+	{
+		//borra innermodel dentro de InnerModelViewer
+		osgView->getRootGroup()->removeChild(innerViewer);
+	}
+	innerModel = AGMInner::extractInnerModel(worldModel, "world");
+	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+
+}
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modification)
 {
@@ -527,7 +536,11 @@ void SpecificWorker::actionExecution()
 	qDebug()<<"---------------------------------";
 
 	if (newAction)
+	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
+		rDebug2(("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() );
+	}
+
 
 	if (action == "findobjectvisuallyintable")
 	{

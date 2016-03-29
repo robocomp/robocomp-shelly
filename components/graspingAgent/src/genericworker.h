@@ -32,6 +32,7 @@
 #include <AGMExecutive.h>
 #include <Planning.h>
 #include <JointMotor.h>
+#include <Logger.h>
 #include <AGMCommonBehavior.h>
 
 #include <agm.h>
@@ -49,6 +50,7 @@ using namespace RoboCompAGMWorldModel;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompPlanning;
 using namespace RoboCompJointMotor;
+using namespace RoboCompLogger;
 using namespace RoboCompAGMCommonBehavior;
 
 
@@ -83,6 +85,7 @@ public:
 
 	JointMotorPrx jointmotor_proxy;
 	InverseKinematicsPrx inversekinematics_proxy;
+	LoggerPrx logger_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;

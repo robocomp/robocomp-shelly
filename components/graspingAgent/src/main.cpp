@@ -86,6 +86,7 @@
 #include <AGMWorldModel.h>
 #include <JointMotor.h>
 #include <InverseKinematics.h>
+#include <Logger.h>
 
 
 // User includes here
@@ -99,6 +100,7 @@ using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompAGMWorldModel;
 using namespace RoboCompJointMotor;
 using namespace RoboCompInverseKinematics;
+using namespace RoboCompLogger;
 
 
 
@@ -131,6 +133,7 @@ int ::graspingComp::run(int argc, char* argv[])
 #endif
 	int status=EXIT_SUCCESS;
 
+	LoggerPrx logger_proxy;
 	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
@@ -190,6 +193,29 @@ int ::graspingComp::run(int argc, char* argv[])
 	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);//Remote server proxy creation example
 
 	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+
+	IceStorm::TopicPrx logger_topic;
+	while (!logger_topic)
+	{
+		try
+		{
+			logger_topic = topicManager->retrieve("Logger");
+		}
+		catch (const IceStorm::NoSuchTopic&)
+		{
+			try
+			{
+				logger_topic = topicManager->create("Logger");
+			}
+			catch (const IceStorm::TopicExists&){
+				// Another client created the topic.
+			}
+		}
+	}
+	Ice::ObjectPrx logger_pub = logger_topic->getPublisher()->ice_oneway();
+	LoggerPrx logger = LoggerPrx::uncheckedCast(logger_pub);
+	mprx["LoggerPub"] = (::IceProxy::Ice::Object*)(&logger);
+
 
 
 	SpecificWorker *worker = new SpecificWorker(mprx);

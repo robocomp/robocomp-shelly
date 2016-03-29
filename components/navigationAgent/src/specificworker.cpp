@@ -91,11 +91,10 @@ void SpecificWorker::compute( )
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
-		rDebug(boost::str(boost::format("navigationAgent started\n")));
+		rDebug2(("navigationAgent started\n"));
 		first = false;
 	}
 
-	rDebug(boost::str(boost::format("navigationAgent hello\n")));
 	if (worldModel->getIdentifierByType("robot") < 0)
 	{
 		try
@@ -129,7 +128,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug(boost::str(boost::format("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() ));
+		rDebug2(("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() );
 	}
 
 // 	try

@@ -1,6 +1,7 @@
 import "/robocomp/interfaces/IDSLs/AGMWorldModel.idsl";
 import "/robocomp/interfaces/IDSLs/objectDetection.idsl";
 import "/robocomp/interfaces/IDSLs/AprilTags.idsl";
+import "/robocomp/interfaces/IDSLs/Logger.idsl";
 
 Component objectagent
 {
@@ -8,6 +9,7 @@ Component objectagent
 	{
 		requires objectDetection;
 		subscribesTo AprilTags;
+		publishes Logger;
 	};
 	language Cpp;
 	gui Qt(QWidget);

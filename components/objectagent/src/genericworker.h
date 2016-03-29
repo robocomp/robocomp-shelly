@@ -31,6 +31,7 @@
 #include <AGMExecutive.h>
 #include <AGMCommonBehavior.h>
 #include <Planning.h>
+#include <Logger.h>
 #include <objectDetection.h>
 #include <AprilTags.h>
 
@@ -48,6 +49,7 @@ using namespace RoboCompAGMWorldModel;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompPlanning;
+using namespace RoboCompLogger;
 using namespace RoboCompobjectDetection;
 using namespace RoboCompAprilTags;
 
@@ -82,6 +84,7 @@ public:
 	
 
 	objectDetectionPrx objectdetection_proxy;
+	LoggerPrx logger_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;
