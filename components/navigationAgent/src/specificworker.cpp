@@ -87,6 +87,15 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::compute( )
 {
+	static bool first=true;
+	if (first)
+	{
+		qLog::getInstance()->setProxy("both", logger_proxy);
+		rDebug(boost::str(boost::format("navigationAgent started\n")));
+		first = false;
+	}
+
+	rDebug(boost::str(boost::format("navigationAgent hello\n")));
 	if (worldModel->getIdentifierByType("robot") < 0)
 	{
 		try
