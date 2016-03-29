@@ -786,7 +786,7 @@ void SpecificWorker::delete_collision_points()
 	RoboCompDifferentialRobot::TBaseState bState;
 	rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
 	
-	// 1) Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
+	//Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
 	full_cloud->points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
 	
 	// Guardamos los puntos dentro del array si estan dentro del volumen de trabajo del robot.
@@ -800,21 +800,39 @@ void SpecificWorker::delete_collision_points()
 	int num_hilos = 3;
 	omp_set_num_threads(num_hilos);
 	
-	#pragma omp parallel for shared(usedPoints)
-	for (uint32_t i=0; i<point_cloud.size(); i++)
+	#pragma omp parallel for shared(usedPoints) ordered schedule(static,1)
+	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
 	{
 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
 					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
-					
+		
 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
 		{
+			#pragma omp ordered
+			{
 			full_cloud->points[usedPoints].x =  v(0);
 			full_cloud->points[usedPoints].y =  v(1);
 			full_cloud->points[usedPoints].z =  v(2);
-			#pragma omp critical
 			usedPoints++;
+			}
 		}
 	}
+	
+// 	#pragma omp parallel for shared(usedPoints)
+// 	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
+// 	{
+// 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
+// 					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
+// 					
+// 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
+// 		{
+// 			full_cloud->points[usedPoints].x =  v(0);
+// 			full_cloud->points[usedPoints].y =  v(1);
+// 			full_cloud->points[usedPoints].z =  v(2);
+// 			#pragma omp critical
+// 			usedPoints++;
+// 		}
+// 	}
 	full_cloud->width = usedPoints;
 	full_cloud->height = 1;
 	full_cloud->points.resize(usedPoints);
