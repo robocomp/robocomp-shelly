@@ -1,0 +1,12 @@
+import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
+
+Component conversation
+{
+	Communications
+	{
+		requires AGMExecutive;
+	};
+	language python;
+	gui Qt(QWidget);
+};
+

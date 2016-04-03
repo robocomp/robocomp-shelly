@@ -195,7 +195,7 @@
   <dependence alias="faulhaber" />
   <dependence alias="dynamixel" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint/bin ./ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/ursusCommon.conf" />
+  <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/ursusCommon.conf" />
   <downCommand command="rcremote 10.0.30.11 X / killall -9 ursuscommonjointcomp" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus.conf" />
   <xpos value="103.152449593" />
