@@ -102,7 +102,12 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	int numclusters = 0;
 	objectdetection_proxy->euclideanClustering(numclusters);
 	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
-	//do the shit
+	objectdetection_proxy->findTheObject(objectToDetect);
+	float x,y,z;
+	objectdetection_proxy->getPose(x, y, z);
+	float rx, ry, rz;
+	objectdetection_proxy->getRotation(rx, ry, rz);
+	
 	return true;
 }
 
