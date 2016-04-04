@@ -21,7 +21,7 @@
   <xpos value="-102.714865279" />
   <ypos value="69.6075677998" />
   <radius value="10.0" />
-  <color value="#33FF33" />
+  <color value="#FF3333" />
  </node>
 
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
@@ -64,7 +64,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/ agmmission /home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
   <downCommand command="killall -9 agmmission" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
   <xpos value="112.6207453439" />
@@ -72,7 +72,7 @@
   <radius value="10.0" />
   <color value="#AAAAAA" />
  </node>
- <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 11247">
+ <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 112470">
   <dependence alias="executive" />
   <dependence alias="navigA" />
   <dependence alias="ppcptnA" />
