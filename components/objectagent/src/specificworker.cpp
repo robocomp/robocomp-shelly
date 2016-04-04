@@ -108,6 +108,34 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	float rx, ry, rz;
 	objectdetection_proxy->getRotation(rx, ry, rz);
 	
+	//found notifying changes-------------------------
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	
+	int mugID, robotID, statusID;
+	
+	std::map<std::string, AGMModelSymbol::SPtr> symbols;
+	try
+	{
+		robotID = worldModel->getIdentifierByType("robot");
+		mugID = worldModel->getIdentifierByType("mug");
+		statusID = worldModel->getIdentifierByType("status");
+		
+	}
+	catch(...)
+	{
+		printf("No mug, robot or status symbols found!\n");
+		return false;
+	}
+	
+	newModel->removeEdgeByIdentifiers(robotID, statusID, "usedOracle");
+	
+	AGMModelSymbol::SPtr symbolMug = newModel->getSymbol(mugID);
+	symbolMug->setType("object");
+	AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
+    usleep(500);
+
+	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
+	
 	return true;
 }
 
