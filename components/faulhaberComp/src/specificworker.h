@@ -67,6 +67,10 @@ private:
 	QHash<int,Servo*> motorsId;
 	QHash<QString,int> name2id;
 	QMutex * memory_mutex;
+        
+	QStack<MotorGoalPosition> goalPosList_memory;
+	QMutex *write_memory_mutex;
+        
 };
 
 #endif
