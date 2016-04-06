@@ -80,7 +80,7 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx)
 {
 	memory_mutex = new QMutex();
-
+        write_memory_mutex = new QMutex();
 }
 
 /**
@@ -244,16 +244,16 @@ void SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	initializeMotors();
 	qDebug()<<"basicperiod"<<Period;
 
-	uint value=0;
-	int id=12;
+	//uint value=0;
+	//int id=12;
 	//faulhaber->GADV(id,value);
 	//int encoderPosition=faulhaber->Get_Pos_Encoder(id,value);
 	//qDebug()<<id;
 	//qDebug()<<"potenciometro:"<<value;
 	//qDebug()<<"value to encoder"<<encoderPosition;
-	int ids[1];
-	ids[0]=12;
-	int positions[1];
+	//int ids[1];
+	//ids[0]=12;
+	//int positions[1];
 
 	//faulhaber->setVelocity(12,10);
 	//faulhaber->setPosition(12, 10000);
@@ -285,16 +285,18 @@ void SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::run( )
 {
-	int id=13;
-	uint value;
+// 	int id=13;
+	//uint value;
 	//qDebug()<<id<<"faulhaber->GADV"<<id<<faulhaber->GADV(id,value)<<value;
 	//return;
 	
-	int positions[busParams.numMotors];
+	QVector <int> goal_ids;
+	QVector <int> goal_pos;
+	//int positions[busParams.numMotors];
 	int ids[busParams.numMotors];
 	QList <QString> names;
-	
-	int positions_d[busParams.numMotors];
+	float aux_rad;
+	//int positions_d[busParams.numMotors];
 	for(int i=0;i<busParams.numMotors;i++)
 	{
 		ids[i] = motorParamsList[i].busId;
@@ -304,13 +306,16 @@ void SpecificWorker::run( )
 	}
 	
 	forever {
-#ifdef FaulHaberDebug 		
+#ifdef FaulHaberDebug
 		cout<<"-----------------*************---------------"<<endl;
 #endif		
+                // read motor positions
 		for(int i=0;i<busParams.numMotors;i++)
 		{
+                        mutex->lock();
 			//qDebug()<<ids[i];
-			int32_t pos1 = faulhaber->getPosition(ids[i]);
+                            int32_t pos1 = faulhaber->getPosition(ids[i]);
+                        mutex->unlock();
 			if (pos1 == -1)
 				continue;
 			float pos = pos1;
@@ -321,16 +326,43 @@ void SpecificWorker::run( )
 			qDebug()<<"steps2units: "<<faulhaber->steps2units(pos,mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);			
 			qDebug()<<"----";
 #endif
-
-			memory_mutex->lock(); 
-				Servo::TMotorData &data = motorsId[ids[i]]->data;
-				data.currentPosRads =faulhaber->steps2units(pos,mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
-				data.isMoving = fabs(data.antPosRads - data.currentPosRads) > 0.01;
-				data.antPosRads = data.currentPosRads;
-			memory_mutex->unlock();
-		}		
+			aux_rad = faulhaber->steps2units(pos,mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
+			// check data reading error
+			if (fabs(aux_rad) < 3.15){
+				memory_mutex->lock(); 
+					Servo::TMotorData &data = motorsId[ids[i]]->data;
+					data.currentPosRads = aux_rad;
+					data.isMoving = fabs(data.antPosRads - data.currentPosRads) > 0.01;
+					data.antPosRads = data.currentPosRads;
+				memory_mutex->unlock();
+			}
+		}
 		
-		
+		// set motor positions
+		write_memory_mutex->lock();
+			
+			while (!goalPosList_memory.isEmpty()){
+				MotorGoalPosition goal = goalPosList_memory.pop();
+				int motor_id = name2id[QString::fromStdString(goal.name)];
+				if (not goal_ids.contains(motor_id)) // keep just last position for each motor
+				{
+					goal_ids.append(motor_id);
+					goal_pos.append(goal.position);
+				}
+			}
+			if (goal_ids.size())
+			{
+				mutex->lock();
+#ifdef FaulHaberDebug
+					qDebug()<<"setting real motor positions"<<goal_ids<<goal_pos;
+#endif
+					faulhaber->syncSetPosition(goal_ids.size(),&goal_ids.toStdVector()[0],&goal_pos.toStdVector()[0]);
+					goal_ids.clear();
+					goal_pos.clear();
+				mutex->unlock();
+			}
+		write_memory_mutex->unlock();
+                
 	/*		
 		faulhaber->syncGetPosition(busParams.numMotors,&ids[0],&positions[0]);
 		qDebug() << "positions" << positions[0] << positions[1] << positions[2] << positions[3];
@@ -353,29 +385,27 @@ void SpecificWorker::run( )
 void SpecificWorker::setPosition(const MotorGoalPosition& goalPosition)
 {
 	QString name = QString::fromStdString(goalPosition.name);
-	cout<<"SET POSITION "<<goalPosition.name<<" "<<goalPosition.maxSpeed<<" "<<goalPosition.position<<endl;
+	qDebug()<<"Goal position:\n"<<"Motor:"<<name<<goalPosition.position;
 	if( mParams.contains( name ) )
 	{
-		Servo *servo = motorsName[name];
-		int busId = name2id[name];
-		
 		float position = truncatePosition(name,goalPosition.position);
-		int pInt = 0;
-	
-		pInt = faulhaber->units2steps(position, mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
+		int pInt = faulhaber->units2steps(position, mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
 
-		qDebug()<<"setting position"<<pInt<<"of motor"<<name<<busId;
-		mutex->lock();
-			faulhaber->setVelocity(busId,10);
-			faulhaber->setPosition(busId,pInt);
-		mutex->unlock();
+		//qDebug()<<"saving position"<<pInt<<"of motor"<<name<<busId;
+		write_memory_mutex->lock();
+			MotorGoalPosition goal;
+			goal.name = goalPosition.name;
+			goal.maxSpeed = 10;
+			goal.position = pInt;
+			goalPosList_memory.push(goal);
+		write_memory_mutex->unlock();
 	}
 	else
 	{
 		uFailed.what = std::string("Exception: FaulhaberComp::setPosition:: Unknown motor name ") + goalPosition.name;
 		throw uFailed;
 	}
-	qDebug()<<"done:setting position of motor"<<name;
+	//qDebug()<<"done:setting position of motor"<<name;
 	
 }
 
@@ -383,14 +413,12 @@ void SpecificWorker::setPosition(const MotorGoalPosition& goalPosition)
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& goalPosList)
 {
 	bool correct = true;
-	int ids[goalPosList.size()];
-	int positions[goalPosList.size()];
-	int velocities[goalPosList.size() ];
-	float position = 0;
-		
+	QStack<MotorGoalPosition> aux_q;
+	qDebug()<<"Goal positions:";
 	for(uint i=0;i<goalPosList.size();i++)
 	{
 		QString name = QString::fromStdString(goalPosList[i].name);
+		qDebug()<<"Motor: "<<name<<goalPosList[i].position;
 		if ( !motorsName.contains(name))
 		{
 			correct = false;
@@ -398,29 +426,27 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& goalPosList)
 		}
 		else
 		{
-			Servo *servo = motorsName[name];
-			ids[i] = name2id[name];
-			velocities[i]=10;
-			position = truncatePosition(name,goalPosList[i].position);
-			position= faulhaber->units2steps(position, mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
-			positions[i] = position;
+			MotorGoalPosition goal;
+			goal.name = goalPosList[i].name;
+			goal.maxSpeed = 10;
+			float position = truncatePosition(name,goalPosList[i].position);
+			goal.position = faulhaber->units2steps(position, mParams[name].stepsRange, mParams[name].unitsRange, mParams[name].offset);
+			aux_q.push(goal);
 		}
 	}
 	
 	if(correct)
 	{
-		mutex->lock();
-			//faulhaber->syncSetVelocity(goalPosList.size(),&ids[0], &velocities[0]);
-			faulhaber->syncSetPosition(goalPosList.size(),&ids[0],&positions[0]);
-		mutex->unlock();		
+		write_memory_mutex->lock();
+			goalPosList_memory += aux_q;
+		write_memory_mutex->unlock();
 	}
-	
 	else
 	{
 		uFailed.what = std::string("Exception: FaulhaberComp::setSyncPosition:: Unknown motor name");
 		throw uFailed;
 	}
-	qDebug()<<"done:setting sync position of motors";
+	//qDebug()<<"done:setting sync position of motors";
 }
 
 MotorParams SpecificWorker::getMotorParams(const std::string& motor)
