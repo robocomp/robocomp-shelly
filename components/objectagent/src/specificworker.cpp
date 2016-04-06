@@ -85,7 +85,7 @@ void SpecificWorker::compute()
 		if (detectAndLocateObject("mug"))
 			printf("Found it!");
 		else
-			printf("Something went wrong, looks like It's not here!");
+			printf("Something went wrong, most prob some previous action did not executed well!");
 	}
 
 	previousAction = action;
@@ -93,6 +93,11 @@ void SpecificWorker::compute()
 
 bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 {
+	bool object_found = false;
+	int protoObjectID, robotID, statusID;
+	AGMModelSymbol::SPtr symbolProtoObject;
+	
+	
 	//Pipelining!!
 	objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
 	objectdetection_proxy->ransac("plane");
@@ -102,16 +107,52 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	int numclusters = 0;
 	objectdetection_proxy->euclideanClustering(numclusters);
 	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
-	objectdetection_proxy->findTheObject(objectToDetect);
-	float x,y,z;
-	objectdetection_proxy->getPose(x, y, z);
-	float rx, ry, rz;
-	objectdetection_proxy->getRotation(rx, ry, rz);
 	
-	//found mug notifying changes-------------------------
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	
-	int protoObjectID, robotID, statusID;
+	if (objectdetection_proxy->findTheObject(objectToDetect) )
+	{
+		float x,y,z;
+		objectdetection_proxy->getPose(x, y, z);
+		float rx, ry, rz;
+		objectdetection_proxy->getRotation(rx, ry, rz);
+		
+		object_found = true;
+		
+		//add to innermodel
+			
+		try
+		{
+			protoObjectID = newModel->getIdentifierByType("protoObject");
+		}
+		catch(...)
+		{
+			printf("No protoObject found, robot imagination fail. \n");
+			return false;
+		}
+		symbolProtoObject = newModel->getSymbol(protoObjectID);
+		
+		QString protoObjectIMName  = QString::fromStdString(symbolProtoObject->getAttribute("imName"));
+		
+		InnerModelNode *protoObjectIM = innerModel->getNode(protoObjectIMName);
+
+		if (not protoObjectIM)
+		{
+			qDebug() << "Table's node doesnt exist in InnerModel";
+		}
+
+		InnerModelNode *parentNodeIM = protoObjectIM->parent;
+		
+		if (not parentNodeIM)
+		{
+			qDebug() << "Parent node doesnt exist in InnerModel";
+		}
+		
+		//ADD POSE TO INERMODEL TODO
+		
+
+		
+	}
 	
 	//Removing used Oracle
 	try
@@ -135,7 +176,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		return false;
 	}
 	
-	//Changing the protoObject to an object
+	//Changing the protoObject to an object if found if not removing protoObject
 	try
 	{
 		protoObjectID = newModel->getIdentifierByType("protoObject");
@@ -146,9 +187,13 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		return false;
 	}
 	
-	AGMModelSymbol::SPtr symbolProtoObject = newModel->getSymbol(protoObjectID);
-	symbolProtoObject->setType("object");
+	//Changing the protoObject to an object if found otherwise remove protoobject
+	if(object_found)
+		symbolProtoObject->setType("object");
+	else
+		newModel->removeSymbol(protoObjectID);
 
+	//publish changes
 	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
 	
 	return true;
