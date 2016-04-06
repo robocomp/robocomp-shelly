@@ -280,7 +280,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 	bool modification = false;
 
 	///CAUTION CHAPUZA PA PROBAR A COLGAR DLE MUNDO 
-	int32_t roomID = AgmInner::findSymbolIDWithInnerModelName(worldModel,"room");
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room");
 	if (roomID < 0)
 	{
 		printf("ROOOM symbol not found, \n");
@@ -340,13 +340,13 @@ void SpecificWorker::updatePeopleInnerFullB()
 	for (int i=0; i<lSymbolsPersons.size(); i++)
 	{	
 	  
-		int symbolID = AgmInner::findSymbolIDWithInnerModelName(worldModel, QString::fromStdString(int2str(lSymbolsPersons.at(i)))+"XN_SKEL_TORSO");
+		int symbolID = AGMInner::findSymbolIDWithInnerModelName(worldModel, QString::fromStdString(int2str(lSymbolsPersons.at(i)))+"XN_SKEL_TORSO");
 		qDebug()<<__FUNCTION__<<__LINE__<<innerModelMap.size()<<"lSymbolsPersons.at(i)"<<lSymbolsPersons.at(i)<<"symbol"<<symbolID;
 		//CAUTION el vector innermodelMap no contiene nada en esa posición
 		//agmInner.remove_Im(innerModelMap.at(lSymbolsPersons.at(i)));
 		QList <int> listaDescendientes;
 		bool loop=false;	
-		AgmInner::checkLoop(worldModel, symbolID,listaDescendientes,"RT",loop);
+		AGMInner::checkLoop(worldModel, symbolID,listaDescendientes,"RT",loop);
 // 		
 		//qDebug()<<"listaDescendientes"<<listaDescendientes;
 		for (int j=0; j<listaDescendientes.size();j++)
@@ -421,7 +421,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 		
 		//match.insert(pre+"XN_SKEL_TORSO",personID);
 		//agmInner.include_im(match, innerModelMap.at(TrackingId));
-		AgmInner::includeInnerModel(worldModel,personID,innerModelMap.at(TrackingId));
+		AGMInner::includeInnerModel(worldModel,personID,innerModelMap.at(TrackingId));
 		modification =true;
 	}
 	qDebug()<<"lUpdates:"<<lUpdates;
@@ -432,7 +432,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 		{
 			InnerModel* imTmp =innerModelMap.at(lUpdates.at(i));
 			//agmInner.updateAgmWithInnerModelAndPublish(imTmp,agmexecutive_proxy);
-			AgmInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
+			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
 		}
 		catch (const std::out_of_range& oor)
 		{	
@@ -663,10 +663,10 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modifi
 	
 	if (innerModelAGM) 
 		delete innerModelAGM;
-	innerModelAGM = AgmInner::extractInnerModel(worldModel, "world");
+	innerModelAGM = AGMInner::extractInnerModel(worldModel, "world");
 	innerModelAGM->save("innerModelAGM.xml");
 	///TEST to check extractAGM
-	//AGMModel::SPtr worldClean = AgmInner::extractSymbolicGraph(worldModel);
+	//AGMModel::SPtr worldClean = AGMInner::extractSymbolicGraph(worldModel);
 	//worldClean->save("worldClean.xml");
 	//AGMModelPrinter::printWorld(worldClean);
 }
@@ -680,7 +680,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMModelEdge dst;
 		AGMModelConverter::fromIceToInternal(modification,dst);
-		AgmInner::updateImNodeFromEdge(worldModel, dst, innerModelAGM);
+		AGMInner::updateImNodeFromEdge(worldModel, dst, innerModelAGM);
 	}
 }
 
@@ -688,7 +688,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification
 {
 	QMutexLocker m (mutex);	
   	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 	AgmInner::updateImNodeFromEdge(worldModel,modification,innerModelAGM);
+ 	AGMInner::updateImNodeFromEdge(worldModel,modification,innerModelAGM);
  
 }
 
@@ -1190,7 +1190,7 @@ void SpecificWorker::saveInnerModels(QString number)
 		qDebug()<<"Saving innermodels : "<<pre+"innerHuman.xml";
 		m.second->save(number+"_"+pre+"innerHuman.xml");			
 	}		
-	AgmInner::extractInnerModel(worldModel,"room", true)->save(number+"_extractInnerModelFromRoom.xml");
+	AGMInner::extractInnerModel(worldModel,"room", true)->save(number+"_extractInnerModelFromRoom.xml");
 	
 }
 
@@ -1401,7 +1401,7 @@ void SpecificWorker::updateHumanInnerFull()
 	bool modification = false;
 
 	///Human hangs on room symbol
-	int32_t roomID = AgmInner::findSymbolIDWithInnerModelName(worldModel,"room");
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room");
 	if (roomID < 0)
 	{
 		printf("ROOOM symbol not found, \n");
@@ -1421,14 +1421,14 @@ void SpecificWorker::updateHumanInnerFull()
 // 	qDebug()<<__FUNCTION__<<__LINE__<<"symbolID"<<symbolID<<"personList.empty()"<<personList.empty();	
 // 	if (personList.empty() and symbolID!=-1)
 // 	{
-// // 		int symbolID = AgmInner::findSymbolIDWithInnerModelName(worldModel, QString::fromStdString(int2str(idSingle)+"XN_SKEL_TORSO"));		
+// // 		int symbolID = AGMInner::findSymbolIDWithInnerModelName(worldModel, QString::fromStdString(int2str(idSingle)+"XN_SKEL_TORSO"));		
 // 		qDebug()<<__FUNCTION__<<__LINE__<<innerModelMap.size()<<"idSingle"<<idSingle<<"symbol"<<symbolID;
 // 		
 // 		//CAUTION el vector innermodelMap no contiene nada en esa posición
 // 		//agmInner.remove_Im(innerModelMap.at(lSymbolsPersons.at(i)));
 // 		QList <int> listaDescendientes;
 // 		bool loop=false;	
-// 		AgmInner::checkLoop(worldModel, symbolID,listaDescendientes,"RT",loop);
+// 		AGMInner::checkLoop(worldModel, symbolID,listaDescendientes,"RT",loop);
 // 		for (int j=0; j<listaDescendientes.size();j++)
 // 			worldModel->removeSymbol(listaDescendientes.at(j));
 // 		modification = true;
@@ -1465,7 +1465,7 @@ void SpecificWorker::updateHumanInnerFull()
 			{
 				worldModel->addEdgeByIdentifiers(roomID,personID,"RT");
 				worldModel->addEdgeByIdentifiers(personID,roomID,"in");
-				AgmInner::includeInnerModel(worldModel,personID,innerModelMap.at(idSingle));
+				AGMInner::includeInnerModel(worldModel,personID,innerModelMap.at(idSingle));
 				modification =true;
 			}
 			catch (const std::out_of_range& oor)
@@ -1489,7 +1489,7 @@ void SpecificWorker::updateHumanInnerFull()
 		try
 		{
 			InnerModel* imTmp =innerModelMap.at(idSingle);		
-			AgmInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
+			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
 		}
 		catch (const std::out_of_range& oor)
 		{	
