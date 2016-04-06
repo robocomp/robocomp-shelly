@@ -107,11 +107,6 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	int numclusters = 0;
 	objectdetection_proxy->euclideanClustering(numclusters);
 	objectdetection_proxy->reloadVFH("/home/robolab/robocomp/components/robocomp-shelly/files/objects/");
-	objectdetection_proxy->findTheObject(objectToDetect);
-	float x,y,z;
-	objectdetection_proxy->getPose(x, y, z);
-	float rx, ry, rz;
-	objectdetection_proxy->getRotation(rx, ry, rz);
 	
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	
