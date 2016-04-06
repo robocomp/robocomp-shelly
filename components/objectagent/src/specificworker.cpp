@@ -85,7 +85,7 @@ void SpecificWorker::compute()
 		if (detectAndLocateObject("mug"))
 			printf("Found it!");
 		else
-			printf("It's not here!");
+			printf("Something went wrong, looks like It's not here!");
 	}
 
 	previousAction = action;
@@ -107,6 +107,49 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	objectdetection_proxy->getPose(x, y, z);
 	float rx, ry, rz;
 	objectdetection_proxy->getRotation(rx, ry, rz);
+	
+	//found mug notifying changes-------------------------
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	
+	int protoObjectID, robotID, statusID;
+	
+	//Removing used Oracle
+	try
+	{
+		robotID = newModel->getIdentifierByType("robot");
+		statusID = newModel->getIdentifierByType("status");
+	}
+	catch(...)
+	{
+		printf("No robot or status symbols found!\n");
+		return false;
+	}
+
+	try
+	{
+		newModel->removeEdgeByIdentifiers(robotID, statusID, "usedOracle");
+	}
+	catch(...)
+	{
+		printf("Oracle was not used, how do we even got here in the first place? \n");
+		return false;
+	}
+	
+	//Changing the protoObject to an object
+	try
+	{
+		protoObjectID = newModel->getIdentifierByType("protoObject");
+	}
+	catch(...)
+	{
+		printf("No protoObject found, robot imagination fail. \n");
+		return false;
+	}
+	
+	AGMModelSymbol::SPtr symbolProtoObject = newModel->getSymbol(protoObjectID);
+	symbolProtoObject->setType("object");
+
+	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
 	
 	return true;
 }
