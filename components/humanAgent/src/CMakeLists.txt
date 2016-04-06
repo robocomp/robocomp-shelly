@@ -29,7 +29,6 @@ SET ( SOURCES
   agmcommonbehaviorI.cpp
   agmexecutivetopicI.cpp
   mskbodyeventI.cpp
-  $ENV{ROBOCOMP}/classes/agmInner/agmInner.cpp
 )
 
 # Headers set

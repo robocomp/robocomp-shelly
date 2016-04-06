@@ -82,7 +82,7 @@ void SpecificWorker::compute()
 	}
 	else if (action == "verify")
 	{
-		if (detectAndLocateObject("mug"))
+		if (detectAndLocateObject("stapler"))
 			printf("Found it!");
 		else
 			printf("Something went wrong, most prob some previous action did not executed well!");
@@ -106,7 +106,12 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	objectdetection_proxy->extractPolygon("plane");
 	int numclusters = 0;
 	objectdetection_proxy->euclideanClustering(numclusters);
-	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
+	objectdetection_proxy->reloadVFH("/home/robolab/robocomp/components/robocomp-shelly/files/objects/");
+	objectdetection_proxy->findTheObject(objectToDetect);
+	float x,y,z;
+	objectdetection_proxy->getPose(x, y, z);
+	float rx, ry, rz;
+	objectdetection_proxy->getRotation(rx, ry, rz);
 	
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	
