@@ -75,7 +75,10 @@ void SpecificWorker::compute()
 
 	bool newAction = (previousAction != action);
 	if (newAction)
+	{
 		printf("New action: %s\n", action.c_str());
+		rDebug2(("objectAgent new action prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
+	}
 	if (action == "findobjectvisuallyintable")
 	{
 		action_FindObjectVisuallyInTable(newAction);
@@ -520,7 +523,7 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 			
 			AGMInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
 			AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-			rDebug2(("objectAgent edgeupdate for table"));
+// 			rDebug2(("objectAgent edgeupdate for table"));
 		}
 		catch(...){ qFatal("Impossible to update the RT edge"); }
 	}
@@ -624,7 +627,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						
 // 						qDebug() << "Updating edge!";
 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-						rDebug2(("objectAgent edgeupdate for mug"));
+// 						rDebug2(("objectAgent edgeupdate for mug"));
 					}
 					catch(...){ qFatal("Impossible to update the RT edge"); }
 				}

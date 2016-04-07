@@ -539,7 +539,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("prev: (%s) new: (%s)\n") % previousAction.c_str() % action.c_str() );
+		rDebug2(("graspingAgent new action prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
 	}
 
 

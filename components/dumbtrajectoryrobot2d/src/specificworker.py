@@ -92,7 +92,7 @@ class SpecificWorker(GenericWorker):
 		self.state.state = 'IDLE'
 
 
-		self.Period = 50
+		self.Period = 100
 		self.timer.start(self.Period)
 		self.timer.timeout.connect(self.compute)
 
@@ -135,7 +135,7 @@ class SpecificWorker(GenericWorker):
 				self.relErrZ -= self.zRef
 				self.relAng   = math.atan2(self.relErrX, self.relErrZ)
 
-				self.log.send("executing ["+self.relErrX+", "+self.relErrZ+", "+self.relAng+"]", "navigator_low")
+				self.log.send("executing ["+str(self.relErrX)+", "+str(self.relErrZ)+", "+str(self.relAng)+"]", "navigator_low")
 
 				# Final relative coordinates of the target
 				print 'command', self.relErrX, self.relErrZ
@@ -151,8 +151,8 @@ class SpecificWorker(GenericWorker):
 					
 				
 				proceed = True
-				if np.linalg.norm(command)<=400:
-					command = np.array([0.25*self.relErrX, 0.25*self.relErrZ])
+				#if np.linalg.norm(command)<=400:
+					#command = np.array([0.25*self.relErrX, 0.25*self.relErrZ])
 				
 				if np.linalg.norm(errorVector)<=self.threshold and abs(errAlpha) < 0.15:
 					self.log.send("navigator stopped by threshold", "navigator_low")
