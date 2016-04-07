@@ -1,6 +1,7 @@
 import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
 import "/robocomp/interfaces/IDSLs/TrajectoryRobot2D.idsl";
 import "/robocomp/interfaces/IDSLs/Laser.idsl";
+import "/robocomp/interfaces/IDSLs/Logger.idsl";
 
 Component dumbTrajectoryRobot2DComp
 {
@@ -8,6 +9,7 @@ Component dumbTrajectoryRobot2DComp
 	{
 		requires Laser, OmniRobot;
 		implements TrajectoryRobot2D;
+		publishes Logger;
 	};
 	language python;
 	gui Qt(QWidget);

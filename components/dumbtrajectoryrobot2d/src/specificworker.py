@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -17,19 +17,25 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, os, Ice, traceback, math
+import sys, os, Ice, traceback, time
+
+import math
 import numpy as np
 
 from PySide import *
 from genericworker import *
 
+sys.path.append('/opt/robocomp/classes/qlog')
+from qlog import qlog
+
 ROBOCOMP = ''
 try:
 	ROBOCOMP = os.environ['ROBOCOMP']
 except:
-	pass
+	print '$ROBOCOMP environment variable not set, using the default value /opt/robocomp'
+	ROBOCOMP = '/opt/robocomp'
 if len(ROBOCOMP)<1:
-	print 'ROBOCOMP environment variable not set! Exiting.'
+	print 'genericworker.py: ROBOCOMP environment variable not set! Exiting.'
 	sys.exit()
 
 
@@ -40,6 +46,8 @@ Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
 from RoboCompTrajectoryRobot2D import *
 Ice.loadSlice(preStr+"Laser.ice")
 from RoboCompLaser import *
+Ice.loadSlice(preStr+"Logger.ice")
+from RoboCompLogger import *
 
 
 from trajectoryrobot2dI import *
@@ -59,6 +67,9 @@ class SpecificWorker(GenericWorker):
 		self.collisions = 0
 		self.currentVel = [0,0,0]
 		self.hide()
+		self.log = qlog(self.logger, "both")
+
+		self.log.send("navigator started", "navigator_low")
 
 		self.state = NavState()
 		self.updateStatePose()
@@ -141,6 +152,7 @@ class SpecificWorker(GenericWorker):
 					command = np.array([0.25*self.relErrX, 0.25*self.relErrZ])
 				
 				if np.linalg.norm(errorVector)<=self.threshold and abs(errAlpha) < 0.15:
+					self.log.send("navigator stopped by threshold", "navigator_low")
 					print 'stop by threshold', self.threshold
 					proceed = False
 				else:

@@ -605,36 +605,36 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 
 	if (scalars.find("wtx") != scalars.end())
 	{
-		weights.x = scalars["wtx"];
+		weights.x = scalars.at("wtx");
 	}
 
 	if (scalars.find("wty") != scalars.end())
 	{
-		weights.y = scalars["wty"];
+		weights.y = scalars.at("wty");
 	}
 	if (scalars.find("wtz") != scalars.end())
 	{
-		weights.z = scalars["wtz"];
+		weights.z = scalars.at("wtz");
 	}
 
 	if (scalars.find("wrx") != scalars.end())
 	{
-		weights.rx = scalars["wrx"];
+		weights.rx = scalars.at("wrx");
 	}
 	if (scalars.find("wry") != scalars.end())
 	{
-		weights.ry = scalars["wry"];
+		weights.ry = scalars.at("wry");
 	}
 	if (scalars.find("wrz") != scalars.end())
 	{
-		weights.rz = scalars["wrz"];
+		weights.rz = scalars.at("wrz");
 	}
 
 	
 	// ALERT: if tt is 0 then, weights 0 for no correction
 	if (scalars.find("ttx") != scalars.end())
 	{
-		target.x = scalars["ttx"];
+		target.x = scalars.at("ttx");
 	}
 	else
 	{
@@ -643,7 +643,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 
 	if (scalars.find("tty") != scalars.end())
 	{
-		target.y = scalars["tty"];
+		target.y = scalars.at("tty");
 	}
 	else
 	{
@@ -651,7 +651,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	}
 	if (scalars.find("ttz") != scalars.end())
 	{
-		target.z = scalars["ttz"];
+		target.z = scalars.at("ttz");
 	}
 	else
 	{
@@ -660,7 +660,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	
 	if (scalars.find("trx") != scalars.end())
 	{
-		target.rx = scalars["trx"];
+		target.rx = scalars.at("trx");
 	}
 	else
 	{
@@ -668,7 +668,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	}
 	if (scalars.find("try") != scalars.end())
 	{
-		target.ry = scalars["try"];
+		target.ry = scalars.at("try");
 	}
 	else
 	{
@@ -676,7 +676,7 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 	}
 	if (scalars.find("trz") != scalars.end())
 	{
-		target.rz = scalars["trz"];
+		target.rz = scalars.at("trz");
 	}
 	else
 	{
@@ -686,27 +686,27 @@ int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &stri
 
 	if (scalars.find("errortx") != scalars.end())
 	{
-		target.rx = scalars["trx"];
+		target.rx = scalars.at("trx");
 	}
 	if (scalars.find("errorty") != scalars.end())
 	{
-		target.ry = scalars["try"];
+		target.ry = scalars.at("try");
 	}
 	if (scalars.find("errortz") != scalars.end())
 	{
-		target.rz = scalars["trz"];
+		target.rz = scalars.at("trz");
 	}
 	if (scalars.find("errorrx") != scalars.end())
 	{
-		target.rx = scalars["trx"];
+		target.rx = scalars.at("trx");
 	}
 	if (scalars.find("errorry") != scalars.end())
 	{
-		target.ry = scalars["try"];
+		target.ry = scalars.at("try");
 	}
 	if (scalars.find("errorrz") != scalars.end())
 	{
-		target.rz = scalars["trz"];
+		target.rz = scalars.at("trz");
 	}
 
 	

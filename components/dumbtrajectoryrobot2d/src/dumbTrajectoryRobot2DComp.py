@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -76,7 +76,7 @@ if len(ROBOCOMP)<1:
 	sys.exit()
 
 
-preStr = "-I"+ROBOCOMP+"/interfaces/ --all "+ROBOCOMP+"/interfaces/"
+preStr = "-I"+ROBOCOMP+"/interfaces/ -I/opt/robocomp/interfaces/ --all "+ROBOCOMP+"/interfaces/"
 Ice.loadSlice(preStr+"CommonBehavior.ice")
 import RoboCompCommonBehavior
 Ice.loadSlice(preStr+"OmniRobot.ice")
@@ -85,6 +85,8 @@ Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
 import RoboCompTrajectoryRobot2D
 Ice.loadSlice(preStr+"Laser.ice")
 import RoboCompLaser
+Ice.loadSlice(preStr+"Logger.ice")
+import RoboCompLogger
 
 
 class CommonBehaviorI(RoboCompCommonBehavior.CommonBehavior):
@@ -119,7 +121,7 @@ if __name__ == '__main__':
 	if len(params) > 1:
 		if not params[1].startswith('--Ice.Config='):
 			params[1] = '--Ice.Config=' + params[1]
-	elif len(params) == 0:
+	elif len(params) == 1:
 		params.append('--Ice.Config=config')
 	ic = Ice.initialize(params)
 	status = 0
@@ -158,6 +160,30 @@ if __name__ == '__main__':
 			print e
 			print 'Cannot get OmniRobotProxy property.'
 			status = 1
+
+
+		# Topic Manager
+		proxy = ic.getProperties().getProperty("TopicManager.Proxy")
+		obj = ic.stringToProxy(proxy)
+		topicManager = IceStorm.TopicManagerPrx.checkedCast(obj)
+
+		# Create a proxy to publish a Logger topic
+		topic = False
+		try:
+			topic = topicManager.retrieve("Logger")
+		except:
+			pass
+		while not topic:
+			try:
+				topic = topicManager.retrieve("Logger")
+			except IceStorm.NoSuchTopic:
+				try:
+					topic = topicManager.create("Logger")
+				except:
+					print 'Another client created the Logger topic? ...'
+		pub = topic.getPublisher().ice_oneway()
+		loggerTopic = LoggerPrx.uncheckedCast(pub)
+		mprx["LoggerPub"] = loggerTopic
 
 	except:
 			traceback.print_exc()

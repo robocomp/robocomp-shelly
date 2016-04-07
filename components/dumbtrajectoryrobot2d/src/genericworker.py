@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -36,6 +36,7 @@ class GenericWorker(QtGui.QWidget):
 		self.laser_proxy = mprx["LaserProxy"]
 		self.omnirobot_proxy = mprx["OmniRobotProxy"]
 
+		self.logger = mprx["LoggerPub"]
 		self.ui = Ui_guiDlg()
 		self.ui.setupUi(self)
 		self.show()

@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -51,6 +51,8 @@ class TrajectoryRobot2DI(TrajectoryRobot2D):
 		return self.worker.changeTarget(target)
 	def go(self, target, c):
 		return self.worker.go(target)
+	def goMulti(self, targetSeq, xRef, zRef, threshold, c):
+		return self.worker.goMulti(targetSeq, xRef, zRef, threshold)
 	def mapBasedTarget(self, parameters, c):
 		return self.worker.mapBasedTarget(parameters)
 
