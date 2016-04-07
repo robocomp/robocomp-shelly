@@ -121,6 +121,7 @@ class SpecificWorker(GenericWorker):
 		l = QtCore.QMutexLocker(self.mutex)
 
 		if self.state.state == 'IDLE':
+			#self.log.send("idle", "navigator_low")
 			pass
 		elif self.state.state == 'EXECUTING':
 			try:
@@ -133,6 +134,8 @@ class SpecificWorker(GenericWorker):
 				self.relErrX -= self.xRef
 				self.relErrZ -= self.zRef
 				self.relAng   = math.atan2(self.relErrX, self.relErrZ)
+
+				self.log.send("executing ["+self.relErrX+", "+self.relErrZ+", "+self.relAng+"]", "navigator_low")
 
 				# Final relative coordinates of the target
 				print 'command', self.relErrX, self.relErrZ
@@ -171,36 +174,29 @@ class SpecificWorker(GenericWorker):
 					print 'errAlpha', errAlpha
 					print 'relAng', self.relAng
 					dist = math.sqrt(self.relErrX*self.relErrX + self.relErrZ*self.relErrZ)
-					A = ''
-					B = ''
+					
+					msge = ''
 					if dist > 1000:
-						A = 'L'
-						if abs(self.relAng) < 0.4:
-							# If the error is small, we can try to orient a little
-							# so we don't do anything here...
-							B = 'p'
-						elif abs(self.relAng) > 0.8: # If the error is too big, 
-							B = 'g'
-							if self.relAng < 0:
-								B += '>'
-								commandAlpha = -0.2
-							else:
-								B += '<'
-								commandAlpha = +0.2
+						msge += 'dist>1000 '
+						if abs(self.relAng) < 0.4: # Ang error small -> orient a little -> don't do anything here
+							msge += 'errAng<0.4 '
+						elif abs(self.relAng) > 0.8: # The error is too big. Saturate
+							commandAlpha = math.copysign(0.2, self.relAng)
 							if abs(self.relAng) > 1.5: # If the error is really too big, T=0
-								B += 'G'
 								command[0] = command[1] = 0
-						else:
-							B = 'm'
-							if errAlpha * self.relAng < 0: # if the signe differ
-								commandAlpha = 0
-								B += '!'
+								msge += '0.8<errAng<1.5 ('+str(self.relAng)+') '
 							else:
-								B += '='
+								sge += 'errAng>0.8 ('+str(self.relAng)+') '
+						else:
+							msge += '0.4<errAng<0.8 '
+							if errAlpha * self.relAng < 0: # if the sign differ
+								commandAlpha = 0
+
 					else:
-						A = 'C'
-						B = ''
-					print '==============', A, B
+						msge += 'dist>1000 '
+
+					self.log.send("executing ["+msge+"] ("+str(self.threshold) +", 0.15)", "navigator_low")
+					print '==============', msge
 
 
 					SEND = True
