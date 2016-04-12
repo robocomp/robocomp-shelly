@@ -212,7 +212,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		printf("<<WORLD\n");
 		AGMModelPrinter::printWorld(worldModel);
 		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
+		if (worldModel->size() > 0) { exit(-1); }
 	}
 
 	// Get target
@@ -353,18 +353,36 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		printf("<<WORLD\n");
 		AGMModelPrinter::printWorld(worldModel);
 		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
+		if (worldModel->size() > 0) { exit(-1); }
 	}
 
 	// Get target
 	int roomID, objectID, robotID;
 	try
 	{
-		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get())
+		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
 		{
 			roomID = symbols["room"]->identifier;
 			objectID =symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
+
+			try // If we can access the 'reach' edge for the object status the action
+			{   // is not really necessary. The planner is probably replanning.
+				worldModel->getEdgeByIdentifiers(objectID, symbols["status"]->identifier, "reach");
+				{
+					static QTime lastMsg = QTime::currentTime().addSecs(-1000);
+					if (lastMsg.elapsed() > 1000)
+					{
+						rDebug2(("navigationAgent ignoring action setObjectReach (object currently reached)"));
+						lastMsg = QTime::currentTime();
+						return;
+					}
+				}
+			}
+			catch(...)
+			{
+			}
+
 		}
 		else
 		{
@@ -567,8 +585,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
 					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
 				}
-// 				printf(".");
-// 				fflush(stdout);
 				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
 				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
 				rDebug2(("navigationAgent moved robot from room"));
@@ -1166,7 +1182,16 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	{
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
 	}
-	catch(...)
+	catch(const RoboCompAGMExecutive::Locked &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+	}
+	catch(const Ice::Exception& e)
 	{
 		exit(1);
 	}

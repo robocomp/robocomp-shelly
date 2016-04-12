@@ -121,7 +121,7 @@ void SpecificWorker::compute( )
 void SpecificWorker::manageReachedObjects()
 {
 	float schmittTriggerThreshold = 30;
-	float THRESHOLD_mug = 100;
+	float THRESHOLD_mug = 50;
 	float THRESHOLD_table = 400;
 	std::string m ="  ";
 
@@ -197,7 +197,10 @@ void SpecificWorker::manageReachedObjects()
 			}
 			QString name = QString::fromStdString(node->toString());
 			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
-
+			if (node->identifier == 11)
+			{
+				rDebug2(("graspingAgent mug (%s) distance %f") % name.toStdString().c_str() % d2n);
+			}
 
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
@@ -519,7 +522,16 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel
 	{
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "graspingAgent")+m);
 	}
-	catch(...)
+	catch(const RoboCompAGMExecutive::Locked &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+	}
+	catch(const Ice::Exception& e)
 	{
 		exit(1);
 	}
@@ -554,7 +566,10 @@ void SpecificWorker::actionExecution()
 	else if (action == "graspobject")
 	{
 		if (not robotIsMoving())
-			action_GraspObject(newAction);
+		{
+			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
+// 			action_GraspObject(newAction);
+		}
 	}
 
 	if (newAction)
@@ -567,10 +582,10 @@ void SpecificWorker::actionExecution()
 // Check if robot is stopped befora calling to graspAction
 bool SpecificWorker::robotIsMoving()
 {
-	int MOVEMENT_THRESHOLD = 20; // in mm
+	int MOVEMENT_THRESHOLD = 5; // in mm
 	int robotID = worldModel->getIdentifierByType("robot");
 	int robotMovement = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("movedInLastSecond")).toInt();
-	printf("Last second robot movement %i\n",robotMovement);
+	printf("Last second robot movement %i\n", robotMovement);
 	if (robotMovement > MOVEMENT_THRESHOLD )
                 return true;
 	return false;

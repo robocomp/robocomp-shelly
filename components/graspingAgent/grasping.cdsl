@@ -2,6 +2,7 @@ import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
 import "/robocomp/interfaces/IDSLs/InverseKinematics.idsl";
 import "/robocomp/interfaces/IDSLs/Logger.idsl";
 
+
 Component graspingComp
 {
 	Communications
@@ -13,3 +14,4 @@ Component graspingComp
 	gui Qt(QWidget);
 	options agmagent;
 };
+
