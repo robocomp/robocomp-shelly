@@ -128,7 +128,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("navigationAgent new action prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
+		rDebug2(("action %s") % action.c_str() );
 	}
 
 // 	try

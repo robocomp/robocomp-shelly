@@ -69,7 +69,7 @@
   <dependence alias="graspingA" />
   <dependence alias="objectA" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
+  <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <downCommand command="killall -9 agmmission" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <xpos value="-11.1156118414" />
@@ -278,7 +278,7 @@
  <node alias="executive" endpoint="agmexecutive:tcp -h localhost -p 10198">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/executiveAUTONOMY.conf" />
+  <upCommand command="rcremote localhost AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/executiveAUTONOMY.conf" />
   <downCommand command="pkill -9 -f AGMExecutive_robocomp.py" />
   <configFile path="xxx" />
   <xpos value="-9.25111641533" />

@@ -211,7 +211,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STOPS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-					rDebug2(("graspingAgent object %d no-reach") % node->identifier);
+					rDebug2(("object %d no-reach") % node->identifier);
 				}
 				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD-schmittTriggerThreshold)
 				{
@@ -220,7 +220,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STARTS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-					rDebug2(("graspingAgent object %d reach") % node->identifier);
+					rDebug2(("object %d reach") % node->identifier);
 				}
 			}
 		}
@@ -551,7 +551,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("graspingAgent new action prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
+		rDebug2(("action %s") % action.c_str() );
 	}
 
 

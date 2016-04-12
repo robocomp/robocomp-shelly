@@ -85,7 +85,7 @@
   <color value="#AAAAAA" />
  </node>
 
- <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 112470">
+ <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 170">
   <dependence alias="executive" />
   <dependence alias="navigA" />
   <dependence alias="ppcptnA" />
@@ -365,7 +365,7 @@
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
+  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py /home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
   <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
   <configFile path="xxx" />
   <xpos value="30.8239879726" />
@@ -374,7 +374,7 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="initPose" endpoint="">
+ <node alias="initPose" endpoint="e:tcp -p 1">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-shelly/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
@@ -386,7 +386,7 @@
   <color value="#AAAAAA" />
  </node>
 
- <node alias="shellyPanel" endpoint="">
+ <node alias="shellyPanel" endpoint="e:tcp -p 1">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-shelly/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/shellyPanel.conf" />
