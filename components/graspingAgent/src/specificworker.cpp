@@ -21,6 +21,7 @@
 #include <boost/geometry.hpp>
 #include <boost/geometry/geometries/point_xy.hpp>
 #include <boost/geometry/geometries/polygon.hpp>
+#include <QMap>
 
 
 
@@ -36,20 +37,18 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	innerModel = new InnerModel();
 
 	manualMode = false;
+	innerViewer = NULL;
 
 #ifdef USE_QTGUI
 	osgView = new OsgView(widget);
 	show();
-//  	printf("%s: %d\n", __FILE__, __LINE__);
-	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
 // 	printf("%s: %d\n", __FILE__, __LINE__);
 	manipulator = new osgGA::TrackballManipulator;
 	osgView->setCameraManipulator(manipulator, true);
 // 	printf("%s: %d\n", __FILE__, __LINE__);
-	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 	show();
 	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
-	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
+// 	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
 #endif
 	
 
@@ -68,10 +67,22 @@ SpecificWorker::~SpecificWorker()
 }
 void SpecificWorker::updateViewer()
 {
+	QMutexLocker locker(mutex);
 #ifdef USE_QTGUI
-	if (!innerModel) return;
-	
+	if (not innerModel) return;
+	if (not innerModel->getNode("root")) return;
+	printf("root %p\n", innerModel->getNode("root"));
+
+	if (not innerViewer)
+	{
+		innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+		printf("innerViewer: %p\n", innerViewer);
+		innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
+	}
+	printf("(\n");
+		printf("innerViewer: %p\n", innerViewer);
 	innerViewer->update();
+	printf(")\n");
 	osgView->autoResize();
 	osgView->frame();
 #endif
@@ -83,7 +94,7 @@ void SpecificWorker::compute( )
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
-		rDebug2(("graspingAgent started"));
+// 		rDebug2(("graspingAgent started"));
 		first = false;
 	}
 
@@ -95,14 +106,19 @@ void SpecificWorker::compute( )
 			if (not innerModel->getNode("right_shoulder_grasp_pose"))
 			{
 				printf("waiting for AGM*\n");
-				innerModel->save("extractInnerModel.xml");
 				return;
 			}
 		}
 	}
+
+	QTime cc;
+	
+	cc = QTime::currentTime();
 	manageReachedObjects();
+	printf("manageReachedObjects - %d\n", cc.elapsed());
 
 	
+	cc = QTime::currentTime();
 	if (manualMode)
 	{
 		action_GraspObject();
@@ -112,8 +128,10 @@ void SpecificWorker::compute( )
 		// ACTION EXECUTION
 		actionExecution();
 	}
+	printf("action - %d\n", cc.elapsed());
+
 #ifdef USE_QTGUI
-	//updateViewer();
+	updateViewer();
 #endif	
 }
 
@@ -129,7 +147,9 @@ void SpecificWorker::manageReachedObjects()
 	
 	QMutexLocker locker(mutex);
 	
+	printf("currentVersion W %d\n", worldModel->version);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	printf("currentVersion N %d\n", newModel->version);
 
 
 	int robotID = newModel->getIdentifierByType("robot");
@@ -140,7 +160,7 @@ void SpecificWorker::manageReachedObjects()
 		AGMModelSymbol::SPtr node = *symbol_itr;
 		if (node->symboltype() == "object")
 		{
-			printf("OBJECT: %d\n", node->identifier);
+// 			printf("OBJECT: %d\n", node->identifier);
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
 			// Avoid working with rooms
@@ -150,17 +170,24 @@ void SpecificWorker::manageReachedObjects()
 			try
 			{
 				AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
-				qDebug()<<"MUG IN ROBOT";
+// 				qDebug()<<"MUG IN ROBOT";
 				continue;
 			}
 			catch (...)
 			{
-				qDebug()<<"MUG NOT IN ROBOT";
+// 				qDebug()<<"MUG NOT IN ROBOT";
 			}
 
 
 
-
+			static auto mapt = QMap<int, QTime>();
+			bool force_send = false;
+			if (not mapt.contains(node->identifier))
+			{
+				mapt[node->identifier] = QTime::currentTime();
+				force_send = true;
+			}
+			
 			/// Compute distance and new state
 			float d2n;
 			try
@@ -171,8 +198,14 @@ void SpecificWorker::manageReachedObjects()
 			{
 				printf("Ref: right_shoulder_grasp_pose: %p\n", (void *)innerModel->getNode("right_shoulder_grasp_pose"));
 				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
+				exit(1);
 			}
 
+			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
+			{
+// 				rDebug2(("%d distance %f") % node->identifier % d2n);
+				mapt[node->identifier] = QTime::currentTime();
+			}
 /*			
 			QVec graspPosition = innerModel->transform("room", "right_shoulder_grasp_pose");
 			graspPosition(1) = 0;
@@ -196,11 +229,8 @@ void SpecificWorker::manageReachedObjects()
 				qFatal("dededcef or4j ");
 			}
 			QString name = QString::fromStdString(node->toString());
-			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 			if (node->identifier == 11)
-			{
-				rDebug2(("graspingAgent mug (%s) distance %f") % name.toStdString().c_str() % d2n);
-			}
+			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
@@ -211,16 +241,16 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STOPS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-					rDebug2(("object %d no-reach") % node->identifier);
+// 					rDebug2(("object %d no-reach") % node->identifier);
 				}
-				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD-schmittTriggerThreshold)
+				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD/*-schmittTriggerThreshold*/)
 				{
 					edge->setLabel("reach");
 					printf("___ %s ___\n", edge->getLabel().c_str());
 					printf("object %d STARTS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-					rDebug2(("object %d reach") % node->identifier);
+// 					rDebug2(("object %d reach") % node->identifier);
 				}
 			}
 		}
@@ -229,11 +259,7 @@ void SpecificWorker::manageReachedObjects()
 	/// Publish new model if changed
 	if (changed)
 	{
-		printf("PUBLISH!!!!\n");
-		printf("PUBLISH!!!!\n");
-		printf("PUBLISH!!!!\n");
-		printf("PUBLISH!!!!\n");
-		printf("PUBLISH!!!!\n");
+		printf("PUBLISH!!!! version%d\n", newModel->version);
 		sendModificationProposal(newModel, worldModel, m);
 	}
 }
@@ -326,7 +352,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("The executive is probably not running, waiting for first AGM model publication...");
 	}
 
-	timer.start(Period);
+	timer.start(20);
 	return true;
 }
 
@@ -397,41 +423,35 @@ bool SpecificWorker::reloadConfigAgent()
 }
 
 void SpecificWorker::changeInner ()
-{	
+{
 	if (innerViewer)
 	{
-		//borra innermodel dentro de InnerModelViewer
-		osgView->getRootGroup()->removeChild(innerViewer);
+		osgView->getRootGroup()->removeChild(innerViewer);				
 	}
-	innerModel = AGMInner::extractInnerModel(worldModel, "world");
-	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
-	innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 
+	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
 }
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modification)
 {
 	QMutexLocker locker(mutex);
 
+	printf("me llega 1 %d\n", modification.version);
 	AGMModelConverter::fromIceToInternal(modification, worldModel);
+	printf("me llega 2 %d\n", worldModel->version);
 	
-#ifdef USE_QTGUI
-	changeInner();
-#else
-
 	if (innerModel) delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world");
-#endif
+	changeInner();
 }
 
+	
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	QMutexLocker locker(mutex);
 
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-#ifdef USE_QTGUI
 	changeInner( );
-#endif
 }
 
 void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
@@ -551,7 +571,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("action %s") % action.c_str() );
+// 		rDebug2(("action %s") % action.c_str() );
 	}
 
 
@@ -567,7 +587,7 @@ void SpecificWorker::actionExecution()
 	{
 		if (not robotIsMoving())
 		{
-			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
+// 			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
 // 			action_GraspObject(newAction);
 		}
 	}
@@ -776,7 +796,7 @@ void SpecificWorker::action_GraspObject(bool first)
 					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
 					{
 						QMutexLocker locker(mutex);
-						rDebug2(("graspingAgent object %d grasped!") % symbols["object"]->identifier);
+// 						rDebug2(("graspingAgent object %d grasped!") % symbols["object"]->identifier);
 						sendModificationProposal(newModel, worldModel);
 					}
 				}
@@ -818,7 +838,7 @@ void SpecificWorker::leaveObjectSimulation()
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 		{
 			QMutexLocker locker(mutex);
-			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
+// 			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
 			sendModificationProposal(newModel, worldModel);
 		}
 	}
