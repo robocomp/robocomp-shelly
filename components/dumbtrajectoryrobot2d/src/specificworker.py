@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -17,19 +17,25 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-import sys, os, Ice, traceback, math
+import sys, os, Ice, traceback, time
+
+import math
 import numpy as np
 
 from PySide import *
 from genericworker import *
 
+sys.path.append('/opt/robocomp/classes/qlog')
+from qlog import qlog
+
 ROBOCOMP = ''
 try:
 	ROBOCOMP = os.environ['ROBOCOMP']
 except:
-	pass
+	print '$ROBOCOMP environment variable not set, using the default value /opt/robocomp'
+	ROBOCOMP = '/opt/robocomp'
 if len(ROBOCOMP)<1:
-	print 'ROBOCOMP environment variable not set! Exiting.'
+	print 'genericworker.py: ROBOCOMP environment variable not set! Exiting.'
 	sys.exit()
 
 
@@ -40,6 +46,8 @@ Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
 from RoboCompTrajectoryRobot2D import *
 Ice.loadSlice(preStr+"Laser.ice")
 from RoboCompLaser import *
+Ice.loadSlice(preStr+"Logger.ice")
+from RoboCompLogger import *
 
 
 from trajectoryrobot2dI import *
@@ -59,6 +67,9 @@ class SpecificWorker(GenericWorker):
 		self.collisions = 0
 		self.currentVel = [0,0,0]
 		self.hide()
+		self.log = qlog(self.logger, "both")
+
+		self.log.send("navigator started", "event")
 
 		self.state = NavState()
 		self.updateStatePose()
@@ -80,8 +91,10 @@ class SpecificWorker(GenericWorker):
 		target.rz = 0
 		self.state.state = 'IDLE'
 
+		self.backState = self.state.state
+		self.executingMsgTime = QtCore.QTime.currentTime()
 
-		self.Period = 50
+		self.Period = 100
 		self.timer.start(self.Period)
 		self.timer.timeout.connect(self.compute)
 
@@ -109,6 +122,13 @@ class SpecificWorker(GenericWorker):
 	def compute(self):
 		l = QtCore.QMutexLocker(self.mutex)
 
+		if self.backState != self.state.state:
+			self.log.send("to "+self.state.state + " from "+self.backState, "event")
+			self.backState = self.state.state
+
+
+
+
 		if self.state.state == 'IDLE':
 			pass
 		elif self.state.state == 'EXECUTING':
@@ -134,87 +154,74 @@ class SpecificWorker(GenericWorker):
 						errAlpha = 0
 					else:
 						errAlpha = self.relAng
-					
-				
-				proceed = True
-				if np.linalg.norm(command)<=400:
-					command = np.array([0.25*self.relErrX, 0.25*self.relErrZ])
+	
 				
 				if np.linalg.norm(errorVector)<=self.threshold and abs(errAlpha) < 0.15:
+					self.log.send("navigator stopped by threshold", "event")
 					print 'stop by threshold', self.threshold
-					proceed = False
-				else:
-					print np.linalg.norm(command), abs(errAlpha)
-			
-				if proceed:
-					maxspeed = 130.
-					if np.linalg.norm(command)<0.1:
-						command = np.array([0,0])
-					else:
-						speed = np.linalg.norm(command)
-						if speed > maxspeed: speed = maxspeed
-						command = command / (np.linalg.norm(command)/speed)
-					commandAlpha = saturate_minabs_BothSigns(errAlpha, 0.05, 0.3)
-					
-					print 'errAlpha', errAlpha
-					print 'relAng', self.relAng
-					dist = math.sqrt(self.relErrX*self.relErrX + self.relErrZ*self.relErrZ)
-					A = ''
-					B = ''
-					if dist > 1000:
-						A = 'L'
-						if abs(self.relAng) < 0.4:
-							# If the error is small, we can try to orient a little
-							# so we don't do anything here...
-							B = 'p'
-						elif abs(self.relAng) > 0.8: # If the error is too big, 
-							B = 'g'
-							if self.relAng < 0:
-								B += '>'
-								commandAlpha = -0.2
-							else:
-								B += '<'
-								commandAlpha = +0.2
-							if abs(self.relAng) > 1.5: # If the error is really too big, T=0
-								B += 'G'
-								command[0] = command[1] = 0
-						else:
-							B = 'm'
-							if errAlpha * self.relAng < 0: # if the signe differ
-								commandAlpha = 0
-								B += '!'
-							else:
-								B += '='
-					else:
-						A = 'C'
-						B = ''
-					print '==============', A, B
-
-
-					SEND = True
-
-					#laserData = self.laser_proxy.getLaserData()
-					#for l in laserData:
-						#if l.dist<200 and abs(l.angle)<0.78:
-							#self.collisions += 1
-							#self.currentVel = [0.7*x for x in self.currentVel]
-							#if SEND: self.omnirobot_proxy.setSpeedBase(self.currentVel[0], self.currentVel[1], self.currentVel[2])
-							#if self.collisions > 50:
-								#print '<Now IDLE  BY COLLISIONS!!!!'
-								#self.stop()
-								#self.state.state = 'IDLE'
-								#print 'Now IDLE>'
-							#return
-					#self.collisions = 0
-
-					self.currentVel = [command[0], command[1], commandAlpha]
-					print self.currentVel
-					if SEND: self.omnirobot_proxy.setSpeedBase(command[0], command[1], commandAlpha)
-				else:
 					print '<Now IDLE'
 					self.stop()
 					self.state.state = 'IDLE'
 					print 'Now IDLE>'
+				else:
+					print np.linalg.norm(command), abs(errAlpha)
+			
+				maxspeed = 130.
+				if np.linalg.norm(command)<=150:
+					maxspeed = 25.
+				if np.linalg.norm(command)<0.1:
+					command = np.array([0,0])
+				else:
+					speed = np.linalg.norm(command)
+					if speed > maxspeed: speed = maxspeed
+					command = command / (np.linalg.norm(command)/speed)
+				commandAlpha = saturate_minabs_BothSigns(errAlpha, 0.05, 0.3)
+						
+				print 'errAlpha', errAlpha
+				print 'relAng', self.relAng
+				dist = math.sqrt(self.relErrX*self.relErrX + self.relErrZ*self.relErrZ)
+
+				msge = ''
+				if dist > 1000:
+					msge += 'dist>1000 '
+					if abs(self.relAng) < 0.4: # Ang error small -> orient a little -> don't do anything here
+						msge += 'errAng<0.4 '
+					elif abs(self.relAng) > 0.8: # The error is too big. Saturate
+						commandAlpha = math.copysign(0.2, self.relAng)
+						if abs(self.relAng) > 1.5: # If the error is really too big, T=0
+							command[0] = command[1] = 0
+							msge += '0.8<errAng<1.5 ('+str(self.relAng)+') '
+						else:
+							sge += 'errAng>0.8 ('+str(self.relAng)+') '
+					else:
+						msge += '0.4<errAng<0.8 '
+						if errAlpha * self.relAng < 0: # if the sign differ
+							commandAlpha = 0
+				else:
+					msge += 'dist<1000 '
+
+				if self.executingMsgTime.elapsed() > 1000:
+					self.log.send(str(dist), "distance")
+					self.executingMsgTime = QtCore.QTime.currentTime()
+				print '==============', msge
+
+				SEND = True
+				#laserData = self.laser_proxy.getLaserData()
+				#for l in laserData:
+					#if l.dist<200 and abs(l.angle)<0.78:
+						#self.collisions += 1
+						#self.currentVel = [0.7*x for x in self.currentVel]
+						#if SEND: self.omnirobot_proxy.setSpeedBase(self.currentVel[0], self.currentVel[1], self.currentVel[2])
+						#if self.collisions > 50:
+							#print '<Now IDLE  BY COLLISIONS!!!!'
+							#self.stop()
+							#self.state.state = 'IDLE'
+							#print 'Now IDLE>'
+						#return
+				#self.collisions = 0
+				self.currentVel = [command[0], command[1], commandAlpha]
+				print self.currentVel
+				if SEND: self.omnirobot_proxy.setSpeedBase(command[0], command[1], commandAlpha)
 
 			except Ice.Exception, e:
 				traceback.print_exc()
@@ -237,13 +244,15 @@ class SpecificWorker(GenericWorker):
 	def goReferenced(self, target, xRef, zRef, threshold):
 		l = QtCore.QMutexLocker(self.mutex)
 		print 'goreferenced'
+		#self.backState = self.state.state
+		self.log.send("goReferenced", "event")
 		self.state.state = "EXECUTING"
 		self.target = target
 		self.xRef = float(xRef)
 		self.zRef = float(zRef)
 		self.threshold = threshold
-		if self.threshold < 20.:
-			self.threshold = 20.
+		if self.threshold < 10.:
+			self.threshold = 10.
 		
 		self.compute()
 		dist = math.sqrt(self.relErrX**2. + self.relErrZ**2.)
@@ -266,6 +275,7 @@ class SpecificWorker(GenericWorker):
 	def stop(self):
 		l = QtCore.QMutexLocker(self.mutex)
 		self.state.state = "IDLE"
+		self.log.send("stop navigator", "event")
 		print 'set STOP'
 		self.omnirobot_proxy.setSpeedBase(0,0,0)
 

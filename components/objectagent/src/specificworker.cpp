@@ -94,17 +94,7 @@ void SpecificWorker::compute()
 bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 {
 	bool object_found = false;
-	int protoObjectID, robotID, statusID;
-	AGMModelSymbol::SPtr symbolProtoObject;
-	
-	try
-	{
-		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, "table");
-	}
-	catch(...)
-	{
-		printf("graspingAgent: Couldn't retrieve action's parameters\n");
-	}
+// 	int robotID, statusID;
 	
 	
 	//Pipelining!!
@@ -115,57 +105,109 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	objectdetection_proxy->extractPolygon("plane");
 	int numclusters = 0;
 	objectdetection_proxy->euclideanClustering(numclusters);
-	objectdetection_proxy->reloadVFH("/home/robolab/robocomp/components/robocomp-shelly/files/objects/");
+	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
 	
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, "table");
+	}
+	catch(...)
+	{
+		printf("objectAgent: Couldn't retrieve action's parameters\n");
+		return false;
+	}
+	AGMModelSymbol::SPtr symbolProtoObject = symbols[objectToDetect];
+
 	
+	//if object located
 	if (objectdetection_proxy->findTheObject(objectToDetect) )
 	{
-		float x,y,z;
-		objectdetection_proxy->getPose(x, y, z);
+		float tx,ty,tz;
+		objectdetection_proxy->getPose(tx, ty, tz);
 		float rx, ry, rz;
 		objectdetection_proxy->getRotation(rx, ry, rz);
 		
 		object_found = true;
 		
-		//add to innermodel
-			
-// 		try
-// 		{
-// 			protoObjectID = newModel->getIdentifierByType("protoObject");
-// 		}
-// 		catch(...)
-// 		{
-// 			printf("No protoObject found, robot imagination fail. \n");
-// 			return false;
-// 		}
-// 		symbolProtoObject = newModel->getSymbol(protoObjectID);
+		//convert protoObject to object
+		symbolProtoObject->setType("object");
 		
-// 		QString protoObjectIMName  = QString::fromStdString(symbolProtoObject->getAttribute("imName"));
-		QString protoObjectIMName  = QString::fromStdString(symbols[objectToDetect]->getAttribute("imName"));
+		QVec positionObject = QVec::vec6(tx, ty, tz);
+		QMat rotationObject = Rot3D(rx, ry, rz);
 		
-		InnerModelNode *protoObjectIM = innerModel->getNode(protoObjectIMName);
+		//finding the table father to the object
+		AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbolProtoObject->identifier , "in");
+		QString tableIMName  = QString::fromStdString(symbolTable->getAttribute("imName"));
+		
+		//Calculating 
+		InnerModel *im = AGMInner::extractInnerModel(worldModel);
+		
+		QVec positionFromParent  = im->transform(tableIMName, positionObject, "rgbd");
+		QMat rotationRGBD2Parent = im->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
+		QVec rotation;
+		
+		rotation = (rotationRGBD2Parent * rotationObject).invert().extractAnglesR_min();
 
-// 		if (not protoObjectIM)
-// 		{
-// 			qDebug() << "Table's node doesnt exist in InnerModel";
-// 		}
-// 
-// 		InnerModelNode *parentNodeIM = protoObjectIM->parent;
-// 		
-// 		if (not parentNodeIM)
-// 		{
-// 			qDebug() << "Parent node doesnt exist in InnerModel";
-// 		}
-// 		
+		// COMPONEMOS LA POSE ENTERA:
+		QVec poseFromParent = QVec::zeros(6);
+		poseFromParent.inject(positionFromParent, 0);
+		poseFromParent.inject(rotation, 3);
+			
+		try
+		{
+			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolTable->identifier, symbolProtoObject->identifier, "RT");
+			edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
+			edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
+			edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
+			edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
+			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
+			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
+			
+			AGMInner::updateImNodeFromEdge(newModel, edgeRT, im);
+			rDebug2(("objectAgent edgeupdate for table"));
+		}
+		catch(...)
+		{
+			qFatal("Impossible to update the RT edge"); 
+		}
 		
-		//ADD POSE TO INERMODEL TODO
-		
-		// WARNING No, la pose mejor añadirla directamente en el modelo AGM dentro del enlace RT, con lo que sólo tienes que crear un enlace
-		// de este tipo entre la mesa y el objeto, y meter la información de la posición relativa dentro de los atributos.
+		try
+		{
+			//add mesh
+			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol ("mugMesh");
+			mugMesh->setAttribute("collidable", "true");
+			mugMesh->setAttribute("imName", "mugMesh");
+			mugMesh->setAttribute("imName", "mesh");
+			mugMesh->setAttribute("path", "/home/robocomp/robocomp/files/osgModels/objects/kitchen/cup.ive");
+			mugMesh->setAttribute("render", "NormalRendering");
+			mugMesh->setAttribute("scalex", "30");
+			mugMesh->setAttribute("scalex", "30");
+			mugMesh->setAttribute("scalex", "30");
+			//model offset
+			std::map<std::string, std::string> edgeRTMeshAtrs;
+			edgeRTMeshAtrs["tx"] = "100";
+			edgeRTMeshAtrs["ty"] = "0";
+			edgeRTMeshAtrs["tz"] = "300";
+			edgeRTMeshAtrs["rx"] = "1.5707";
+			edgeRTMeshAtrs["ry"] = "0";
+			edgeRTMeshAtrs["rz"] = "0";
+			newModel->addEdge(symbolProtoObject, mugMesh, "RT", edgeRTMeshAtrs);
+			rDebug2(("objectAgent edgeupdate for table"));
+		}
+		catch(...)
+		{
+			qFatal("Impossible to create the RT edge to the mug mesh"); 
+		}
+
+	}  
+	else //if not found remove protoObject
+	{
+		newModel->removeSymbol(symbolProtoObject->identifier);
 	}
-	
-// 	//Removing used Oracle
+
+		
 // 	try
 // 	{
 // 		robotID = newModel->getIdentifierByType("robot");
@@ -180,37 +222,14 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 
 	try
 	{
-		newModel->removeEdgeByIdentifiers(symbols["robot"], symbols["status", "usedOracle");
+		newModel->removeEdgeByIdentifiers(symbols["robot"], symbols["status"], "usedOracle");
 	}
 	catch(...)
 	{
 		printf("Oracle was not used, how do we even got here in the first place? \n");
 		return false;
 	}
-	
-	//Changing the protoObject to an object if found if not removing protoObject
-// 	try
-// 	{
-// 		protoObjectID = newModel->getIdentifierByType("protoObject");
-// 	}
-// 	catch(...)
-// 	{
-// 		printf("No protoObject found, robot imagination fail. \n");
-// 		return false;
-// 	}
-	// Lo mismo, de antes, el protoobject a modificar será un parámetro de la acción,
-	// con lo que puedes sacarlo de los parametros del plan
-	//Changing the protoObject to an object if found otherwise remove protoobject
-// 	if(object_found)
-	try
-	{
-		symbols["objectToDetect"]->setType("object");
-	}
-	catch(...)
-	{
-// 	else
-		newModel->removeSymbol(protoObjectID);
-	}
+
 	//publish changes
 	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
 	
