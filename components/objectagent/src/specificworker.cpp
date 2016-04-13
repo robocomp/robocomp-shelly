@@ -108,6 +108,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
 	
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 
 	try
 	{
@@ -219,10 +220,9 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 // 		return false;
 // 	}
 	// TODO Esto ya no hace falta con la nueva API de agm
-
 	try
 	{
-		newModel->removeEdgeByIdentifiers(symbols["robot"], symbols["status"], "usedOracle");
+		newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
 	}
 	catch(...)
 	{
