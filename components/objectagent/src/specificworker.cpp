@@ -97,6 +97,15 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	int protoObjectID, robotID, statusID;
 	AGMModelSymbol::SPtr symbolProtoObject;
 	
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, "table");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+	
 	
 	//Pipelining!!
 	objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
@@ -121,54 +130,57 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		
 		//add to innermodel
 			
-		try
-		{
-			protoObjectID = newModel->getIdentifierByType("protoObject");
-		}
-		catch(...)
-		{
-			printf("No protoObject found, robot imagination fail. \n");
-			return false;
-		}
-		symbolProtoObject = newModel->getSymbol(protoObjectID);
+// 		try
+// 		{
+// 			protoObjectID = newModel->getIdentifierByType("protoObject");
+// 		}
+// 		catch(...)
+// 		{
+// 			printf("No protoObject found, robot imagination fail. \n");
+// 			return false;
+// 		}
+// 		symbolProtoObject = newModel->getSymbol(protoObjectID);
 		
-		QString protoObjectIMName  = QString::fromStdString(symbolProtoObject->getAttribute("imName"));
+// 		QString protoObjectIMName  = QString::fromStdString(symbolProtoObject->getAttribute("imName"));
+		QString protoObjectIMName  = QString::fromStdString(symbols[objectToDetect]->getAttribute("imName"));
 		
 		InnerModelNode *protoObjectIM = innerModel->getNode(protoObjectIMName);
 
-		if (not protoObjectIM)
-		{
-			qDebug() << "Table's node doesnt exist in InnerModel";
-		}
-
-		InnerModelNode *parentNodeIM = protoObjectIM->parent;
-		
-		if (not parentNodeIM)
-		{
-			qDebug() << "Parent node doesnt exist in InnerModel";
-		}
+// 		if (not protoObjectIM)
+// 		{
+// 			qDebug() << "Table's node doesnt exist in InnerModel";
+// 		}
+// 
+// 		InnerModelNode *parentNodeIM = protoObjectIM->parent;
+// 		
+// 		if (not parentNodeIM)
+// 		{
+// 			qDebug() << "Parent node doesnt exist in InnerModel";
+// 		}
+// 		
 		
 		//ADD POSE TO INERMODEL TODO
 		
-
-		
+		// WARNING No, la pose mejor añadirla directamente en el modelo AGM dentro del enlace RT, con lo que sólo tienes que crear un enlace
+		// de este tipo entre la mesa y el objeto, y meter la información de la posición relativa dentro de los atributos.
 	}
 	
-	//Removing used Oracle
-	try
-	{
-		robotID = newModel->getIdentifierByType("robot");
-		statusID = newModel->getIdentifierByType("status");
-	}
-	catch(...)
-	{
-		printf("No robot or status symbols found!\n");
-		return false;
-	}
+// 	//Removing used Oracle
+// 	try
+// 	{
+// 		robotID = newModel->getIdentifierByType("robot");
+// 		statusID = newModel->getIdentifierByType("status");
+// 	}
+// 	catch(...)
+// 	{
+// 		printf("No robot or status symbols found!\n");
+// 		return false;
+// 	}
+	// TODO Esto ya no hace falta con la nueva API de agm
 
 	try
 	{
-		newModel->removeEdgeByIdentifiers(robotID, statusID, "usedOracle");
+		newModel->removeEdgeByIdentifiers(symbols["robot"], symbols["status", "usedOracle");
 	}
 	catch(...)
 	{
@@ -177,22 +189,28 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 	}
 	
 	//Changing the protoObject to an object if found if not removing protoObject
+// 	try
+// 	{
+// 		protoObjectID = newModel->getIdentifierByType("protoObject");
+// 	}
+// 	catch(...)
+// 	{
+// 		printf("No protoObject found, robot imagination fail. \n");
+// 		return false;
+// 	}
+	// Lo mismo, de antes, el protoobject a modificar será un parámetro de la acción,
+	// con lo que puedes sacarlo de los parametros del plan
+	//Changing the protoObject to an object if found otherwise remove protoobject
+// 	if(object_found)
 	try
 	{
-		protoObjectID = newModel->getIdentifierByType("protoObject");
+		symbols["objectToDetect"]->setType("object");
 	}
 	catch(...)
 	{
-		printf("No protoObject found, robot imagination fail. \n");
-		return false;
-	}
-	
-	//Changing the protoObject to an object if found otherwise remove protoobject
-	if(object_found)
-		symbolProtoObject->setType("object");
-	else
+// 	else
 		newModel->removeSymbol(protoObjectID);
-
+	}
 	//publish changes
 	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
 	
