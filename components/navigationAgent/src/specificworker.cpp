@@ -120,7 +120,7 @@ void SpecificWorker::compute( )
 void SpecificWorker::actionExecution()
 {
 	QMutexLocker locker(mutex);
-	qDebug()<<"ACTION: "<<QString::fromStdString(action);
+// 	qDebug()<<"ACTION: "<<QString::fromStdString(action);
 
 	static std::string previousAction = "";
 	bool newAction = (previousAction != action);
@@ -128,7 +128,7 @@ void SpecificWorker::actionExecution()
 	if (newAction)
 	{
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
-		rDebug2(("prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
+		rDebug2(("action %s") % action.c_str() );
 	}
 
 // 	try
@@ -175,7 +175,7 @@ void SpecificWorker::actionExecution()
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
-	printf("actionExecution>>\n");
+// 	printf("actionExecution>>\n");
 }
 
 void SpecificWorker::action_DetectPerson(bool newAction)
@@ -212,7 +212,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		printf("<<WORLD\n");
 		AGMModelPrinter::printWorld(worldModel);
 		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
+		if (worldModel->size() > 0) { exit(-1); }
 	}
 
 	// Get target
@@ -353,18 +353,36 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		printf("<<WORLD\n");
 		AGMModelPrinter::printWorld(worldModel);
 		printf("WORLD>>\n");
-		if (worldModel->size() > 0) {	exit(-1);  }
+		if (worldModel->size() > 0) { exit(-1); }
 	}
 
 	// Get target
 	int roomID, objectID, robotID;
 	try
 	{
-		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get())
+		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
 		{
 			roomID = symbols["room"]->identifier;
 			objectID =symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
+
+			try // If we can access the 'reach' edge for the object status the action
+			{   // is not really necessary. The planner is probably replanning.
+				worldModel->getEdgeByIdentifiers(objectID, symbols["status"]->identifier, "reach");
+				{
+					static QTime lastMsg = QTime::currentTime().addSecs(-1000);
+					if (lastMsg.elapsed() > 1000)
+					{
+						rDebug2(("navigationAgent ignoring action setObjectReach (object currently reached)"));
+						lastMsg = QTime::currentTime();
+						return;
+					}
+				}
+			}
+			catch(...)
+			{
+			}
+
 		}
 		else
 		{
@@ -478,7 +496,6 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
-	
 	//
 	// Get ODOMETRY and update it in the graph. If there's a problem talking to the robot's platform, abort
 	try
@@ -508,7 +525,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 
 		if (edge->getLabel() == "RT")
 		{
-			printf("%d ---[%s]---> %d\n", symbolPair.first, edge->getLabel().c_str(), symbolPair.second);
 			const string secondType = worldModel->getSymbol(symbolPair.first)->symbolType;
 			if (symbolPair.second == robotId and secondType == "room")
 			{
@@ -535,13 +551,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		robotIsActuallyInRoom = 5;
 	else
 		robotIsActuallyInRoom = 3;
-
-// 	for (const AGMModelEdge &edge : worldModel->edges)
-// 	{
-// 		if (edge->getSymbolPair().first == robotId and edge->getLabel() == "in")
-// 		{
-// 		}
-// 	}
 
 	if (roomId != robotIsActuallyInRoom)
 	{
@@ -576,11 +585,9 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
 					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
 				}
-				printf(".");
-				fflush(stdout);
 				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
 				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
-				rDebug2(("navigationAgent added new edge"));
+				rDebug2(("navigationAgent moved robot from room"));
 			}
 			catch (...)
 			{
@@ -598,7 +605,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		try
 		{
 			AGMModelEdge edge  = worldModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("%d ---[RT]---> %d  (%d\n", roomId, robotId, __LINE__);
+// 			printf("%d ---[RT]---> %d  (%d\n", roomId, robotId, __LINE__);
 			try
 			{
 				float bStatex = str2float(edge->getAttribute("tx"));
@@ -606,23 +613,23 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 				float bStatealpha = str2float(edge->getAttribute("ry"));
 				
 				// to reduce the publication frequency
-				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
+// 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
-					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
+// 					printf("\nUpdate odometry...\n");
+// 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
+// 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
 
 					edge->setAttribute("tx", float2str(bState.correctedX));
 					edge->setAttribute("tz", float2str(bState.correctedZ));
 					edge->setAttribute("ry", float2str(bState.correctedAlpha));
-					rDebug2(("navigationAgent edgeupdate"));
+					//rDebug2(("navigationAgent edgeupdate"));
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
-					printf("done\n");
+// 					printf("done\n");
 				}
-				printf(".");
-				fflush(stdout);
+// 				printf(".");
+// 				fflush(stdout);
 
 			}
 			catch (...)
@@ -648,17 +655,40 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 	static TimedList list(3000);
 	static RoboCompOmniRobot::TBaseState lastBaseState = bState;
 	
-	const float movX = abs(bState.x - lastBaseState.x);
-	const float movZ = abs(bState.z - lastBaseState.z);
+	const float movX = bState.x - lastBaseState.x;
+	const float movZ = bState.z - lastBaseState.z;
 	const float movA = abs(bState.alpha - lastBaseState.alpha);
 	const float mov = sqrt(movX*movX+movZ*movZ) + 20.*movA;
+// 	printf("add mov: %f\n", mov);
 	list.add(mov);
 	lastBaseState = bState;
+
 	
-	const std::string attrValue = float2str(list.getSum());
-	robot->setAttribute("movedInLastSecond", attrValue);
-	rDebug2(("navigationAgent nodeupdate"));
-	AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+	const float currentValue = list.getSum();
+// 	printf("sum: %f\n", currentValue);
+	bool setValue = true;
+	
+	static QTime lastSent = QTime::currentTime(); 
+	try
+	{
+		const float availableValue = str2float(robot->getAttribute("movedInLastSecond"));
+		const float ddiff = abs(currentValue-availableValue);
+		if (ddiff < 5 and lastSent.elapsed()<1000)
+		{
+			setValue = false;
+		}
+	}
+	catch(...)
+	{
+	}
+
+	if (setValue)
+	{
+		lastSent = QTime::currentTime();
+		const std::string attrValue = float2str(currentValue);
+		robot->setAttribute("movedInLastSecond", attrValue);
+		AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+	}
 }
 
 
@@ -691,7 +721,7 @@ void SpecificWorker::updateRobotsCognitiveLocation()
 	{
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		setIdentifierOfRobotsLocation(newModel, newLocation);
-		AGMModelPrinter::printWorld(newModel);
+// 		AGMModelPrinter::printWorld(newModel);
 		rDebug2(("navigationAgent moved from room %d to room %d") % currentLocation % newLocation );
 		sendModificationProposal(worldModel, newModel);
 	}
@@ -1152,7 +1182,16 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	{
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
 	}
-	catch(...)
+	catch(const RoboCompAGMExecutive::Locked &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+	}
+	catch(const Ice::Exception& e)
 	{
 		exit(1);
 	}

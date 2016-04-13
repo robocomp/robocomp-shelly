@@ -1,4 +1,6 @@
 
+sudo sudo
+
 #number of compiling threads
 N=3
 

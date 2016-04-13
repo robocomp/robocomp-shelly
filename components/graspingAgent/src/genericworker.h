@@ -83,9 +83,9 @@ public:
 	bool isActive() { return active; }
 	
 
-	JointMotorPrx jointmotor_proxy;
 	InverseKinematicsPrx inversekinematics_proxy;
 	LoggerPrx logger_proxy;
+	JointMotorPrx jointmotor_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;
