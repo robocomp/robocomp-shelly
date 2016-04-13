@@ -967,13 +967,19 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	///
 	///  Lift the hand if it's down, to avoid collisions
 	///
-	printf("altura mano %f\n", innerModel->transform("world", "right_shoulder_grasp_pose")(1));
-	if (first or innerModel->transform("world", "right_shoulder_grasp_pose")(1)<1500)
+	printf("hand's height: %f\n", innerModel->transform("world", "grabPositionHandR")(1));
+	if (first or innerModel->transform("world", "grabPositionHandR")(1)<1500)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
 		backAction = action;
-		if (first) printf("first time, set arm for manipulation\n");
-		else  printf("arm is down, set arm for manipulation\n");
+		if (first)
+		{
+			printf("first time, set arm for manipulation\n");
+		}
+		else
+		{
+			printf("arm is down, set arm for manipulation\n");
+		}
 		setRightArmUp_Reflex();
 	}
 
