@@ -75,10 +75,7 @@ void SpecificWorker::compute()
 
 	bool newAction = (previousAction != action);
 	if (newAction)
-	{
 		printf("New action: %s\n", action.c_str());
-		rDebug2(("objectAgent new action prev: (%s) new: (%s)") % previousAction.c_str() % action.c_str() );
-	}
 	if (action == "findobjectvisuallyintable")
 	{
 		action_FindObjectVisuallyInTable(newAction);
@@ -146,8 +143,8 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		//Calculating 
 		InnerModel *im = AGMInner::extractInnerModel(worldModel);
 		
-		QVec positionFromParent  = innerModel->transform(tableIMName, positionObject, "rgbd");
-		QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
+		QVec positionFromParent  = im->transform(tableIMName, positionObject, "rgbd");
+		QMat rotationRGBD2Parent = im->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
 		QVec rotation;
 		
 		rotation = (rotationRGBD2Parent * rotationObject).invert().extractAnglesR_min();
@@ -167,7 +164,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
 			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
 			
-			AGMInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
+			AGMInner::updateImNodeFromEdge(newModel, edgeRT, im);
 			rDebug2(("objectAgent edgeupdate for table"));
 		}
 		catch(...)
@@ -559,7 +556,7 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 			
 			AGMInner::updateImNodeFromEdge(newModel, edgeRT, innerModel);
 			AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-// 			rDebug2(("objectAgent edgeupdate for table"));
+			rDebug2(("objectAgent edgeupdate for table"));
 		}
 		catch(...){ qFatal("Impossible to update the RT edge"); }
 	}
@@ -663,7 +660,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						
 // 						qDebug() << "Updating edge!";
 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-// 						rDebug2(("objectAgent edgeupdate for mug"));
+						rDebug2(("objectAgent edgeupdate for mug"));
 					}
 					catch(...){ qFatal("Impossible to update the RT edge"); }
 				}
