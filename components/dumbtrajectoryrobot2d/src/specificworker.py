@@ -165,16 +165,16 @@ class SpecificWorker(GenericWorker):
 					print 'Now IDLE>'
 				else:
 					print np.linalg.norm(command), abs(errAlpha)
-			
-				maxspeed = 130.
-				if np.linalg.norm(command)<=150:
-					maxspeed = 25.
-				if np.linalg.norm(command)<0.1:
-					command = np.array([0,0])
-				else:
-					speed = np.linalg.norm(command)
-					if speed > maxspeed: speed = maxspeed
-					command = command / (np.linalg.norm(command)/speed)
+
+				speed = np.linalg.norm(command)*0.5
+				if speed>100:
+					speed = 100
+				elif np.linalg.norm(command)<150:
+					if speed > 25:
+						speed = 25
+					if speed < 10:
+						speed = 10
+				command = command / (np.linalg.norm(command)/speed)
 				commandAlpha = saturate_minabs_BothSigns(errAlpha, 0.05, 0.3)
 						
 				print 'errAlpha', errAlpha
@@ -200,8 +200,9 @@ class SpecificWorker(GenericWorker):
 				else:
 					msge += 'dist<1000 '
 
-				if self.executingMsgTime.elapsed() > 1000:
+				if self.executingMsgTime.elapsed() > 500:
 					self.log.send(str(dist), "distance")
+					self.log.send(str(np.linalg.norm(command)), "speed")
 					self.executingMsgTime = QtCore.QTime.currentTime()
 				print '==============', msge
 
@@ -245,7 +246,7 @@ class SpecificWorker(GenericWorker):
 		l = QtCore.QMutexLocker(self.mutex)
 		print 'goreferenced'
 		#self.backState = self.state.state
-		self.log.send("goReferenced", "event")
+		self.log.send("goReferenced " + str(target.x)+' '+str(target.y)+' '+str(target.ry)+' '+str(xRef)+' '+str(zRef), "event")
 		self.state.state = "EXECUTING"
 		self.target = target
 		self.xRef = float(xRef)
