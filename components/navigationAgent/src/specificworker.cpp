@@ -377,6 +377,8 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 						lastMsg = QTime::currentTime();
 						return;
 					}
+					printf("ask the platform to stop\n");
+					trajectoryrobot2d_proxy->stop();
 				}
 			}
 			catch(...)

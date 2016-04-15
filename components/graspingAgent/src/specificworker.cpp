@@ -67,6 +67,8 @@ SpecificWorker::~SpecificWorker()
 }
 void SpecificWorker::updateViewer()
 {
+	QTime cc;
+	cc = QTime::currentTime();
 	QMutexLocker locker(mutex);
 #ifdef USE_QTGUI
 	if (not innerModel) return;
@@ -86,10 +88,14 @@ void SpecificWorker::updateViewer()
 	osgView->autoResize();
 	osgView->frame();
 #endif
+	printf("updateViewer - %d\n", cc.elapsed());
 }
 
 void SpecificWorker::compute( )
 {
+	QTime ccc;
+	ccc = QTime::currentTime();
+
 	static bool first=true;
 	if (first)
 	{
@@ -112,7 +118,7 @@ void SpecificWorker::compute( )
 	}
 
 	QTime cc;
-	
+
 	cc = QTime::currentTime();
 	manageReachedObjects();
 	printf("manageReachedObjects - %d\n", cc.elapsed());
@@ -133,6 +139,7 @@ void SpecificWorker::compute( )
 #ifdef USE_QTGUI
 	updateViewer();
 #endif	
+	printf("compute - %d\n", ccc.elapsed());
 }
 
 
@@ -340,6 +347,8 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	QTime cc;
+	cc = QTime::currentTime();
 	QMutexLocker locker(mutex);
 
 	try
@@ -353,6 +362,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 	timer.start(20);
+	printf("setParams: %d\n", cc.elapsed());
 	return true;
 }
 
@@ -434,6 +444,8 @@ void SpecificWorker::changeInner ()
 
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modification)
 {
+	QTime cc;
+	cc = QTime::currentTime();
 	QMutexLocker locker(mutex);
 
 	printf("me llega 1 %d\n", modification.version);
@@ -443,41 +455,14 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	if (innerModel) delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world");
 	changeInner();
+	printf("structuralChange %d\n", cc.elapsed());
 }
 
 	
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	QMutexLocker locker(mutex);
-
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	changeInner( );
-}
-
-void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
-{
-	QMutexLocker lockIM(mutex);
-	for (auto modification : modifications)
-	{
-		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-		AGMModelEdge dst;
-		AGMModelConverter::fromIceToInternal(modification,dst);
-		AGMInner::updateImNodeFromEdge(worldModel, dst, innerModel);
-	}
-}
-
-void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
-{
-	QMutexLocker locker(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-	try
-	{
-		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
-	}
-	catch (...)
-	{
-		qDebug()<<"\n";
-	}
 }
 
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
@@ -487,6 +472,26 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 }
+
+void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
+{
+	QMutexLocker lockIM(mutex);
+	for (auto modification : modifications)
+	{
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+// 		AGMModelEdge dst;
+// 		AGMModelConverter::fromIceToInternal(modification,dst);
+		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
+	}
+}
+
+void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
+{
+	QMutexLocker locker(mutex);
+	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+	AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
+}
+
 
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
@@ -587,8 +592,8 @@ void SpecificWorker::actionExecution()
 	{
 		if (not robotIsMoving())
 		{
-// 			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
-// 			action_GraspObject(newAction);
+ 			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
+ 			action_GraspObject(newAction);
 		}
 	}
 
