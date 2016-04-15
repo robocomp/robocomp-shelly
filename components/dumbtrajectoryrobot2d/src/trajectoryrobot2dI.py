@@ -44,6 +44,7 @@ class TrajectoryRobot2DI(TrajectoryRobot2D):
 	def goBackwards(self, target, c):
 		return self.worker.goBackwards(target)
 	def stop(self, c):
+		print 'remote stop'
 		return self.worker.stop()
 	def goReferenced(self, target, xRef, zRef, threshold, c):
 		return self.worker.goReferenced(target, xRef, zRef, threshold)

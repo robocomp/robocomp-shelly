@@ -163,6 +163,7 @@ class SpecificWorker(GenericWorker):
 					self.stop()
 					self.state.state = 'IDLE'
 					print 'Now IDLE>'
+					return
 				else:
 					print np.linalg.norm(command), abs(errAlpha)
 
@@ -192,7 +193,7 @@ class SpecificWorker(GenericWorker):
 							command[0] = command[1] = 0
 							msge += '0.8<errAng<1.5 ('+str(self.relAng)+') '
 						else:
-							sge += 'errAng>0.8 ('+str(self.relAng)+') '
+							msge += 'errAng>0.8 ('+str(self.relAng)+') '
 					else:
 						msge += '0.4<errAng<0.8 '
 						if errAlpha * self.relAng < 0: # if the sign differ
