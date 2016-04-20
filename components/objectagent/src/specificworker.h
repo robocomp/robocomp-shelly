@@ -44,7 +44,7 @@ public:
 	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
 	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
-	bool detectAndLocateObject(std::string objectToDetect);
+	bool detectAndLocateObject(std::string objectToDetect, bool first);
 
 public slots:
 	void compute();

@@ -80,9 +80,9 @@ void SpecificWorker::compute()
 	{
 		action_FindObjectVisuallyInTable(newAction);
 	}
-	else if (action == "verify")
+	else if (action == "verifyimaginarymug")
 	{
-		if (detectAndLocateObject("stapler"))
+		if (detectAndLocateObject("mug", newAction))
 			printf("Found it!");
 		else
 			printf("Something went wrong, most prob some previous action did not executed well!");
@@ -91,25 +91,45 @@ void SpecificWorker::compute()
 	previousAction = action;
 }
 
-bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
+bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool first)
 {
+	static QTime waitTime;
+	if (first)
+		waitTime = QTime::currentTime();
 	bool object_found = false;
+	float tx,ty,tz,rx,ry,rz;
 // 	int robotID, statusID;
 	
+	if (!cb_simulation->isChecked())
+	{
+		printf("checking with real pipeline\n");
+		//Pipelining!!
+		objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
+		objectdetection_proxy->ransac("plane");
+		objectdetection_proxy->projectInliers("plane");
+		objectdetection_proxy->convexHull("plane");
+		objectdetection_proxy->extractPolygon("plane");
+		int numclusters = 0;
+		objectdetection_proxy->euclideanClustering(numclusters);
+		objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
+		
+
+		object_found = objectdetection_proxy->findTheObject(objectToDetect);
+		if (object_found){
+			objectdetection_proxy->getPose(tx, ty, tz);
+			objectdetection_proxy->getRotation(rx, ry, rz);
+		}
+	}
+	else{
+		printf("fake detection\n");
+		object_found = cb_mug->isChecked();
+		tx = ty = tz = 0;
+		rx = ry = rz = 0;
+	}
 	
-	//Pipelining!!
-	objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
-	objectdetection_proxy->ransac("plane");
-	objectdetection_proxy->projectInliers("plane");
-	objectdetection_proxy->convexHull("plane");
-	objectdetection_proxy->extractPolygon("plane");
-	int numclusters = 0;
-	objectdetection_proxy->euclideanClustering(numclusters);
-	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
-	
+
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
-
 	try
 	{
 		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, "table");
@@ -119,19 +139,12 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		printf("objectAgent: Couldn't retrieve action's parameters\n");
 		return false;
 	}
-	AGMModelSymbol::SPtr symbolProtoObject = symbols[objectToDetect];
-
-	
 	//if object located
-	if (objectdetection_proxy->findTheObject(objectToDetect) )
+	if (object_found )
 	{
-		float tx,ty,tz;
-		objectdetection_proxy->getPose(tx, ty, tz);
-		float rx, ry, rz;
-		objectdetection_proxy->getRotation(rx, ry, rz);
-		
-		object_found = true;
-		
+	
+		printf("Object found\n");
+		AGMModelSymbol::SPtr symbolProtoObject = symbols[objectToDetect];
 		//convert protoObject to object
 		symbolProtoObject->setType("object");
 		
@@ -203,32 +216,23 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect)
 		}
 
 	}  
-	else //if not found remove protoObject
+	else if (waitTime.elapsed() > 10000) //if not found remove protoObject
 	{
-		newModel->removeSymbol(symbolProtoObject->identifier);
+		newModel->removeSymbol(symbols[objectToDetect]->identifier);
+		newModel->removeSymbol(symbols["status"]->identifier);
+		newModel->removeDanglingEdges();
+		try
+		{
+			newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+		}
+		catch(...)
+		{
+			printf("Oracle was not used, how do we even got here in the first place? \n");
+		}
+		return false;
 	}
 
 		
-// 	try
-// 	{
-// 		robotID = newModel->getIdentifierByType("robot");
-// 		statusID = newModel->getIdentifierByType("status");
-// 	}
-// 	catch(...)
-// 	{
-// 		printf("No robot or status symbols found!\n");
-// 		return false;
-// 	}
-	// TODO Esto ya no hace falta con la nueva API de agm
-	try
-	{
-		newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
-	}
-	catch(...)
-	{
-		printf("Oracle was not used, how do we even got here in the first place? \n");
-		return false;
-	}
 
 	//publish changes
 	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
