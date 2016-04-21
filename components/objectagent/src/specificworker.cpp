@@ -82,10 +82,25 @@ void SpecificWorker::compute()
 	}
 	else if (action == "verifyimaginarymug")
 	{
-		if (detectAndLocateObject("mug", newAction))
-			printf("Found it!");
-		else
-			printf("Something went wrong, most prob some previous action did not executed well!");
+		try
+		{
+			if (detectAndLocateObject("mug", newAction))
+				printf("Found it!\n");
+			else
+				printf("No object found!\n");
+		}
+		catch(RoboCompAGMExecutive::Locked )
+		{
+			printf("AGMMisc::locked \n");
+		}
+		catch(RoboCompAGMExecutive::OldModel )
+		{
+			printf("AGMMisc::OldModel \n");
+		}
+		catch(RoboCompAGMExecutive::InvalidChange )
+		{
+			printf("AGMMisc::InvalidChange \n");
+ 		}
 	}
 
 	previousAction = action;
@@ -93,93 +108,114 @@ void SpecificWorker::compute()
 
 bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool first)
 {
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	QVec poseFromParent;
 	static QTime waitTime;
+	bool retValue = false;
 	if (first)
 		waitTime = QTime::currentTime();
 	bool object_found = false;
-	float tx,ty,tz,rx,ry,rz;
-// 	int robotID, statusID;
+	bool publishModel = false;
 	
-	if (!cb_simulation->isChecked())
-	{
-		printf("checking with real pipeline\n");
-		//Pipelining!!
-		objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
-		objectdetection_proxy->ransac("plane");
-		objectdetection_proxy->projectInliers("plane");
-		objectdetection_proxy->convexHull("plane");
-		objectdetection_proxy->extractPolygon("plane");
-		int numclusters = 0;
-		objectdetection_proxy->euclideanClustering(numclusters);
-		objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
-		
-
-		object_found = objectdetection_proxy->findTheObject(objectToDetect);
-		if (object_found){
-			objectdetection_proxy->getPose(tx, ty, tz);
-			objectdetection_proxy->getRotation(rx, ry, rz);
-		}
-	}
-	else{
-		printf("fake detection\n");
-		object_found = cb_mug->isChecked();
-		tx = ty = tz = 0;
-		rx = ry = rz = 0;
-	}
-	
-
-	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
-		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, "table");
+		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, objectToDetect+"St", "table");
 	}
 	catch(...)
 	{
 		printf("objectAgent: Couldn't retrieve action's parameters\n");
 		return false;
 	}
+	
+	if (!cb_simulation->isChecked())
+	{
+		printf("checking with real pipeline\n");
+		//Pipelining!!
+		try
+		{
+			objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
+			objectdetection_proxy->ransac("plane");
+			objectdetection_proxy->projectInliers("plane");
+			objectdetection_proxy->convexHull("plane");
+			objectdetection_proxy->extractPolygon("plane");
+			int numclusters = 0;
+			objectdetection_proxy->euclideanClustering(numclusters);
+			objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
+			
+			object_found = objectdetection_proxy->findTheObject(objectToDetect);
+		}catch(...)
+		{
+			printf("Imposible to connect to objectdetection \n");
+			return false;
+		}
+		if (object_found)
+		{
+			float tx=0,ty=0,tz=0,rx=0,ry=0,rz=0;
+			try
+			{
+				objectdetection_proxy->getPose(tx, ty, tz);
+				objectdetection_proxy->getRotation(rx, ry, rz);
+				
+			}
+			catch(...)
+			{
+				printf("Imposible to connect to objectdetection \n");
+				return false;
+			}
+
+			AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbols[objectToDetect]->identifier , "RT");
+			QString tableIMName = QString::fromStdString(symbolTable->getAttribute("imName"));
+			QVec positionObject = QVec::vec6(tx, ty, tz);
+			QMat rotationObject = Rot3D(rx, ry, rz);
+			QVec positionFromParent  = innerModel->transform(tableIMName, positionObject, "rgbd");
+			QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
+			QVec rotation;
+			rotation = (rotationRGBD2Parent * rotationObject).invert().extractAnglesR_min();
+			poseFromParent = QVec::zeros(6);
+			poseFromParent.inject(positionFromParent, 0);
+			poseFromParent.inject(rotation, 3);
+		}
+		
+	}
+	else{
+		printf("fake detection\n");
+		object_found = cb_mug->isChecked();
+		poseFromParent = QVec::vec6(0,97,0,0,0,0);
+	}
+	
+	
+	try
+	{
+		newModel->getEdge(symbols["robot"], symbols["status"], "usedOracle");
+	}
+	catch(...)
+	{
+		printf("The oracle has already been used\n");
+		return false;
+	}
+	
 	//if object located
 	if (object_found )
 	{
-	
 		printf("Object found\n");
 		AGMModelSymbol::SPtr symbolProtoObject = symbols[objectToDetect];
 		//convert protoObject to object
 		symbolProtoObject->setType("object");
-		
-		QVec positionObject = QVec::vec6(tx, ty, tz);
-		QMat rotationObject = Rot3D(rx, ry, rz);
+		symbolProtoObject->setAttribute("imName", std::string("object_")+int2str(symbolProtoObject->identifier));
 		
 		//finding the table father to the object
-		AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbolProtoObject->identifier , "in");
-		QString tableIMName  = QString::fromStdString(symbolTable->getAttribute("imName"));
-		
-		//Calculating 
-		InnerModel *im = AGMInner::extractInnerModel(worldModel);
-		
-		QVec positionFromParent  = im->transform(tableIMName, positionObject, "rgbd");
-		QMat rotationRGBD2Parent = im->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
-		QVec rotation;
-		
-		rotation = (rotationRGBD2Parent * rotationObject).invert().extractAnglesR_min();
-
-		// COMPONEMOS LA POSE ENTERA:
-		QVec poseFromParent = QVec::zeros(6);
-		poseFromParent.inject(positionFromParent, 0);
-		poseFromParent.inject(rotation, 3);
-			
+		AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbolProtoObject->identifier , "RT");
 		try
 		{
 			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolTable->identifier, symbolProtoObject->identifier, "RT");
+			poseFromParent.print("poseFromParent");
 			edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
 			edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 			edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 			edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
 			edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
-			
-			AGMInner::updateImNodeFromEdge(newModel, edgeRT, im);
 			rDebug2(("objectAgent edgeupdate for table"));
 		}
 		catch(...)
@@ -189,24 +225,33 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		
 		try
 		{
+			// The oracle has been used, remove flagS
+			try
+			{
+				newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+			}
+			catch(...)
+			{
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+			}
 			//add mesh
-			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol ("mugMesh");
+			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol("mugMesh");
 			mugMesh->setAttribute("collidable", "true");
-			mugMesh->setAttribute("imName", "mugMesh");
-			mugMesh->setAttribute("imName", "mesh");
-			mugMesh->setAttribute("path", "/home/robocomp/robocomp/files/osgModels/objects/kitchen/cup.ive");
+			mugMesh->setAttribute("imName", std::string("mesh_")+int2str(mugMesh->identifier));
+			mugMesh->setAttribute("imType", "mesh");
+			mugMesh->setAttribute("path", "/home/robocomp/robocomp/components/prp/experimentFiles/simulation/mug_blue.3ds");
 			mugMesh->setAttribute("render", "NormalRendering");
-			mugMesh->setAttribute("scalex", "30");
-			mugMesh->setAttribute("scalex", "30");
-			mugMesh->setAttribute("scalex", "30");
+			mugMesh->setAttribute("scalex", "100");
+			mugMesh->setAttribute("scaley", "100");
+			mugMesh->setAttribute("scalez", "100");
 			//model offset
 			std::map<std::string, std::string> edgeRTMeshAtrs;
-			edgeRTMeshAtrs["tx"] = "100";
-			edgeRTMeshAtrs["ty"] = "0";
-			edgeRTMeshAtrs["tz"] = "300";
-			edgeRTMeshAtrs["rx"] = "1.5707";
+			edgeRTMeshAtrs["tx"] = "0";
+			edgeRTMeshAtrs["ty"] = "-48.5";
+			edgeRTMeshAtrs["tz"] = "0";
+			edgeRTMeshAtrs["rx"] = "1.57079";
 			edgeRTMeshAtrs["ry"] = "0";
-			edgeRTMeshAtrs["rz"] = "0";
+			edgeRTMeshAtrs["rz"] = "3.141592";
 			newModel->addEdge(symbolProtoObject, mugMesh, "RT", edgeRTMeshAtrs);
 			rDebug2(("objectAgent edgeupdate for table"));
 		}
@@ -214,30 +259,59 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		{
 			qFatal("Impossible to create the RT edge to the mug mesh"); 
 		}
-
+		retValue = true;
+		publishModel = true;
 	}  
 	else if (waitTime.elapsed() > 10000) //if not found remove protoObject
 	{
-		newModel->removeSymbol(symbols[objectToDetect]->identifier);
-		newModel->removeSymbol(symbols["status"]->identifier);
-		newModel->removeDanglingEdges();
+		try
+		{
+			//AGMModelPrinter::printWorld(newModel);
+			int id = symbols[objectToDetect]->identifier;
+			newModel->removeSymbol(id);
+		}
+		catch(AGMModelException e)
+		{
+			printf("Can't remove %d symbol\n", symbols[objectToDetect]->identifier);
+			printf("ERROR: %s\n", e.what());
+		}
+		catch(...)
+		{
+			printf("Can't remove %d symbol\n", symbols[objectToDetect]->identifier);
+		}
+		try
+		{
+			newModel->removeSymbol(symbols[objectToDetect+"St"]->identifier);
+		}
+		catch(...)
+		{
+			printf("Can't remove %d symbol\n", symbols[objectToDetect+"St"]->identifier);
+		}
 		try
 		{
 			newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
 		}
 		catch(...)
 		{
+			printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+		}
+		try
+		{
+			newModel->removeDanglingEdges();
+		}
+		catch(...)
+		{
 			printf("Oracle was not used, how do we even got here in the first place? \n");
 		}
-		return false;
+		publishModel = true;
 	}
 
-		
-
 	//publish changes
-	AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
-	
-	return true;
+	if (publishModel)
+	{
+		AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
+	}
+	return retValue;
 }
 
 
