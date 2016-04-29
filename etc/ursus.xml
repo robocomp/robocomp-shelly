@@ -7,7 +7,7 @@
 			<laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" />
 		</transform>
 		<transform id="laserPose2" tx="0" ty="370" tz="240" rx="0" >
-			<laser id="laser2" measures="100" min="100" max="30000" angle="4.2" port="10003" />
+			<transform id="laser2" />
 		</transform>
 
 
