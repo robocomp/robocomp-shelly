@@ -68,7 +68,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		}
 		else
 			qFatal("Exiting now.");
-	}catch(std::exception e) {
+	}
+	catch(std::exception e)
+	{
 		qFatal("Error reading Innermodel param");
 	}
 #ifdef USE_QTGUI
@@ -84,13 +86,11 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	QString motorsR, motorsL, motorsH;
 	QStringList	auxiliar_motor_list;
 
-	tipR = QString::fromStdString(params["RIGHTTIP"].value); /// READ THE RIGHT ARM'S TIP
-	tipL = QString::fromStdString(params["LEFTTIP"].value);  /// READ THE LEFT ARM'S TIP
+	tipR = QString::fromStdString(params["ARMTIP"].value); /// READ THE RIGHT ARM'S TIP
 	qDebug() << "RIGHT TIP" << tipR;
 	tipH = QString::fromStdString(params["HEADTIP"].value);  /// READ THE HEAD'S TIP
 
-	motorsR = QString::fromStdString(params["RIGHTARM"].value); /// READ THE RIGHT ARM'S MOTORS
-	motorsL = QString::fromStdString(params["LEFTARM"].value);  /// READ THE LEFT ARM'S MOTORS
+	motorsR = QString::fromStdString(params["ARM"].value); /// READ THE RIGHT ARM'S MOTORS
 	motorsH = QString::fromStdString(params["HEAD"].value);     /// READ THE HEAD'S MOTORS
 
 	qDebug() << "RIGHT MOTORS" << motorsR;
@@ -102,17 +102,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			auxiliar_motor_list.push_back(motor);
 			qDebug() << motor;
 		}
-		availableParts.push_back("RIGHTARM");
-		bodyParts.insert("RIGHTARM", BodyPart("RIGHTARM",tipR, auxiliar_motor_list));	/// PUT THE LIST INTO THE BODY'S PART
-		auxiliar_motor_list.clear();
-	}
-	if(motorsL.size()>2 and motorsL!="EMPTY" and tipL.size()>2 and tipL!="EMPTY")
-	{
-		for (auto motor : motorsL.split(";", QString::SkipEmptyParts))
-			auxiliar_motor_list.push_back(motor);
-
-		availableParts.push_back("LEFTARM");
-		bodyParts.insert("LEFTARM", BodyPart("LEFTARM",tipL, auxiliar_motor_list));		/// PUT THE LIST INTO THE BODY'S PART
+		availableParts.push_back("ARM");
+		bodyParts.insert("ARM", BodyPart("ARM",tipR, auxiliar_motor_list));	/// PUT THE LIST INTO THE BODY'S PART
 		auxiliar_motor_list.clear();
 	}
 	if(motorsH.size()>2 and motorsH!="EMPTY" and tipH.size()>2 and tipH!="EMPTY")
