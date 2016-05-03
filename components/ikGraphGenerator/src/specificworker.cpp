@@ -18,9 +18,10 @@
  */
 #include "specificworker.h"
 
-#define MAX_SPEED 0.7
+#define MAX_SPEED 4
+// #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 50
+#define STEP_DISTANCE 100
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -154,8 +155,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
 		throw;
 	}
-	/*timer.start(10);*/	
- 	initFile();
+	timer.start(10);	
+//  	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
@@ -225,9 +226,9 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( 50, 400);
-	yrange = std::pair<float, float>( 750, 1100);
-	zrange = std::pair<float, float>( 180, 450);
+	xrange = std::pair<float, float>( -300, 300);
+	yrange = std::pair<float, float>( 600, 1400);
+	zrange = std::pair<float, float>( 100, 800);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 // 	float XR = abs(xrange.second - xrange.first);
@@ -277,10 +278,8 @@ void SpecificWorker::initGenerate()
 			}
 		}
 	}
-	printf("inc %d\n", included);
-
 	int rec = 0;
-	if (not goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, rec))
+	if (not goAndWait(0, 850, 600, -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);
@@ -361,7 +360,7 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 #endif
 		}
 	}
-	usleep(20000);
+	usleep(2000);
 	//sleep(1);
 }
 
@@ -391,7 +390,6 @@ bool SpecificWorker::goAndWait(int nodeId, MotorGoalPositionList &mpl, int &recu
  * ------------------------------------------------------*/
 bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPositionList &mpl, int &recursive)
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
 	RoboCompInverseKinematics::Pose6D target;
 	target.x = x;
 	target.y = y;
@@ -406,7 +404,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	else
 		target.rx = -0.3;
 	target.rx = 0;
-
+	
+	
 // 	float relx = (x - xrange.first) / (xrange.second - xrange.first);
 // 	if (relx < 0.33)
 // 		target.ry = -1.8;
@@ -437,22 +436,43 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	target.rz = 0;
 
+	printf("%s: %d\n", __FILE__, __LINE__);
+
 	WeightVector weights;
  	weights.x = weights.y = weights.z = 1;
- 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.1;
+ 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.0;
  	else weights.rx = weights.ry = weights.rz = 0;
 
-	int targetId = inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+	printf("%s: %d\n", __FILE__, __LINE__);
+	int targetId;
+	try
+	{
+		targetId = inversekinematics_proxy->setTargetPose6D("ARM", target, weights);
+	}
+	catch (...)
+	{
+		printf("err 0\n");
+	}
+	printf("%s: %d\n", __FILE__, __LINE__);
 
 	TargetState stt;
 	QTime initialTime = QTime::currentTime();
 	do
 	{
 		usleep(10000);
-		stt = inversekinematics_proxy->getTargetState("RIGHTARM", targetId);
+		try
+		{
+			stt = inversekinematics_proxy->getTargetState("ARM", targetId);
+		}
+		catch (...)
+		{
+			printf("err\n");
+		}
 		if (stt.finish == true)
 			break;
 	} while (initialTime.elapsed()<15000);
+
+	printf("%s: %d\n", __FILE__, __LINE__);
 
 #ifdef USE_QTGUI
 	{
@@ -460,6 +480,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 		innerVisual->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	}
 #endif
+
+	printf("%s: %d\n", __FILE__, __LINE__);
 
 	mpl.resize(0);
 	for (auto gp : stt.motors)
@@ -579,12 +601,12 @@ void SpecificWorker::computeHard()
 		MotorGoalPositionList configuration;
 		int de;
 		int recursive = 0;
-		for (de=0; de < 5 and not goAndWait(nodeSrc, configuration, recursive); de++)
+		for (de=0; de < 2 and not goAndWait(nodeSrc, configuration, recursive); de++)
 		{
 			int d=0;
-			goAndWait(180+(rand()%40), 780+(rand()%40), 300+(rand()%40), -1, centerConfiguration, d);
+			goAndWait(0, 780+(rand()%40), 400+(rand()%40), -1, centerConfiguration, d);
 		}
-		if (de == 5)
+		if (de == 2)
 		{
 			qDebug() << "Couldn't reach target: skipping node" << nodeSrc;
 			nodeDst = -1;
@@ -596,7 +618,7 @@ void SpecificWorker::computeHard()
 #ifdef USE_QTGUI
 		InnerModelDraw::setPlaneTexture(innerViewer, id, "#00ff00");
 #endif
-		QVec elbowPose = innerModel->transform("robot", "rightElbow");
+		QVec elbowPose = innerModel->transform("robot", "arm_elbow");
 		graph->vertices[nodeSrc].setElbowPose(elbowPose(0), elbowPose(1), elbowPose(2));
 		graph->vertices[nodeSrc].configurations.push_back(configuration);
 		currentConfiguration = configuration;
@@ -715,7 +737,7 @@ void SpecificWorker::compute()
 			state = GIK_GoToActualTargetSend;
 			waitForMotorsToStop();
 			qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";
-			sleep(2);
+			usleep(2000);
 		}
 	break;
 	//--------------------------------------------------------------------------------------------------//
@@ -723,14 +745,14 @@ void SpecificWorker::compute()
 	
 		qDebug()<<"SEND---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
 		try {
-			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
+			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("ARM", currentTarget.pose, currentTarget.weights);
 			state = GIK_GoToActualTargetSent;
 		}
 		catch (Ice::Exception e){ qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();}
 	break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSent:
-		TargetState stt = inversekinematics_proxy->getTargetState("RIGHTARM", currentTarget.id_IK);
+		TargetState stt = inversekinematics_proxy->getTargetState("ARM", currentTarget.id_IK);
 		if (stt.finish == true)
 		{
 			qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
@@ -763,7 +785,7 @@ void SpecificWorker::compute()
 // 						updateFrame(500000);
 // 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 // #endif
-				usleep(500000);
+				usleep(50000);
 			}
 			qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
 			updateInnerModel();
@@ -867,7 +889,7 @@ void WorkerThread::run()
 	while (true)
 	{
 		((SpecificWorker*)data)->computeHard();
-		usleep(10000);
+		usleep(1000);
 	}
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -899,7 +921,7 @@ void SpecificWorker::goIK()
 	currentTarget.weights.x  = currentTarget. weights.y = currentTarget.weights.z  = 1;
 	currentTarget.weights.rx = currentTarget.weights.ry = currentTarget.weights.rz = 0.1;
 
-	setTargetPose6D("RIGHTARM", currentTarget.pose, currentTarget.weights);
+	setTargetPose6D("ARM", currentTarget.pose, currentTarget.weights);
 #endif
 }
 
@@ -910,33 +932,33 @@ void SpecificWorker::goIK()
  * ----------------------------------------------*/
 void SpecificWorker::goHome()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
-	MotorGoalPositionList listGoals;
-	listGoals.resize(7);
-	listGoals[0].name     = "rightShoulder1";
-	listGoals[0].position = -2.7;
-	listGoals[1].name     = "rightShoulder2";
-	listGoals[1].position = -0.2;
-	listGoals[2].name     = "rightShoulder3";
-	listGoals[2].position = 1.5;
-	listGoals[3].name     = "rightElbow";
-	listGoals[3].position = 0.4;
-	listGoals[4].name   = "rightForeArm";
-	listGoals[4].position = -1.;
-	listGoals[5].name = "rightWrist1";
-	listGoals[5].position = 0.;
-	listGoals[6].name = "rightWrist2";
-	listGoals[6].position = 0.;
-
-	for (int i=0; i<7; i++)
-	{
-		listGoals[i].maxSpeed = MAX_SPEED;
-	}
-
-	jointmotor_proxy->setSyncPosition(listGoals);
 // 	printf("%s: %d\n", __FILE__, __LINE__);
-// 	qFatal("home?\n");
-	usleep(20000);
+// 	MotorGoalPositionList listGoals;
+// 	listGoals.resize(7);
+// 	listGoals[0].name     = "rightShoulder1";
+// 	listGoals[0].position = -2.7;
+// 	listGoals[1].name     = "rightShoulder2";
+// 	listGoals[1].position = -0.2;
+// 	listGoals[2].name     = "rightShoulder3";
+// 	listGoals[2].position = 1.5;
+// 	listGoals[3].name     = "rightElbow";
+// 	listGoals[3].position = 0.4;
+// 	listGoals[4].name   = "rightForeArm";
+// 	listGoals[4].position = -1.;
+// 	listGoals[5].name = "rightWrist1";
+// 	listGoals[5].position = 0.;
+// 	listGoals[6].name = "rightWrist2";
+// 	listGoals[6].position = 0.;
+// 
+// 	for (int i=0; i<7; i++)
+// 	{
+// 		listGoals[i].maxSpeed = MAX_SPEED;
+// 	}
+// 
+// 	jointmotor_proxy->setSyncPosition(listGoals);
+// 	usleep(20000);
+	printf("%s: %d\n", __FILE__, __LINE__);
+	qFatal("home?\n");
 }
 
 
@@ -1221,7 +1243,7 @@ void SpecificWorker::waitForMotorsToStop()
 {
 	MotorStateMap allMotorsCurr, allMotorsBack;
 	jointmotor_proxy->getAllMotorState(allMotorsBack);
-	usleep(500000);
+	usleep(50000);
 
 	while(true)
 	{
@@ -1232,7 +1254,7 @@ void SpecificWorker::waitForMotorsToStop()
 			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.05)
 			{
 				allMotorsBack = allMotorsCurr;
-				usleep(500000);
+				usleep(50000);
 				break;
 			}
 		}

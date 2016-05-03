@@ -289,10 +289,11 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION";	}
 
 // 			if(incrementos.norm2() <= 0.0001)   ///Too small increments
-			if(incrementos.norm2() <= 0.001)   ///Too small increments
+			if(incrementos.norm2() <= 0.0001)   ///Too small increments
 			{
 				//stop = true;
 				smallInc = true;
+				printf("inc %f\n", incrementos.norm2());
 				bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_INCS);
 				break;
 			}
@@ -432,13 +433,16 @@ QStringList InversedKinematic::checkMotors()
 {
 	QStringList motors;
 	QVec weights = bodypart->getTargetList().head().getTargetWeight();
-	if(weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
+	if (weights.rx()==0 and weights.ry()==0 and weights.rz()==0)
 	{
-		for(int i=0; i<bodypart->getMotorList().size()-3; i++)
+		for(int i=0; i<bodypart->getMotorList().size(); i++)
+		{
 			motors<<bodypart->getMotorList()[i];
+		}
 	}
 	else
+	{
 		motors = bodypart->getMotorList();
-
+	}
 	return motors;
 }

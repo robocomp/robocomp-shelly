@@ -49,7 +49,7 @@ public:
 	~Target	();
 	
 	Target 				operator=(Target target);
-	int					getTargetIdentifier			();
+	inline int					getTargetIdentifier();
 	QString				getTargetNameInInnerModel	();
 	TargetType			getTargetType				();
 	TargetState			getTargetState				();

@@ -56,7 +56,10 @@ void InverseKinematicsI::stop(const string  &bodyPart, const Ice::Current&)
 
 int InverseKinematicsI::setTargetPose6D(const string  &bodyPart, const Pose6D  &target, const WeightVector  &weights, const Ice::Current&)
 {
-	return worker->setTargetPose6D(bodyPart, target, weights);
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+	int r = worker->setTargetPose6D(bodyPart, target, weights);
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+	return r;
 }
 
 bool InverseKinematicsI::getPartState(const string  &bodyPart, const Ice::Current&)

@@ -91,16 +91,11 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 	configGetString("", "InnerModel", aux.value,"");
 	params["InnerModel"] = aux;
 
-	configGetString("", "RIGHTARM", aux.value,"");
-	params["RIGHTARM"] = aux;
-	configGetString("", "RIGHTTIP", aux.value,"");
-	params["RIGHTTIP"] = aux;
-	
-	configGetString("", "LEFTARM", aux.value,"");
-	params["LEFTARM"] = aux;
-	configGetString("", "LEFTTIP", aux.value,"");
-	params["LEFTTIP"] = aux;
-	
+	configGetString("", "ARM", aux.value,"");
+	params["ARM"] = aux;
+	configGetString("", "ARMTIP", aux.value,"");
+	params["ARMTIP"] = aux;
+		
 	configGetString("", "HEAD", aux.value,"");
 	params["HEAD"] = aux;
 	configGetString("", "HEADTIP", aux.value,"");

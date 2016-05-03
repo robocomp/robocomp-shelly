@@ -67,7 +67,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			//Metric::moveInnerModelFromMillimetersToMeters(innermodel->getRoot()); /// CONVERT THE METRIC
 		}
 		else
-			qFatal("Exiting now.");
+			qFatal("Exiting now: %s does not exist.", par.value.c_str());
 	}
 	catch(std::exception e)
 	{
@@ -106,6 +106,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		bodyParts.insert("ARM", BodyPart("ARM",tipR, auxiliar_motor_list));	/// PUT THE LIST INTO THE BODY'S PART
 		auxiliar_motor_list.clear();
 	}
+
 	if(motorsH.size()>2 and motorsH!="EMPTY" and tipH.size()>2 and tipH!="EMPTY")
 	{
 		for (auto motor : motorsH.split(";", QString::SkipEmptyParts))
@@ -131,7 +132,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */
 void SpecificWorker::compute()
 {
-	if (UPDATE_READY == true)	updateInnerModel();
+	if (UPDATE_READY == true)
+	{
+		updateInnerModel();
+	}
 
 	QMap<QString, BodyPart>::iterator partsIterator;
 	for(partsIterator = bodyParts.begin(); partsIterator != bodyParts.end(); ++partsIterator)
@@ -189,6 +193,8 @@ void SpecificWorker::compute()
  */
 int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target, const WeightVector &weights)
 {
+	QMutexLocker locker(mutex);
+
 	QString partName = QString::fromStdString(bodyPart);
 	if (!bodyParts.contains(partName))
 	{
@@ -214,19 +220,30 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
 	qDebug() << "----------------------------------------------------------------------------------";
 	
-	if(weights_.rx()!=0 and weights_.ry()!=0 and weights_.rz()!=0)
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
+	if (weights_.rx()!=0 and weights_.ry()!=0 and weights_.rz()!=0)
 	{
-		QVec weights_aux 		= QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
-		Target newTarget_aux	= Target(0, pose_, weights_aux, true, Target::TargetType::POSE6D); //Sin rotacion
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+		QVec weights_aux     = QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+		Target newTarget_aux = Target(0, pose_, weights_aux, true, Target::TargetType::POSE6D); //Sin rotacion
 		
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		QMutexLocker locker(mutex);
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		bodyParts[partName].addTargetToList(newTarget_aux);
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	}
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //Con rotacion o sin ella
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	
-	QMutexLocker locker(mutex);
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	bodyParts[partName].addTargetToList(newTarget_); //cambia el identificador del target
-	return newTarget_.getTargetIdentifier(); //devolvemos con rotacion
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+	int ret = newTarget_.getTargetIdentifier(); //devolvemos con rotacion
+	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
+	return ret;
 }
 
 /**
@@ -308,6 +325,7 @@ int SpecificWorker::setTargetAdvanceAxis(const string &bodyPart, const Axis &ax,
  */
 bool SpecificWorker::getPartState(const string &bodyPart)
 {
+	QMutexLocker locker(mutex);
 	QString partName =QString::fromStdString(bodyPart);
 	if(!bodyParts.contains(partName))
 	{
@@ -316,7 +334,6 @@ bool SpecificWorker::getPartState(const string &bodyPart)
 		ex.text = "Not recognized body part: "+bodyPart;
 		throw ex;
 	}
-	QMutexLocker locker(mutex);
 	return bodyParts[partName].getTargetList().isEmpty();
 }
 
