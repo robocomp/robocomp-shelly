@@ -11,15 +11,13 @@
   <simulation hookes="0.07" springlength="0.5" friction="0.4" step="0.5" fieldforce="20000.0" />
  </generalInformation>
 
-
- 
- <node alias="slam" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 11059">
+ <node alias="CGR" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12010">
   <dependence alias="laser" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 gmapping /home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp ./bin/gmappingComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/gmapping.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 gmappingComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/gmapping.conf" />
+  <upCommand command="rcremote 10.0.30.11 cgr /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR ./bin/CGRc --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/CGR.conf" />
+  <downCommand command="ssh robolab@10.0.30.11 killall -9 CGRc" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/CGR.conf" />
   <xpos value="-80.4363580949" />
   <ypos value="76.4569169771" />
   <radius value="10.0" />
@@ -105,7 +103,7 @@
  </node>
 
  <node alias="localization" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 15542">
-  <dependence alias="slam" />
+  <dependence alias="CGR" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 stblOdom /home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry ./bin/stableOdometry --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/stableodometry.conf" />
@@ -206,8 +204,8 @@
  </node>
 
  <node alias="comJoint" endpoint="jointmotor:tcp -h 10.0.30.11 -p 20000">
-  <dependence alias="dynamixel" />
   <dependence alias="faulhaber" />
+  <dependence alias="dynamixel" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/ursusCommon.conf" />
   <downCommand command="rcremote 10.0.30.11 X / killall -9 ursuscommonjointcomp" />
@@ -228,7 +226,6 @@
   <radius value="10.0" />
   <color value="#FF3333" />
  </node>
-
 
  <node alias="dynamixel" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10068">
   <workingDir path="/home/robocomp/" />

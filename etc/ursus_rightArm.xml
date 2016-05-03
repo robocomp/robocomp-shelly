@@ -3,7 +3,6 @@
 	<transform id="arm_right_1" tx="174" tz="1220" ry="1.5707963267948966" rz="1.5707963267948966">
 		<!--Gira en Z -->
 		<mesh id="arm_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo1.ive" rz="0" tz="-55" ty="-30" scale="1000" collide="1" />
-		<transform id="chapuza_vil" rz="0.11"> <!--7.6 cm in the tip-->
 			<joint id="rightShoulder1" port="10067" axis="z" min="-3.14" max="0.54" home="-0.1">
 				<mesh id="shoulder_right_1_mesh" file="/home/robocomp/robocomp/files/osgModels/robexarm/brazo2.ive" rz="0" tz="0" scale="1000" collide="1" />
 				<transform id="arm_right_2" tz="41" rx="1.5707963267948966">
@@ -98,7 +97,6 @@
 					</joint>
 				</transform>
 			</joint>
-		</transform>
 	</transform>
 	<!-- Right Arm End -->
 </innerModel>
