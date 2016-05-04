@@ -499,13 +499,19 @@ void SpecificWorker::updateInnerModel()
 		try
 		{
 			for (i=0; i<partsIterator.value().getMotorList().size(); i++)
+			{
 				mList.push_back(partsIterator.value().getMotorList()[i].toStdString());
-
+// 				printf("e lista %s\n", partsIterator.value().getMotorList()[i].toStdString().c_str());
+			}
 			RoboCompJointMotor::MotorStateMap mMap = jointmotor_proxy->getMotorStateMap(mList);
 
 			for (j=0; j<partsIterator.value().getMotorList().size(); j++)
+			{
 				innermodel->updateJointValue(partsIterator.value().getMotorList()[j], mMap.at(partsIterator.value().getMotorList()[j].toStdString()).pos);
-		}catch (const Ice::Exception &ex) {
+			}
+		}
+		catch (const Ice::Exception &ex)
+		{
 			cout<<"--> Excepción en actualizar InnerModel: (i,j)"<<": "<<i<<"," <<j<<" "<<ex<<endl;
 		}
 	}

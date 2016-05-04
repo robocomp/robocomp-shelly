@@ -21,7 +21,7 @@
 #define MAX_SPEED 4
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 100
+#define STEP_DISTANCE 50
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -226,9 +226,9 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -300, 300);
-	yrange = std::pair<float, float>( 600, 1400);
-	zrange = std::pair<float, float>( 100, 800);
+	xrange = std::pair<float, float>( -150, 150);
+	yrange = std::pair<float, float>(  750, 950);
+	zrange = std::pair<float, float>(  450, 800);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 // 	float XR = abs(xrange.second - xrange.first);
@@ -342,7 +342,6 @@ void SpecificWorker::updateInnerModel()
  * ------------------------------------------------------*/
 void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
 	static MotorGoalPositionList last;
 	if (mpl == last)
 	{
@@ -415,13 +414,16 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 // 		target.ry = -0.47;
 
 
-	if (x < 50)
-		target.ry = -1.5;
-	else if (x > 400)
-		target.ry = 0;
-	else
-		target.ry = -0.785398163397448;
-	
+// 	if (x < 50)
+// 		target.ry = -1.5;
+// 	else if (x > 400)
+// 		target.ry = 0;
+// 	else
+// 		target.ry = -0.785398163397448;
+
+	target.rx = 0;
+	target.ry = 0;
+	target.rz = 0;
 
 // 	float relz = (z - zrange.first) / (zrange.second - zrange.first);
 // 	if (relz < 0.33)
@@ -436,14 +438,16 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 
 	target.rz = 0;
 
-	printf("%s: %d\n", __FILE__, __LINE__);
 
 	WeightVector weights;
  	weights.x = weights.y = weights.z = 1;
- 	if (recursive==0) weights.rx = weights.ry = weights.rz = 0.0;
- 	else weights.rx = weights.ry = weights.rz = 0;
+	weights.rx = weights.ry = weights.rz = 0;
+ 	if (recursive==0)
+	{
+		weights.rx = 0.1;
+	}
+ 	
 
-	printf("%s: %d\n", __FILE__, __LINE__);
 	int targetId;
 	try
 	{
@@ -453,7 +457,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	{
 		printf("err 0\n");
 	}
-	printf("%s: %d\n", __FILE__, __LINE__);
 
 	TargetState stt;
 	QTime initialTime = QTime::currentTime();
@@ -472,7 +475,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 			break;
 	} while (initialTime.elapsed()<15000);
 
-	printf("%s: %d\n", __FILE__, __LINE__);
 
 #ifdef USE_QTGUI
 	{
@@ -481,7 +483,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	}
 #endif
 
-	printf("%s: %d\n", __FILE__, __LINE__);
 
 	mpl.resize(0);
 	for (auto gp : stt.motors)
@@ -577,7 +578,6 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
  * ------------------------------------------------------*/
 void SpecificWorker::computeHard()
 {
-	printf("%s: %d\n", __FILE__, __LINE__);
 	static bool stop=false;
 	static int nodeSrc=-1;
 	static int nodeDst=-1;

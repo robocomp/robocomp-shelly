@@ -134,21 +134,45 @@ void SpecificWorker::compute( )
 	usleep(50000);
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
+	RoboCompJointMotor::MotorStateMap mMap;
 	try
 	{
-		RoboCompJointMotor::MotorStateMap mMap;
 		jointmotor0_proxy->getAllMotorState(mMap); 
-		//mapeamos la posicion de los motores y actualizamos el innerModel
-		for (auto j : mMap)
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Excepción en actualizar InnerModel: 0 (DYNAMIXEL)\n" << ex.what();
+	}
+	for (auto j : mMap)
+	{
+		try
+		{
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
-	}catch (const Ice::Exception &ex){ cout<<"--> Excepción en actualizar InnerModel: 0 (DYNAMIXEL)";}
+		}
+		catch (...)
+		{
+			cout << "--> exception uptading " << j.first << endl;
+		}
+	}
 	try
 	{
-		RoboCompJointMotor::MotorStateMap mMap;
 		jointmotor1_proxy->getAllMotorState(mMap);
-		for (auto j : mMap)
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Excepción en actualizar InnerModel: 1 (FAULHABER)\n" << ex.what();
+	}
+	for (auto j : mMap)
+	{
+		try
+		{
 			innerModel->updateJointValue(QString::fromStdString(j.first), j.second.pos);
-	}catch (const Ice::Exception &ex){ cout<<"--> Excepción en actualizar InnerModel: 1 (FAULHABER)";}
+		}
+		catch (...)
+		{
+			cout << "--> exception uptading " << j.first << endl;
+		}
+	}
 
 #ifdef USE_QTGUI
 	if (imv) imv->update();
