@@ -4,7 +4,7 @@
 	<omnirobot id="robot" port="12238" >
 		<!-- laser position -->
 		<transform id="laserPose" tx="0" ty="370" tz="240" rx="0" >
-<!-- 			<laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" /> -->
+ 			<laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" />
 		</transform>
 
 		<!-- some meshes useful for avoiding colliding with its own body -->
