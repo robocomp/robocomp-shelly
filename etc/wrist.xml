@@ -1,0 +1,44 @@
+<innerModel>
+	<transform id="arm_crane_5" tz="0" >
+		<transform id="ThandMesh2_pre" ty="25" tz= "55" >
+			<transform id="grabPositionHandR">
+				<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
+				<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" />
+			</transform>
+		</transform>
+
+		<transform id="arm_crane_8" tx="20" tz="95" >
+			<mesh id="finger_crane_1_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="0" tz="-22" scale="20"   />
+			<joint id="gripperFinger1" port="10067" min="-1.5707963267948966" max="0" axis="y" home="0" >
+				<mesh id="finger_crane_1_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="12" scale="18,5,5"   />
+				<transform id="finger_crane_1_1_pre" tx="30" ty="12" ry="0.7"  >
+					<mesh id="finger_crane_1_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30"   />
+					<transform id="finger_crane_1_2_pre" tx="25" ry="-0.4"  >
+						<mesh id="finger_crane_1_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   />
+					</transform>
+				</transform>
+				<mesh id="finger_crane_1_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="-12" scale="18,5,5"   />
+				<transform id="finger_crane_1_3_pre" tx="30" ty="-12" ry="0.7"  >
+					<mesh id="finger_crane_1_mesh6" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30"   />
+					<transform id="finger_crane_1_4_pre" tx="25" ry="-0.4"  >
+						<mesh id="finger_crane_1_mesh7" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   />
+
+					</transform>
+				</transform>
+			</joint>
+		</transform>
+
+		<transform id="arm_crane_9" tx="-20" tz="95" >
+			<mesh id="finger_crane_2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="0" tz="-22" scale="20" />
+			<joint id="gripperFinger2" port="10067" min="0" max="1.5707963267948966" axis="y" home="0" >
+				<mesh id="finger_crane_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="-18" scale="-18,5,5" />
+				<transform id="finger_crane_2_1_pre" tx="-30" ry="-0.7"  >
+					<mesh id="finger_crane_2_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30" />
+					<transform id="finger_crane_2_2_pre" tx="-25" ry="0.40"  >
+						<mesh id="finger_crane_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" />
+					</transform>
+				</transform>
+			</joint>
+		</transform>
+	</transform>
+</innerModel>

@@ -1,0 +1,51 @@
+﻿<innerModel>
+	<!-- <axes id="sl3" /> -->
+	
+	<omnirobot id="robot" port="12238" >
+		<!-- laser position -->
+		<transform id="laserPose" tx="0" ty="370" tz="240" rx="0" >
+<!-- 			<laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" /> -->
+		</transform>
+
+		<!-- some meshes useful for avoiding colliding with its own body -->
+		<transform id="monitor_pose" ty="1150" tz="60" rx="-0.1"  >
+			<plane id="monitor_mesh" size="340,270,50" texture="#222266"  collide="1" />
+		</transform>
+		<transform id="caja_pose" ty="330" tz="-120" >
+			<plane id="caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
+		</transform>
+
+		<!-- 'ideal' grasp position of the robot for its right arm -->
+		<transform id="right_shoulder_grasp_pose" tx="100" ty="900" tz="400">
+<!-- 			<axes id="dewetrteuj53" /> -->
+		</transform>
+
+
+		<transform  id="base_trans" >
+			<transform id="cameraAprilPosition" tx="0" ty="945" tz="-245">
+				<rotation id="cameraAprilRotation" rx="0" rx="-1.570796326794" rz="3.14159265359">
+					<camera id="RGBCeiling" focal="746.20" />
+				</rotation>
+			</transform>
+
+			<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"  tx="0" ty="10" tz="0" rx="1.5707963267949" scale="1000" collide="1" />
+<!-- 			<mesh id="base_mesh" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/RoCKIn@home/world/omnibase2.3ds" tx="0" ty="10" tz="0" rx="1.5707963267949" scale="100" collide="1"/> -->
+			<transform id="base_body" rx="-1.5707963267948966" ty="0" tz="0" >
+				<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" tx="-150" ty="0" tz="1180" ry="-1.5707963267948966" scale="1000" collide="1" />
+				<mesh id="barracuello" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracuello.ive" tx="0" ty="0" tz="1165" rx="3.14159265359" scale="1000" collide="1" />
+				<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/robexarm/barracolumna.osg" tx="30" ty="-15" tz="1165" rz="1.5707963267948966" scale="850" collide="1" />
+
+				<transform id="base_bodypost" rx="1.5707963267948966" ty="0" tz="0" >
+					<!-- head -->
+					<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_head.xml"/>
+				</transform>
+
+				<!-- left arm -->
+				<transform id="arm_crane_1" ty="-100" tz="900" >
+					<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_arm.xml"/>
+				</transform>
+
+			</transform>
+		</transform>
+	</omnirobot>
+</innerModel>
