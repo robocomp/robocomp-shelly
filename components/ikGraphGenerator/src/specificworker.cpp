@@ -21,7 +21,7 @@
 #define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 35
+#define STEP_DISTANCE 100
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -228,7 +228,7 @@ void SpecificWorker::initGenerate()
 
 	xrange = std::pair<float, float>( -200, 200);
 	yrange = std::pair<float, float>(  700, 1200);
-	zrange = std::pair<float, float>(  350, 800);
+	zrange = std::pair<float, float>(  400, 800);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 // 	float XR = abs(xrange.second - xrange.first);

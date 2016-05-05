@@ -4,12 +4,12 @@
 		<transform id="arm_crane_2" rx="1.5707963267948966">
 			<joint id="armX1" port="10068"  axis="x" min="-1.0" max="0" home="0" >
 				<mesh id="arm_crane_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="100" scale="20,20,125" />
-				<transform id="arm_elbow" tz="250">
+				<transform id="arm_elbow" tz="300">
 					<mesh id="arm_crane_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds" tz="0" scale="50,30,30" />
 					<joint id="armX2" port="10068" axis="x"  min="-2.5" max="2.5" home="0.15" >
 						<mesh id="arm_crane_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="125" scale="15,15,125" />
 						<transform id="arm_wrist" tz="200">
-							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/wrist.xml" />
+							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_wrist.xml" />
 						</transform>
 					</joint>
 				</transform>
