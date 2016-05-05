@@ -173,7 +173,7 @@ void SpecificWorker::initFile()
 	try
 	{
 		//graph = new ConnectivityGraph("ursus.ikg");
-ºº		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/shelly.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/shelly.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
