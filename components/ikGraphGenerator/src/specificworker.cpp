@@ -18,10 +18,10 @@
  */
 #include "specificworker.h"
 
-#define MAX_SPEED 4
+#define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 50
+#define STEP_DISTANCE 35
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -226,9 +226,9 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -150, 150);
-	yrange = std::pair<float, float>(  750, 950);
-	zrange = std::pair<float, float>(  450, 800);
+	xrange = std::pair<float, float>( -200, 200);
+	yrange = std::pair<float, float>(  700, 1200);
+	zrange = std::pair<float, float>(  350, 800);
 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 // 	float XR = abs(xrange.second - xrange.first);
@@ -584,7 +584,7 @@ void SpecificWorker::computeHard()
 	static MotorGoalPositionList currentConfiguration;
 
 	if (stop) return;
-	printf("=======================================\n");
+	printf("======================================= %d\n", nodeDst);
 	if (nodeDst == graph->size() or nodeDst == -1)
 	{
 		nodeSrc++;
@@ -596,6 +596,11 @@ void SpecificWorker::computeHard()
 #endif
 			graph->save("aqui.ikg");
 			stop = true;
+			printf("laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+			printf("laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+			printf("laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+			printf("laaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa\n");
+			exit(0);
 			return;
 		}
 		MotorGoalPositionList configuration;
@@ -673,12 +678,12 @@ void SpecificWorker::computeHard()
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
+	QMutexLocker l(mutex);
   
 	if (not READY) return;
 	static int tick = 0;
 	if (tick++ % 10 != 0) return;
 
-	QMutexLocker l(mutex);
 	updateFrame(10);
 	updateInnerModel();
 

@@ -119,7 +119,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	QMutexLocker lock(mutex);
 	INITIALIZE_READY = true;
 
-	timer.start(Period);
+	timer.start();
 	return true;
 }
 
