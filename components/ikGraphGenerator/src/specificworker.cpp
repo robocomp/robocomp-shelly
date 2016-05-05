@@ -21,7 +21,7 @@
 #define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 100
+#define STEP_DISTANCE 50
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -155,8 +155,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
 		throw;
 	}
-	timer.start(10);	
-//  	initFile();
+	timer.start(10);
+	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
@@ -173,8 +173,7 @@ void SpecificWorker::initFile()
 	try
 	{
 		//graph = new ConnectivityGraph("ursus.ikg");
-		//graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-ursus/components/ikGraphGenerator/ursus.ikg");
-		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/ursusRt.ikg");
+		graph = new ConnectivityGraph("/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/shelly.ikg");
 		printf("Read graph: size=%d\n", graph->size());
 	}
 	catch(...)
@@ -226,9 +225,9 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -250,  250   + 1);
-	yrange = std::pair<float, float>(  650, 1250   + 1);
-	zrange = std::pair<float, float>(  450,  850   + 1);
+	xrange = std::pair<float, float>( -150,  150   + 1);
+	yrange = std::pair<float, float>(  750, 1050   + 1);
+	zrange = std::pair<float, float>(  400,  750   + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float step = STEP_DISTANCE;
