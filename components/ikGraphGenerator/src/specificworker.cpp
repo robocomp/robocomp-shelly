@@ -226,20 +226,11 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -200, 200);
-	yrange = std::pair<float, float>(  700, 1200);
-	zrange = std::pair<float, float>(  400, 800);
-	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
+	xrange = std::pair<float, float>( -250,  250   + 1);
+	yrange = std::pair<float, float>(  650, 1250   + 1);
+	zrange = std::pair<float, float>(  450,  850   + 1);
+// 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
-// 	float XR = abs(xrange.second - xrange.first);
-// 	float YR = abs(yrange.second - yrange.first);
-// 	float ZR = abs(zrange.second - zrange.first);
-// 	float max = MAX(MAX(XR, YR), ZR);
-// 	XR = XR/max;
-// 	YR = YR/max;
-// 	ZR = ZR/max;
-
-// 	float step = 0.5001*sqrt((CLOSE_DISTANCE*CLOSE_DISTANCE)/3.);
 	float step = STEP_DISTANCE;
 	uint32_t included=0;
 	graph = new ConnectivityGraph(0);
@@ -251,12 +242,6 @@ void SpecificWorker::initGenerate()
 			{
 
 				QVec pos = QVec::vec3(xpos, ypos, zpos);
-// 				QVec diff = center-pos;
-// 				diff(0) = abs(diff(0))/XR;
-// 				diff(1) = abs(diff(1))/YR;
-// 				diff(2) = abs(diff(2))/ZR;
-
-// 				if (diff.norm2() < 400)
 				{
 					graph->addVertex(ConnectivityGraph::VertexData());
 					QString id = QString("node_") + QString::number(included);
@@ -279,7 +264,7 @@ void SpecificWorker::initGenerate()
 		}
 	}
 	int rec = 0;
-	if (not goAndWait(0, 850, 600, -1, centerConfiguration, rec))
+	if (not goAndWait(0, 850, 700, -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);

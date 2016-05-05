@@ -8,11 +8,10 @@
 				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="150" scale="20,20,150" />
 				<transform id="arm_elbow" tz="300">
 					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" ry="1.5707963267948966" scale="30,30,35" />
-<!-- 					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds" tz="0" scale="50,30,30" /> -->
 					<joint id="armX2" port="10068" axis="x"  min="-2.5" max="2.5" home="0" >
 						<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="125" scale="15,15,125" />
 						<transform id="arm_wrist" tz="200">
-			<axes id="arm_axes" length="200" width="8" />
+<!-- 							<axes id="arm_axes" length="200" width="8" /> -->
 							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_wrist.xml" />
 						</transform>
 					</joint>
