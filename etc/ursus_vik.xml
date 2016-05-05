@@ -16,7 +16,7 @@
 <!--			<transform id="correctedMenosError" />-->
 		</transform>
 		
-		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/ursus.xml"/>
+		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
 
 
 </innerModel>
