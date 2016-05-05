@@ -1,14 +1,18 @@
 <innerModel>
-	<mesh id="arm_crane_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="30" />
-	<joint id="armY" port="10068" axis="z" min="-1" max="1" home="0">
-		<transform id="arm_crane_2" rx="1.5707963267948966">
+	<mesh id="shellyArm_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="45,45,50"  rx="1.5707963267948966"/>
+
+	<joint id="armY" port="10068" axis="y" min="-1" max="1" home="0">
+		<transform id="shellyArm_2" ty="100">
+			<mesh id="shellyArm_BASE2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,40" ry="1.5707963267948966"/>
 			<joint id="armX1" port="10068"  axis="x" min="-1.0" max="0" home="0" >
-				<mesh id="arm_crane_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="100" scale="20,20,125" />
+				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="150" scale="20,20,150" />
 				<transform id="arm_elbow" tz="300">
-					<mesh id="arm_crane_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds" tz="0" scale="50,30,30" />
-					<joint id="armX2" port="10068" axis="x"  min="-2.5" max="2.5" home="0.15" >
-						<mesh id="arm_crane_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="125" scale="15,15,125" />
+					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" ry="1.5707963267948966" scale="30,30,35" />
+<!-- 					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/sphere.3ds" tz="0" scale="50,30,30" /> -->
+					<joint id="armX2" port="10068" axis="x"  min="-2.5" max="2.5" home="0" >
+						<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="125" scale="15,15,125" />
 						<transform id="arm_wrist" tz="200">
+			<axes id="arm_axes" length="200" width="8" />
 							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_wrist.xml" />
 						</transform>
 					</joint>

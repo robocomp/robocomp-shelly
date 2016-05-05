@@ -220,29 +220,16 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	qDebug() << __FUNCTION__<< "New target arrived: " << partName << ". For target:" << pose_ << ". With weights: " << weights_;
 	qDebug() << "----------------------------------------------------------------------------------";
 	
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Not recognized body part";
 	if (weights_.rx()!=0 and weights_.ry()!=0 and weights_.rz()!=0)
 	{
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		QVec weights_aux     = QVec::vec6(1, 1, 1,       0, 0, 0); //Sin rotacion
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		Target newTarget_aux = Target(0, pose_, weights_aux, true, Target::TargetType::POSE6D); //Sin rotacion
-		
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		QMutexLocker locker(mutex);
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 		bodyParts[partName].addTargetToList(newTarget_aux);
-		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	}
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	Target newTarget_ = Target(0, pose_, weights_, false, Target::TargetType::POSE6D); //Con rotacion o sin ella
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
-	
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	bodyParts[partName].addTargetToList(newTarget_); //cambia el identificador del target
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	int ret = newTarget_.getTargetIdentifier(); //devolvemos con rotacion
-	qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	return ret;
 }
 

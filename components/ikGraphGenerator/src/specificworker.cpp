@@ -444,7 +444,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	weights.rx = weights.ry = weights.rz = 0;
  	if (recursive==0)
 	{
-		weights.rx = 0.1;
+		weights.rx = 0.3;
 	}
  	
 
