@@ -1,5 +1,5 @@
 <innermodel>
 	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
-	<include path="/home/robocomp/robocomp/components/prp/experimentFiles/simulation/autonomyLabModel-empty.xml"/>
+	<include path="/home/robocomp/robocomp/components/prp/experimentFiles/simulation/autonomyLabModel-kitchen.xml"/>
 </innermodel>
 
