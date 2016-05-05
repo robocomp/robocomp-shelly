@@ -1,6 +1,3 @@
-
-sudo sudo
-
 #number of compiling threads
 N=3
 
@@ -34,12 +31,12 @@ if [ $# -eq 0 ]; then
 	help
 fi
 
-if [ $1 -ne 1 ] && [ $1 -ne 2 ] && [ $1 -ne 3 ] && [ $1 -ne 0 ]; then
+if [ $1 -ne 1 ] && [ $1 -ne 2 ] && [ $1 -ne 3 ] && [ $1 -ne 0 ] && [ $1 -ne -1 ]; then
 	help
 fi
 
 
-
+sudo sudo 2> /dev/null
 
 ###
 ### Update repositories
@@ -112,10 +109,6 @@ fi
 ###
 
 # ALWAYS
-# april localization
-compile "april localization" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/aprilBasedPublish/"
-# manual localization 
-compile "manual localization" "/home/robocomp/robocomp/components/robocomp-shelly/components/manualLocalization"
 # joystickcomp
 compile "joystickcomp" "/home/robocomp/robocomp/components/robocomp-robolab/components/joystickOmniComp/"
 
@@ -124,60 +117,115 @@ compile "joystickcomp" "/home/robocomp/robocomp/components/robocomp-robolab/comp
 # NUC 1
 if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	echo "Compiling NUC1 components"
-	# cgr
-	compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/"
-	# stable odometry
+	sleep 1
+fi
+
+
+	
+	
+# gmapping
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "gmapping" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp/"
+fi
+# stable odometry
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
-	# trajectory
+fi
+# trajectory
+# if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	#compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
-	# laserRGBD
+# fi
+# laserRGBD
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
-	# base
+fi
+# base
+if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "baseursus" "/home/robocomp/robocomp/components/robocomp-shelly/components/baseursus/"
-	# ursuscommonjoint
+fi
+# ursuscommonjoint
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ursuscommonjoint" "/home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint/"
-	# dunker
+fi
+# dunker
+if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "dunker" "/home/robocomp/robocomp/components/robocomp-robolab/components/dunkermotorenComp"
-	# dynamixel
+fi
+# dynamixel
+if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "dynamixel" "/home/robocomp/robocomp/components/robocomp-robolab/components/dynamixelComp"
-	# faulhaber
+fi
+# faulhaber
+if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "faulhaber" "/home/robocomp/robocomp/components/robocomp-shelly/components/faulhaberComp"
-	# inversekinematics
+fi
+# inversekinematics
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ik" "/home/robocomp/robocomp/components/robocomp-shelly/components/inversekinematics"
-	# gik visual
+fi
+# gik visual
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gik" "/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/"
-	# ik visual
+fi
+# ik visual
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
-	# dumb trajectory
+fi
+# dumb trajectory
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
 fi
+
+
 
 # NUC 2
 if [ $1 -eq 2 ] || [ $1 -eq 0 ]; then
 	echo "Compiling NUC2 components"
-	# navigationAgent
-	compile "navigation agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/"
-	# proprioceptionAgent
-	compile "proprioceptionAgent agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/proprioceptionAgent/"
-	# graspingAgent
-	compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
-	# objectAgent
-	compile "object agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/"
-	# oracle
-	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/"
-	# human
-# 	compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
+	sleep 1
 fi
+
+# navigationAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "navigation agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/"
+fi
+# proprioceptionAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "proprioceptionAgent agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/proprioceptionAgent/"
+fi
+# graspingAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
+fi
+# objectAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "object agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/"
+fi
+# oracle
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/"
+fi
+# human
+# if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+# 	compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
+# fi
 
 
 # NUC 3
 if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 	echo "Compiling NUC3 components"
-	# primesense
+	sleep 1
+fi
+
+# primesense
+if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 	compile "primesense" "/home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD/"
-	# apriltags
+fi
+# apriltags
+if [ $1 -eq 3 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "apriltags" "/home/robocomp/robocomp/components/robocomp-robolab/components/apriltagsComp/"
-	# hokuyo
+fi
+# hokuyo
+if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 	compile "hokuyo" "/home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp"
 fi
 
