@@ -285,7 +285,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		{
 			try
 			{
-				QVec graspRef = innerModel->transform("robot", "right_shoulder_grasp_pose");
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
 				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
@@ -457,10 +457,10 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		{
 			try
 			{
-				QVec O = innerModel->transform("right_shoulder_grasp_pose", objectIMID);
+				QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
 				O.print("pose relativa");
 				printf("__%f__\n", O.norm2());
-				QVec graspRef = innerModel->transform("robot", "right_shoulder_grasp_pose");
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
 				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";

@@ -1,5 +1,11 @@
 <innerModel>
 	<mesh id="shellyArm_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="45,45,50"  rx="1.5707963267948966"/>
+	
+	<!-- 'ideal' grasp position of the robot for its right arm -->
+	<transform id="shellyArm_grasp_pose" tx="0" ty="200" tz="500">
+<!-- 			<axes id="dewetrteuj53" /> -->
+	</transform>
+
 
 	<joint id="armY" port="10068" axis="y" min="-1" max="1" home="0">
 		<transform id="shellyArm_2" ty="100">

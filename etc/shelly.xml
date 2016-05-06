@@ -15,10 +15,6 @@
 			<plane id="caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
 		</transform>
 
-		<!-- 'ideal' grasp position of the robot for its right arm -->
-		<transform id="right_shoulder_grasp_pose" tx="100" ty="900" tz="400">
-<!-- 			<axes id="dewetrteuj53" /> -->
-		</transform>
 
 
 		<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"                  tx="0"    ty="10"   tz="0"    rx="+1.5707963267949" scale="1000" collide="1" />

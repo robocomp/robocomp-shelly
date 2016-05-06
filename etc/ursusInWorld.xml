@@ -1,7 +1,0 @@
-<innerModel>
-		
-		<transform id="movableRoot"/>
-		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
-
-
-</innerModel>

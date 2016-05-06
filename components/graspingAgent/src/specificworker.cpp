@@ -109,7 +109,7 @@ void SpecificWorker::compute( )
 		if (not manualMode)
 		{
 			printf("Not in manual mode\n");
-			if (not innerModel->getNode("right_shoulder_grasp_pose"))
+			if (not innerModel->getNode("shellyArm_grasp_pose"))
 			{
 				printf("waiting for AGM*\n");
 				return;
@@ -199,11 +199,11 @@ void SpecificWorker::manageReachedObjects()
 			float d2n;
 			try
 			{
-				d2n = distanceToNode("right_shoulder_grasp_pose", newModel, node);
+				d2n = distanceToNode("shellyArm_grasp_pose", newModel, node);
 			}
 			catch(...)
 			{
-				printf("Ref: right_shoulder_grasp_pose: %p\n", (void *)innerModel->getNode("right_shoulder_grasp_pose"));
+				printf("Ref: shellyArm_grasp_pose: %p\n", (void *)innerModel->getNode("shellyArm_grasp_pose"));
 				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
 				exit(1);
 			}
@@ -214,7 +214,7 @@ void SpecificWorker::manageReachedObjects()
 				mapt[node->identifier] = QTime::currentTime();
 			}
 /*			
-			QVec graspPosition = innerModel->transform("room", "right_shoulder_grasp_pose");
+			QVec graspPosition = innerModel->transform("room", "shellyArm_grasp_pose");
 			graspPosition(1) = 0;
 			QVec obj = innerModel->transformS("room", node->getAttribute("imName"));
 			obj(1) = 0;
