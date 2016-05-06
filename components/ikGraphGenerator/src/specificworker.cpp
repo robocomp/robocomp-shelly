@@ -156,7 +156,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		throw;
 	}
 	timer.start(10);
-	initFile();
+// 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
@@ -227,7 +227,7 @@ void SpecificWorker::initGenerate()
 
 	xrange = std::pair<float, float>( -150,  150   + 1);
 	yrange = std::pair<float, float>(  750, 1050   + 1);
-	zrange = std::pair<float, float>(  400,  750   + 1);
+	zrange = std::pair<float, float>(  400,  700   + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float step = STEP_DISTANCE;
@@ -263,7 +263,8 @@ void SpecificWorker::initGenerate()
 		}
 	}
 	int rec = 0;
-	if (not goAndWait(0, 850, 700, -1, centerConfiguration, rec))
+// 	if (not goAndWait(0, 900, 560, -1, centerConfiguration, rec))
+	if (not goAndWait(0, 900, 700, -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);
@@ -428,7 +429,7 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	weights.rx = weights.ry = weights.rz = 0;
  	if (recursive==0)
 	{
-		weights.rx = 0.3;
+		weights.rx = 0.6;
 	}
  	
 
@@ -593,7 +594,7 @@ void SpecificWorker::computeHard()
 		for (de=0; de < 2 and not goAndWait(nodeSrc, configuration, recursive); de++)
 		{
 			int d=0;
-			goAndWait(0, 780+(rand()%40), 400+(rand()%40), -1, centerConfiguration, d);
+			goAndWait(0, 850, 550, -1, centerConfiguration, d);
 		}
 		if (de == 2)
 		{
