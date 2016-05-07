@@ -972,8 +972,8 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	///
 	///  Lift the hand if it's down, to avoid collisions
 	///
-	printf("hand's height: %f\n", innerModel->transform("world", "grabPositionHandR")(1));
-	if (first or innerModel->transform("world", "grabPositionHandR")(1)<1500)
+	printf("hand's height: %f\n", innerModel->transform("world", "shellyArm_grasp_pose")(1));
+	if (first or innerModel->transform("world", "shellyArm_grasp_pose")(1)<1500)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
 		backAction = action;
@@ -1011,7 +1011,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			float angleRRobot = atan2(poseRRobot.x(), poseRRobot.z());
 			printf("angulo relativa robot %f\n", angleRRobot);
 			// Get object's relative position from the yaw's perspective
-			QVec poseRYaw = innerModel->transformS("head_yaw_pose", goalObject->getAttribute("imName"));
+			QVec poseRYaw = innerModel->transformS("head_yaw_joint", goalObject->getAttribute("imName"));
 			poseRYaw.print("relativo al yaw");
 			float angleRYaw = atan2(poseRYaw.x(), poseRYaw.z());
 			printf("angulo relativa a la camara %f\n", angleRYaw);
@@ -1113,13 +1113,12 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 
 void SpecificWorker::setRightArmUp_Reflex()
 {
-	inversekinematics_proxy->setJoint("rightShoulder1", -3, 0.3);
-	inversekinematics_proxy->setJoint("rightShoulder2", -0.2, 0.3);
-	inversekinematics_proxy->setJoint("rightShoulder3", 0.5, 0.3);
-	inversekinematics_proxy->setJoint("rightElbow", 0.1, 0.5);
-	inversekinematics_proxy->setJoint("rightForeArm", 0.1, 0.3);
-	inversekinematics_proxy->setJoint("rightWrist1", 0.0, 0.3);
-	inversekinematics_proxy->setJoint("rightWrist2", 0.0, 0.3);
+	inversekinematics_proxy->setJoint("armY",            0, 0.6);
+	inversekinematics_proxy->setJoint("armX1",           0.7, 0.65);
+	inversekinematics_proxy->setJoint("armX2",          -2.5, 0.9);
+	inversekinematics_proxy->setJoint("wristX",          0.0, 0.5);
+	inversekinematics_proxy->setJoint("gripperFinger2", +0.7, 0.3);
+	inversekinematics_proxy->setJoint("gripperFinger1", -0.7, 0.3);
 }
 
 

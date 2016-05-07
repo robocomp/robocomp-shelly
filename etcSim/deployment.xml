@@ -304,6 +304,8 @@
 
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h localhost -p 10330">
   <dependence alias="executive" />
+  <dependence alias="localization" />
+  <dependence alias="trajCaca1" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost navAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent ./bin/navigationAgent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
   <downCommand command="killall -9 navigationAgent" />

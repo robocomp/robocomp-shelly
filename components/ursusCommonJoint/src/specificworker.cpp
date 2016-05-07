@@ -470,7 +470,7 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	
 	//Metemos en el innerModel el angulo objetivo (simulamos movimiento)
 	for (uint i=0; i<goals.size(); i++)
-		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position);
+		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position, true);
 
 	innerModel->cleanupTables(); 
 	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
@@ -479,7 +479,7 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 		if (innerModel->collide(p.first, p.second))
 		{
 			for (uint i=0; i<goals.size(); i++)
-				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position);
+				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
 		
 			innerModel->cleanupTables();
 			ret = p;

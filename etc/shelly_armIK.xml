@@ -10,7 +10,7 @@
 	<joint id="armY" port="10068" axis="y" min="-1" max="1" home="0">
 		<transform id="shellyArm_2" ty="100">
 			<mesh id="shellyArm_BASE2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,40" ry="1.5707963267948966"/>
-			<joint id="armX1" port="10068"  axis="x" min="-1.2" max="1.2" home="0" >
+			<joint id="armX1" port="10068"  axis="x" min="-1.2" max="0" home="0" >
 				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="150" scale="20,20,150" />
 				<transform id="arm_elbow" tz="300">
 					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" ry="1.5707963267948966" scale="30,30,35" />

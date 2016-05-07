@@ -208,7 +208,7 @@ new graph</string>
                     <double>10.000000000000000</double>
                    </property>
                    <property name="value">
-                    <double>400.000000000000000</double>
+                    <double>600.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -247,7 +247,7 @@ new graph</string>
                     <double>10.000000000000000</double>
                    </property>
                    <property name="value">
-                    <double>200.000000000000000</double>
+                    <double>0.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -333,7 +333,7 @@ new graph</string>
                     <double>0.100000000000000</double>
                    </property>
                    <property name="value">
-                    <double>-1.571000000000000</double>
+                    <double>0.000000000000000</double>
                    </property>
                   </widget>
                  </item>
@@ -356,7 +356,7 @@ new graph</string>
                     <number>1</number>
                    </property>
                    <property name="minimum">
-                    <double>-2000.000000000000000</double>
+                    <double>500.000000000000000</double>
                    </property>
                    <property name="maximum">
                     <double>2000.000000000000000</double>
@@ -365,7 +365,7 @@ new graph</string>
                     <double>10.000000000000000</double>
                    </property>
                    <property name="value">
-                    <double>800.000000000000000</double>
+                    <double>900.000000000000000</double>
                    </property>
                   </widget>
                  </item>
