@@ -262,6 +262,7 @@
  <node alias="mission" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <dependence alias="navigA" />
+  <dependence alias="oracleA" />
   <dependence alias="ppcptnA" />
   <dependence alias="graspingA" />
   <dependence alias="objectA" />
