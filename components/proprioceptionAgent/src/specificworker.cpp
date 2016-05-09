@@ -322,20 +322,4 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 }
 
 
-void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
-{
-	QMutexLocker l(mutex);
-	try
-	{
-		AGMModelPrinter::printWorld(newModel);
-		AGMMisc::publishModification(newModel, agmexecutive_proxy,"propioception");
-	}
-	catch(...)
-	{
-		exit(1);
-	}
-}
-
-
-
 
