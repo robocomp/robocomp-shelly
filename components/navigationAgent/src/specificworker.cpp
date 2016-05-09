@@ -511,6 +511,8 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
+	QMutexLocker l(mutex);
+
 	//
 	// Get ODOMETRY and update it in the graph. If there's a problem talking to the robot's platform, abort
 	try
@@ -1199,15 +1201,19 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	}
 	catch(const RoboCompAGMExecutive::Locked &e)
 	{
+		printf("error when sending modification proposal (Locked)\n");
 	}
 	catch(const RoboCompAGMExecutive::OldModel &e)
 	{
+		printf("error when sending modification proposal (OldModel)\n");
 	}
 	catch(const RoboCompAGMExecutive::InvalidChange &e)
 	{
+		printf("error when sending modification proposal (InvalidChange)\n");
 	}
 	catch(const Ice::Exception& e)
 	{
+		printf("error when sending modification proposal\n");
 		exit(1);
 	}
 }
