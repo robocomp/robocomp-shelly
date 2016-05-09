@@ -149,9 +149,9 @@
 		<attribute key="imName" value="tableD" />
 	</symbol>
 	<link src="5" dst="35" label="RT" >
-		<linkAttribute key="tx" value="4300" />
+		<linkAttribute key="tx" value="3470" />
 		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="-2400" />
+		<linkAttribute key="tz" value="-1940" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
@@ -275,6 +275,8 @@
 	<link src="20" dst="21" label="table" >
 	</link>
 	<link src="1" dst="20" label="know" >
+	</link>
+	<link src="20" dst="21" label="size:800,1750,700" >
 	</link>
 	
 	
