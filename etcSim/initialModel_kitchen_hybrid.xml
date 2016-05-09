@@ -341,8 +341,8 @@
 	<attribute key="home" value="0" />
 	<attribute key="imName" value="armX1" />
 	<attribute key="imType" value="joint" />
-	<attribute key="max" value="0" />
-	<attribute key="min" value="-1" />
+	<attribute key="max" value="1.2" />
+	<attribute key="min" value="-1.2" />
 	<attribute key="port" value="10068" />
 </symbol>
 <symbol id="130" type="mesh">
@@ -1427,6 +1427,7 @@
 <link src="20" dst="21" label="reachable"/>
 <link src="20" dst="21" label="table"/>
 <link src="1" dst="20" label="know"/>
+<link src="20" dst="21" label="size:800,1750,700"/>
 <link src="23" dst="3" label="in"/>
 <link src="23" dst="24" label="hasStatus"/>
 <link src="23" dst="24" label="noReach"/>
