@@ -2,6 +2,9 @@
 	<symbol id="20" type="object">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableA" />
+		<attribute key="width" value="1750" />
+		<attribute key="height" value="800" />
+		<attribute key="depth" value="700" />
 	</symbol>
 	<link src="3" dst="20" label="RT" >
 		<linkAttribute key="tx" value="1400" />
@@ -275,8 +278,6 @@
 	<link src="20" dst="21" label="table" >
 	</link>
 	<link src="1" dst="20" label="know" >
-	</link>
-	<link src="20" dst="21" label="size:800,1750,700" >
 	</link>
 	
 	

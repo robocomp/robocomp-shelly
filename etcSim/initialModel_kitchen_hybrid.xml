@@ -1,8 +1,11 @@
 <AGMModel>
 
 <symbol id="20" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableA" />
 	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="21" type="objectSt"/>
 <symbol id="22" type="objectSt">
@@ -1362,9 +1365,9 @@
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="4300" />
+	<linkAttribute key="tx" value="3470" />
 	<linkAttribute key="ty" value="800" />
-	<linkAttribute key="tz" value="-2400" />
+	<linkAttribute key="tz" value="-1940" />
 </link>
 <link src="35" dst="37" label="reachPosition"/>
 <link src="35" dst="37" label="RT">
@@ -1427,7 +1430,6 @@
 <link src="20" dst="21" label="reachable"/>
 <link src="20" dst="21" label="table"/>
 <link src="1" dst="20" label="know"/>
-<link src="20" dst="21" label="size:800,1750,700"/>
 <link src="23" dst="3" label="in"/>
 <link src="23" dst="24" label="hasStatus"/>
 <link src="23" dst="24" label="noReach"/>
