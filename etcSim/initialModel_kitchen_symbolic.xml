@@ -11,7 +11,7 @@
 		<linkAttribute key="ty" value="800" />
 		<linkAttribute key="tz" value="3180" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="ry" value="-1.5707" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="21" type="objectSt">

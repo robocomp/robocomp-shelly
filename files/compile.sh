@@ -1,5 +1,5 @@
 #number of compiling threads
-N=6
+N=8
 
 
 ### Help

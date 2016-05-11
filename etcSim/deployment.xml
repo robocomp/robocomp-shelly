@@ -250,7 +250,7 @@
   <dependence alias="trajCaca1" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost trjtCaca2 /home/robocomp/robocomp/components/robocomp-robolab/experimental/dumbGlobalTrajectory/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d_global.conf" />
+  <upCommand command="rcremote localhost trjtCaca2 /home/robocomp/robocomp/components/robocomp-robolab/experimental/dumbGlobalTrajectory/ python src/dumbGlobalTrajectory.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d_global.conf" />
   <downCommand command="pkill -9 -f dumbGlobalTrajectory" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d_global.conf" />
   <xpos value="-143.308391982" />

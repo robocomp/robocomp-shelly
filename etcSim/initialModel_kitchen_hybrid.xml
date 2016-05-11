@@ -1119,7 +1119,7 @@
 <symbol id="205" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="8" />
-	<attribute key="height" value="1750" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableAC" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
@@ -1130,7 +1130,7 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#cccccc" />
-	<attribute key="width" value="800" />
+	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="206" type="plane">
 	<attribute key="collidable" value="false" />
@@ -1278,7 +1278,7 @@
 
 <link src="3" dst="20" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="ry" value="-1.5707" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="1400" />
 	<linkAttribute key="ty" value="800" />
