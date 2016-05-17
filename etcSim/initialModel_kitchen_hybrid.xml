@@ -13,9 +13,12 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="23" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableB" />
 	<attribute key="imType" value="transform" />
 	<attribute key="tag" value="30" />
+	<attribute key="width" value="1200" />
 </symbol>
 <symbol id="24" type="objectSt"/>
 <symbol id="25" type="objectSt">
@@ -23,8 +26,11 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="26" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableC" />
 	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="27" type="objectSt"/>
 <symbol id="28" type="objectSt">
@@ -50,8 +56,11 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="35" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="1200" />
 	<attribute key="imName" value="tableD" />
 	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1200" />
 </symbol>
 <symbol id="36" type="objectSt"/>
 <symbol id="37" type="objectSt">
@@ -59,8 +68,11 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="38" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableE" />
 	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="39" type="objectSt"/>
 <symbol id="40" type="objectSt">
