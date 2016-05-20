@@ -138,7 +138,6 @@ if __name__ == '__main__':
 			except Ice.Exception:
 				print 'Cannot connect to the remote object (Laser)', proxyString
 				#traceback.print_exc()
-				status = 1
 		except Ice.Exception, e:
 			print e
 			print 'Cannot get LaserProxy property.'
