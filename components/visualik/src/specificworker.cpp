@@ -426,7 +426,7 @@ bool SpecificWorker::correctPose()
 	printf("target             [ %f %f %f ]\n", target(0), target(1), target(2));
 	printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 	printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
-QMessageBox::warning(NULL, "titulo", "texto");
+// QMessageBox::warning(NULL, "titulo", "texto");
 	if (currentTarget.getRunTime()>umbralMaxTime)
 	{
 		abortCorrection = true;

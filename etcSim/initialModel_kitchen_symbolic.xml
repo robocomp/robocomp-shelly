@@ -16,6 +16,31 @@
 	</link>
 	<symbol id="21" type="objectSt">
 	</symbol>
+	<symbol id="50" type="object">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="bluemug" />
+	</symbol>
+	<symbol id="51" type="objectSt">
+	</symbol>
+	<link src="50" dst="51" label="hasStatus" />
+	<link src="50" dst="51" label="mug" />
+	<link src="50" dst="51" label="see" />
+	<link src="50" dst="51" label="noReach" />
+	<link src="50" dst="51" label="reachable" />
+	<link src="50" dst="51" label="position" />
+	<link src="50" dst="51" label="classified" />
+	<link src="50" dst="20" label="in" />
+	<link src="50" dst="3" label="in" />
+
+	<link src="20" dst="50" label="RT" >
+		<linkAttribute key="tx" value="-1000" />
+		<linkAttribute key="ty" value="110" />
+		<linkAttribute key="tz" value="-600" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>  
+	
 	<symbol id="22" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableA_reachPos" />
@@ -272,6 +297,8 @@
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<link src="1" dst="3" label="know" >
+	</link>
+	<link src="1" dst="50" label="know" >
 	</link>
 	<link src="5" dst="6" label="room" >
 	</link>
