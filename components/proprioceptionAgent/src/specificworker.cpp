@@ -25,7 +25,7 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-	Period = 10;
+	Period = 20;
 	active = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
@@ -81,13 +81,15 @@ void SpecificWorker::compute()
 			{
 				backTimes[j.first] = QTime::currentTime().addSecs(-1000000);
 			}
+			first = false;
 		}
 		catch (const Ice::Exception &ex)
 		{
 			std::cout << __FILE__ << ":" << __LINE__ << " --> Can't update InnerModel" << std::endl;
 		}
 	}
-
+	
+	std::vector<AGMModelEdge> edge_sequence;
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
@@ -112,7 +114,7 @@ void SpecificWorker::compute()
 						try { imName = symbol->getAttribute("imName"); } catch(...) { }
 						if (imName == j.first)
 						{
-							printf("found!\n");
+//							printf("found!\n");
 							found = true;
 							auto parent = newModel->getParentByLink(symbol->identifier, "RT");
 // printf("%d (%d -> %d)\n", __LINE__, parent->identifier, symbol->identifier);
@@ -124,43 +126,47 @@ void SpecificWorker::compute()
 							e.setAttribute("rz", "0");
 							std::string axis = symbol->getAttribute("axis");
 							e.setAttribute("r"+symbol->getAttribute("axis"), float2str(j.second.pos));
-							try
-							{
-// 								printf("  axis    %s\n", symbol->getAttribute("axis").c_str());
-// 								printf("  edge rx %s\n", e.getAttribute("rx").c_str());
-// 								printf("  edge rz %s\n", e.getAttribute("rz").c_str());
-// 								printf("  edge ry %s\n", e.getAttribute("ry").c_str());
-								AGMMisc::publishEdgeUpdate(e, agmexecutive_proxy);
-								usleep(500);
-// 								printf(" done!\n");
-							}
-							catch(...)
-							{
-								printf(" can't update node\n");
-							}
+// 							printf("  axis    %s\n", symbol->getAttribute("axis").c_str());
+//							printf("  edge rx %s\n", e.getAttribute("rx").c_str());
+//							printf("  edge rz %s\n", e.getAttribute("rz").c_str());
+//							printf("  edge ry %s\n", e.getAttribute("ry").c_str());
+							edge_sequence.push_back(e);
 							break;
 						}
 					}
 					catch(...)
 					{
-						printf("ddet erte\n");
+						printf(" couldn't retrieve node\n");
 					}
-
 				}
+				
 				if (not found)
-					printf("   couln't find joint: %s\n", j.first.c_str());
+					printf(" couln't find joint: %s\n", j.first.c_str());
 			}
 		}
-		
-		
-		if (first)
+		//publish
+		if (edge_sequence.size() > 0)
 		{
-			first = false;
+			try
+			{
+				printf("edge publication %i\n",edge_sequence.size());
+				if( edge_sequence.size() == 1)
+					AGMMisc::publishEdgeUpdate(edge_sequence.front(), agmexecutive_proxy);
+				else
+					AGMMisc::publishEdgesUpdate(edge_sequence, agmexecutive_proxy);
+
+			}
+			catch(...)
+			{
+				printf(" can't update node\n");
+			}
 		}
+		usleep(500);
+		//	printf(" done!\n");
 	}
 	catch (const Ice::Exception &ex)
 	{
-		std::cout<<"--> Excepción en actualizar InnerModel"<<std::endl;
+		std::cout<<"--> Exception updating InnerModel"<<std::endl;
 	}
 }
 

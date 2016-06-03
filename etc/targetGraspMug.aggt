@@ -1,10 +1,10 @@
 {
 	1:robot(1,1)
-	11:object(1,1)
-	12:objectSt(1,1)
-	1->11(know)
-	11->12(mug)
-	11->1(in)
+	mug:object(1,1)
+	mugSt:objectSt(1,1)
+	1->mug(know)
+	mug->mugSt(mug)
+	mug->1(in)
 }
 precondition
 {

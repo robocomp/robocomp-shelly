@@ -33,7 +33,10 @@ class GenericWorker(QtGui.QWidget):
 		super(GenericWorker, self).__init__()
 
 
-		self.laser_proxy = mprx["LaserProxy"]
+		try:
+			self.laser_proxy = mprx["LaserProxy"]
+		except:
+			print 'LASER NOT WORKING'
 		self.omnirobot_proxy = mprx["OmniRobotProxy"]
 
 		self.logger = mprx["LoggerPub"]

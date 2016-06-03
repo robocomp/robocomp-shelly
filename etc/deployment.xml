@@ -131,7 +131,6 @@
  </node>
 
  <node alias="trajCaca1" endpoint="trajectoryrobot2d:tcp -h 10.0.30.11 -p 19204">
-  <dependence alias="laserRGBD" />
   <dependence alias="localization" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
@@ -140,20 +139,6 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
   <xpos value="-100.692709362" />
   <ypos value="-12.6288021165" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
-
- <node alias="laserRGBD" endpoint="laser:tcp -h 10.0.30.11 -p 10033">
-  <dependence alias="laser" />
-  <dependence alias="rgbd" />
-  <dependence alias="comJoint" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 lsrRGBD /home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/ ./bin/laserrgbdComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/laserrgbd.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 laserrgbdComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/laserrgbd.conf" />
-  <xpos value="-16.6041511476" />
-  <ypos value="74.0062788323" />
   <radius value="10.0" />
   <color value="#FF3333" />
  </node>

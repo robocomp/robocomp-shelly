@@ -219,22 +219,7 @@
   <color value="#3333FF" />
  </node>
 
- <node alias="laserRGBD" endpoint="laser:tcp -h localhost -p 10033">
-  <dependence alias="laser" />
-  <dependence alias="rgbd" />
-  <dependence alias="comJoint" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost lsrRGBD /home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/ ./bin/laserrgbdComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/laserrgbd.conf" />
-  <downCommand command="killall -9 laserrgbdComp" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/laserrgbd.conf" />
-  <xpos value="-17.6309196931" />
-  <ypos value="98.3091539047" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
-
  <node alias="trajCaca1" endpoint="trajectoryrobot2d:tcp -h localhost -p 19204">
-  <dependence alias="laserRGBD" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost trjtCaca1 /home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
@@ -242,19 +227,6 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
   <xpos value="-118.992284356" />
   <ypos value="76.1040720301" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
-
- <node alias="trajCaca2" endpoint="trajectoryrobot2d:tcp -h localhost -p 12204">
-  <dependence alias="trajCaca1" />
-  <dependence alias="base" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost trjtCaca2 /home/robocomp/robocomp/components/robocomp-robolab/experimental/dumbGlobalTrajectory/ python src/dumbGlobalTrajectory.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d_global.conf" />
-  <downCommand command="pkill -9 -f dumbGlobalTrajectory" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d_global.conf" />
-  <xpos value="-143.308391982" />
-  <ypos value="15.3183121249" />
   <radius value="10.0" />
   <color value="#FF3333" />
  </node>
@@ -306,7 +278,7 @@
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h localhost -p 10330">
   <dependence alias="executive" />
   <dependence alias="localization" />
-  <dependence alias="trajCaca2" />
+  <dependence alias="trajCaca1" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost navAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent ./bin/navigationAgent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
   <downCommand command="killall -9 navigationAgent" />

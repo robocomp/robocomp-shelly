@@ -31,7 +31,7 @@
 #include <JointMotor.h>
 
 #define CHECK_PERIOD 5000
-#define BASIC_PERIOD 100
+#define BASIC_PERIOD 200
 
 typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 

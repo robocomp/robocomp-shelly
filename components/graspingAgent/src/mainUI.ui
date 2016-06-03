@@ -51,7 +51,7 @@
           <number>0</number>
          </property>
          <property name="minimum">
-          <double>0.000000000000000</double>
+          <double>-200.000000000000000</double>
          </property>
          <property name="maximum">
           <double>300.000000000000000</double>
@@ -86,7 +86,7 @@
           <double>150.000000000000000</double>
          </property>
          <property name="maximum">
-          <double>400.000000000000000</double>
+          <double>700.000000000000000</double>
          </property>
          <property name="value">
           <double>250.000000000000000</double>
@@ -99,13 +99,6 @@
       <widget class="QPushButton" name="manualButton">
        <property name="text">
         <string>SET MANUAL MODE</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QCheckBox" name="manualModeSet">
-       <property name="text">
-        <string>manual mode</string>
        </property>
       </widget>
      </item>
