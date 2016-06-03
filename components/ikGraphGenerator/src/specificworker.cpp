@@ -232,7 +232,7 @@ void SpecificWorker::initGenerate()
 #endif
 
 	xrange = std::pair<float, float>( -150,  150   + 1);
-	yrange = std::pair<float, float>(  750, 1050   + 1);
+	yrange = std::pair<float, float>(  800, 1050   + 1);
 	zrange = std::pair<float, float>(  400,  700   + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
