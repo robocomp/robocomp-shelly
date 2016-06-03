@@ -41,6 +41,7 @@
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 { 
+	qDebug()<<"HOLA1";
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -66,6 +67,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 
 	timer.start(10);
+	qDebug()<<"HOLA2";
 }
 
 
@@ -86,6 +88,7 @@ SpecificWorker::~SpecificWorker()
  * ------------------------------------------------------ */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+	qDebug()<<"HOLA PARAMS 1";
 	printf("params: %ld\n", params.size());
 	for (auto p : params)
 	{
@@ -705,7 +708,7 @@ void SpecificWorker::compute()
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	delete_collision_points();
+// 	delete_collision_points();
        
 
 	switch(state)

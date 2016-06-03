@@ -22,7 +22,8 @@
 */
 SpecificMonitor::SpecificMonitor(GenericWorker *_worker,Ice::CommunicatorPtr _communicator):GenericMonitor(_worker, _communicator)
 {
-		ready = false;
+	qDebug()<<"HOLAAAAAAAAAAAAAA";
+	ready = false;
 }
 /**
 * \brief Default destructor
