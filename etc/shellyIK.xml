@@ -3,12 +3,12 @@
 	
 	<omnirobot id="robot" port="12238" >
 		<!-- laser position -->
-		<transform id="laserPose" tx="0" ty="370" tz="240" rx="0" >
+		<transform id="laserPose" tx="0" ty="370" tz="230" rx="0" >
  			<laser id="laser" measures="100" min="100" max="30000" angle="4.2" port="10003" />
 		</transform>
 
 		<!-- some meshes useful for avoiding colliding with its own body -->
-		<transform id="monitor_pose" ty="1150" tz="60" rx="-0.1"  >
+		<transform id="monitor_pose" ty="1155" tz="50" rx="0"  >
 			<plane id="monitor_mesh" size="340,270,50" texture="#222266"  collide="1" />
 		</transform>
 		<transform id="caja_pose" ty="330" tz="-120" >
@@ -21,12 +21,12 @@
 		<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds"   tx="-150" ty="1180"  tz="30"          ry="-1.5707963267949" scale="1000" collide="1" />
 		<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds"           tx="0"    ty="700" tz="15"                          scale="40,500,30"  collide="1" />
 
-		<transform id="base_bodypost" ty="1225" tz="30" >
+		<transform id="base_bodypost" ty="1388" tz="55" >
 			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_head.xml"/>
 		</transform>
 
-		<transform id="arm_pose" ty="750" tz="100" >
-			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_armIK.xml"/>
+		<transform id="arm_pose" ty="710" tz="140" >
+			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_arm.xml"/>
 		</transform>
 
 	</omnirobot>

@@ -69,21 +69,21 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	std::vector<std::pair<QString, QString> > exclusionList; //lista de exclusion de meshes
 	QString exclusion = QString::fromStdString(params["ExclusionList"].value);
-	if (exclusion.size()<2)
-	{
-		qFatal("Couldn't read ExclusionList\n");
-		return false;
-	}
-	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
-	{
-		QStringList parejaLista = parejaTexto.split(",");
-		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
-		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
-	}
-	for (auto e: exclusionList)
-	{
-		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
-	}
+// 	if (exclusion.size()<2)
+// 	{
+// 		qFatal("Couldn't read ExclusionList\n");
+// 		return false;
+// 	}
+// 	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
+// 	{
+// 		QStringList parejaLista = parejaTexto.split(",");
+// 		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
+// 		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
+// 	}
+// 	for (auto e: exclusionList)
+// 	{
+// 		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
+// 	}
 
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes); //recoge los meshes del xml
@@ -107,7 +107,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	//NOTE Movemos a pelo la cabeza hacia abajo... se puede quitar para despues
-	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.95}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
+	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.8}, {"head_yaw_joint",0} };
 	MotorGoalPosition goal;
 	for (auto init : initializations)
 	{
@@ -194,7 +194,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
-	if (checkFuturePosition(listGoals, ret) and false)//NOTE para desactivar, descomente "and false"
+	if (checkFuturePosition(listGoals, ret)/*and false*/)//NOTE para desactivar, descomente "and false"
 	{
 		//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
 		//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
