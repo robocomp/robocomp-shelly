@@ -149,8 +149,8 @@ private:
 	std::pair<float, float>        zrange;
 	std::string                    lastFinish;
 	
-	pcl::PointCloud<pcl::PointXYZ>::Ptr full_cloud;
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr full_cloud /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
+	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
 	
 	MotorGoalPositionList          centerConfiguration;
 	MotorGoalPositionList          lastMotorGoalPositionList;

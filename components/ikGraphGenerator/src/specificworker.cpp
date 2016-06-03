@@ -45,6 +45,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	state         = GIK_NoTarget;
 	targetCounter = 0;
 	mutexSolved   = new QMutex(QMutex::Recursive);
+	// NOTE Inicializamos las nubes de puntos
+// 	full_cloud     = new pcl::PointCloud<pcl::PointXYZ>;
+// 	cloud_filtered = new pcl::PointCloud<pcl::PointXYZ>;
 
 #ifdef USE_QTGUI
 	show();
@@ -702,7 +705,7 @@ void SpecificWorker::compute()
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	//delete_collision_points();
+	delete_collision_points();
        
 
 	switch(state)
@@ -793,6 +796,7 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
+	float collision_threshold = 50; //5 cm
 	RoboCompRGBD::PointSeq point_cloud;
 	RoboCompJointMotor::MotorStateMap hState;
 	RoboCompDifferentialRobot::TBaseState bState;
@@ -828,39 +832,44 @@ void SpecificWorker::delete_collision_points()
 			usedPoints++;
 			}
 		}
+	}	
+/*	
+	#pragma omp parallel for shared(usedPoints)
+	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
+	{
+		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
+					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
+					
+		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
+		{
+			full_cloud->points[usedPoints].x =  v(0);
+			full_cloud->points[usedPoints].y =  v(1);
+			full_cloud->points[usedPoints].z =  v(2);
+			#pragma omp critical
+			usedPoints++;
+		}
 	}
-	
-// 	#pragma omp parallel for shared(usedPoints)
-// 	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
-// 	{
-// 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
-// 					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
-// 					
-// 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
-// 		{
-// 			full_cloud->points[usedPoints].x =  v(0);
-// 			full_cloud->points[usedPoints].y =  v(1);
-// 			full_cloud->points[usedPoints].z =  v(2);
-// 			#pragma omp critical
-// 			usedPoints++;
-// 		}
-// 	}
+*/
 	full_cloud->width = usedPoints;
 	full_cloud->height = 1;
 	full_cloud->points.resize(usedPoints);
-	qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<usedPoints<<" --> "<<usedPoints/float(point_cloud.size())*100<<" %";
+	qDebug()<<"Used Points: "<<usedPoints;
+	qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<full_cloud->points.size()<<" --> "<<full_cloud->points.size()/float(point_cloud.size())*100<<" %";
 	
 	//Quitamos densidad --> Create the filtering object
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+// 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
 	sor.setInputCloud (full_cloud);
 	sor.setMeanK (50);
 	sor.setStddevMulThresh (1.0);
 	sor.filter (*cloud_filtered);
 	
-	qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<usedPoints<<" --> "<<usedPoints/float(point_cloud.size())*100<<" %";
-
+	qDebug()<<"Points before: "<<full_cloud->points.size()<<" Points after: "<<cloud_filtered->points.size()<<" --> "<<cloud_filtered->points.size()/float(full_cloud->points.size())*100<<" %";
 	
+	pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+	kdtree.setInputCloud (cloud_filtered);
+
+	// http://pointclouds.org/documentation/tutorials/kdtree_search.php
 	// Pasamos a un kdtree para realizar mejor las busquedas.
 //  	pcl::search::KdTree<pcl::PointXYZ>::Ptr cloud_kdtree (new pcl::search::KdTree<pcl::PointXYZ>);
 // 	cloud_kdtree->setInputCloud(full_cloud);
@@ -1256,7 +1265,7 @@ void SpecificWorker::waitForMotorsToStop()
 
 int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
 {
-
+	return 0;
 }
 
 
