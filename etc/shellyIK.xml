@@ -26,7 +26,7 @@
 		</transform>
 
 		<transform id="arm_pose" ty="710" tz="140" >
-			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_arm.xml"/>
+			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_armIK.xml"/>
 		</transform>
 
 	</omnirobot>

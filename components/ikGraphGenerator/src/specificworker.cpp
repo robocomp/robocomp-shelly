@@ -41,7 +41,6 @@
 *------------------------------------------------------*/
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 { 
-	qDebug()<<"HOLA1";
 	READY         = false;
 	state         = GIK_NoTarget;
 	targetCounter = 0;
@@ -67,7 +66,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
 
 	timer.start(10);
-	qDebug()<<"HOLA2";
 }
 
 
@@ -88,7 +86,6 @@ SpecificWorker::~SpecificWorker()
  * ------------------------------------------------------ */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-	qDebug()<<"HOLA PARAMS 1";
 	printf("params: %ld\n", params.size());
 	for (auto p : params)
 	{
@@ -162,7 +159,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		throw;
 	}
 	timer.start(10);
-	initFile();
+// 	initFile();
 	qDebug()<<"READY CONFIG PARAMS";
 	return true;
 }
@@ -270,7 +267,7 @@ void SpecificWorker::initGenerate()
 	}
 	int rec = 0;
 // 	if (not goAndWait(0, 900, 560, -1, centerConfiguration, rec))
-	if (not goAndWait(0, 900, 700, -1, centerConfiguration, rec))
+	if (not goAndWait(0, 900, 600, -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);
@@ -488,6 +485,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	goAndWaitDirect(mpl);
 
 	printf("ERROR segun IK %f\n", stt.errorT);
+	printf("time %d\n", initialTime.elapsed());
+	printf("finished: %d\n", stt.finish);
 	printf("IK message %s\n", stt.state.c_str());
 
 	if (stt.errorT > MAX_ERROR_IK or initialTime.elapsed()>15000 or not stt.finish)
