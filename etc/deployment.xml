@@ -192,7 +192,7 @@
 
  <node alias="comJoint" endpoint="jointmotor:tcp -h 10.0.30.11 -p 20000">
   <dependence alias="dynamixel" />
-  <dependence alias="faulhaber" />
+  <dependence alias="schunk" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 cj /home/robocomp/robocomp/components/robocomp-shelly/components/ursusCommonJoint ./bin/ursuscommonjointcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/ursusCommon.conf" />
   <downCommand command="rcremote 10.0.30.11 X / killall -9 ursuscommonjointcomp" />
@@ -203,7 +203,7 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="faulhaber" endpoint="jointmotor:tcp -h 10.0.30.11 -p 10067">
+ <node alias="schunk" endpoint="jointmotor:tcp -h 10.0.30.44 -p 10067">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 flhbr /home/robocomp/robocomp/components/robocomp-shelly/components/faulhaberComp/ ./bin/faulhaberComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/faulhaber.conf" />
   <downCommand command="rcremote 10.0.30.11 X / killall -9 faulhaberComp" />
