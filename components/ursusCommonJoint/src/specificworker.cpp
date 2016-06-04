@@ -194,12 +194,15 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
-	if (checkFuturePosition(listGoals, ret)/*and false*/)//NOTE para desactivar, descomente "and false"
+	if (true and false) //NOTE para desactivar, descomente "and false"
 	{
-		//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
-		//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
-		printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		if (checkFuturePosition(listGoals, ret) and false)
+		{
+			//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
+			//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
+			printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+			//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		}
 	}
 	//movemos el motor:
 	try { prxMap.at(goal.name)->setPosition(goal);}
@@ -411,10 +414,8 @@ BusParams SpecificWorker::getBusParams()
 	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
 	return bus;
 }
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//AUXILIAR AND PRIVATE METHODS
+
+
 /**
  * \brief This initializes the Dynamixel bus and the Faulhaber bus.
  */ 
@@ -451,8 +452,12 @@ void SpecificWorker::init()
 				qFatal("Name %s already exists\n", motorList1[i].name.c_str());
 			}
 		}
-	}catch (const Ice::Exception &ex)
-	{std::cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex <<std::endl;};
+	}
+	catch (const Ice::Exception &ex)
+	{
+		std::cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex <<std::endl;
+		
+	}
 }
 /**
  * \brief This method checks the final state in which the robot would stay if we move its motors.
@@ -462,6 +467,7 @@ void SpecificWorker::init()
  */ 
 bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret)
 {
+	return false;
 	QMutexLocker locker(mutex);
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
 	//Guardamos para cada joint su angulo actual 

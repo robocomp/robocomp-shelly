@@ -1,8 +1,7 @@
 <innerModel>
-	<joint id="wristX" port="10067" min="-0.8" max="0.8" axis="x" home="0" >
-<!-- 		<joint id="wristY" port="10067" min="-1.57" max="1.57" axis="y" home="0" > -->
+	<joint id="wristX" port="10067" min="-1.7" max="1.7" axis="x" home="0" >
 			<transform id="wrist_end" tz="74" >
-				<transform id="grabPositionHandR_pre" ty="30">
+				<transform id="grabPositionHandR_pre" ty="30" >
 					<mesh id="finger_wrist_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="-20" tz="-10" scale="45,20,45"   />
 					<transform id="grabPositionHandR">
 <!-- 						<axes id="grab_axes" length="100" width="5" /> -->
