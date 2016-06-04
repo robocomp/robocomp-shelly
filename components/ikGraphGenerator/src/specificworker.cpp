@@ -229,9 +229,9 @@ void SpecificWorker::initGenerate()
 #endif
 
 	QVec center = QVec::vec3(0, 900, 640);
-	xrange = std::pair<float, float>( center(0)-150, center(0)+150   + 1);
-	yrange = std::pair<float, float>( center(1)-100, center(1)+150   + 1);
-	zrange = std::pair<float, float>( center(2)-150, center(2)+150   + 1);
+	xrange = std::pair<float, float>( center(0)-200, center(0)+200 + 1);
+	yrange = std::pair<float, float>( center(1)-200, center(1)+200 + 1);
+	zrange = std::pair<float, float>( center(2)-200, center(2)+200 + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float step = STEP_DISTANCE;
