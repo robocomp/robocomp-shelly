@@ -228,7 +228,7 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	QVec center = QVec::vec3(0, 900, 670);
+	QVec center = QVec::vec3(0, 900, 640);
 	xrange = std::pair<float, float>( center(0)-150, center(0)+150   + 1);
 	yrange = std::pair<float, float>( center(1)-100, center(1)+150   + 1);
 	zrange = std::pair<float, float>( center(2)-150, center(2)+150   + 1);
