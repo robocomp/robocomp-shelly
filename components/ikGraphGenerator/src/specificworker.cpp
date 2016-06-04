@@ -21,7 +21,7 @@
 #define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 50
+#define STEP_DISTANCE 35
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -228,9 +228,10 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -150,  150   + 1);
-	yrange = std::pair<float, float>(  800, 1050   + 1);
-	zrange = std::pair<float, float>(  500,  750   + 1);
+	QVec center = QVec::vec3(0, 900, 670);
+	xrange = std::pair<float, float>( center(0)-150, center(0)+150   + 1);
+	yrange = std::pair<float, float>( center(1)-100, center(1)+150   + 1);
+	zrange = std::pair<float, float>( center(2)-150, center(2)+150   + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float step = STEP_DISTANCE;
@@ -244,6 +245,7 @@ void SpecificWorker::initGenerate()
 			{
 
 				QVec pos = QVec::vec3(xpos, ypos, zpos);
+				if ((pos-center).norm2() < 150)
 				{
 					graph->addVertex(ConnectivityGraph::VertexData());
 					QString id = QString("node_") + QString::number(included);
@@ -267,7 +269,7 @@ void SpecificWorker::initGenerate()
 	}
 	int rec = 0;
 // 	if (not goAndWait(0, 900, 560, -1, centerConfiguration, rec))
-	if (not goAndWait(0, 850, 700, -1, centerConfiguration, rec))
+	if (not goAndWait(center(0), center(1), center(2), -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);

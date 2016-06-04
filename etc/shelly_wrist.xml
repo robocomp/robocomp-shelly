@@ -1,6 +1,6 @@
 <innerModel>
 	<transform id="arm_wrist_5" tz="40" >
-		<joint id="wristX" port="10067" min="-0.8" max="0.8" axis="x" home="0" >
+		<joint id="wristX" port="10067" min="-1.7" max="1.7" axis="x" home="0" >
 <!-- 			<joint id="wristY" port="10067" min="-1.57" max="1.57" axis="y" home="0" > -->
 				<transform id="wrist_end" tz="110" >
 					<transform id="grabPositionHandR_pre" ty="20" tz= "-50" >

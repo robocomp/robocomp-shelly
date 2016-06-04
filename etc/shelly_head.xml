@@ -1,5 +1,5 @@
 <innerModel>
-	<transform id="rgbdHumanPose" tz="40" ty="77">
+	<transform id="rgbdHumanPose" tz="40" ty="17">
 		<rgbd id="rgbdHuman" focal="600" width="640" height="480" /> 
 		<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" collide="1" />
 	</transform>
