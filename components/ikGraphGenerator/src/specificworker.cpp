@@ -21,7 +21,7 @@
 #define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 35
+#define STEP_DISTANCE 40
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
