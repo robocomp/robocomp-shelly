@@ -709,7 +709,7 @@ void SpecificWorker::compute()
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	delete_collision_points();
+// 	delete_collision_points();
        
 
 	switch(state)
