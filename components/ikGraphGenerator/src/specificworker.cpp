@@ -709,7 +709,7 @@ void SpecificWorker::compute()
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
     // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-// 	delete_collision_points();
+	delete_collision_points();
        
 
 	switch(state)
@@ -824,16 +824,16 @@ void SpecificWorker::delete_collision_points()
 	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
 	{
 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
-					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
+		                           point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
 		
 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
 		{
 			#pragma omp ordered
 			{
-			full_cloud->points[usedPoints].x =  v(0);
-			full_cloud->points[usedPoints].y =  v(1);
-			full_cloud->points[usedPoints].z =  v(2);
-			usedPoints++;
+				full_cloud->points[usedPoints].x =  v(0);
+				full_cloud->points[usedPoints].y =  v(1);
+				full_cloud->points[usedPoints].z =  v(2);
+				usedPoints++;
 			}
 		}
 	}	
@@ -870,15 +870,36 @@ void SpecificWorker::delete_collision_points()
 	
 	qDebug()<<"Points before: "<<full_cloud->points.size()<<" Points after: "<<cloud_filtered->points.size()<<" --> "<<cloud_filtered->points.size()/float(full_cloud->points.size())*100<<" %";
 	
+	// Pasamos a KDTREE para agilizar búsquedas
 	pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
 	kdtree.setInputCloud (cloud_filtered);
-
+	
+	// Comparamos los nodos del grafo con el KDTREE:
+	pcl::PointXYZ searchPoint;                     //estructura para comparar
+	std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
+	std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
+	//recorremos grafo
+	int free_nodes=0;
+	for (uint i=0; i<graph->vertices.size(); i++)
+	{
+		if (graph->vertices[i].valid)
+		{
+			// Pasamos el nodo a PointXYZ
+			searchPoint.x = graph->vertices[i].pose[0];
+			searchPoint.y = graph->vertices[i].pose[1];
+			searchPoint.z = graph->vertices[i].pose[2];
+			// Si hay puntos que chocan contra el vertice dle grafo, hay que invalidarlo
+			if (kdtree.radiusSearch (searchPoint, collision_threshold, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+				graph->vertices[i].state=ConnectivityGraph::VertexState::LOCKED_NODE;
+			else
+			{
+				graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
+				free_nodes++;
+			}
+		}
+	}
 	// http://pointclouds.org/documentation/tutorials/kdtree_search.php
-	// Pasamos a un kdtree para realizar mejor las busquedas.
-//  	pcl::search::KdTree<pcl::PointXYZ>::Ptr cloud_kdtree (new pcl::search::KdTree<pcl::PointXYZ>);
-// 	cloud_kdtree->setInputCloud(full_cloud);
-// 	
-// 	cloud_kdtree = NULL;
+	qDebug()<<"NODOS LIBRES: "<<free_nodes<<" DE "<<graph->vertices.size()<<" NODOS EN TOTAL";
 }
 
 
