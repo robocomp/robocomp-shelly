@@ -705,14 +705,6 @@ void SpecificWorker::compute()
 	default:
 		printf("%s: %d\n", __FILE__, __LINE__);
 	}
-	
-	
-	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	delete_collision_points();
        
 
 	switch(state)
@@ -803,7 +795,6 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::delete_collision_points()
 {
-	// AUXILIARES PARA ESTA MIERDA
 	std::vector<QString> meshes;                      // Los ****s meshes del brazo ordenados ascendentemente
 	recursiveIncludeMeshes(innerModel->getNode("arm_pose"), meshes);
 	std::sort(meshes.begin(), meshes.end()); 
@@ -849,7 +840,7 @@ void SpecificWorker::delete_collision_points()
 				innerModel->updateTransformValues("my_mesh", v(0),v(1),v(2),0,0,0, "robot");
 				for (auto a: meshes)
 				{
-					if (innerModel->collide(a, "my_mesh")==false)
+					if (innerModel->collide(a, "my_mesh")==true)
 					{
 		
 						full_cloud->points[usedPoints].x =  v(0);
@@ -1094,6 +1085,13 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	}
 	else
 	{	
+		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+		delete_collision_points();
+		
 		// Get closest node to initial position and update it in IMV
 		QVec position = innerModel->transform("robot", "grabPositionHandR");
 		closestToInit = graph->getCloserTo(position(0), position(1), position(2));
