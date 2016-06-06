@@ -129,7 +129,8 @@ private:
 	void goAndWaitDirect         (const MotorGoalPositionList &mpl);
 	void updateInnerModel        ();
 	void waitForMotorsToStop     ();
-    void delete_collision_points ();
+	void delete_collision_points ();
+	void recursiveIncludeMeshes  (InnerModelNode *node, std::vector<QString> &in);
 
 	////////////////////////////////////////
 	bool                    READY;
@@ -151,6 +152,7 @@ private:
 	
 	pcl::PointCloud<pcl::PointXYZ>::Ptr full_cloud /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
+	InnerModelMesh          *my_mesh;
 	
 	MotorGoalPositionList          centerConfiguration;
 	MotorGoalPositionList          lastMotorGoalPositionList;

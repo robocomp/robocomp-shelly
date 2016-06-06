@@ -4,7 +4,7 @@
             
             <plane id="ddG" ny="1"  px="-0" py="0" pz="0" size="5000,5000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
 
-            <transform id="target00" tz="448" ty="950" ry="3.14159265359">
+            <transform id="target00" tx='100' tz="660" ty="820" ry="3.14159265359">
             <plane id="planeTag00" nz="-1" size="-216,279,10"   texture="/home/robocomp/robocomp/files/innermodel/tar36h11-0.png" />
                     <transform id="target0axis" tx="0" ty="0" tz="0.0">
                             <plane id="target0x" px="400" nx="1" size="5,5,800" repeat="1" texture="#ff0000" />
