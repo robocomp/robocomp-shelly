@@ -106,9 +106,19 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if( QFile::exists(QString::fromStdString(par.value)) )
 	{
 		innerModel  = new InnerModel(par.value);
+//------------------------------------------------------------------------------------------------------------------------------------------------
 		//my mesh para ver si chocamos con el brazo.
-		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("robot"), "/home/robocomp/robocomp/files/osgModels/robex/robex.3ds", 
-					       100,10,0,0,0,0,0,0, true);
+// 		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("robot"), "/home/robocomp/robocomp/files/osgModels/robex/robex.3ds", 
+// 					       100,10,0,0,0,0,0,0, true);
+		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("robot"), "/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", 
+					       25,25,25,
+					       0,
+				               0,0,0,0,0,0, 
+				               true);
+		recursiveIncludeMeshes(innerModel->getNode("arm_pose"), meshes);
+		std::sort(meshes.begin(), meshes.end()); 
+//------------------------------------------------------------------------------------------------------------------------------------------------
+	
 #ifdef USE_QTGUI
 		innerVisual = new InnerModel(par.value);
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
@@ -793,14 +803,12 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-void SpecificWorker::delete_collision_points()
-{
-	std::vector<QString> meshes;                      // Los ****s meshes del brazo ordenados ascendentemente
-	recursiveIncludeMeshes(innerModel->getNode("arm_pose"), meshes);
-	std::sort(meshes.begin(), meshes.end()); 
+bool SpecificWorker::delete_collision_points()
+{ 
+	qDebug()<<"HE ENTRADO!!!!!";
 	innerModel->updateTransformValues("my_mesh", 0,0,0,0,0,0, "robot");
 		
-	float collision_threshold = 50;                  // Los ****s centímetros entre el punto y los nodos del grafo 5 cm
+	float collision_threshold = 40;                  // Los ****s centímetros entre el punto y los nodos del grafo 8 cm
 	RoboCompRGBD::PointSeq point_cloud;              // Los ****s puntos detectados por la RGBD
 	RoboCompJointMotor::MotorStateMap hState;        // Para sacar los puntos de la RGBD
 	RoboCompDifferentialRobot::TBaseState bState;    // Para sacar los puntos de la RGBD
@@ -825,6 +833,8 @@ void SpecificWorker::delete_collision_points()
 	//cargamos el numero de hilos que lanzaran los procesos
 	int num_hilos = 3;
 	omp_set_num_threads(num_hilos);
+	
+	qDebug()<<"---------------------------->"<<point_cloud.size();
 
 	#pragma omp parallel for shared(usedPoints) ordered schedule(static,1)
 	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
@@ -838,9 +848,10 @@ void SpecificWorker::delete_collision_points()
 			{
 				// De esos puntos quitamos los que se correspondan con el brazo
 				innerModel->updateTransformValues("my_mesh", v(0),v(1),v(2),0,0,0, "robot");
+
 				for (auto a: meshes)
 				{
-					if (innerModel->collide(a, "my_mesh")==true)
+					if (innerModel->collide(a, "my_mesh")==false)
 					{
 		
 						full_cloud->points[usedPoints].x =  v(0);
@@ -916,18 +927,25 @@ void SpecificWorker::delete_collision_points()
 										QVec::vec3(graph->vertices[i].pose[0], 
 											   graph->vertices[i].pose[1], 
 											   graph->vertices[i].pose[2]),
-										QVec::vec3(1,0,0), "#2277cc", QVec::vec3(2,2,2));
+										QVec::vec3(1,0,0), "#cc2222", QVec::vec3(2,2,2));
 				}
 				else
 				{
 					graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
 					free_nodes++;
+					InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+										QVec::vec3(graph->vertices[i].pose[0], 
+											   graph->vertices[i].pose[1], 
+											   graph->vertices[i].pose[2]),
+										QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
 				}
 			}
 		}
 		// http://pointclouds.org/documentation/tutorials/kdtree_search.php
 		qDebug()<<"NODOS LIBRES: "<<free_nodes<<" DE "<<graph->vertices.size()<<" NODOS EN TOTAL";
+		return true;
 	}
+	return false;
 // 	qDebug()<<"FIN DE ESTA MIERDA";
 }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -936,22 +954,53 @@ void SpecificWorker::delete_collision_points()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
 {
-	QMutexLocker locker(mutex);
-
-	InnerModelMesh *mesh;
-	InnerModelPlane *plane;
-	InnerModelTransform *transformation;
-
-	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+	bool niapa = true;
+	if (niapa)
 	{
-		for (int i=0; i<node->children.size(); i++)
-		{
-			recursiveIncludeMeshes(node->children[i], in);
-		}
+		in.push_back("shellyArm_BASE_mesh");
+		in.push_back("shellyArm_BASE2_mesh");
+		in.push_back("shellyArm_HUMERO_mesh");
+		in.push_back("shellyArm_CODO_mesh");
+		in.push_back("shellyArm_ANTEBRAZO_mesh");
+		in.push_back("finger_wrist_mesh");
+		in.push_back("handMeshBase");
+		in.push_back("handMesh2");
+		in.push_back("finger_wrist_1_mesh2");
+		in.push_back("finger_wrist_1_mesh3");
+		in.push_back("finger_wrist_1_mesh4");
+		in.push_back("finger_wrist_1_mesh5");
+		in.push_back("finger_wrist_1_mesh6");
+		in.push_back("finger_wrist_1_mesh7");
+		in.push_back("finger_wrist_2_mesh2");
+		in.push_back("finger_wrist_2_mesh3");
+		in.push_back("finger_wrist_2_mesh4");
 	}
-	else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+	else
 	{
-		in.push_back(node->id);
+		QMutexLocker locker(mutex);
+	
+		InnerModelMesh *mesh;
+		InnerModelPlane *plane;
+		InnerModelTransform *transformation;
+	
+		if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+		{
+			for (int i=0; i<node->children.size(); i++)
+			{
+				recursiveIncludeMeshes(node->children[i], in);
+			}
+		}
+		if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+// 		else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+		{
+			in.push_back(node->id);
+		}
+		for (auto a: meshes)
+		{
+	// 		qDebug()<<a.toStdString();
+			qDebug()<<a;
+		}
+		qFatal("dd");
 	}
 }
 
@@ -1070,7 +1119,13 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	innerModel->updateTransformValues("target", target.x, target.y, target.z, target.rx, target.ry, target.rz);
 	float distancia = innerModel->transform("target", "grabPositionHandR").norm2();
  	printf("ERROR AL TARGET: %f\n", distancia);
-	if (distancia<100)
+	
+	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
+	if (delete_collision_points()==false and distancia<100)
 	{
  		qDebug()<<"DIRECTO";
  		qDebug()<<"DIRECTO";
@@ -1085,13 +1140,6 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 	}
 	else
 	{	
-		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-		// ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-		delete_collision_points();
-		
 		// Get closest node to initial position and update it in IMV
 		QVec position = innerModel->transform("robot", "grabPositionHandR");
 		closestToInit = graph->getCloserTo(position(0), position(1), position(2));
