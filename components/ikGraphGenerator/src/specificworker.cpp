@@ -108,9 +108,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		innerModel  = new InnerModel(par.value);
 //------------------------------------------------------------------------------------------------------------------------------------------------
 		//my mesh para ver si chocamos con el brazo.
-// 		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("robot"), "/home/robocomp/robocomp/files/osgModels/robex/robex.3ds", 
-// 					       100,10,0,0,0,0,0,0, true);
-		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("robot"), "/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", 
+		my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("root"), "/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", 
 					       25,25,25,
 					       0,
 				               0,0,0,0,0,0, 
@@ -124,6 +122,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
 		osgView->getRootGroup()->addChild(innerViewer);
 		show();
+// 		InnerModelDraw::addMesh_ignoreExisting(innerViewer, "my_mesh", "root", QVec::zeros(3), QVec::zeros(3),"/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", QVec::vec3(25,25,25));
+
 #endif
 	}
 	else
@@ -716,7 +716,9 @@ void SpecificWorker::compute()
 		printf("%s: %d\n", __FILE__, __LINE__);
 	}
        
-
+       // NOTE El collision podría venir aquí, pero ralentiza en exceso la ejecución y de todas maneras, el path por el grafo ya se calcula 
+       //      en el mismo momento en que entra un target.
+       
 	switch(state)
 	{
 	case GIK_NoTarget:
@@ -805,11 +807,11 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SpecificWorker::delete_collision_points()
 { 
-	qDebug()<<"HE ENTRADO!!!!!";
-	innerModel->updateTransformValues("my_mesh", 0,0,0,0,0,0, "robot");
-		
-	float collision_threshold = 40;                  // Los ****s centímetros entre el punto y los nodos del grafo 8 cm
-	RoboCompRGBD::PointSeq point_cloud;              // Los ****s puntos detectados por la RGBD
+	// Actualizamos el mesh auxiliar para ponerlo donde no estorbe.
+	innerModel->updateTransformValues("my_mesh", 0,0,0,0,0,0, "root");
+
+	float collision_threshold = 40;                  // Los centímetros entre el punto y los nodos del grafo 8 cm
+	RoboCompRGBD::PointSeq point_cloud;              // Los puntos detectados por la RGBD
 	RoboCompJointMotor::MotorStateMap hState;        // Para sacar los puntos de la RGBD
 	RoboCompDifferentialRobot::TBaseState bState;    // Para sacar los puntos de la RGBD
 	
@@ -824,8 +826,6 @@ bool SpecificWorker::delete_collision_points()
 	// Guardamos los puntos dentro del array si estan dentro del volumen de trabajo del robot.
 	float minx= -120.0, miny= 820.0, minz=560.0;
 	float maxx=  120.0, maxy= 1020.0, maxz=760.0;
-	//120_980_680
-	//-120_820_600
 	
 	QMat mat = innerModel->getTransformationMatrix("robot", "rgbd"); //matriz de transformacion
 	int32_t usedPoints = 0;
@@ -837,7 +837,7 @@ bool SpecificWorker::delete_collision_points()
 	qDebug()<<"---------------------------->"<<point_cloud.size();
 
 	#pragma omp parallel for shared(usedPoints) ordered schedule(static,1)
-	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
+	for (uint32_t i=0; i<point_cloud.size(); /*i++*/i=i+10) //casi mismo resultado que si computamos con todos los puntos
 	{
 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
 		                           point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
@@ -846,40 +846,15 @@ bool SpecificWorker::delete_collision_points()
 		{
 			#pragma omp ordered
 			{
-				// De esos puntos quitamos los que se correspondan con el brazo
-				innerModel->updateTransformValues("my_mesh", v(0),v(1),v(2),0,0,0, "robot");
 
-				for (auto a: meshes)
-				{
-					if (innerModel->collide(a, "my_mesh")==false)
-					{
-		
-						full_cloud->points[usedPoints].x =  v(0);
-						full_cloud->points[usedPoints].y =  v(1);
-						full_cloud->points[usedPoints].z =  v(2);
-						usedPoints++;
-					}//fin del if
-				}//fin del for
+				full_cloud->points[usedPoints].x =  v(0);
+				full_cloud->points[usedPoints].y =  v(1);
+				full_cloud->points[usedPoints].z =  v(2);
+				usedPoints++;
 			}//fin del pragma
 		}//fin del if
 	}
-/*	
-	#pragma omp parallel for shared(usedPoints)
-	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
-	{
-		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
-					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
-					
-		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
-		{
-			full_cloud->points[usedPoints].x =  v(0);
-			full_cloud->points[usedPoints].y =  v(1);
-			full_cloud->points[usedPoints].z =  v(2);
-			#pragma omp critical
-			usedPoints++;
-		}
-	}
-*/
+	
 	if (usedPoints>0)
 	{
 		// AHora guardamos los puntos restantes en la nube
@@ -904,14 +879,19 @@ bool SpecificWorker::delete_collision_points()
 		kdtree.setInputCloud (cloud_filtered);
 		
 		// Comparamos los nodos del grafo con el KDTREE:
-		pcl::PointXYZ searchPoint;                     //estructura para comparar
-		std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
-		std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
+// 		pcl::PointXYZ searchPoint;                     //estructura para comparar
+// 		std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
+// 		std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
 		//recorremos grafo
 		int free_nodes=0;
 
+		#pragma omp parallel for shared(free_nodes) ordered schedule(static,1)
 		for (uint i=0; i<graph->vertices.size(); i++)
 		{
+			pcl::PointXYZ searchPoint;                     //estructura para comparar
+			std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
+			std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
+		
 			if (graph->vertices[i].valid)
 			{
 				// Pasamos el nodo a PointXYZ
@@ -919,25 +899,47 @@ bool SpecificWorker::delete_collision_points()
 				searchPoint.y = graph->vertices[i].pose[1];
 				searchPoint.z = graph->vertices[i].pose[2];
 				// Si hay puntos que chocan contra el vertice dle grafo, hay que invalidarlo
-				if (kdtree.radiusSearch (searchPoint, collision_threshold, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+				#pragma omp ordered
 				{
-					graph->vertices[i].state=ConnectivityGraph::VertexState::LOCKED_NODE;
-					
-					InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
-										QVec::vec3(graph->vertices[i].pose[0], 
-											   graph->vertices[i].pose[1], 
-											   graph->vertices[i].pose[2]),
-										QVec::vec3(1,0,0), "#cc2222", QVec::vec3(2,2,2));
-				}
-				else
-				{
-					graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
-					free_nodes++;
-					InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
-										QVec::vec3(graph->vertices[i].pose[0], 
-											   graph->vertices[i].pose[1], 
-											   graph->vertices[i].pose[2]),
-										QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+					if (kdtree.radiusSearch (searchPoint, collision_threshold, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+					{
+						// De esos puntos quitamos los que se correspondan con el brazo
+						innerModel->updateTransformValues("my_mesh", searchPoint.x, searchPoint.y, searchPoint.z,0,0,0, "root");
+						for (auto a: meshes)
+						{
+							if (innerModel->collide(a, "my_mesh")==false)
+							{
+								graph->vertices[i].state=ConnectivityGraph::VertexState::LOCKED_NODE;
+								
+								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+													QVec::vec3(graph->vertices[i].pose[0], 
+														graph->vertices[i].pose[1], 
+														graph->vertices[i].pose[2]),
+													QVec::vec3(1,0,0), "#cc2222", QVec::vec3(2,2,2));
+								break;
+							}// fin del if
+							else
+							{
+								graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
+								free_nodes++;
+								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+													QVec::vec3(graph->vertices[i].pose[0], 
+														graph->vertices[i].pose[1], 
+														graph->vertices[i].pose[2]),
+													QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+							}
+						}//fin del for
+					}
+					else
+					{
+						graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
+						free_nodes++;
+						InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+											QVec::vec3(graph->vertices[i].pose[0], 
+												graph->vertices[i].pose[1], 
+												graph->vertices[i].pose[2]),
+											QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+					}
 				}
 			}
 		}
@@ -1000,7 +1002,7 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 	// 		qDebug()<<a.toStdString();
 			qDebug()<<a;
 		}
-		qFatal("dd");
+// 		qFatal("dd");
 	}
 }
 
