@@ -42,8 +42,8 @@ private:
 	BodyPart *bodypart;
 	
 	int repetitions;
-    float error_threshold;
-    float errorT_threshold;
-    float errorR_threshold;
+	float error_threshold;
+	float errorT_threshold;
+	float errorR_threshold;
 };
 #endif
