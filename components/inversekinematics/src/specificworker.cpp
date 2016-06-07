@@ -30,14 +30,18 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 // 	if (file.is_open()==false)
 // 		qFatal("ARCHIVO NO ABIERTO");
 
+			qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	innermodel          = NULL;
 #ifdef USE_QTGUI
 	innerViewer         = NULL;
 	this->osgView       = new OsgView(this);
 // 	show();
 #endif
+
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 	inversedkinematic   = new InversedKinematic();
 	correlativeID       = 0;
+		qDebug() << __FILE__ << __FUNCTION__ << __LINE__;
 }
 /**
 * \brief Default destructor
