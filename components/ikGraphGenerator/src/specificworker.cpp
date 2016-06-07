@@ -984,22 +984,21 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 		InnerModelMesh *mesh;
 		InnerModelPlane *plane;
 		InnerModelTransform *transformation;
-	
-		if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+
+		if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+		{
+			in.push_back(node->id);
+		}
+
+		else if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
 		{
 			for (int i=0; i<node->children.size(); i++)
 			{
 				recursiveIncludeMeshes(node->children[i], in);
 			}
 		}
-		if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
-// 		else if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
-		{
-			in.push_back(node->id);
-		}
 		for (auto a: meshes)
 		{
-	// 		qDebug()<<a.toStdString();
 			qDebug()<<a;
 		}
 // 		qFatal("dd");
