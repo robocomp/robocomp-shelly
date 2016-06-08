@@ -36,8 +36,8 @@ void InversedKinematic::solveTarget(BodyPart *bodypart_, InnerModel *innermodel_
 
 	if(target.getTargetType()==Target::ADVANCEAXIS and target.getTargetState()==Target::IN_PROCESS)
 	{
-		QVec axis = target.getTargetAxis() * target.getTargetStep(); 				//Scale the unitary vector along direction by distance
-		QVec pose = innermodel->transform("root", axis, bodypart->getTipName());	//We go from tip to root
+		QVec axis = target.getTargetAxis() * target.getTargetStep(); 		 //Scale the unitary vector along direction by distance
+		QVec pose = innermodel->transform("root", axis, bodypart->getTipName()); //We go from tip to root
 
 		QMat matrix_from_TIP_to_ROOT = innermodel->getRotationMatrixTo("root", bodypart->getTipName());
 		QVec angles_rot = matrix_from_TIP_to_ROOT.extractAnglesR_min();
