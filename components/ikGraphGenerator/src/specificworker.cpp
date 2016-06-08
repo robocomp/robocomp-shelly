@@ -109,10 +109,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 //------------------------------------------------------------------------------------------------------------------------------------------------
 		//my mesh para ver si chocamos con el brazo.
 		//my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("root"), "/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", 
-					       25,25,25,
-					       0,
-				               0,0,0,0,0,0, 
-				               true);
+		//			       25,25,25,
+		//			       0,
+		//		               0,0,0,0,0,0, 
+		//		               true);
 		//recursiveIncludeMeshes(innerModel->getNode("arm_pose"), meshes);
 		//std::sort(meshes.begin(), meshes.end()); 
 //------------------------------------------------------------------------------------------------------------------------------------------------
