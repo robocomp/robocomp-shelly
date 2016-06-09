@@ -77,7 +77,7 @@
 	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableE" />
 	<attribute key="imType" value="transform" />
-	<attribute key="width" value="1750" />
+	<attribute key="width" value="1800" />
 </symbol>
 <symbol id="39" type="objectSt"/>
 <symbol id="40" type="objectSt">
@@ -130,7 +130,7 @@
 	<attribute key="mass" value="0" />
 </symbol>
 <symbol id="104" type="plane">
-	<attribute key="collidable" value="true" />
+	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="50" />
 	<attribute key="height" value="270" />
 	<attribute key="imName" value="monitor_mesh" />
@@ -152,7 +152,7 @@
 	<attribute key="mass" value="0" />
 </symbol>
 <symbol id="106" type="plane">
-	<attribute key="collidable" value="true" />
+	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="150" />
 	<attribute key="height" value="250" />
 	<attribute key="imName" value="caja_mesh" />
@@ -168,7 +168,7 @@
 	<attribute key="width" value="350" />
 </symbol>
 <symbol id="107" type="mesh">
-	<attribute key="collidable" value="true" />
+	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="base_mesh" />
 	<attribute key="imType" value="mesh" />
 	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds" />
@@ -178,7 +178,7 @@
 	<attribute key="scalez" value="1000" />
 </symbol>
 <symbol id="108" type="mesh">
-	<attribute key="collidable" value="true" />
+	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="barrahombro" />
 	<attribute key="imType" value="mesh" />
 	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" />
@@ -188,7 +188,7 @@
 	<attribute key="scalez" value="1000" />
 </symbol>
 <symbol id="109" type="mesh">
-	<attribute key="collidable" value="true" />
+	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="barracolumna" />
 	<attribute key="imType" value="mesh" />
 	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" />
@@ -247,7 +247,7 @@
 	<attribute key="render" value="NormalRendering" />
 	<attribute key="scalex" value="25" />
 	<attribute key="scaley" value="25" />
-	<attribute key="scalez" value="87.5" />
+	<attribute key="scalez" value="47.5" />
 </symbol>
 <symbol id="116" type="transform">
 	<attribute key="engine" value="static" />
@@ -335,8 +335,8 @@
 	<attribute key="home" value="0" />
 	<attribute key="imName" value="armY" />
 	<attribute key="imType" value="joint" />
-	<attribute key="max" value="1" />
-	<attribute key="min" value="-1" />
+	<attribute key="max" value="0.44" />
+	<attribute key="min" value="-0.44" />
 	<attribute key="port" value="10068" />
 </symbol>
 <symbol id="127" type="transform">
@@ -361,8 +361,8 @@
 	<attribute key="home" value="0" />
 	<attribute key="imName" value="armX1" />
 	<attribute key="imType" value="joint" />
-	<attribute key="max" value="1.2" />
-	<attribute key="min" value="-1.2" />
+	<attribute key="max" value="0" />
+	<attribute key="min" value="-2" />
 	<attribute key="port" value="10068" />
 </symbol>
 <symbol id="130" type="mesh">
@@ -397,8 +397,8 @@
 	<attribute key="home" value="0" />
 	<attribute key="imName" value="armX2" />
 	<attribute key="imType" value="joint" />
-	<attribute key="max" value="2.5" />
-	<attribute key="min" value="-2.5" />
+	<attribute key="max" value="2" />
+	<attribute key="min" value="-2" />
 	<attribute key="port" value="10068" />
 </symbol>
 <symbol id="134" type="mesh">
@@ -417,35 +417,29 @@
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="136" type="transform">
-	<attribute key="engine" value="static" />
-	<attribute key="imName" value="arm_wrist_5" />
-	<attribute key="imType" value="transform" />
-	<attribute key="mass" value="0" />
-</symbol>
-<symbol id="137" type="joint">
+<symbol id="136" type="joint">
 	<attribute key="angle" value="0" />
 	<attribute key="axis" value="x" />
 	<attribute key="home" value="0" />
 	<attribute key="imName" value="wristX" />
 	<attribute key="imType" value="joint" />
-	<attribute key="max" value="0.7" />
-	<attribute key="min" value="-0.7" />
+	<attribute key="max" value="1.7" />
+	<attribute key="min" value="-1.7" />
 	<attribute key="port" value="10067" />
 </symbol>
-<symbol id="138" type="transform">
+<symbol id="137" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="wrist_end" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="139" type="transform">
+<symbol id="138" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="grabPositionHandR_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="140" type="mesh">
+<symbol id="139" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_mesh" />
 	<attribute key="imType" value="mesh" />
@@ -455,13 +449,13 @@
 	<attribute key="scaley" value="20" />
 	<attribute key="scalez" value="45" />
 </symbol>
-<symbol id="141" type="transform">
+<symbol id="140" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="grabPositionHandR" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="142" type="plane">
+<symbol id="141" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="1" />
 	<attribute key="height" value="-85" />
@@ -477,7 +471,7 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="85" />
 </symbol>
-<symbol id="143" type="plane">
+<symbol id="142" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="2" />
 	<attribute key="height" value="-70" />
@@ -493,13 +487,13 @@
 	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" />
 	<attribute key="width" value="70" />
 </symbol>
-<symbol id="144" type="transform">
+<symbol id="143" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="arm_wrist_8" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="145" type="joint">
+<symbol id="144" type="joint">
 	<attribute key="angle" value="0" />
 	<attribute key="axis" value="y" />
 	<attribute key="home" value="0" />
@@ -509,7 +503,7 @@
 	<attribute key="min" value="-1.5708" />
 	<attribute key="port" value="10067" />
 </symbol>
-<symbol id="146" type="mesh">
+<symbol id="145" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh2" />
 	<attribute key="imType" value="mesh" />
@@ -519,13 +513,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="5" />
 </symbol>
-<symbol id="147" type="transform">
+<symbol id="146" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_1_1_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="148" type="mesh">
+<symbol id="147" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh3" />
 	<attribute key="imType" value="mesh" />
@@ -535,13 +529,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="30" />
 </symbol>
-<symbol id="149" type="transform">
+<symbol id="148" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_1_2_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="150" type="mesh">
+<symbol id="149" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh4" />
 	<attribute key="imType" value="mesh" />
@@ -551,7 +545,7 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="20" />
 </symbol>
-<symbol id="151" type="mesh">
+<symbol id="150" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh5" />
 	<attribute key="imType" value="mesh" />
@@ -561,13 +555,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="5" />
 </symbol>
-<symbol id="152" type="transform">
+<symbol id="151" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_1_3_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="153" type="mesh">
+<symbol id="152" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh6" />
 	<attribute key="imType" value="mesh" />
@@ -577,13 +571,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="30" />
 </symbol>
-<symbol id="154" type="transform">
+<symbol id="153" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_1_4_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="155" type="mesh">
+<symbol id="154" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_1_mesh7" />
 	<attribute key="imType" value="mesh" />
@@ -593,13 +587,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="20" />
 </symbol>
-<symbol id="156" type="transform">
+<symbol id="155" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="arm_wrist_9" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="157" type="joint">
+<symbol id="156" type="joint">
 	<attribute key="angle" value="0" />
 	<attribute key="axis" value="y" />
 	<attribute key="home" value="0" />
@@ -609,7 +603,7 @@
 	<attribute key="min" value="0" />
 	<attribute key="port" value="10067" />
 </symbol>
-<symbol id="158" type="mesh">
+<symbol id="157" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_2_mesh2" />
 	<attribute key="imType" value="mesh" />
@@ -619,13 +613,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="5" />
 </symbol>
-<symbol id="159" type="transform">
+<symbol id="158" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_2_1_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="160" type="mesh">
+<symbol id="159" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_2_mesh3" />
 	<attribute key="imType" value="mesh" />
@@ -635,13 +629,13 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="30" />
 </symbol>
-<symbol id="161" type="transform">
+<symbol id="160" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="finger_wrist_2_2_pre" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="162" type="mesh">
+<symbol id="161" type="mesh">
 	<attribute key="collidable" value="false" />
 	<attribute key="imName" value="finger_wrist_2_mesh4" />
 	<attribute key="imType" value="mesh" />
@@ -651,7 +645,7 @@
 	<attribute key="scaley" value="5" />
 	<attribute key="scalez" value="20" />
 </symbol>
-<symbol id="163" type="plane">
+<symbol id="162" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="200" />
 	<attribute key="height" value="30" />
@@ -667,7 +661,7 @@
 	<attribute key="texture" value="#ff0000" />
 	<attribute key="width" value="30" />
 </symbol>
-<symbol id="164" type="plane">
+<symbol id="163" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="200" />
@@ -683,7 +677,7 @@
 	<attribute key="texture" value="#00ff00" />
 	<attribute key="width" value="30" />
 </symbol>
-<symbol id="165" type="plane">
+<symbol id="164" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="30" />
@@ -699,7 +693,7 @@
 	<attribute key="texture" value="#0000ff" />
 	<attribute key="width" value="200" />
 </symbol>
-<symbol id="166" type="plane">
+<symbol id="165" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="39" />
 	<attribute key="height" value="39" />
@@ -715,13 +709,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="39" />
 </symbol>
-<symbol id="167" type="transform">
+<symbol id="166" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="floor" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="168" type="plane">
+<symbol id="167" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="8500" />
@@ -737,13 +731,13 @@
 	<attribute key="texture" value="#eebb77" />
 	<attribute key="width" value="7500" />
 </symbol>
-<symbol id="169" type="transform">
+<symbol id="168" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared0" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="170" type="plane">
+<symbol id="169" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="21.5" />
 	<attribute key="height" value="3000" />
@@ -759,13 +753,13 @@
 	<attribute key="texture" value="#ff8030" />
 	<attribute key="width" value="2150" />
 </symbol>
-<symbol id="171" type="transform">
+<symbol id="170" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared2" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="172" type="plane">
+<symbol id="171" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="16" />
 	<attribute key="height" value="3000" />
@@ -781,13 +775,13 @@
 	<attribute key="texture" value="#ff8030" />
 	<attribute key="width" value="1600" />
 </symbol>
-<symbol id="173" type="transform">
+<symbol id="172" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared3" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="174" type="plane">
+<symbol id="173" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="9.9" />
 	<attribute key="height" value="3000" />
@@ -803,13 +797,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="990" />
 </symbol>
-<symbol id="175" type="transform">
+<symbol id="174" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared4" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="176" type="plane">
+<symbol id="175" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="7.9" />
 	<attribute key="height" value="3000" />
@@ -825,13 +819,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="790" />
 </symbol>
-<symbol id="177" type="transform">
+<symbol id="176" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared5" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="178" type="plane">
+<symbol id="177" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="29.5" />
 	<attribute key="height" value="3000" />
@@ -847,13 +841,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="2950" />
 </symbol>
-<symbol id="179" type="transform">
+<symbol id="178" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared6" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="180" type="plane">
+<symbol id="179" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="8" />
 	<attribute key="height" value="3000" />
@@ -869,13 +863,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="800" />
 </symbol>
-<symbol id="181" type="transform">
+<symbol id="180" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared7" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="182" type="plane">
+<symbol id="181" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="1.5" />
 	<attribute key="height" value="3000" />
@@ -891,13 +885,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="150" />
 </symbol>
-<symbol id="183" type="transform">
+<symbol id="182" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared8" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="184" type="plane">
+<symbol id="183" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="5.3" />
 	<attribute key="height" value="3000" />
@@ -913,13 +907,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="530" />
 </symbol>
-<symbol id="185" type="transform">
+<symbol id="184" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared9" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="186" type="plane">
+<symbol id="185" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="2.4" />
 	<attribute key="height" value="3000" />
@@ -935,13 +929,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="240" />
 </symbol>
-<symbol id="187" type="transform">
+<symbol id="186" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared3A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="188" type="plane">
+<symbol id="187" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="3000" />
@@ -957,13 +951,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="990" />
 </symbol>
-<symbol id="189" type="transform">
+<symbol id="188" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared4A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="190" type="plane">
+<symbol id="189" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="3000" />
@@ -979,13 +973,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="790" />
 </symbol>
-<symbol id="191" type="transform">
+<symbol id="190" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared5A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="192" type="plane">
+<symbol id="191" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="3000" />
@@ -1001,13 +995,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="2800" />
 </symbol>
-<symbol id="193" type="transform">
+<symbol id="192" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared8A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="194" type="plane">
+<symbol id="193" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="3000" />
@@ -1023,13 +1017,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="1330" />
 </symbol>
-<symbol id="195" type="transform">
+<symbol id="194" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared9A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="196" type="plane">
+<symbol id="195" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="3000" />
@@ -1045,13 +1039,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="290" />
 </symbol>
-<symbol id="197" type="transform">
+<symbol id="196" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared10A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="198" type="plane">
+<symbol id="197" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="3000" />
@@ -1067,13 +1061,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="5670.22" />
 </symbol>
-<symbol id="199" type="transform">
+<symbol id="198" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared10B" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="200" type="plane">
+<symbol id="199" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="3000" />
@@ -1089,13 +1083,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="5670.22" />
 </symbol>
-<symbol id="201" type="transform">
+<symbol id="200" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared11A" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="202" type="plane">
+<symbol id="201" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="3000" />
@@ -1111,13 +1105,13 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="4080" />
 </symbol>
-<symbol id="203" type="transform">
+<symbol id="202" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="pared11B" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="204" type="plane">
+<symbol id="203" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="30" />
 	<attribute key="height" value="3000" />
@@ -1133,7 +1127,7 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="4080" />
 </symbol>
-<symbol id="205" type="plane">
+<symbol id="204" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="8" />
 	<attribute key="height" value="800" />
@@ -1149,13 +1143,13 @@
 	<attribute key="texture" value="#cccccc" />
 	<attribute key="width" value="1750" />
 </symbol>
-<symbol id="206" type="transform">
+<symbol id="205" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="mugRPr" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="207" type="mesh">
+<symbol id="206" type="mesh">
 	<attribute key="collidable" value="true" />
 	<attribute key="imName" value="mugR" />
 	<attribute key="imType" value="mesh" />
@@ -1165,7 +1159,7 @@
 	<attribute key="scaley" value="120" />
 	<attribute key="scalez" value="120" />
 </symbol>
-<symbol id="208" type="plane">
+<symbol id="207" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="5" />
 	<attribute key="height" value="-70" />
@@ -1181,7 +1175,7 @@
 	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" />
 	<attribute key="width" value="70" />
 </symbol>
-<symbol id="209" type="plane">
+<symbol id="208" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="3.5" />
 	<attribute key="height" value="-80" />
@@ -1197,10 +1191,10 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="80" />
 </symbol>
-<symbol id="210" type="plane">
+<symbol id="209" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="8" />
-	<attribute key="height" value="1200" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableBC" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
@@ -1211,12 +1205,12 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#cccccc" />
-	<attribute key="width" value="800" />
+	<attribute key="width" value="1200" />
 </symbol>
-<symbol id="211" type="plane">
+<symbol id="210" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="8" />
-	<attribute key="height" value="1750" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableCC" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
@@ -1227,9 +1221,9 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#cccccc" />
-	<attribute key="width" value="800" />
+	<attribute key="width" value="1750" />
 </symbol>
-<symbol id="212" type="mesh">
+<symbol id="211" type="mesh">
 	<attribute key="collidable" value="true" />
 	<attribute key="imName" value="tableDC" />
 	<attribute key="imType" value="mesh" />
@@ -1239,7 +1233,7 @@
 	<attribute key="scaley" value="600" />
 	<attribute key="scalez" value="12" />
 </symbol>
-<symbol id="213" type="mesh">
+<symbol id="212" type="mesh">
 	<attribute key="collidable" value="true" />
 	<attribute key="imName" value="mesaRd" />
 	<attribute key="imType" value="mesh" />
@@ -1249,7 +1243,7 @@
 	<attribute key="scaley" value="30" />
 	<attribute key="scalez" value="400" />
 </symbol>
-<symbol id="214" type="mesh">
+<symbol id="213" type="mesh">
 	<attribute key="collidable" value="true" />
 	<attribute key="imName" value="mesaRdb" />
 	<attribute key="imType" value="mesh" />
@@ -1259,7 +1253,7 @@
 	<attribute key="scaley" value="325" />
 	<attribute key="scalez" value="9" />
 </symbol>
-<symbol id="215" type="plane">
+<symbol id="214" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="3.5" />
 	<attribute key="height" value="-80" />
@@ -1275,7 +1269,7 @@
 	<attribute key="texture" value="#ffffff" />
 	<attribute key="width" value="80" />
 </symbol>
-<symbol id="216" type="plane">
+<symbol id="215" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="6.3" />
 	<attribute key="height" value="2480" />
@@ -1291,7 +1285,7 @@
 	<attribute key="texture" value="#cccccc" />
 	<attribute key="width" value="630" />
 </symbol>
-<symbol id="217" type="plane">
+<symbol id="216" type="plane">
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="6.3" />
 	<attribute key="height" value="630" />
@@ -1307,10 +1301,10 @@
 	<attribute key="texture" value="#cccccc" />
 	<attribute key="width" value="2600" />
 </symbol>
-<symbol id="218" type="plane">
+<symbol id="217" type="plane">
 	<attribute key="collidable" value="false" />
-	<attribute key="depth" value="10" />
-	<attribute key="height" value="1750" />
+	<attribute key="depth" value="8" />
+	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableEC" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
@@ -1321,15 +1315,15 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#cccccc" />
-	<attribute key="width" value="1000" />
+	<attribute key="width" value="1800" />
 </symbol>
-<symbol id="219" type="transform">
+<symbol id="218" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="fridge" />
 	<attribute key="imType" value="transform" />
 	<attribute key="mass" value="0" />
 </symbol>
-<symbol id="220" type="mesh">
+<symbol id="219" type="mesh">
 	<attribute key="collidable" value="true" />
 	<attribute key="imName" value="fridgeC" />
 	<attribute key="imType" value="mesh" />
@@ -1377,7 +1371,7 @@
 </link>
 <link src="3" dst="23" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="3200" />
 	<linkAttribute key="ty" value="800" />
@@ -1394,7 +1388,7 @@
 </link>
 <link src="3" dst="26" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="ry" value="-1.5707" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="5150" />
 	<linkAttribute key="ty" value="800" />
@@ -1462,7 +1456,7 @@
 </link>
 <link src="5" dst="38" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="ry" value="-1.5707" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="6500" />
 	<linkAttribute key="ty" value="800" />
@@ -1558,7 +1552,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="370" />
-	<linkAttribute key="tz" value="240" />
+	<linkAttribute key="tz" value="230" />
 </link>
 <link src="101" dst="102" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -1569,12 +1563,12 @@
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="1" dst="103" label="RT">
-	<linkAttribute key="rx" value="-0.1" />
+	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="1150" />
-	<linkAttribute key="tz" value="60" />
+	<linkAttribute key="ty" value="1155" />
+	<linkAttribute key="tz" value="50" />
 </link>
 <link src="103" dst="104" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -1629,15 +1623,15 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="1225" />
-	<linkAttribute key="tz" value="30" />
+	<linkAttribute key="ty" value="1388" />
+	<linkAttribute key="tz" value="55" />
 </link>
 <link src="110" dst="111" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="77" />
+	<linkAttribute key="ty" value="17" />
 	<linkAttribute key="tz" value="40" />
 </link>
 <link src="111" dst="112" label="RT">
@@ -1669,7 +1663,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="87.5" />
+	<linkAttribute key="ty" value="47.5" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="114" dst="116" label="RT">
@@ -1677,7 +1671,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="175" />
+	<linkAttribute key="ty" value="74" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="116" dst="117" label="RT">
@@ -1709,7 +1703,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="82" />
+	<linkAttribute key="ty" value="50" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="120" dst="121" label="RT">
@@ -1718,7 +1712,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="15" />
+	<linkAttribute key="tz" value="10" />
 </link>
 <link src="121" dst="122" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -1733,8 +1727,8 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="750" />
-	<linkAttribute key="tz" value="100" />
+	<linkAttribute key="ty" value="710" />
+	<linkAttribute key="tz" value="140" />
 </link>
 <link src="123" dst="124" label="RT">
 	<linkAttribute key="rx" value="1.5708" />
@@ -1765,7 +1759,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="100" />
+	<linkAttribute key="ty" value="175" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="127" dst="128" label="RT">
@@ -1830,7 +1824,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="200" />
+	<linkAttribute key="tz" value="294" />
 </link>
 <link src="135" dst="136" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -1838,7 +1832,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="40" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="136" dst="137" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -1846,25 +1840,17 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="0" />
+	<linkAttribute key="tz" value="74" />
 </link>
 <link src="137" dst="138" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="110" />
+	<linkAttribute key="ty" value="30" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="138" dst="139" label="RT">
-	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
-	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="20" />
-	<linkAttribute key="tz" value="-50" />
-</link>
-<link src="139" dst="140" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1872,7 +1858,7 @@
 	<linkAttribute key="ty" value="-20" />
 	<linkAttribute key="tz" value="-10" />
 </link>
-<link src="139" dst="141" label="RT">
+<link src="138" dst="140" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1880,7 +1866,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="141" dst="142" label="RT">
+<link src="140" dst="141" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1888,7 +1874,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="141" dst="143" label="RT">
+<link src="140" dst="142" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1896,7 +1882,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="138" dst="144" label="RT">
+<link src="137" dst="143" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1904,23 +1890,23 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
+<link src="143" dst="144" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
 <link src="144" dst="145" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="0" />
-</link>
-<link src="145" dst="146" label="RT">
-	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
-	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="18" />
 	<linkAttribute key="ty" value="12" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="145" dst="147" label="RT">
+<link src="144" dst="146" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0.7" />
 	<linkAttribute key="rz" value="0" />
@@ -1928,7 +1914,7 @@
 	<linkAttribute key="ty" value="12" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="147" dst="148" label="RT">
+<link src="146" dst="147" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1936,7 +1922,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="30" />
 </link>
-<link src="147" dst="149" label="RT">
+<link src="146" dst="148" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="-0.4" />
 	<linkAttribute key="rz" value="0" />
@@ -1944,7 +1930,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="149" dst="150" label="RT">
+<link src="148" dst="149" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1952,7 +1938,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="80" />
 </link>
-<link src="145" dst="151" label="RT">
+<link src="144" dst="150" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1960,7 +1946,7 @@
 	<linkAttribute key="ty" value="-12" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="145" dst="152" label="RT">
+<link src="144" dst="151" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0.7" />
 	<linkAttribute key="rz" value="0" />
@@ -1968,7 +1954,7 @@
 	<linkAttribute key="ty" value="-12" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="152" dst="153" label="RT">
+<link src="151" dst="152" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1976,7 +1962,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="30" />
 </link>
-<link src="152" dst="154" label="RT">
+<link src="151" dst="153" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="-0.4" />
 	<linkAttribute key="rz" value="0" />
@@ -1984,7 +1970,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="154" dst="155" label="RT">
+<link src="153" dst="154" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -1992,7 +1978,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="80" />
 </link>
-<link src="138" dst="156" label="RT">
+<link src="137" dst="155" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2000,7 +1986,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="156" dst="157" label="RT">
+<link src="155" dst="156" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2008,7 +1994,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="157" dst="158" label="RT">
+<link src="156" dst="157" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2016,7 +2002,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="157" dst="159" label="RT">
+<link src="156" dst="158" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="-0.7" />
 	<linkAttribute key="rz" value="0" />
@@ -2024,7 +2010,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="159" dst="160" label="RT">
+<link src="158" dst="159" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2032,7 +2018,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="30" />
 </link>
-<link src="159" dst="161" label="RT">
+<link src="158" dst="160" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0.4" />
 	<linkAttribute key="rz" value="0" />
@@ -2040,13 +2026,21 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="161" dst="162" label="RT">
+<link src="160" dst="161" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="80" />
+</link>
+<link src="100" dst="162" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="100" dst="163" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -2076,19 +2070,11 @@
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="0" />
-</link>
-<link src="100" dst="167" label="RT">
-	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
-	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="3500" />
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="167" dst="168" label="RT">
+<link src="166" dst="167" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2096,7 +2082,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="169" label="RT">
+<link src="100" dst="168" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2104,7 +2090,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="169" dst="170" label="RT">
+<link src="168" dst="169" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2112,7 +2098,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="171" label="RT">
+<link src="100" dst="170" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2120,7 +2106,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="171" dst="172" label="RT">
+<link src="170" dst="171" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2128,7 +2114,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="173" label="RT">
+<link src="100" dst="172" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2136,7 +2122,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="495" />
 </link>
-<link src="173" dst="174" label="RT">
+<link src="172" dst="173" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2144,7 +2130,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="175" label="RT">
+<link src="100" dst="174" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2152,7 +2138,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="990" />
 </link>
-<link src="175" dst="176" label="RT">
+<link src="174" dst="175" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2160,7 +2146,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="177" label="RT">
+<link src="100" dst="176" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2168,7 +2154,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="2465" />
 </link>
-<link src="177" dst="178" label="RT">
+<link src="176" dst="177" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2176,7 +2162,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="179" label="RT">
+<link src="100" dst="178" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2184,7 +2170,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="3940" />
 </link>
-<link src="179" dst="180" label="RT">
+<link src="178" dst="179" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2192,7 +2178,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="181" label="RT">
+<link src="100" dst="180" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2200,7 +2186,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="3865" />
 </link>
-<link src="181" dst="182" label="RT">
+<link src="180" dst="181" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2208,7 +2194,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="183" label="RT">
+<link src="100" dst="182" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2216,7 +2202,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="3790" />
 </link>
-<link src="183" dst="184" label="RT">
+<link src="182" dst="183" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2224,7 +2210,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="185" label="RT">
+<link src="100" dst="184" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2232,7 +2218,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="3910" />
 </link>
-<link src="185" dst="186" label="RT">
+<link src="184" dst="185" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2240,7 +2226,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="187" label="RT">
+<link src="100" dst="186" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2248,7 +2234,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-495" />
 </link>
-<link src="187" dst="188" label="RT">
+<link src="186" dst="187" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2256,7 +2242,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="189" label="RT">
+<link src="100" dst="188" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2264,7 +2250,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-990" />
 </link>
-<link src="189" dst="190" label="RT">
+<link src="188" dst="189" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2272,7 +2258,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="191" label="RT">
+<link src="100" dst="190" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2280,7 +2266,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-2390" />
 </link>
-<link src="191" dst="192" label="RT">
+<link src="190" dst="191" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2288,7 +2274,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="193" label="RT">
+<link src="100" dst="192" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2296,7 +2282,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-3790" />
 </link>
-<link src="193" dst="194" label="RT">
+<link src="192" dst="193" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2304,7 +2290,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="195" label="RT">
+<link src="100" dst="194" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2312,7 +2298,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-3930" />
 </link>
-<link src="195" dst="196" label="RT">
+<link src="194" dst="195" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2320,7 +2306,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="197" label="RT">
+<link src="100" dst="196" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2328,7 +2314,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-4055" />
 </link>
-<link src="197" dst="198" label="RT">
+<link src="196" dst="197" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2336,7 +2322,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="199" label="RT">
+<link src="100" dst="198" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2344,7 +2330,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="4055" />
 </link>
-<link src="199" dst="200" label="RT">
+<link src="198" dst="199" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2352,7 +2338,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="201" label="RT">
+<link src="100" dst="200" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2360,7 +2346,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="-2040" />
 </link>
-<link src="201" dst="202" label="RT">
+<link src="200" dst="201" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2368,7 +2354,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="203" label="RT">
+<link src="100" dst="202" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2376,7 +2362,7 @@
 	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="2040" />
 </link>
-<link src="203" dst="204" label="RT">
+<link src="202" dst="203" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2384,7 +2370,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="20" dst="205" label="RT">
+<link src="20" dst="204" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2392,7 +2378,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="50" dst="206" label="RT">
+<link src="50" dst="205" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2400,10 +2386,18 @@
 	<linkAttribute key="ty" value="-50" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="206" dst="207" label="RT">
+<link src="205" dst="206" label="RT">
 	<linkAttribute key="rx" value="1.5707" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="-1.5707" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="50" dst="207" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
@@ -2416,7 +2410,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="50" dst="209" label="RT">
+<link src="23" dst="209" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2424,7 +2418,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="23" dst="210" label="RT">
+<link src="26" dst="210" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2432,8 +2426,8 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="26" dst="211" label="RT">
-	<linkAttribute key="rx" value="0" />
+<link src="35" dst="211" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
@@ -2445,7 +2439,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="-400" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="35" dst="213" label="RT">
@@ -2453,18 +2447,10 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="-400" />
-	<linkAttribute key="tz" value="0" />
-</link>
-<link src="35" dst="214" label="RT">
-	<linkAttribute key="rx" value="1.5707" />
-	<linkAttribute key="ry" value="0" />
-	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="-800" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="35" dst="215" label="RT">
+<link src="35" dst="214" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2472,7 +2458,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="29" dst="216" label="RT">
+<link src="29" dst="215" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2480,7 +2466,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="32" dst="217" label="RT">
+<link src="32" dst="216" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2488,7 +2474,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="38" dst="218" label="RT">
+<link src="38" dst="217" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2496,7 +2482,7 @@
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
-<link src="100" dst="219" label="RT">
+<link src="100" dst="218" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2504,7 +2490,7 @@
 	<linkAttribute key="ty" value="800" />
 	<linkAttribute key="tz" value="-3750" />
 </link>
-<link src="219" dst="220" label="RT">
+<link src="218" dst="219" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
