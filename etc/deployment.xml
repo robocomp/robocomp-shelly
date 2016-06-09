@@ -362,18 +362,6 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="initPose" endpoint="e:tcp -p 1">
-  <dependence alias="comJoint" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost initPose /home/robocomp/robocomp/components/robocomp-shelly/components/manualLocalization python src/manualLocalization.py --Ice.Config=etc/config" />
-  <downCommand command="pkill -9 -f shellyPanel.py" />
-  <configFile path="xxx" />
-  <xpos value="148.500530795" />
-  <ypos value="-20.7811604688" />
-  <radius value="10.0" />
-  <color value="#AAAAAA" />
- </node>
-
  <node alias="shellyPanel" endpoint="e:tcp -p 1">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />

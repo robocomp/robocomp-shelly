@@ -19,6 +19,7 @@
 	<symbol id="50" type="object">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="bluemug" />
+		<attribute key="tag" value="31" />
 	</symbol>
 	<symbol id="51" type="objectSt">
 	</symbol>
