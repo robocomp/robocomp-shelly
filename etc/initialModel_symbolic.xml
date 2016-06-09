@@ -70,7 +70,7 @@
 		<linkAttribute key="ty" value="800" />
 		<linkAttribute key="tz" value="3500" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="ry" value="1.5707" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="24" type="objectSt">
@@ -101,7 +101,7 @@
 		<linkAttribute key="ty" value="800" />
 		<linkAttribute key="tz" value="3180" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="27" type="objectSt">
@@ -214,7 +214,7 @@
 	<symbol id="38" type="object">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableE" />
-		<attribute key="width" value="1800" />
+		<attribute key="width" value="1750" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />		
 	</symbol>
@@ -223,7 +223,7 @@
 		<linkAttribute key="ty" value="800" />
 		<linkAttribute key="tz" value="-2900" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="39" type="objectSt">
