@@ -27,7 +27,6 @@
 
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
-#include <InnerModelManager.h>
 
 #ifdef USE_QTGUI
 	#include <osgviewer/osgview.h>
@@ -130,9 +129,7 @@ private:
 	void goAndWaitDirect         (const MotorGoalPositionList &mpl);
 	void updateInnerModel        ();
 	void waitForMotorsToStop     ();
-	////////////////////////////////////
 	bool delete_collision_points ();
-	void paint_node(bool color, int node);
 	void recursiveIncludeMeshes  (InnerModelNode *node, std::vector<QString> &in);
 
 	////////////////////////////////////////
@@ -155,6 +152,7 @@ private:
 	
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  full_cloud /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloud_filtered /*(new pcl::PointCloud<pcl::PointXYZ>)*/;
+	InnerModelMesh                      *my_mesh;
         std::vector<QString>                 meshes;
 	
 	MotorGoalPositionList          centerConfiguration;

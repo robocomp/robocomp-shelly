@@ -4,14 +4,12 @@ SET ( SOURCES
   specificworker.cpp
   specificmonitor.cpp
   innermodeldraw.cpp
-  InnerModelManager.cpp
 )
 
 # Headers set
 SET ( HEADERS
   specificworker.h
   specificmonitor.h
-  InnerModelManager.h
 )
 
 include_directories( "/usr/include/eigen3" "/usr/local/include/pcl-1.7"  "/usr/local/include/pcl-1.8")
