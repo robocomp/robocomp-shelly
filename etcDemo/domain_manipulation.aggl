@@ -1,0 +1,42 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_basic
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+
+
+graspObject : active(1)
+{
+	{
+		table:object(0,110)
+		object:object(130,0)
+		room:room(-130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		object->ost(reach)
+	}
+	=>
+	{
+		table:object(0,110)
+		object:object(130,0)
+		room:room(-130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		object->ost(reach)
+	}
+}
+
+

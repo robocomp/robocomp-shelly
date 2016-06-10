@@ -1,0 +1,16 @@
+<innermodel>
+	<transform id="world">
+		<transform id="floor" tx="3500" tz="0">
+			<plane id="back" ny="1" size="7500,8500,10" texture="#eebb77" />
+		</transform>
+
+		
+		<transform id="tableA" tx="1400.0" tz="3180.0" ty="800">
+			<plane id="tableAC" ny="1" size="1000,1750"  texture="#cccccc" />
+		</transform> 
+		
+	</transform>
+
+
+</innermodel>
+

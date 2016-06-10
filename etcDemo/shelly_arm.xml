@@ -1,0 +1,28 @@
+<innerModel>
+	<mesh id="shellyArm_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="45,45,50"  rx="1.5707963267948966"/>
+	
+	<!-- 'ideal' grasp position of the robot for its arm -->
+	<transform id="shellyArm_grasp_pose" tx="0" ty="200" tz="500">
+<!-- 			<axes id="dewetrteuj53" /> -->
+	</transform>
+
+
+	<joint id="armY" port="10068" axis="y" min="-0.44" max="0.44" home="0">
+		<transform id="shellyArm_2" ty="175">
+			<mesh id="shellyArm_BASE2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,40" ry="1.5707963267948966"/>
+			<joint id="armX1" port="10068"  axis="x" min="-2" max="0.0" home="0" >
+				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="150" scale="20,20,150" />
+				<transform id="arm_elbow" tz="300">
+					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" ry="1.5707963267948966" scale="30,30,35" />
+					<joint id="armX2" port="10068" axis="x"  min="-2" max="2" home="0" >
+						<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="125" scale="15,15,125" />
+						<transform id="arm_wrist" tz="294">
+<!-- 							<axes id="arm_axes" length="200" width="8" /> -->
+							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_wrist.xml" />
+						</transform>
+					</joint>
+				</transform>
+			</joint>
+		</transform>
+	</joint>
+</innerModel>
