@@ -6,7 +6,7 @@
 
 		
 		<transform id="tableA" tx="1400.0" tz="3180.0" ty="800" ry="-1.5707" >
-			<plane id="tableAC" ny="1" size="1750,800"  texture="#cccccc" />
+			<plane id="tableAC" ny="1" size="0.001,0.001,0.001"  texture="#cccccc" />
 			<transform id="bluemug" >
 				<transform id="mugRPr" tx="-10" ty="-50">
 					<mesh id="mugR" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" scale="120,120,120" rx="1.5707" rz="-1.5707" collide="1" />
