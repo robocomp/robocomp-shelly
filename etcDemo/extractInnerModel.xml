@@ -1,0 +1,110 @@
+<innermodel>
+	<transform id="world" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+		<transform id="room_3" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+			<transform id="tableA" tx="1400" ty="800" tz="3180"  rx="0" ry="-1.570700049" rz="0">
+				<transform id="bluemug" tx="-1000" ty="110" tz="-600"  rx="0" ry="0" rz="0">
+				</transform>
+				<transform id="tableA_reachPos" tx="300" ty="0" tz="0"  rx="0" ry="-1.570700049" rz="0">
+				</transform>
+				<plane id="tableAC" texture="#cccccc" size="1000,1750,10" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+			</transform>
+			<transform id="robot" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+				<transform id="laserPose" tx="0" ty="370" tz="230"  rx="0" ry="0" rz="0">
+					<laser id="laser" port="10003" min="100" max="30000" measures="100" angle="4.199999809" ifconfig="" />
+				</transform>
+				<transform id="monitor_pose" tx="0" ty="1155" tz="50"  rx="0" ry="0" rz="0">
+					<plane id="monitor_mesh" texture="#222266" size="340,270,50" repeat="1000" nx="0" ny="0" nz="-1" px="0" py="0" pz="0" collide="0" />
+				</transform>
+				<transform id="caja_pose" tx="0" ty="330" tz="-120"  rx="0" ry="0" rz="0">
+					<plane id="caja_mesh" texture="#662222" size="350,250,150" repeat="1000" nx="0" ny="0" nz="-1" px="0" py="0" pz="0" collide="0" />
+				</transform>
+				<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds" scale="1000,1000,1000" tx="0" ty="10" tz="0" rx="1.570799947" ry="0" rz="0" collide="0" />
+				<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds" scale="1000,1000,1000" tx="-150" ty="1180" tz="30" rx="0" ry="-1.570799947" rz="0" collide="0" />
+				<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="40,500,30" tx="0" ty="700" tz="15" rx="0" ry="0" rz="0" collide="0" />
+				<transform id="base_bodypost" tx="0" ty="1388" tz="55"  rx="0" ry="0" rz="0">
+					<transform id="rgbdHumanPose" tx="0" ty="17" tz="40"  rx="0" ry="0" rz="0">
+						<rgbd id="rgbdHuman" width="640" height="480" focal="600" port="0" ifconfig="" noise="0" />
+						<mesh id="sensorHumanRGBD" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/makeMeCoffee/cube.3ds" scale="100,21,30" tx="0" ty="0" tz="0" rx="0" ry="0" rz="0" collide="1" />
+					</transform>
+					<joint id="head_yaw_joint" port="10068" axis="y" home="0" min="-1" max="1" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+						<mesh id="head_base_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,47.5" tx="0" ty="47.5" tz="0" rx="1.570799947" ry="0" rz="0" collide="1" />
+						<transform id="head_rot_tilt_pose" tx="0" ty="74" tz="0"  rx="0" ry="0" rz="0">
+							<joint id="head_pitch_joint" port="10068" axis="x" home="0" min="-1" max="1" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+								<mesh id="head_center_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,35" tx="0" ty="0" tz="0" rx="0" ry="1.570799947" rz="0" collide="1" />
+								<transform id="rgbd_transform0" tx="0" ty="50" tz="0"  rx="0" ry="0" rz="0">
+									<transform id="rgbd_transform" tx="0" ty="0" tz="10"  rx="0" ry="0" rz="0">
+										<rgbd id="rgbd" width="640" height="480" focal="523.5" port="10096" ifconfig="10068,10004" noise="0" />
+									</transform>
+								</transform>
+							</joint>
+						</transform>
+					</joint>
+				</transform>
+				<transform id="arm_pose" tx="0" ty="710" tz="140"  rx="0" ry="0" rz="0">
+					<mesh id="shellyArm_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="45,45,50" tx="0" ty="0" tz="0" rx="1.570799947" ry="0" rz="0" collide="0" />
+					<transform id="shellyArm_grasp_pose" tx="0" ty="190" tz="530"  rx="0" ry="0" rz="0">
+					</transform>
+					<joint id="armY" port="10068" axis="y" home="0" min="-0.4399999976" max="0.4399999976" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+						<transform id="shellyArm_2" tx="0" ty="175" tz="0"  rx="0" ry="0" rz="0">
+							<mesh id="shellyArm_BASE2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="35,35,40" tx="0" ty="0" tz="0" rx="0" ry="1.570799947" rz="0" collide="0" />
+							<joint id="armX1" port="10068" axis="x" home="0" min="-2" max="0" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+								<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="20,20,150" tx="0" ty="0" tz="150" rx="0" ry="0" rz="0" collide="0" />
+								<transform id="arm_elbow" tx="0" ty="0" tz="300"  rx="0" ry="0" rz="0">
+									<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="30,30,35" tx="0" ty="0" tz="0" rx="0" ry="1.570799947" rz="0" collide="0" />
+									<joint id="armX2" port="10068" axis="x" home="0" min="-2" max="2" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+										<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="15,15,125" tx="0" ty="0" tz="125" rx="0" ry="0" rz="0" collide="0" />
+										<transform id="arm_wrist" tx="0" ty="0" tz="294"  rx="0" ry="0" rz="0">
+											<joint id="wristX" port="10067" axis="x" home="0" min="-1.700000048" max="1.700000048" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+												<transform id="wrist_end" tx="0" ty="0" tz="74"  rx="0" ry="0" rz="0">
+													<transform id="grabPositionHandR_pre" tx="0" ty="30" tz="0"  rx="0" ry="0" rz="0">
+														<mesh id="finger_wrist_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="45,20,45" tx="0" ty="-20" tz="-10" rx="0" ry="0" rz="0" collide="0" />
+														<transform id="grabPositionHandR" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+															<plane id="handMeshBase" texture="#ffffff" size="85,-85,1" repeat="1" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+															<plane id="handMesh2" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" size="70,-70,2" repeat="1" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+														</transform>
+													</transform>
+													<transform id="arm_wrist_8" tx="20" ty="0" tz="0"  rx="0" ry="0" rz="0">
+														<joint id="gripperFinger1" port="10067" axis="y" home="0" min="-1.570799947" max="0" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+															<mesh id="finger_wrist_1_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="18,5,5" tx="18" ty="12" tz="0" rx="0" ry="0" rz="0" collide="0" />
+															<transform id="finger_wrist_1_1_pre" tx="30" ty="12" tz="0"  rx="0" ry="0.6999999881" rz="0">
+																<mesh id="finger_wrist_1_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,30" tx="0" ty="0" tz="30" rx="0" ry="0" rz="0" collide="0" />
+																<transform id="finger_wrist_1_2_pre" tx="25" ty="0" tz="0"  rx="0" ry="-0.400000006" rz="0">
+																	<mesh id="finger_wrist_1_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,20" tx="0" ty="0" tz="80" rx="0" ry="0" rz="0" collide="0" />
+																</transform>
+															</transform>
+															<mesh id="finger_wrist_1_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="18,5,5" tx="18" ty="-12" tz="0" rx="0" ry="0" rz="0" collide="0" />
+															<transform id="finger_wrist_1_3_pre" tx="30" ty="-12" tz="0"  rx="0" ry="0.6999999881" rz="0">
+																<mesh id="finger_wrist_1_mesh6" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,30" tx="0" ty="0" tz="30" rx="0" ry="0" rz="0" collide="0" />
+																<transform id="finger_wrist_1_4_pre" tx="25" ty="0" tz="0"  rx="0" ry="-0.400000006" rz="0">
+																	<mesh id="finger_wrist_1_mesh7" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,20" tx="0" ty="0" tz="80" rx="0" ry="0" rz="0" collide="0" />
+																</transform>
+															</transform>
+														</joint>
+													</transform>
+													<transform id="arm_wrist_9" tx="-20" ty="0" tz="0"  rx="0" ry="0" rz="0">
+														<joint id="gripperFinger2" port="10067" axis="y" home="0" min="0" max="1.570799947" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+															<mesh id="finger_wrist_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="-18,5,5" tx="-18" ty="0" tz="0" rx="0" ry="0" rz="0" collide="0" />
+															<transform id="finger_wrist_2_1_pre" tx="-30" ty="0" tz="0"  rx="0" ry="-0.6999999881" rz="0">
+																<mesh id="finger_wrist_2_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,30" tx="0" ty="0" tz="30" rx="0" ry="0" rz="0" collide="0" />
+																<transform id="finger_wrist_2_2_pre" tx="-25" ty="0" tz="0"  rx="0" ry="0.400000006" rz="0">
+																	<mesh id="finger_wrist_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="5,5,20" tx="0" ty="0" tz="80" rx="0" ry="0" rz="0" collide="0" />
+																</transform>
+															</transform>
+														</joint>
+													</transform>
+												</transform>
+											</joint>
+										</transform>
+									</joint>
+								</transform>
+							</joint>
+						</transform>
+					</joint>
+				</transform>
+			</transform>
+		</transform>
+		<transform id="floor" tx="3500" ty="0" tz="0"  rx="0" ry="0" rz="0">
+			<plane id="back" texture="#eebb77" size="7500,8500,10" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+		</transform>
+	</transform>
+</innermodel>
