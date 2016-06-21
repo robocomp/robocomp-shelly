@@ -11,11 +11,11 @@
 		<transform id="shellyArm_2" ty="160">
 			<mesh id="shellyArm_BASE3_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="40,40,40" ry="1.5707963267948966"/>
 			<joint id="armX1" port="10068"  axis="x" min="-2" max="1.0" home="0" >
-				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="155" scale="10,10,120" collide="1"/>
+				<mesh id="shellyArm_HUMERO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tx="-25" tz="155" scale="10,25,120" collide="1"/>
 				<transform id="arm_elbow" tz="300">
 					<mesh id="shellyArm_CODO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" ry="1.5707963267948966" scale="30,30,35" />
-					<joint id="armX2" port="10068" axis="x"  min="-2.5" max="2.5" home="0" >
-						<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tz="135" scale="10,10,115" collide="1" />
+					<joint id="armX2" port="10068" axis="x"  min="-2.7" max="2.5" home="0" >
+						<mesh id="shellyArm_ANTEBRAZO_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" tx="15" tz="145" scale="15,15,120" collide="1" />
 						<transform id="arm_wrist" tz="294">
 <!-- 							<axes id="arm_axes" length="200" width="8" /> -->
 							<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_wrist.xml" />
