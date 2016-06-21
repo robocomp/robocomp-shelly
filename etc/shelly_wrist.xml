@@ -2,7 +2,7 @@
 	<joint id="wristX" port="10067" min="-1.7" max="1.7" axis="x" home="0" >
 			<transform id="wrist_end" tz="74" >
 				<transform id="grabPositionHandR_pre" ty="30" >
-					<mesh id="finger_wrist_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="-20" tz="-10" scale="45,20,45"   />
+					<mesh id="finger_wrist_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="-20" tz="-10" scale="45,20,45"  collide="1" />
 					<transform id="grabPositionHandR">
 <!-- 						<axes id="grab_axes" length="100" width="5" /> -->
 						<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
@@ -16,14 +16,14 @@
 						<transform id="finger_wrist_1_1_pre" tx="30" ty="12" ry="0.7"  >
 							<mesh id="finger_wrist_1_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30"   />
 							<transform id="finger_wrist_1_2_pre" tx="25" ry="-0.4"  >
-								<mesh id="finger_wrist_1_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   />
+								<mesh id="finger_wrist_1_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   collide="1"/>
 							</transform>
 						</transform>
-						<mesh id="finger_wrist_1_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="-12" scale="18,5,5"   />
+						<mesh id="finger_wrist_1_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="18" ty="-12" scale="18,5,5"  collide="1" />
 						<transform id="finger_wrist_1_3_pre" tx="30" ty="-12" ry="0.7"  >
 							<mesh id="finger_wrist_1_mesh6" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30"   />
 							<transform id="finger_wrist_1_4_pre" tx="25" ry="-0.4"  >
-								<mesh id="finger_wrist_1_mesh7" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   />
+								<mesh id="finger_wrist_1_mesh7" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20"   collide="1"/>
 							</transform>
 						</transform>
 					</joint>
@@ -31,11 +31,11 @@
 
 				<transform id="arm_wrist_9" tx="-20" tz="0" >
 					<joint id="gripperFinger2" port="10067" min="0" max="1.5707963267948966" axis="y" home="0" >
-						<mesh id="finger_wrist_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="-18" scale="-18,5,5" />
+						<mesh id="finger_wrist_2_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tx="-18" scale="-18,5,5" collide="1"/>
 						<transform id="finger_wrist_2_1_pre" tx="-30" ry="-0.7"  >
 							<mesh id="finger_wrist_2_mesh3" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="30" scale="5,5,30" />
 							<transform id="finger_wrist_2_2_pre" tx="-25" ry="0.40"  >
-								<mesh id="finger_wrist_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" />
+								<mesh id="finger_wrist_2_mesh4" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" tz="80" scale="5,5,20" collide="1"/>
 							</transform>
 						</transform>
 					</joint>
