@@ -8,8 +8,8 @@
 		</transform>
 
 		<!-- some meshes useful for avoiding colliding with its own body -->
-		<transform id="monitor_pose" ty="1155" tz="50" rx="0"  >
-			<plane id="monitor_mesh" size="340,270,50" texture="#222266"  collide="1" />
+		<transform id="monitor_pose" ty="1155" tz="70" rx="0"  >
+			<plane id="monitor_mesh" size="340,270,80" texture="#222266"  collide="1" />
 		</transform>
 		<transform id="back_caja_pose" ty="330" tz="-120" >
 			<plane id="back_caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
