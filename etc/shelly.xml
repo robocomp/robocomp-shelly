@@ -8,18 +8,19 @@
 		</transform>
 
 		<!-- some meshes useful for avoiding colliding with its own body -->
-		<transform id="monitor_pose" ty="1155" tz="50" rx="0"  >
-			<plane id="monitor_mesh" size="340,270,50" texture="#222266"  collide="1" />
+		<transform id="monitor_pose" ty="1155" tz="70" rx="0"  >
+			<plane id="monitor_mesh" size="340,270,80" texture="#222266"  collide="1" />
 		</transform>
-		<transform id="back_caja_pose" ty="330" tz="-120" >
+		<transform id="back_caja_pose" ty="400" tz="-200" >
 			<plane id="back_caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
 		</transform>
-		<transform id="front_caja_pose" ty="255" tz="145" >
+		<transform id="front_caja_pose" ty="325" tz="280" >
 			<plane id="front_caja_mesh" size="350,100,100" texture="#662222"  collide="1" />
 		</transform>
 
 
-		<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"                  tx="0"    ty="10"   tz="0"    rx="+1.5707963267949" scale="1000" collide="1" />
+		<!--<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"                  tx="0"    ty="10"   tz="0"    rx="+1.5707963267949" scale="1080" collide="1" />-->
+		<plane id="base_mesh" size="540,275,700" py="137.5" texture="#666666"  collide="1" />
 		<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds"   tx="-150" ty="1180"  tz="30"          ry="-1.5707963267949" scale="1000" collide="1" />
 		<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds"           tx="0"    ty="700" tz="15"                          scale="40,500,30"  collide="1" />
 
@@ -27,7 +28,7 @@
 			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_head.xml"/>
 		</transform>
 
-		<transform id="arm_pose" ty="750" tz="140" >
+		<transform id="arm_pose" ty="750" tz="110" >
 			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_arm.xml"/>
 		</transform>
 
