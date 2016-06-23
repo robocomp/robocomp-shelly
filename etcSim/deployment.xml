@@ -11,7 +11,7 @@
   <simulation hookes="0.07" springlength="0.5" friction="0.4" step="0.5" fieldforce="20000.0" />
  </generalInformation>
 
- <node alias="slam" endpoint="commonbehavior:tcp -p 11059">
+ <node alias="slam" endpoint="commonbehavior:tcp -p 12010">
   <dependence alias="laser" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
