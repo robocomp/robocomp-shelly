@@ -62,7 +62,8 @@ private:
 	RoboCompJointMotor::MotorParamsList motorList1, motorList0;
 	std::vector< std::pair<QString, QString> > pairs; //parejas de meshes que no pueden chocar entre si.
 	std::map<string,RoboCompJointMotor::JointMotorPrx> prxMap; 
-
+	std::map<QString,std::pair<QVec, QVec> >collisionBoxMap;
+	
 	InnerModel *innerModel;
 #ifdef USE_QTGUI
 	OsgView *osgView;

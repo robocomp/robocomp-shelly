@@ -108,6 +108,21 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			}
 		}
 	}
+	// read collision bounding boxes restrictions
+	QString boxes = QString::fromStdString(params["RestrictedBoundingBoxes"].value);
+	printf("Collision bounding boxes\n");
+	for (auto boxValues : boxes.split(";", QString::SkipEmptyParts))
+ 	{
+ 		QStringList voxPoints = boxValues.split(",");
+		if (voxPoints.size() != 7){
+			qFatal("Bounding boxes collision errors");
+			return false;
+		}
+		qDebug()<<voxPoints;
+		QVec a1 = QVec::vec3(voxPoints[1].toFloat(),voxPoints[2].toFloat(),voxPoints[3].toFloat());
+		QVec a2 = QVec::vec3(voxPoints[4].toFloat(),voxPoints[5].toFloat(),voxPoints[6].toFloat());
+		collisionBoxMap[voxPoints[0]] = std::pair<QVec,QVec>(a1,a2);
+	}
 	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	//NOTE Movemos a pelo la cabeza hacia abajo... se puede quitar para despues
 	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.8}, {"head_yaw_joint",0} };
@@ -482,23 +497,46 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 //		printf("check collision A => %s \n",goals[i].name.c_str());
 	}
 	
-	
+	bool collision = false;
 	innerModel->cleanupTables(); 
 	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
 	for (auto p: pairs)
 	{
 		if (innerModel->collide(p.first, p.second))
 		{
-			for (uint i=0; i<goals.size(); i++)
-				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
-		
-			innerModel->cleanupTables();
 			ret = p;
-			printf("|| checkFuturePosition: %s with %s\n", p.first.toStdString().c_str(), p.second.toStdString().c_str());
-			return true;
+			collision = true;
+			break;
 		}
 	}
-	return false;
+	//check not inside bounding box
+	for (auto box: collisionBoxMap)
+	{
+		printf("node %s\n",box.first.toStdString().c_str());
+		QVec point = innerModel->transform("robot",box.first.toStdString().c_str());
+		QVec a = box.second.first;
+		QVec b = box.second.second;
+		a.print("a");
+		b.print("b");
+		point.print("brazo");
+		if((a(0) < point(0) && point(0) < b(0)) && (a(1) < point(1) && point(1) < b(1))  && (a(2) < point(2) && point(2) < b(2))){
+			collision = true;
+			ret = std::pair<QString, QString>("Collision box",box.first);
+			break;
+		}
+	}
+	
+	
+	// return motors to original angles
+	if (collision)
+	{
+		for (uint i=0; i<goals.size(); i++)
+			innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
+		
+		innerModel->cleanupTables();
+		printf("|| checkFuturePosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+	}
+	return collision;
 }
 /**
  * \brief this method checks the meshes from one node of the innerModel
