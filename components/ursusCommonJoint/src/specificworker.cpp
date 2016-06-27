@@ -258,7 +258,7 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+ 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for (uint i=0; i<listGoals.size(); i++)
@@ -512,13 +512,10 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	//check not inside bounding box
 	for (auto box: collisionBoxMap)
 	{
-		printf("node %s\n",box.first.toStdString().c_str());
+//		printf("node %s\n",box.first.toStdString().c_str());
 		QVec point = innerModel->transform("robot",box.first.toStdString().c_str());
 		QVec a = box.second.first;
 		QVec b = box.second.second;
-		a.print("a");
-		b.print("b");
-		point.print("brazo");
 		if((a(0) < point(0) && point(0) < b(0)) && (a(1) < point(1) && point(1) < b(1))  && (a(2) < point(2) && point(2) < b(2))){
 			collision = true;
 			ret = std::pair<QString, QString>("Collision box",box.first);
