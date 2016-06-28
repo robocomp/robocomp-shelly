@@ -5,8 +5,8 @@
 					<mesh id="finger_wrist_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" ty="-20" tz="-10" scale="45,20,45"  collide="1" />
 					<transform id="grabPositionHandR">
 <!-- 						<axes id="grab_axes" length="100" width="5" /> -->
-						<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" />
-						<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" />
+						<plane id="handMeshBase" ny="1" size="85,-85,1" repeat="1" texture="#ffffff" collide="1"/>
+						<plane id="handMesh2" ny="1" size="70,-70,2" repeat="1" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/april/tag36_11_00025.png" collide="1"/>
 					</transform>
 				</transform>
 

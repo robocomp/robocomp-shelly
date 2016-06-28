@@ -59,7 +59,8 @@ public slots:
 	
 private:
 	// Attributes
-	RoboCompJointMotor::MotorParamsList motorList1, motorList0;
+	RoboCompJointMotor::MotorParamsList motorParamList;
+	std::map<std::string,RoboCompJointMotor::MotorParams> motorParamMap;
 	std::vector< std::pair<QString, QString> > pairs; //parejas de meshes que no pueden chocar entre si.
 	std::map<string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 	std::map<QString,std::pair<QVec, QVec> >collisionBoxMap;
@@ -73,6 +74,7 @@ private:
 
 	void init();
 	bool checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret);
+	bool checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret);
 	void recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in);
 };
 

@@ -81,12 +81,12 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
  		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
  	}
- 	printf("ExclusionList content:\n");
+/* 	printf("ExclusionList content:\n");
  	for (auto e: exclusionList)
  	{
  		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
  	}
- 	
+*/ 	
 
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes); //recoge los meshes del xml
@@ -102,7 +102,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 					if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
 					{
 						pairs.push_back(std::pair<QString,QString>(a, b)); //guardamos pareja que no puede chocarse
-						printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
+						//printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
 					}
 				}
 			}
@@ -137,7 +137,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		try { prxMap.at(init.first)->setPosition(goal); }
 		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 	}
-
 	return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -212,6 +211,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
+	std::string result;
 	if (true/* and false*/) //NOTE para desactivar, descomente "and false"
 	{
 		if (checkFuturePosition(listGoals, ret))
@@ -220,6 +220,11 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 			//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
 			printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 			throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		}
+		if (checkMotorLimits(listGoals, result))
+		{
+			printf("|| setPosition: %s\n", result.c_str());
+			throw RoboCompJointMotor::OutOfRangeException(result);
 		}
 	}
 	//movemos el motor:
@@ -254,12 +259,18 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
 	QMutexLocker locker(mutex);
 	std::pair<QString, QString> ret;
+	std::string result;
 	//NOTE COLISIONES ACTIVADAS: para desactivar comente el throw exception
 	if (checkFuturePosition(listGoals, ret))
 	{
 		printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
  		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 	}
+	if (checkMotorLimits(listGoals, result))
+		{
+			printf("|| setPosition: %s\n", result.c_str());
+			throw RoboCompJointMotor::OutOfRangeException(result);
+		}
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for (uint i=0; i<listGoals.size(); i++)
 	{
@@ -404,22 +415,9 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
 	QMutexLocker locker(mutex);
-	MotorParamsList par1, par;
-
-	try
-	{ par = jointmotor0_proxy->getAllMotorParams(); }
-	catch(std::exception &ex)
-	{ std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error reading getAllMotorParams from Dynamixel bus"<<std::endl;};
-
-	try
-	{ par1 = jointmotor1_proxy->getAllMotorParams(); }
-	catch(std::exception &ex)
-	{std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error reading getAllMotorParams from Faulhaber bus"<< std::endl;};
-
-	par.insert(par.end(), par1.begin(), par1.end());
-
-	return par;
+	return motorParamList;
 }
+
 /**
  * \brief this method returns the params of the motors bus.
  * @return BusParams
@@ -440,18 +438,23 @@ BusParams SpecificWorker::getBusParams()
 void SpecificWorker::init()
 {
 	QMutexLocker locker(mutex);
+	MotorParamsList par1, par0;
+	motorParamMap.clear();
+	motorParamList.clear();
 	//DYNAMIXEL bus
 	try
 	{
-		motorList0 = jointmotor0_proxy->getAllMotorParams();
+		par0 = jointmotor0_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for (uint i=0; i<motorList0.size(); i++)
+		for (uint i=0; i<par0.size(); i++)
 		{
-			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList0[i].name, jointmotor0_proxy));
+			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(par0[i].name, jointmotor0_proxy));
+			motorParamMap.insert(std::pair<std::string,RoboCompJointMotor::MotorParams>(par0[i].name, par0[i]));
+			motorParamList.push_back(par0[i]);
 			if (ret.second == false)
 			{
 				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << endl;
-				qFatal("Name %s already exists\n", motorList0[i].name.c_str());
+				qFatal("Name %s already exists\n", par0[i].name.c_str());
 			}
 		}
 	}catch(const Ice::Exception &ex)
@@ -459,15 +462,17 @@ void SpecificWorker::init()
 	//FAULHABER bus
 	try
 	{
-		motorList1 = jointmotor1_proxy->getAllMotorParams();
+		par1 = jointmotor1_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for (uint i=0; i<motorList1.size(); i++)
+		for (uint i=0; i<par1.size(); i++)
 		{
-			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList1[i].name, jointmotor1_proxy));
+			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(par1[i].name, jointmotor1_proxy));
+			motorParamMap.insert(std::pair<std::string,RoboCompJointMotor::MotorParams>(par1[i].name, par1[i]));
+			motorParamList.push_back(par1[i]);
 			if( ret.second == false )
 			{
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << motorList1[i].name.c_str() << " already exists" << endl;
-				qFatal("Name %s already exists\n", motorList1[i].name.c_str());
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << par1[i].name.c_str() << " already exists" << endl;
+				qFatal("Name %s already exists\n", par1[i].name.c_str());
 			}
 		}
 	}
@@ -476,6 +481,19 @@ void SpecificWorker::init()
 		std::cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex <<std::endl;
 		
 	}
+}
+
+bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret)
+{
+	QMutexLocker locker(mutex);
+	for (uint i=0; i<goals.size(); i++)
+	{
+		if ( goals[i].position < motorParamMap.at(goals[i].name).minPos || goals[i].position > motorParamMap.at(goals[i].name).maxPos ){
+			ret = "Goal position outside motor limit, " +  goals[i].name + " => pos: " + std::to_string(goals[i].position) + " range[" + std::to_string(motorParamMap.at(goals[i].name).minPos) + "," + std::to_string(motorParamMap.at(goals[i].name).maxPos) + "]"; 
+			return true;
+		}
+	}
+	return false;
 }
 /**
  * \brief This method checks the final state in which the robot would stay if we move its motors.
@@ -502,6 +520,9 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
 	for (auto p: pairs)
 	{
+		if (p.first == "shellyArm_ANTEBRAZO_mesh")
+			printf("shellyArm_ANTEBRAZO_mesh\n");
+			
 		if (innerModel->collide(p.first, p.second))
 		{
 			ret = p;
