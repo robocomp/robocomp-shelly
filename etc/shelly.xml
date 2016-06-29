@@ -13,8 +13,8 @@
 		<transform id="back_caja_pose" ty="400" tz="-200" >
 			<plane id="back_caja_mesh" size="350,250,150" texture="#662222"  collide="1" />
 		</transform>
-		<transform id="front_caja_pose" ty="350" tz="300" >
-			<plane id="front_caja_mesh" size="350,150,100" texture="#662222"  collide="1" />
+		<transform id="front_caja_pose" ty="360" tz="300" >
+			<plane id="front_caja_mesh" size="350,180,100" texture="#662222"  collide="1" />
 		</transform>
 
 
