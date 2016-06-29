@@ -520,6 +520,8 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
 	for (auto p: pairs)
 	{
+//		if (p.first == "finger_wrist_1_mesh7" or p.second == "finger_wrist_1_mesh7")
+//			printf("A => %s B=> %s\n",p.first.toStdString().c_str(),p.second.toStdString().c_str()); 
 		if (innerModel->collide(p.first, p.second))
 		{
 			ret = p;
