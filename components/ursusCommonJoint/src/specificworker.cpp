@@ -522,7 +522,8 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	{
 //		if (p.first == "finger_wrist_1_mesh7" or p.second == "finger_wrist_1_mesh7")
 //			printf("A => %s B=> %s\n",p.first.toStdString().c_str(),p.second.toStdString().c_str()); 
-		if (innerModel->collide(p.first, p.second))
+		//if (innerModel->collide(p.first, p.second))
+		if (innerModel->distance(p.first, p.second)< 100)
 		{
 			ret = p;
 			collision = true;
