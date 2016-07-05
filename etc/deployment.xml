@@ -385,6 +385,7 @@
  <node alias="slam" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12010">
   <dependence alias="laser" />
   <dependence alias="base" />
+  <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 CGR /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR ./bin/CGRc etc/config" />
   <downCommand command="ssh robolab@10.0.30.11 killall -9 CGRc" />

@@ -14,6 +14,7 @@
  <node alias="slam" endpoint="commonbehavior:tcp -p 12010">
   <dependence alias="laser" />
   <dependence alias="base" />
+  <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost gmapping /home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp ./bin/gmappingComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/gmapping.conf" />
   <downCommand command="killall -9 gmappingComp" />
