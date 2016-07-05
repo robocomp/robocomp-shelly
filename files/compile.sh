@@ -127,6 +127,10 @@ fi
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gmapping" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp/"
 fi
+# CGR
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR"
+fi
 # stable odometry
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
