@@ -506,46 +506,74 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	QMutexLocker locker(mutex);
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
 	//Guardamos para cada joint su angulo actual 
+	float position = 0.f,actual_position=0.f, iter_move = 0.f;
+	float range = 0.f, time = 0.f,iter_time = 0.f;
 	for (uint i=0; i<goals.size(); i++)
+	{
 		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
-	
-	//Metemos en el innerModel el angulo objetivo (simulamos movimiento)
-	for (uint i=0; i<goals.size(); i++){
-		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position, true);
-//		printf("check collision A => %s \n",goals[i].name.c_str());
-	}
-	
-	bool collision = false;
-	innerModel->cleanupTables(); 
-	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
-	for (auto p: pairs)
-	{
-//		if (p.first == "finger_wrist_1_mesh7" or p.second == "finger_wrist_1_mesh7")
-//			printf("A => %s B=> %s\n",p.first.toStdString().c_str(),p.second.toStdString().c_str()); 
-		//if (innerModel->collide(p.first, p.second))
-		if (innerModel->distance(p.first, p.second)< 100)
+		if( (fabs(backPoses[i].position - goals[i].position) / goals[i].maxSpeed ) > time )
 		{
-			ret = p;
-			collision = true;
-			break;
+			range = fabs(backPoses[i].position - goals[i].position);
+			time = (range / goals[i].maxSpeed);
 		}
+//		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(backPoses[i].position - goals[i].position) << "time" << (fabs(backPoses[i].position - goals[i].position) / goals[i].maxSpeed);
 	}
-	//check not inside bounding box
-	for (auto box: collisionBoxMap)
+	bool collision = false;
+	uint num_iter = round(range / MAX_MOVE);
+	if (num_iter == 0)	//at least one iteration is needed
+		num_iter = 1;
+	iter_time = time / num_iter;
+//	qDebug()<<"time" <<time << num_iter << iter_time;
+
+	for (uint j=0;j<num_iter;j++)
 	{
-//		printf("node %s\n",box.first.toStdString().c_str());
-		QVec point = innerModel->transform("robot",box.first.toStdString().c_str());
-		QVec a = box.second.first;
-		QVec b = box.second.second;
-		if((a(0) < point(0) && point(0) < b(0)) && (a(1) < point(1) && point(1) < b(1))  && (a(2) < point(2) && point(2) < b(2))){
-			collision = true;
-			ret = std::pair<QString, QString>("Collision box",box.first);
-			break;
+		// Insert objective angle into innermodel
+		for (uint i=0; i<goals.size(); i++)
+		{
+			actual_position = innerModel->getJoint(backPoses[i].name)->getAngle();
+			int direction = 1;
+			if (goals[i].position < backPoses[i].position)
+				direction = -1;
+			iter_move = (goals[i].maxSpeed * iter_time);
+			if (iter_move < fabs(goals[i].position - actual_position))
+				position = actual_position + iter_move*direction;
+			else
+				position = goals[i].position;
+			
+			qDebug()<<"iter " << j << "motor: "<< i <<" max position "<<goals[i].position << position;
+			innerModel->getJoint(backPoses[i].name)->setAngle(position, true);
+		}
+		innerModel->cleanupTables(); 
+		// si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
+		for (auto p: pairs)
+		{
+			//if (innerModel->collide(p.first, p.second))
+			if (innerModel->distance(p.first, p.second)< 100) //Using minimum distance instead of collision flag
+			{
+				ret = p;
+				collision = true;
+				break;
+			}
+		}
+	}
+	if(not collision) 
+	{
+		//check not inside bounding box
+		for (auto box: collisionBoxMap)
+		{
+	//		printf("node %s\n",box.first.toStdString().c_str());
+			QVec point = innerModel->transform("robot",box.first.toStdString().c_str());
+			QVec a = box.second.first;
+			QVec b = box.second.second;
+			if((a(0) < point(0) && point(0) < b(0)) && (a(1) < point(1) && point(1) < b(1))  && (a(2) < point(2) && point(2) < b(2))){
+				collision = true;
+				ret = std::pair<QString, QString>("Collision box",box.first);
+				break;
+			}
 		}
 	}
 	
-	
-	// return motors to original angles
+	// If there is a collision, all joints return to previous position
 	if (collision)
 	{
 		for (uint i=0; i<goals.size(); i++)

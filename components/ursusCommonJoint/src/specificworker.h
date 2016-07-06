@@ -28,6 +28,8 @@
 	#include <innermodel/innermodelviewer.h>
 #endif
 
+#define MAX_MOVE 0.3
+
 /**
        \brief
        @author authorname
