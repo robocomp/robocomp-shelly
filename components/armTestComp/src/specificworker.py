@@ -23,29 +23,12 @@ from random import randint
 from PySide import *
 from genericworker import *
 
-ROBOCOMP = ''
-try:
-	ROBOCOMP = os.environ['ROBOCOMP']
-except:
-	print '$ROBOCOMP environment variable not set, using the default value /opt/robocomp'
-	ROBOCOMP = '/opt/robocomp'
-if len(ROBOCOMP)<1:
-	print 'ROBOCOMP environment variable not set! Exiting.'
-	sys.exit()
 
-
-preStr = "-I"+ROBOCOMP+"/interfaces/ -I/opt/robocomp/interfaces/ --all "+ROBOCOMP+"/interfaces/"
-Ice.loadSlice(preStr+"CommonBehavior.ice")
-import RoboCompCommonBehavior
-Ice.loadSlice(preStr+"InverseKinematics.ice")
-import RoboCompInverseKinematics
-Ice.loadSlice(preStr+"JointMotor.ice")
-import RoboCompJointMotor
 
 #Position dictionary: could contain:  
 # 6D postion ==> 'name':(,x,y,z,rx,ry,rz)
 # or joint positions ==> 'name':[('motor1',angle1),('motor2',angle2)...]
-posDict = {'zero':(0,0,800,0,0,0),'outofview':[('armY',0.0),('armX1',0.0),('armX2',0.0),('wristX',0.0)],'otra':(0,0,800,0,0,0)}
+posDict = {'zero':(0,0,800,0,0,0),'elbowdown':[('armY',0.0),('armX1',1.0),('armX2',-2.5),('wristX',0.0)],'elbowup':[('armY',0.0),('armX1',-1.0),('armX2',2.5),('wristX',0.0)],'anygrabposition':(0,0,800,0,0,0)}
 
 
 #Body part to send commands:
@@ -129,7 +112,7 @@ class SpecificWorker(GenericWorker):
 				pos = RoboCompJointMotor.MotorGoalPosition()
 				pos.name = item[0]
 				pos.position = item[1]
-				pos.maxAcc = 0.3
+				pos.maxSpeed = 0.4
 				posList.append(pos)
 			self.setSyncPosition(posList)
 		else: 

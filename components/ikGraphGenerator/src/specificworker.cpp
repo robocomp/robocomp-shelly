@@ -352,7 +352,13 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 		return;
 	}
 	last = mpl;
-	jointmotor_proxy->setSyncPosition(mpl);
+	try
+	{
+		jointmotor_proxy->setSyncPosition(mpl);
+	}catch (const RoboCompJointMotor::CollisionException &ex)
+	{
+		cout<<"--> Collision in commonjoint" << ex << "\n";
+	}
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)

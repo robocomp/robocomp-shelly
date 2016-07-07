@@ -212,7 +212,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
 	std::string result;
-	if (true/* and false*/) //NOTE para desactivar, descomente "and false"
+	if (checkMovementNeeded(listGoals))
 	{
 		if (checkFuturePosition(listGoals, ret))
 		{
@@ -226,10 +226,15 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 			printf("|| setPosition: %s\n", result.c_str());
 			throw RoboCompJointMotor::OutOfRangeException(result);
 		}
+		//movemos el motor:
+		try
+		{ 
+			prxMap.at(goal.name)->setPosition(goal);
+		}catch (std::exception &ex) 
+		{ 
+			std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; 
+		}
 	}
-	//movemos el motor:
-	try { prxMap.at(goal.name)->setPosition(goal);}
-	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
 /**
  * \brief this method changes the speed of the motor.
@@ -260,31 +265,33 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 	QMutexLocker locker(mutex);
 	std::pair<QString, QString> ret;
 	std::string result;
-	//NOTE COLISIONES ACTIVADAS: para desactivar comente el throw exception
-	if (checkFuturePosition(listGoals, ret))
+	if (checkMovementNeeded(listGoals))
 	{
-		printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
-	}
-	if (checkMotorLimits(listGoals, result))
+		if (checkFuturePosition(listGoals, ret))
 		{
-			printf("|| setPosition: %s\n", result.c_str());
-			throw RoboCompJointMotor::OutOfRangeException(result);
+			printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+			throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 		}
-	RoboCompJointMotor::MotorGoalPositionList l0,l1;
-	for (uint i=0; i<listGoals.size(); i++)
-	{
-		if (prxMap.at(listGoals[i].name)==jointmotor0_proxy)
-			l0.push_back(listGoals[i]);
-		else if (prxMap.at( listGoals[i].name)==jointmotor1_proxy)
-			l1.push_back(listGoals[i]);
-		else
-			std::cout<<__FILE__<<__FUNCTION__<<__LINE__<<"Motor "<<listGoals[i].name<<" not found in proxy list\n";
+		if (checkMotorLimits(listGoals, result))
+			{
+				printf("|| setPosition: %s\n", result.c_str());
+				throw RoboCompJointMotor::OutOfRangeException(result);
+			}
+		RoboCompJointMotor::MotorGoalPositionList l0,l1;
+		for (uint i=0; i<listGoals.size(); i++)
+		{
+			if (prxMap.at(listGoals[i].name)==jointmotor0_proxy)
+				l0.push_back(listGoals[i]);
+			else if (prxMap.at( listGoals[i].name)==jointmotor1_proxy)
+				l1.push_back(listGoals[i]);
+			else
+				std::cout<<__FILE__<<__FUNCTION__<<__LINE__<<"Motor "<<listGoals[i].name<<" not found in proxy list\n";
+		}
+		try { jointmotor0_proxy->setSyncPosition(l0); }
+		catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;}
+		try { jointmotor1_proxy->setSyncPosition(l1); }
+		catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;}
 	}
-	try { jointmotor0_proxy->setSyncPosition(l0); }
-	catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;};
-	try { jointmotor1_proxy->setSyncPosition(l1); }
-	catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;};
 }
 /**
  * \brief this method changes more than one motor speed at the same time.
@@ -483,6 +490,21 @@ void SpecificWorker::init()
 	}
 }
 
+bool SpecificWorker::checkMovementNeeded(const MotorGoalPositionList &goals)
+{
+	QMutexLocker locker(mutex);
+	bool needed = false;
+	for (uint i=0; i<goals.size(); i++)
+	{
+		if(fabs(goals[i].position - innerModel->getJoint(goals[i].name)->getAngle()) > 0.01)
+		{
+			needed = true;
+			break;
+		}
+	}
+	return needed;
+}
+
 bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret)
 {
 	QMutexLocker locker(mutex);
@@ -501,7 +523,7 @@ bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::s
  * @param ret pair of meshes that colliding between each other
  * @return boolean TRUE if there is a collision and FALSE if there is not a collision.
  */ 
-bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret)
+bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<QString, QString> &ret)
 {
 	QMutexLocker locker(mutex);
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
@@ -510,20 +532,27 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 	float range = 0.f, time = 0.f,iter_time = 0.f;
 	for (uint i=0; i<goals.size(); i++)
 	{
-		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
-		if( (fabs(backPoses[i].position - goals[i].position) / goals[i].maxSpeed ) > time )
+		qDebug()<< "max speed motor "<< i << goals[i].maxSpeed;
+		// If maxSpeed not provided, is taken from motor param
+		if ( isnan(goals[i].maxSpeed) || goals[i].maxSpeed > motorParamMap[goals[i].name].maxVelocity || goals[i].maxSpeed <= 0)
 		{
-			range = fabs(backPoses[i].position - goals[i].position);
+			goals[i].maxSpeed = motorParamMap[goals[i].name].maxVelocity;
+			qDebug() << "truncate vel"<< goals[i].maxSpeed;
+		}
+		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
+		if( (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed ) > time )
+		{
+			range = fabs(goals[i].position - backPoses[i].position);
 			time = (range / goals[i].maxSpeed);
 		}
-//		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(backPoses[i].position - goals[i].position) << "time" << (fabs(backPoses[i].position - goals[i].position) / goals[i].maxSpeed);
+		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(goals[i].position - backPoses[i].position) << "time" << (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed);
 	}
 	bool collision = false;
 	uint num_iter = round(range / MAX_MOVE);
 	if (num_iter == 0)	//at least one iteration is needed
 		num_iter = 1;
 	iter_time = time / num_iter;
-//	qDebug()<<"time" <<time << num_iter << iter_time;
+	qDebug()<<"time" <<time << num_iter << iter_time;
 
 	for (uint j=0;j<num_iter;j++)
 	{
@@ -540,19 +569,19 @@ bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std
 			else
 				position = goals[i].position;
 			
-			qDebug()<<"iter " << j << "motor: "<< i <<" max position "<<goals[i].position << position;
+//			qDebug()<<"iter " << j << "motor: "<< i <<" max position "<<goals[i].position << position;
 			innerModel->getJoint(backPoses[i].name)->setAngle(position, true);
-		}
-		innerModel->cleanupTables(); 
-		// si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
-		for (auto p: pairs)
-		{
-			//if (innerModel->collide(p.first, p.second))
-			if (innerModel->distance(p.first, p.second)< 100) //Using minimum distance instead of collision flag
+			// check collision
+			innerModel->cleanupTables(); 
+			for (auto p: pairs)
 			{
-				ret = p;
-				collision = true;
-				break;
+				//if (innerModel->collide(p.first, p.second))
+				if (innerModel->distance(p.first, p.second)< 100) //Using minimum distance instead of collision flag
+				{
+					ret = p;
+					collision = true;
+					break;
+				}
 			}
 		}
 	}
