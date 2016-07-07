@@ -62,6 +62,10 @@ git pull
 echo "update prp"
 cd /home/robocomp/robocomp/components/prp
 git pull
+# test
+echo "update test"
+cd /home/robocomp/robocomp/components/robocomp-test
+git pull
 
 sleep 4
 
