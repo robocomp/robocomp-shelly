@@ -16,7 +16,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
+import sys, Ice
 from PySide import *
 
 try:
@@ -24,6 +24,25 @@ try:
 except:
 	print "Can't import UI file. Did you run 'make'?"
 	sys.exit(-1)
+
+ROBOCOMP = ''
+try:
+	ROBOCOMP = os.environ['ROBOCOMP']
+except:
+	print '$ROBOCOMP environment variable not set, using the default value /opt/robocomp'
+	ROBOCOMP = '/opt/robocomp'
+if len(ROBOCOMP)<1:
+	print 'ROBOCOMP environment variable not set! Exiting.'
+	sys.exit()
+
+
+preStr = "-I"+ROBOCOMP+"/interfaces/ -I/opt/robocomp/interfaces/ --all "+ROBOCOMP+"/interfaces/"
+Ice.loadSlice(preStr+"CommonBehavior.ice")
+import RoboCompCommonBehavior
+Ice.loadSlice(preStr+"InverseKinematics.ice")
+import RoboCompInverseKinematics
+Ice.loadSlice(preStr+"JointMotor.ice")
+import RoboCompJointMotor
 
 
 class GenericWorker(QtGui.QWidget):

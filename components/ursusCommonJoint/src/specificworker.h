@@ -75,9 +75,10 @@ private:
 
 
 	void init();
-	bool checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret);
+	bool checkFuturePosition(MotorGoalPositionList goals, std::pair<QString, QString> &ret);
 	bool checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret);
 	void recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in);
+	bool checkMovementNeeded(const MotorGoalPositionList &goals);
 };
 
 #endif
