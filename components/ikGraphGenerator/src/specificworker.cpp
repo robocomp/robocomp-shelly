@@ -358,6 +358,16 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 	}catch (const RoboCompJointMotor::CollisionException &ex)
 	{
 		cout<<"--> Collision in commonjoint" << ex << "\n";
+		lastFinish = "ERROR";
+		state = GIK_NoTarget;
+		return;
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Ice::Exception:" << ex.what() <<"\n";
+		lastFinish = "ERROR";
+		state = GIK_NoTarget;
+		return;
 	}
 	{
 		QMutexLocker l(mutex);
@@ -823,7 +833,12 @@ bool SpecificWorker::delete_collision_points()
 	RoboCompDifferentialRobot::TBaseState bState;    // Para sacar los puntos de la RGBD
 	
 	// Obtenemos la nube de puntos
-	rgbd_proxy->getXYZ(point_cloud, hState, bState); 
+	try{
+		rgbd_proxy->getXYZ(point_cloud, hState, bState); 
+	}catch(...)
+	{
+		std::cout<<"Error point cloud\n";
+	}
 
 	//Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
 	full_cloud->points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
@@ -1374,13 +1389,23 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 void SpecificWorker::waitForMotorsToStop()
 {
 	MotorStateMap allMotorsCurr, allMotorsBack;
-	jointmotor_proxy->getAllMotorState(allMotorsBack);
+	try{
+		jointmotor_proxy->getAllMotorState(allMotorsBack);
+	}catch(...)
+	{
+		std::cout<<"Error retrieving all motors state\n";
+	}
 	usleep(50000);
 
 	while(true)
 	{
 		printf("%s: %d\n", __FILE__, __LINE__);
-		jointmotor_proxy->getAllMotorState(allMotorsCurr); //valor actual		
+		try{
+			jointmotor_proxy->getAllMotorState(allMotorsCurr); //valor actual		
+		}catch(...)
+		{
+			std::cout<<"Error retrieving all motors state\n";
+		}
 		for (auto v : allMotorsCurr)
 		{
 			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.05)
