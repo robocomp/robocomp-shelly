@@ -28,7 +28,7 @@ from genericworker import *
 #Position dictionary: could contain:  
 # 6D postion ==> 'name':(,x,y,z,rx,ry,rz)
 # or joint positions ==> 'name':[('motor1',angle1),('motor2',angle2)...]
-posDict = {'zero':(0,0,800,0,0,0),'elbowdown':[('armY',0.0),('armX1',1.0),('armX2',-2.5),('wristX',0.0)],'elbowup':[('armY',0.0),('armX1',-1.0),('armX2',2.5),('wristX',0.0)],'anygrabposition':(0,0,800,0,0,0)}
+posDict = {'zeroIK':(0,800,800,0,0,0),'zeroJoint':[('armY',0.0),('armX1',0.0),('armX2',0.0),('wristX',0.0)],'elbowdown':[('armY',0.0),('armX1',1.0),('armX2',-2.5),('wristX',0.0)],'elbowup':[('armY',0.0),('armX1',-1.0),('armX2',2.5),('wristX',0.0)],'anygrabposition':(0,875,675,0,0,0),'pickEdown':[('armY',0.0),('armX1',0.5),('armX2',-1.3),('wristX',0.9)],'pickEup':[('armY',0.0),('armX1',-0.5),('armX2',1.3),('wristX',-0.9)]}
 
 
 #Body part to send commands:
@@ -96,13 +96,17 @@ class SpecificWorker(GenericWorker):
 		print "\nMove: " + str(self.ui.position_cb.currentText())
 		if isinstance(values,tuple):
 			print '6D move'
-			print values
-			target.x = values[0]
-			target.y = values[1]
-			target.z = values[2]
 			target.rx = values[3]
 			target.ry = values[4]
 			target.rz = values[5]
+			target.x = values[0]
+			target.y = values[1]
+			target.z = values[2]
+			if str(self.ui.position_cb.currentText()) == 'anygrabposition':
+				target.x += randint(-100,100)
+				target.y += randint(-100,100)
+				target.z += randint(-100,100)
+			print target
 			self.sendMove(target)
 		elif isinstance(values,list):
 			print 'Joint move'

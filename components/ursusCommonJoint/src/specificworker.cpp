@@ -532,12 +532,12 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 	float range = 0.f, time = 0.f,iter_time = 0.f;
 	for (uint i=0; i<goals.size(); i++)
 	{
-		qDebug()<< "max speed motor "<< i << goals[i].maxSpeed;
+//		qDebug()<< "max speed motor "<< i << goals[i].maxSpeed << "inverse" <<motorParamMap[goals[i].name].invertedSign;
 		// If maxSpeed not provided, is taken from motor param
 		if ( isnan(goals[i].maxSpeed) || goals[i].maxSpeed > motorParamMap[goals[i].name].maxVelocity || goals[i].maxSpeed <= 0)
 		{
 			goals[i].maxSpeed = motorParamMap[goals[i].name].maxVelocity;
-			qDebug() << "truncate vel"<< goals[i].maxSpeed;
+//			qDebug() << "truncate vel"<< goals[i].maxSpeed;
 		}
 		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
 		if( (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed ) > time )
@@ -545,7 +545,7 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 			range = fabs(goals[i].position - backPoses[i].position);
 			time = (range / goals[i].maxSpeed);
 		}
-		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(goals[i].position - backPoses[i].position) << "time" << (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed);
+//		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(goals[i].position - backPoses[i].position) << "time" << (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed);
 	}
 	bool collision = false;
 	uint num_iter = round(range / MAX_MOVE);
@@ -563,6 +563,8 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 			int direction = 1;
 			if (goals[i].position < backPoses[i].position)
 				direction = -1;
+			if (motorParamMap[goals[i].name].invertedSign)
+				direction *= -1; 
 			iter_move = (goals[i].maxSpeed * iter_time);
 			if (iter_move < fabs(goals[i].position - actual_position))
 				position = actual_position + iter_move*direction;
