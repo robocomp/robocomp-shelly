@@ -137,6 +137,37 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		try { prxMap.at(init.first)->setPosition(goal); }
 		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 	}
+
+	// read known positions and transitions
+	printf("TransitionList content:\n");
+	QString transitions = QString::fromStdString(params["knownTransitions"].value);
+ 	for (auto parejaTexto : transitions.split(";", QString::SkipEmptyParts))
+ 	{
+ 		QStringList parejaLista = parejaTexto.split(":" , QString::SkipEmptyParts);
+		QStringList init_final = parejaLista[0].split("," , QString::SkipEmptyParts);
+		QStringList intermediates = parejaLista[1].split("," , QString::SkipEmptyParts);
+		std::pair<QString, QString> key = std::pair<QString,QString>(init_final[0], init_final[1]);
+		std::vector<QString> intermediate_list;
+		for (auto intermdiate_name: intermediates)
+			 intermediate_list.push_back(intermdiate_name);
+		knownTransitions.insert(std::pair<std::pair<QString,QString>,std::vector<QString>>(key,intermediate_list));
+		qDebug()<<"\t transition: "<<init_final[0] << ":"<<init_final[1] <<" => "<<intermediates;
+ 	}
+ 	QString positions = QString::fromStdString(params["knownPositions"].value);
+ 	for (auto parejaTexto : positions.split(";", QString::SkipEmptyParts))
+ 	{
+		qDebug()<<"position name =>"<<parejaTexto;
+		std::map<QString, float> motorList;
+ 		QStringList parejaLista = parejaTexto.split("," , QString::SkipEmptyParts);
+		QStringList motors = QString(parejaLista[1]).remove(QChar('[')).remove(QChar(']')).split("_" , QString::SkipEmptyParts);
+		for (auto motor : motors)
+		{
+			QStringList motor_values = motor.split(":", QString::SkipEmptyParts);
+			motorList.insert(std::pair<QString, float>(motor_values[0],motor_values[1].toFloat()));
+//			qDebug()<<motor_values[0] << "=>"<<motor_values[1];
+		}
+		knownPositions.insert(std::pair<QString,std::map<QString,float> >(parejaLista[0], motorList));
+	}
 	return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -152,9 +183,11 @@ void SpecificWorker::compute( )
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorStateMap mMap;
+	motorStateMap.clear();
 	try
 	{
 		jointmotor0_proxy->getAllMotorState(mMap); 
+		motorStateMap.insert(mMap.begin(), mMap.end());
 	}
 	catch (const Ice::Exception &ex)
 	{
@@ -174,6 +207,7 @@ void SpecificWorker::compute( )
 	try
 	{
 		jointmotor1_proxy->getAllMotorState(mMap);
+		motorStateMap.insert(mMap.begin(), mMap.end());
 	}
 	catch (const Ice::Exception &ex)
 	{
@@ -267,16 +301,25 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 	std::string result;
 	if (checkMovementNeeded(listGoals))
 	{
+		QString goal_name = isKnownPosition(listGoals);
+		QString actual_name = isKnownPosition(motorStateMap);
+		qDebug()<<"result goal "<<goal_name << " result actual "<<actual_name;
+		return;
+		
+// kown actual and next position
+		//actual could be "none"
+		
+		
 		if (checkFuturePosition(listGoals, ret))
 		{
 			printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 			throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
 		}
 		if (checkMotorLimits(listGoals, result))
-			{
-				printf("|| setPosition: %s\n", result.c_str());
-				throw RoboCompJointMotor::OutOfRangeException(result);
-			}
+		{
+			printf("|| setPosition: %s\n", result.c_str());
+			throw RoboCompJointMotor::OutOfRangeException(result);
+		}
 		RoboCompJointMotor::MotorGoalPositionList l0,l1;
 		for (uint i=0; i<listGoals.size(); i++)
 		{
@@ -563,8 +606,6 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 			int direction = 1;
 			if (goals[i].position < backPoses[i].position)
 				direction = -1;
-			if (motorParamMap[goals[i].name].invertedSign)
-				direction *= -1; 
 			iter_move = (goals[i].maxSpeed * iter_time);
 			if (iter_move < fabs(goals[i].position - actual_position))
 				position = actual_position + iter_move*direction;
@@ -640,3 +681,74 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 		in.push_back(node->id);
 	}
 }
+
+/**
+ * \brief Try to use any known position to make the original movement in two stages
+ * @param node
+ * @param in
+ */
+/*void SpecificWorker::tryClosestKnownPos(RoboCompJointMotor::MotorGoalPositionList goals)
+{
+	
+	
+}*/
+
+
+#define POS_OFFSET 0.1
+//check if position is known
+// position is similar if all motor involved are 0.1 or closer 
+//return position name if found "none "otherwise
+QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorStateMap mstate)
+{
+	// convert MotorStateMap to MotorGoalPositionList
+	RoboCompJointMotor::MotorGoalPositionList goalList;
+	for (auto state: mstate)
+	{
+		RoboCompJointMotor::MotorGoalPosition goal;
+		goal.name = state.first;
+		goal.position = state.second.pos;
+		goalList.push_back(goal);
+	}
+	return isKnownPosition(goalList);
+	
+}
+QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorGoalPositionList goals)
+{
+	bool nextPosition = false;
+	for (auto position: knownPositions)
+	{
+//		qDebug()<<"check position "<< position.first;
+		uint cont = 0;
+		for (auto motor: position.second)
+		{
+			for (uint i=0; i<goals.size(); i++)
+			{
+				if ( motor.first == QString::fromStdString(goals[i].name))
+				{
+					if (fabs(motor.second-goals[i].position) <= POS_OFFSET)
+					{
+						cont++;
+						continue;
+					}
+					else
+					{
+						nextPosition = true;
+						break;
+					}
+				}
+			}
+			if(nextPosition)
+			{
+				nextPosition = false;
+				break;
+			}
+		}
+		if (cont == position.second.size())
+		{
+			return position.first;
+		}
+	}
+	return "none";
+}
+
+// how to check if arm is in IK position?
