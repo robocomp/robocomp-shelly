@@ -28,7 +28,11 @@
 	#include <innermodel/innermodelviewer.h>
 #endif
 
+
 #define MAX_MOVE 0.3
+#define POS_OFFSET 0.1
+
+enum CommonJointState { Idle, GoPos };
 
 /**
        \brief
@@ -69,6 +73,9 @@ private:
 	std::map<QString, std::map<QString, float> > knownPositions;
 	std::map<std::string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 	std::map<QString, std::pair<QVec, QVec> >collisionBoxMap;
+	QStringList transitionSteps;
+	
+	CommonJointState state;
 	
 	InnerModel *innerModel;
 #ifdef USE_QTGUI
@@ -84,6 +91,8 @@ private:
 	bool checkMovementNeeded(const MotorGoalPositionList &goals);
 	QString isKnownPosition(RoboCompJointMotor::MotorGoalPositionList goals);
 	QString isKnownPosition(RoboCompJointMotor::MotorStateMap mstate);
+	void sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals);
+	RoboCompJointMotor::MotorGoalPositionList convertKnownPos2Goal(QString pos_name);
 };
 
 #endif

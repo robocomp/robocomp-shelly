@@ -38,6 +38,8 @@ SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
  	osgView->setCameraManipulator(tb);
 #endif
 	mutex = new QMutex(QMutex::Recursive);
+	state = Idle;
+	transitionSteps.clear();
 }
 
 /**
@@ -229,6 +231,35 @@ void SpecificWorker::compute( )
 	if (imv) imv->update();
 	osgView->frame();
 #endif
+	
+	switch(state)
+	{
+		case Idle:
+			break;
+		case GoPos:
+			qDebug()<<"goPos ";
+			// check motors are moving
+			for (auto motor: motorStateMap)
+			{
+				if (motor.second.isMoving)
+				{
+					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
+					return;
+				}
+			}
+			if (not transitionSteps.isEmpty())
+			{
+				QString next = transitionSteps.takeFirst();
+				qDebug() << "next step : " <<next;
+				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
+				sendPos2Motors(goalList);
+			}
+			else
+			{
+				state = Idle;
+			}
+			break;
+	}
 }
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -297,45 +328,84 @@ void SpecificWorker::setZeroPos(const string& name)
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
 	QMutexLocker locker(mutex);
+	if (state != Idle)
+	{
+		printf("Going to known position, ignoring actual listGoals\n");
+		return;
+	}
 	std::pair<QString, QString> ret;
 	std::string result;
 	if (checkMovementNeeded(listGoals))
 	{
-		QString goal_name = isKnownPosition(listGoals);
-		QString actual_name = isKnownPosition(motorStateMap);
-		qDebug()<<"result goal "<<goal_name << " result actual "<<actual_name;
-		return;
-		
-// kown actual and next position
-		//actual could be "none"
-		
-		
-		if (checkFuturePosition(listGoals, ret))
-		{
-			printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
-			throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
-		}
 		if (checkMotorLimits(listGoals, result))
 		{
 			printf("|| setPosition: %s\n", result.c_str());
 			throw RoboCompJointMotor::OutOfRangeException(result);
 		}
-		RoboCompJointMotor::MotorGoalPositionList l0,l1;
-		for (uint i=0; i<listGoals.size(); i++)
-		{
-			if (prxMap.at(listGoals[i].name)==jointmotor0_proxy)
-				l0.push_back(listGoals[i]);
-			else if (prxMap.at( listGoals[i].name)==jointmotor1_proxy)
-				l1.push_back(listGoals[i]);
+		else
+		{ // inside motor limits
+			if (checkFuturePosition(listGoals, ret)) 
+			{ //collision
+				//Try to avoid using known positions
+				QString goal_name = isKnownPosition(listGoals);
+				QString actual_name = isKnownPosition(motorStateMap);
+				qDebug()<<"result goal "<<goal_name << " result actual "<<actual_name;
+				
+				// search position in known list
+				std::map< std::pair<QString, QString>, std::vector<QString> >::iterator it;
+				it = knownTransitions.find(std::pair<QString, QString>(actual_name,goal_name));
+				if (it != knownTransitions.end())
+				{
+					for (auto pos: it->second)
+					{
+						transitionSteps.append(pos);
+					}
+					transitionSteps.append(goal_name);
+					qDebug()<<"Transition list needed: "<<transitionSteps;
+					state = GoPos;
+				}
+				else
+				{
+					printf("|| setSyncPosition: %s,%s\n Unkown transition chain\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+					throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+				}
+			}
 			else
-				std::cout<<__FILE__<<__FUNCTION__<<__LINE__<<"Motor "<<listGoals[i].name<<" not found in proxy list\n";
+			{ //no collision
+				sendPos2Motors(listGoals);
+			}
 		}
-		try { jointmotor0_proxy->setSyncPosition(l0); }
-		catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;}
-		try { jointmotor1_proxy->setSyncPosition(l1); }
-		catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;}
 	}
 }
+
+void SpecificWorker::sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals)
+{
+	RoboCompJointMotor::MotorGoalPositionList l0,l1;
+	for (uint i=0; i<listGoals.size(); i++)
+	{
+		if (prxMap.at(listGoals[i].name)==jointmotor0_proxy)
+			l0.push_back(listGoals[i]);
+		else if (prxMap.at( listGoals[i].name)==jointmotor1_proxy)
+			l1.push_back(listGoals[i]);
+		else
+			std::cout<<__FILE__<<__FUNCTION__<<__LINE__<<"Motor "<<listGoals[i].name<<" not found in proxy list\n";
+	}
+	try{ 
+		jointmotor0_proxy->setSyncPosition(l0); 
+	}
+	catch(std::exception &ex)
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;
+	}
+	try{
+		jointmotor1_proxy->setSyncPosition(l1); 
+	}
+	catch(std::exception &ex){
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;
+	}
+}
+
+
 /**
  * \brief this method changes more than one motor speed at the same time.
  * @param listGoals list of target speeds
@@ -595,7 +665,7 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 	if (num_iter == 0)	//at least one iteration is needed
 		num_iter = 1;
 	iter_time = time / num_iter;
-	qDebug()<<"time" <<time << num_iter << iter_time;
+//	qDebug()<<"time" <<time << num_iter << iter_time;
 
 	for (uint j=0;j<num_iter;j++)
 	{
@@ -682,19 +752,7 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 	}
 }
 
-/**
- * \brief Try to use any known position to make the original movement in two stages
- * @param node
- * @param in
- */
-/*void SpecificWorker::tryClosestKnownPos(RoboCompJointMotor::MotorGoalPositionList goals)
-{
-	
-	
-}*/
 
-
-#define POS_OFFSET 0.1
 //check if position is known
 // position is similar if all motor involved are 0.1 or closer 
 //return position name if found "none "otherwise
@@ -748,7 +806,25 @@ QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorGoalPositionLis
 			return position.first;
 		}
 	}
-	return "none";
+	return "ik";
 }
 
-// how to check if arm is in IK position?
+RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(QString pos_name)
+{
+	RoboCompJointMotor::MotorGoalPositionList goalList;
+	std::map<QString, std::map<QString, float> >::iterator it;
+	it = knownPositions.find(pos_name);
+//	qDebug()<<"pos to motor values ";
+	if (it != knownPositions.end())
+	{
+		for (auto motor: it->second)
+		{
+			RoboCompJointMotor::MotorGoalPosition goal;
+			goal.name = motor.first.toStdString();
+			goal.position = motor.second;
+			goalList.push_back(goal);	
+//			qDebug()<<"motor found"<<motor.first <<goal.position;
+		}
+	}
+	return goalList;
+}
