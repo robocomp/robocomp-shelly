@@ -31,8 +31,8 @@
 
 #define MAX_MOVE 0.3
 #define POS_OFFSET 0.1
-
-enum CommonJointState { Idle, GoPos };
+#define MOVEMENT_TIME 5000 
+enum CommonJointState { Idle, GoPos, WaitingToAchive };
 
 /**
        \brief
@@ -93,6 +93,7 @@ private:
 	QString isKnownPosition(RoboCompJointMotor::MotorStateMap mstate);
 	void sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals);
 	RoboCompJointMotor::MotorGoalPositionList convertKnownPos2Goal(QString pos_name);
+	void stopMotors();
 };
 
 #endif

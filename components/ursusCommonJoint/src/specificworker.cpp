@@ -182,6 +182,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute( )
 {
 	usleep(50000);
+	static clock_t movement_time;
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorStateMap mMap;
@@ -238,6 +239,31 @@ void SpecificWorker::compute( )
 			break;
 		case GoPos:
 			qDebug()<<"goPos ";
+			if (not transitionSteps.isEmpty())
+			{
+				QString next = transitionSteps.first();
+				qDebug()<<"send pos to motor: "<<next;
+				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
+				sendPos2Motors(goalList);
+				state = WaitingToAchive;
+				movement_time = clock(); 
+				usleep(500000);
+			}
+			else
+			{
+				state = Idle;
+			}
+			break;
+		case WaitingToAchive:
+			qDebug()<<"waitingToAchive";
+			// check how much time has elapsed
+			if (float(clock() - movement_time) > MOVEMENT_TIME)
+			{
+				//stopMotors();
+				transitionSteps.clear();
+				state = Idle;
+				qDebug() << "Too much time to achive position, movement cancelled";
+			}
 			// check motors are moving
 			for (auto motor: motorStateMap)
 			{
@@ -247,26 +273,18 @@ void SpecificWorker::compute( )
 					return;
 				}
 			}
-			if (not transitionSteps.isEmpty())
+			QString actual_state = isKnownPosition(motorStateMap);
+			QString next = transitionSteps.first();
+			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
+			if(actual_state == next)
 			{
-				QString actual_state = isKnownPosition(motorStateMap);
-				QString next = transitionSteps.first();
-				qDebug() << "actual: "<< actual_state<<" next step : " <<next;
-				if(actual_state == next)
-				{
-					transitionSteps.pop_front();
-				}
-				else{
-					RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
-					sendPos2Motors(goalList);
-					usleep(500000);
-				}
+				transitionSteps.pop_front();
+				if (not transitionSteps.isEmpty())
+					state = GoPos;
+				else
+					state = Idle;
 			}
-			else
-			{
-				state = Idle;
-			}
-			break;
+			
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -822,7 +840,7 @@ RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(Q
 	RoboCompJointMotor::MotorGoalPositionList goalList;
 	std::map<QString, std::map<QString, float> >::iterator it;
 	it = knownPositions.find(pos_name);
-//	qDebug()<<"pos to motor values ";
+	qDebug()<<"pos to motor values ";
 	if (it != knownPositions.end())
 	{
 		for (auto motor: it->second)
@@ -831,8 +849,30 @@ RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(Q
 			goal.name = motor.first.toStdString();
 			goal.position = motor.second;
 			goalList.push_back(goal);	
-//			qDebug()<<"motor found"<<motor.first <<goal.position;
+			qDebug()<<"motor found"<<motor.first <<goal.position;
 		}
 	}
 	return goalList;
+}
+
+//TODO: Stop motor not implmented yet in JointMotor 
+void SpecificWorker::stopMotors()
+{
+	try
+	{ 
+		//jointmotor0_proxy->stop(); 
+	}
+	catch(std::exception &ex) 
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in stop Motor jointmotor0"<<std::endl;
+	}
+	try 
+	{ 
+		//jointmotor1_proxy->stop(); 
+	}
+	catch(std::exception &ex) 
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in stop Motor jointmotor1"<<std::endl; 
+	}
+	
 }
