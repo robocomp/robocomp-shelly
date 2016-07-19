@@ -20,6 +20,13 @@
 #include "specificworker.h"
 #include <boost/graph/graph_concepts.hpp>
 
+static unsigned int get_current_time(void)
+{
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+}
+
 /**
  * \brief Default constructor. It initializes the attributes of the ursusCommonJoint component
  * @param mprx
@@ -182,7 +189,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute( )
 {
 	usleep(50000);
-	static clock_t movement_time;
+	static unsigned int movement_time;
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorStateMap mMap;
@@ -246,7 +253,7 @@ void SpecificWorker::compute( )
 				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
 				sendPos2Motors(goalList);
 				state = WaitingToAchive;
-				movement_time = clock(); 
+				movement_time = get_current_time(); 
 				usleep(500000);
 			}
 			else
@@ -256,9 +263,9 @@ void SpecificWorker::compute( )
 			break;
 		case WaitingToAchive:
 			qDebug()<<"waitingToAchive";
-			qDebug()<<"time "<<float((clock() - movement_time)/CLOCKS_PER_SEC);
+			qDebug()<<"time "<<movement_time - get_current_time();
 			// check how much time has elapsed
-			if (float((clock() - movement_time)/CLOCKS_PER_SEC) > MOVEMENT_TIME)
+			if (float(movement_time - get_current_time()) >= MOVEMENT_TIME)
 			{
 				//stopMotors();
 				transitionSteps.clear();
