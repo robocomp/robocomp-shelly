@@ -249,10 +249,18 @@ void SpecificWorker::compute( )
 			}
 			if (not transitionSteps.isEmpty())
 			{
-				QString next = transitionSteps.takeFirst();
-				qDebug() << "next step : " <<next;
-				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
-				sendPos2Motors(goalList);
+				QString actual_state = isKnownPosition(motorStateMap);
+				QString next = transitionSteps.first();
+				qDebug() << "actual: "<< actual_state<<" next step : " <<next;
+				if(actual_state == next)
+				{
+					transitionSteps.pop_front();
+				}
+				else{
+					RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
+					sendPos2Motors(goalList);
+					usleep(500000);
+				}
 			}
 			else
 			{
