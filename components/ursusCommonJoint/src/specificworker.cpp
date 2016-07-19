@@ -256,13 +256,15 @@ void SpecificWorker::compute( )
 			break;
 		case WaitingToAchive:
 			qDebug()<<"waitingToAchive";
+			qDebug()<<"time "<<float((clock() - movement_time)/CLOCKS_PER_SEC);
 			// check how much time has elapsed
-			if (float(clock() - movement_time) > MOVEMENT_TIME)
+			if (float((clock() - movement_time)/CLOCKS_PER_SEC) > MOVEMENT_TIME)
 			{
 				//stopMotors();
 				transitionSteps.clear();
 				state = Idle;
 				qDebug() << "Too much time to achive position, movement cancelled";
+				return;
 			}
 			// check motors are moving
 			for (auto motor: motorStateMap)
@@ -274,7 +276,17 @@ void SpecificWorker::compute( )
 				}
 			}
 			QString actual_state = isKnownPosition(motorStateMap);
-			QString next = transitionSteps.first();
+			QString next;
+			if (not transitionSteps.isEmpty())
+			{
+				next = transitionSteps.first();
+			}
+			else
+			{
+				qDebug()<<"ERROR: TransitionSteps should not be empty, check!!!";
+				state = Idle;
+				return;
+			}
 			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
 			if(actual_state == next)
 			{
