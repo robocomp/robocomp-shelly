@@ -20,13 +20,6 @@
 #include "specificworker.h"
 #include <boost/graph/graph_concepts.hpp>
 
-static unsigned int get_current_time(void)
-{
-	struct timeval tv;
-	gettimeofday(&tv, NULL);
-	return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-}
-
 /**
  * \brief Default constructor. It initializes the attributes of the ursusCommonJoint component
  * @param mprx
@@ -189,7 +182,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute( )
 {
 	usleep(50000);
-	static unsigned int movement_time;
+	static clock_t movement_time;
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorStateMap mMap;
@@ -253,7 +246,7 @@ void SpecificWorker::compute( )
 				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
 				sendPos2Motors(goalList);
 				state = WaitingToAchive;
-				movement_time = get_current_time(); 
+				movement_time = clock(); 
 				usleep(500000);
 			}
 			else
@@ -262,10 +255,10 @@ void SpecificWorker::compute( )
 			}
 			break;
 		case WaitingToAchive:
-			qDebug()<<"waitingToAchive";
-			qDebug()<<"time "<<movement_time - get_current_time();
+			qDebug()<<"waitingToAchieve";
+//			qDebug()<<"time "<< (float((clock() - movement_timem)/CLOCKS_PER_SEC));
 			// check how much time has elapsed
-			if (float(movement_time - get_current_time()) >= MOVEMENT_TIME)
+			if (float((clock() - movement_time )/CLOCKS_PER_SEC) >= MOVEMENT_TIME)
 			{
 				//stopMotors();
 				transitionSteps.clear();
@@ -294,7 +287,7 @@ void SpecificWorker::compute( )
 				state = Idle;
 				return;
 			}
-			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
+//			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
 			if(actual_state == next)
 			{
 				transitionSteps.pop_front();
@@ -859,7 +852,7 @@ RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(Q
 	RoboCompJointMotor::MotorGoalPositionList goalList;
 	std::map<QString, std::map<QString, float> >::iterator it;
 	it = knownPositions.find(pos_name);
-	qDebug()<<"pos to motor values ";
+//	qDebug()<<"pos to motor values ";
 	if (it != knownPositions.end())
 	{
 		for (auto motor: it->second)
@@ -867,8 +860,9 @@ RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(Q
 			RoboCompJointMotor::MotorGoalPosition goal;
 			goal.name = motor.first.toStdString();
 			goal.position = motor.second;
+			goal.maxSpeed = 0.4;
 			goalList.push_back(goal);	
-			qDebug()<<"motor found"<<motor.first <<goal.position;
+//			qDebug()<<"motor found"<<motor.first <<goal.position;
 		}
 	}
 	return goalList;
