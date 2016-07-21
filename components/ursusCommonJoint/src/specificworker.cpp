@@ -238,16 +238,27 @@ void SpecificWorker::compute( )
 		case Idle:
 			break;
 		case GoPos:
-			qDebug()<<"goPos ";
 			if (not transitionSteps.isEmpty())
 			{
 				QString next = transitionSteps.first();
-				qDebug()<<"send pos to motor: "<<next;
+				qDebug()<<"goPos => send pos to motor: "<<next;
+				std::pair<QString,QString> ret;
+				std::string result;
 				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
-				sendPos2Motors(goalList);
-				state = WaitingToAchive;
-				movement_time = clock(); 
-				usleep(500000);
+				
+				if(not checkMotorLimits(goalList,result) && not checkFuturePosition(goalList,ret))
+				{
+					sendPos2Motors(goalList);
+					state = WaitingToAchive;
+					movement_time = clock(); 
+					usleep(500000);
+				}else
+				{
+					qDebug()<<"Imposible to achieve intermediate position"<<result.c_str();
+					printf("|| GoPos: %s,%s\n",ret.first.toStdString().c_str(),ret.second.toStdString().c_str());
+					transitionSteps.clear();
+					state = Idle;
+				}
 			}
 			else
 			{
@@ -255,7 +266,7 @@ void SpecificWorker::compute( )
 			}
 			break;
 		case WaitingToAchive:
-			qDebug()<<"waitingToAchieve";
+//			qDebug()<<"waitingToAchieve";
 //			qDebug()<<"time "<< (float((clock() - movement_timem)/CLOCKS_PER_SEC));
 			// check how much time has elapsed
 			if (float((clock() - movement_time )/CLOCKS_PER_SEC) >= MOVEMENT_TIME)
@@ -271,7 +282,7 @@ void SpecificWorker::compute( )
 			{
 				if (motor.second.isMoving)
 				{
-					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
+//					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
 					return;
 				}
 			}
