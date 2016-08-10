@@ -196,16 +196,20 @@ void SpecificWorker::compute()
 	}
 	
 	// join bState position
-	
 	newState.x = omniState.x;
 	newState.z = omniState.z;
 	newState.alpha = omniState.alpha;
 	
-	// save actual state
+	
+	// Check if base need correction
+	if(enoughDifference(omniState, newState))
+	{
+		setCorrectedPosition(newState);
+	}
+	// Check if bState should be published
 	if (enoughDifference(lastState, newState))
 	{
 		lastState = newState;
-		setCorrectedPosition(newState);
 		odometryAndLocationIssues(newState, false);
 	}
 }
@@ -246,7 +250,6 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 	QMutexLocker l(mutex);
 
 	int32_t robotId=-1, roomId=-1;
-
 	robotId = worldModel->getIdentifierByType("robot");
 	if (robotId < 0)
 	{
@@ -266,10 +269,10 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 			if (symbolPair.second == robotId and secondType == "room")
 			{
 				roomId = symbolPair.first;
+				break;
 			}
 		}
 	}
-
 	
 	includeMovementInRobotSymbol(robot);
 	
@@ -284,7 +287,7 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 
 ///TODO: fix ==> room id is hardcoded
 	int32_t robotIsActuallyInRoom;
-	if (bState.correctedZ<0)
+	if (bState.z < 0)
 		robotIsActuallyInRoom = 5;
 	else
 		robotIsActuallyInRoom = 3;
@@ -311,20 +314,20 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				
 				// to reduce the publication frequency
 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
+				if (fabs(bStatex - bState.x)>5 or fabs(bStatez - bState.z)>5 or fabs(bStatealpha - bState.alpha)>0.02 or force)
 				{
 					//Publish update edge
 					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
+					qDebug()<<"bState model --> "<<bStatex<<bStatez<<bStatealpha;
+					qDebug()<<"bState new --> "<<bState.x<<bState.z<<bState.alpha;
 
-					edgeRT->setAttribute("tx", float2str(bState.correctedX));
-					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
-					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
+					edgeRT->setAttribute("tx", float2str(bState.x));
+					edgeRT->setAttribute("tz", float2str(bState.z));
+					edgeRT->setAttribute("ry", float2str(bState.alpha));
 				}
 				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
-				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
-				rDebug2(("navigationAgent moved robot from room"));
+				AGMMisc::publishModification(newModel, agmexecutive_proxy, "localizationAgent");
+				rDebug2(("localizationAgent moved robot from room"));
 			}
 			catch (...)
 			{
@@ -351,16 +354,16 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				
 				// to reduce the publication frequency
 // 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
+				if (fabs(bStatex - bState.x)>5 or fabs(bStatez - bState.z)>5 or fabs(bStatealpha - bState.alpha)>0.02 or force)
 				{
 					//Publish update edge
 // 					printf("\nUpdate odometry...\n");
 // 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
 // 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
 
-					edge->setAttribute("tx", float2str(bState.correctedX));
-					edge->setAttribute("tz", float2str(bState.correctedZ));
-					edge->setAttribute("ry", float2str(bState.correctedAlpha));
+					edge->setAttribute("tx", float2str(bState.x));
+					edge->setAttribute("tz", float2str(bState.z));
+					edge->setAttribute("ry", float2str(bState.alpha));
 					//rDebug2(("navigationAgent edgeupdate"));
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
 // 					printf("done\n");
@@ -381,8 +384,6 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 			return false;
 		}
 	}
-
-
 	return true;
 }
 
@@ -512,7 +513,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
  
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
 
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
@@ -521,7 +522,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
  
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
 
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
@@ -530,7 +531,7 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modificati
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
  
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
 
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
@@ -539,7 +540,7 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
  
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
 
 
