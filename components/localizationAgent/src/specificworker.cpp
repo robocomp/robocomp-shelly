@@ -594,11 +594,24 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 {
 	try
 	{
-		AGMModelPrinter::printWorld(newModel);
+//		AGMModelPrinter::printWorld(newModel);
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, "localizationAgentAgent");
 	}
-	catch(...)
+	catch(const RoboCompAGMExecutive::Locked &e)
 	{
+		printf("error when sending modification proposal (Locked)\n");
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+		printf("error when sending modification proposal (OldModel)\n");
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+		printf("error when sending modification proposal (InvalidChange)\n");
+	}
+	catch(const Ice::Exception& e)
+	{
+		printf("error when sending modification proposal\n");
 		exit(1);
 	}
 }
