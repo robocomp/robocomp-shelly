@@ -382,7 +382,20 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="slam" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12010">
+ <node alias="slam" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 11059">
+  <dependence alias="laser" />
+  <dependence alias="base" />
+  <dependence alias="IS" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote 10.0.30.11 gmapping /home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp ./bin/gmappingComp /home/robocomp/robocomp/components/robocomp-shelly/etc/gmapping.conf" />
+  <downCommand command="ssh robolab@10.0.30.11 killall -9 gmappingComp" />
+  <configFile path="kate /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/etc/config" />
+  <xpos value="-70.8183686745" />
+  <ypos value="77.9307648346" />
+  <radius value="10.0" />
+  <color value="#FF3333" />
+ </node>
+ <node alias="slamCGR" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12010">
   <dependence alias="laser" />
   <dependence alias="base" />
   <dependence alias="IS" />
@@ -390,7 +403,7 @@
   <upCommand command="rcremote 10.0.30.11 CGR /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR ./bin/CGRc etc/config" />
   <downCommand command="ssh robolab@10.0.30.11 killall -9 CGRc" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/etc/config" />
-  <xpos value="-70.8183686745" />
+  <xpos value="-60" />
   <ypos value="77.9307648346" />
   <radius value="10.0" />
   <color value="#FF3333" />

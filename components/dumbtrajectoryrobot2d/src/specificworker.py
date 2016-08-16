@@ -156,7 +156,8 @@ class SpecificWorker(GenericWorker):
 						errAlpha = self.relAng
 	
 				
-				if np.linalg.norm(errorVector)<=self.threshold and abs(errAlpha) < 0.15:
+#				if np.linalg.norm(errorVector)<=self.threshold and abs(errAlpha) < 0.15:
+				if np.linalg.norm(errorVector)<=self.threshold/3. and abs(errAlpha) < 0.15/3.:
 					self.log.send("navigator stopped by threshold", "event")
 					print 'stop by threshold', self.threshold
 					print '<Now IDLE'
@@ -168,12 +169,12 @@ class SpecificWorker(GenericWorker):
 					print np.linalg.norm(command), abs(errAlpha)
 
 				speed = np.linalg.norm(command)*0.5
-				if speed>100:
-					speed = 100
-				elif np.linalg.norm(command)<150:
+				if speed>70:
+					speed = 70
+				if np.linalg.norm(command)<150:
 					if speed > 25:
 						speed = 25
-					if speed < 10:
+					elif speed < 10:
 						speed = 10
 				command = command / (np.linalg.norm(command)/speed)
 				commandAlpha = saturate_minabs_BothSigns(errAlpha, 0.05, 0.3)
