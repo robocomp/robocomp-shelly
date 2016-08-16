@@ -38,7 +38,7 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="localizationA" endpoint="commonbehavior:tcp -p 11351">
+ <node alias="localizationA" endpoint="commonbehavior:tcp -p 14351">
   <dependence alias="executive" />
   <dependence alias="base" />
   <workingDir path="/home/robocomp/" />
