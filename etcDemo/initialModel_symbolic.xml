@@ -103,10 +103,6 @@
 	</link>
 	<link src="1" dst="50" label="know" >
 	</link>
-	<link src="5" dst="6" label="room" >
-	</link>
-	<link src="1" dst="5" label="know" >
-	</link>
 
 
 	<link src="20" dst="3" label="in" >

@@ -3,10 +3,15 @@
 		<transform id="room_3" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
 			<transform id="tableA" tx="1400" ty="800" tz="3180"  rx="0" ry="-1.570700049" rz="0">
 				<transform id="bluemug" tx="-1000" ty="110" tz="-600"  rx="0" ry="0" rz="0">
+					<transform id="mugRPr" tx="-10" ty="-50" tz="0"  rx="0" ry="0" rz="0">
+						<mesh id="mugR" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" scale="120,120,120" tx="0" ty="0" tz="0" rx="1.570700049" ry="0" rz="-1.570700049" collide="1" />
+					</transform>
+					<plane id="mugTag" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" size="70,-70,5" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+					<plane id="mugTagb" texture="#ffffff" size="80,-80,3.5" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
 				</transform>
 				<transform id="tableA_reachPos" tx="300" ty="0" tz="0"  rx="0" ry="-1.570700049" rz="0">
 				</transform>
-				<plane id="tableAC" texture="#cccccc" size="1000,1750,10" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+				<plane id="tableAC" texture="#cccccc" size="0.001000000047,0.001000000047,0.001000000047" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
 			</transform>
 			<transform id="robot" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
 				<transform id="laserPose" tx="0" ty="370" tz="230"  rx="0" ry="0" rz="0">
@@ -103,8 +108,8 @@
 				</transform>
 			</transform>
 		</transform>
-		<transform id="floor" tx="3500" ty="0" tz="0"  rx="0" ry="0" rz="0">
-			<plane id="back" texture="#eebb77" size="7500,8500,10" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
+		<transform id="floor" tx="0" ty="0" tz="0"  rx="0" ry="0" rz="0">
+			<plane id="back" texture="#eebb77" size="8500,8500,10" repeat="1000" nx="0" ny="1" nz="0" px="0" py="0" pz="0" collide="0" />
 		</transform>
 	</transform>
 </innermodel>

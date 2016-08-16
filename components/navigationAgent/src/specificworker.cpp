@@ -569,6 +569,9 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	else
 		robotIsActuallyInRoom = 3;
 
+	// TODO WARNING FIXME
+	robotIsActuallyInRoom = 3;
+
 	if (roomId != robotIsActuallyInRoom)
 	{
 		try
