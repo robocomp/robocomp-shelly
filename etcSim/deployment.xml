@@ -240,6 +240,7 @@
   <dependence alias="ppcptnA" />
   <dependence alias="graspingA" />
   <dependence alias="objectA" />
+  <dependence alias="localizationA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <downCommand command="killall -9 agmmission" />
@@ -252,11 +253,6 @@
 
  <node alias="mission - no deps" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
-  <dependence alias="navigA" />
-  <dependence alias="oracleA" />
-  <dependence alias="ppcptnA" />
-  <dependence alias="graspingA" />
-  <dependence alias="objectA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <downCommand command="killall -9 agmmission" />
