@@ -108,8 +108,8 @@ void SpecificWorker::compute( )
 		}
 	}
 	// ODOMETRY AND LOCATION-RELATED ISSUES
-	if (odometryAndLocationIssues() == false)
-		return;
+//	if (odometryAndLocationIssues() == false)
+//		return;
 	
 	actionExecution();
 }
