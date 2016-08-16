@@ -1,7 +1,7 @@
 <innermodel>
-	<transform id="robotp" tx="2080" tz="3200" ry="-1.5707" >
+<!-- 	<transform id="robotp" tx="2080" tz="3200" ry="-1.5707" > -->
 		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
-	</transform>
+<!-- 	</transform> -->
 
 	<include path="/home/robocomp/robocomp/components/prp/experimentFiles/simulation/autonomyLabModel-kitchen.xml"/>
 </innermodel>

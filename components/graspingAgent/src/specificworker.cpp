@@ -93,6 +93,12 @@ void SpecificWorker::updateViewer()
 
 void SpecificWorker::compute( )
 {
+	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
+	printf("grasp_height %f\n",grasp_height);
+	setRightArmUp_Reflex();
+
+		
+		
 	QTime ccc;
 	ccc = QTime::currentTime();
 
@@ -975,7 +981,9 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	///  Lift the hand if it's down, to avoid collisions
 	///
 	printf("hand's height: %f\n", innerModel->transform("world", "shellyArm_grasp_pose")(1));
-	if (first or innerModel->transform("world", "shellyArm_grasp_pose")(1)<1500)
+	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
+	printf("grasp_height %f\n",grasp_height);
+	if (first or grasp_height<1500)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
 		backAction = action;
@@ -1115,12 +1123,41 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 
 void SpecificWorker::setRightArmUp_Reflex()
 {
-	inversekinematics_proxy->setJoint("armY",            0, 0.6);
-	inversekinematics_proxy->setJoint("armX1",           0.7, 0.65);
-	inversekinematics_proxy->setJoint("armX2",          -2.5, 0.9);
-	inversekinematics_proxy->setJoint("wristX",          0.0, 0.5);
-	inversekinematics_proxy->setJoint("gripperFinger2", +0.7, 0.3);
-	inversekinematics_proxy->setJoint("gripperFinger1", -0.7, 0.3);
+	printf("setRightArmUp_Reflex\n");
+	printf("setRightArmUp_Reflex\n");
+	printf("setRightArmUp_Reflex\n");
+	printf("setRightArmUp_Reflex\n");
+	printf("setRightArmUp_Reflex\n");
+	
+	MotorGoalPositionList gpList;
+	MotorGoalPosition gp;
+	gp.maxSpeed = 0.7;
+	
+	gp.name = "armY";
+	gp.position = 0;
+	gpList.push_back(gp);
+	
+	gp.name = "armX1";
+	gp.position = 1;
+	gpList.push_back(gp);
+	
+	gp.name = "armX2";
+	gp.position = -2.5;
+	gpList.push_back(gp);
+	
+	gp.name = "wristX";
+	gp.position = 0;
+	gpList.push_back(gp);
+	
+	gp.name = "gripperFinger1";
+	gp.position = -0.7;
+	gpList.push_back(gp);
+	
+	gp.name = "gripperFinger2";
+	gp.position = 0.7;
+	gpList.push_back(gp);
+
+	jointmotor_proxy->setSyncPosition(gpList);
 }
 
 

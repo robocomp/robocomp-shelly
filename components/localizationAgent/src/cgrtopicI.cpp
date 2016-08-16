@@ -33,10 +33,10 @@ void CGRTopicI::newCGRPose(const float  poseUncertainty, const float  x, const f
 {
 	worker->newCGRPose(poseUncertainty, x, z, alpha);
 }
-void CGRTopicI::newCGRCorrection(float x, float y,float z,float alpha, float correct,float correct1, float correct2, const Ice::Current&)
+
+void CGRTopicI::newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2, const Ice::Current&)
 {
-	//TODO: need to be fixed
-  
+	worker->newCGRCorrection(poseUncertainty, x1, z1, alpha1, x2, z2, alpha2);
 }
 
 

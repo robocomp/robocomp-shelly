@@ -54,6 +54,7 @@ public:
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification);
 	void newAprilBasedPose(const float x, const float z, const float alpha);
 	void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha);
+	void newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2);
 
 public slots:
 	void compute(); 

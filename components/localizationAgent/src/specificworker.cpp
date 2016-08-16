@@ -66,7 +66,6 @@ private:
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-
 	active = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
@@ -90,29 +89,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	// Config params
 	useCGR = QString::fromStdString(params["UseCGR"].value).contains("true");
 	CGRWeight = QString::fromStdString(params["CGRWeight"].value).toFloat();
-	useApril = QString::fromStdString(params["UseApril"].value).contains("true");
+	useApril = QString::fromStdString(params["UseApril"].value).contains("false");
 	aprilWeight = QString::fromStdString(params["AprilWeight"].value).toFloat();
-	
-//	THE FOLLOWING IS JUST AN EXAMPLE for AGENTS
-//	try
-//	{
-//		RoboCompCommonBehavior::Parameter par = params.at("NameAgent.InnerModel") ;
-//		if( QFile(QString::fromStdString(par.value)).exists() == true)
-//		{
-//			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Reading Innermodel file " << QString::fromStdString(par.value);
-//			innerModel = new InnerModel(par.value);
-//			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file read OK!" ;
-//		}
-//		else
-//		{
-//			qDebug() << __FILE__ << __FUNCTION__ << __LINE__ << "Innermodel file " << QString::fromStdString(par.value) << " does not exists";
-//			qFatal("Exiting now.");
-//		}
-//	}
-//	catch(std::exception e)
-//	{
-//		qFatal("Error reading config params");
-//	}
 
 	
 	timer.start(Period);
@@ -145,6 +123,45 @@ void SpecificWorker::newCGRPose(const float poseUncertainty, const float x, cons
 	cgrState.x = x;
 	cgrState.z = z;
 	cgrState.alpha = alpha;
+}
+
+void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2)
+{
+	static InnerModel *innermodel=NULL;
+	static InnerModelTransform *corrSLAMBack;
+	static InnerModelTransform *corrSLAMNew;
+	static InnerModelTransform *corrREALBack;
+	static InnerModelTransform *corrREALNew;
+
+	if (innermodel == NULL)
+	{
+		innermodel = new InnerModel();
+		corrSLAMBack = innermodel->newTransform("corrSLAMBack", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
+		innermodel->getRoot()->addChild(corrSLAMBack);	
+		corrSLAMNew = innermodel->newTransform("corrSLAMNew", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
+		innermodel->getRoot()->addChild(corrSLAMNew);
+
+		corrREALBack = innermodel->newTransform("corrREALBack", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
+		innermodel->getRoot()->addChild(corrREALBack);	
+		corrREALNew = innermodel->newTransform("corrREALNew", "static", corrREALBack, 0,0,0, 0,0,0, 0);
+		corrREALBack->addChild(corrREALNew);
+	}
+	
+	
+	innermodel->updateTransformValues("corrSLAMBack",   x1, 0, z1,      0, alpha1, 0  );
+	innermodel->updateTransformValues("corrSLAMNew",    x2, 0, z2,      0, alpha2, 0  );
+	QVec inc = innermodel->transform6D("corrSLAMBack", "corrSLAMNew");
+	
+	inc.print("inc");
+	
+	RoboCompOmniRobot::TBaseState bState;
+	try { omnirobot_proxy->getBaseState(bState); }
+	catch(Ice::Exception &ex) { std::cout<<ex.what()<<std::endl; }
+	innermodel->updateTransformValues("corrREALBack", bState.correctedX,0.,bState.correctedZ,   0,bState.correctedAlpha,0);
+	innermodel->updateTransformValues("corrREALNew",   inc(0),0,inc(2),    0,inc(4),0);
+	
+	QVec result = innermodel->transform6D("root", "corrREALNew");
+	newCGRPose(poseUncertainty, result(0), result(2), result(4));
 }
 
 
@@ -199,7 +216,7 @@ void SpecificWorker::compute()
 	newState.x = omniState.x;
 	newState.z = omniState.z;
 	newState.alpha = omniState.alpha;
-	
+
 	
 	// Check if base need correction
 	if(enoughDifference(omniState, newState))

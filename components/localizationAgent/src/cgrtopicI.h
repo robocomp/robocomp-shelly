@@ -38,8 +38,8 @@ public:
 	CGRTopicI( GenericWorker *_worker, QObject *parent = 0 );
 	~CGRTopicI();
 	
-	void newCGRPose(const float  poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
-	void newCGRCorrection(float x, float y,float z,float alpha, float correct,float correct1, float correct2, const Ice::Current&);
+	void newCGRPose(const float poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
+	void newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2, const Ice::Current&);
 	
 	QMutex *mutex;
 private:

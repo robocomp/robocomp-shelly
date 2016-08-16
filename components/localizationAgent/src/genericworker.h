@@ -95,6 +95,7 @@ public:
 	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
 	virtual void newAprilBasedPose(const float x, const float z, const float alpha) = 0;
 	virtual void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha) = 0;
+	virtual void newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2) = 0;
 
 protected:
 	QTimer timer;
