@@ -154,9 +154,7 @@ void SpecificWorker::manageReachedObjects()
 	
 	QMutexLocker locker(mutex);
 	
-	printf("currentVersion W %d\n", worldModel->version);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
-	printf("currentVersion N %d\n", newModel->version);
 
 
 	int robotID = newModel->getIdentifierByType("robot");
@@ -167,12 +165,12 @@ void SpecificWorker::manageReachedObjects()
 		AGMModelSymbol::SPtr node = *symbol_itr;
 		if (node->symboltype() == "object")
 		{
-// 			printf("OBJECT: %d\n", node->identifier);
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
-			// Avoid working with rooms
-// 			if (isObjectType(newModel, node, "table")) continue;
+			// Avoid working with tables
+			if (isObjectType(newModel, node, "table")) continue;
 
+			printf("OBJECT: %d\n", node->identifier);
 			//if the object is in robot continue
 			try
 			{
@@ -194,7 +192,7 @@ void SpecificWorker::manageReachedObjects()
 				mapt[node->identifier] = QTime::currentTime();
 				force_send = true;
 			}
-			
+
 			/// Compute distance and new state
 			float d2n;
 			try
@@ -207,6 +205,10 @@ void SpecificWorker::manageReachedObjects()
 				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
 				exit(1);
 			}
+			
+			
+			printf("%d distance %f", node->identifier, d2n);
+			innerModel->transformS("robot", node->getAttribute("imName")).print("rel pose");
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{

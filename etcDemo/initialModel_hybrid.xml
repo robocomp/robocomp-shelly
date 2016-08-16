@@ -582,12 +582,12 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#eebb77" />
-	<attribute key="width" value="7500" />
+	<attribute key="width" value="8500" />
 </symbol>
 <symbol id="163" type="plane">
 	<attribute key="collidable" value="false" />
-	<attribute key="depth" value="10" />
-	<attribute key="height" value="1750" />
+	<attribute key="depth" value="0.001" />
+	<attribute key="height" value="0.001" />
 	<attribute key="imName" value="tableAC" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
@@ -598,7 +598,55 @@
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#cccccc" />
-	<attribute key="width" value="1000" />
+	<attribute key="width" value="0.001" />
+</symbol>
+<symbol id="164" type="transform">
+	<attribute key="engine" value="static" />
+	<attribute key="imName" value="mugRPr" />
+	<attribute key="imType" value="transform" />
+	<attribute key="mass" value="0" />
+</symbol>
+<symbol id="165" type="mesh">
+	<attribute key="collidable" value="true" />
+	<attribute key="imName" value="mugR" />
+	<attribute key="imType" value="mesh" />
+	<attribute key="path" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" />
+	<attribute key="render" value="NormalRendering" />
+	<attribute key="scalex" value="120" />
+	<attribute key="scaley" value="120" />
+	<attribute key="scalez" value="120" />
+</symbol>
+<symbol id="166" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="5" />
+	<attribute key="height" value="-70" />
+	<attribute key="imName" value="mugTag" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" />
+	<attribute key="width" value="70" />
+</symbol>
+<symbol id="167" type="plane">
+	<attribute key="collidable" value="false" />
+	<attribute key="depth" value="3.5" />
+	<attribute key="height" value="-80" />
+	<attribute key="imName" value="mugTagb" />
+	<attribute key="imType" value="plane" />
+	<attribute key="nx" value="0" />
+	<attribute key="ny" value="1" />
+	<attribute key="nz" value="0" />
+	<attribute key="px" value="0" />
+	<attribute key="py" value="0" />
+	<attribute key="pz" value="0" />
+	<attribute key="repeat" value="1000" />
+	<attribute key="texture" value="#ffffff" />
+	<attribute key="width" value="80" />
 </symbol>
 
 
@@ -657,8 +705,6 @@
 </link>
 <link src="1" dst="3" label="know"/>
 <link src="1" dst="50" label="know"/>
-<link src="5" dst="6" label="room"/>
-<link src="1" dst="5" label="know"/>
 <link src="20" dst="3" label="in"/>
 <link src="20" dst="21" label="hasStatus"/>
 <link src="20" dst="21" label="noReach"/>
@@ -1149,7 +1195,7 @@
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="3500" />
+	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="0" />
 </link>
@@ -1162,6 +1208,38 @@
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="20" dst="163" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="50" dst="164" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="-10" />
+	<linkAttribute key="ty" value="-50" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="164" dst="165" label="RT">
+	<linkAttribute key="rx" value="1.5707" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="-1.5707" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="50" dst="166" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="50" dst="167" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
