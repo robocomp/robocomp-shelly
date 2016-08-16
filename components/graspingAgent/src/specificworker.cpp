@@ -1149,13 +1149,13 @@ void SpecificWorker::setRightArmUp_Reflex()
 	gp.position = 0;
 	gpList.push_back(gp);
 	
-	gp.name = "gripperFinger1";
-	gp.position = -0.7;
-	gpList.push_back(gp);
-	
-	gp.name = "gripperFinger2";
-	gp.position = 0.7;
-	gpList.push_back(gp);
+// 	gp.name = "gripperFinger1";
+// 	gp.position = -0.7;
+// 	gpList.push_back(gp);
+// 	
+// 	gp.name = "gripperFinger2";
+// 	gp.position = 0.7;
+// 	gpList.push_back(gp);
 
 	jointmotor_proxy->setSyncPosition(gpList);
 }
