@@ -73,7 +73,7 @@ void SpecificWorker::updateViewer()
 #ifdef USE_QTGUI
 	if (not innerModel) return;
 	if (not innerModel->getNode("root")) return;
-	printf("root %p\n", innerModel->getNode("root"));
+// 	printf("root %p\n", innerModel->getNode("root"));
 
 	if (not innerViewer)
 	{
@@ -81,23 +81,18 @@ void SpecificWorker::updateViewer()
 		printf("innerViewer: %p\n", innerViewer);
 		innerViewer->setMainCamera(manipulator, InnerModelViewer::TOP_POV);
 	}
-	printf("(\n");
-		printf("innerViewer: %p\n", innerViewer);
+// 	printf("(\n");
+// 		printf("innerViewer: %p\n", innerViewer);
 	innerViewer->update();
-	printf(")\n");
+// 	printf(")\n");
 	osgView->autoResize();
 	osgView->frame();
 #endif
-	printf("updateViewer - %d\n", cc.elapsed());
+// 	printf("updateViewer - %d\n", cc.elapsed());
 }
 
 void SpecificWorker::compute( )
 {
-	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
-	printf("grasp_height %f\n",grasp_height);
-	setRightArmUp_Reflex();
-
-		
 		
 	QTime ccc;
 	ccc = QTime::currentTime();
@@ -114,7 +109,7 @@ void SpecificWorker::compute( )
 	{
 		if (not manualMode)
 		{
-			printf("Not in manual mode\n");
+// 			printf("Not in manual mode\n");
 			if (not innerModel->getNode("shellyArm_grasp_pose"))
 			{
 				printf("waiting for AGM*\n");
@@ -122,12 +117,30 @@ void SpecificWorker::compute( )
 			}
 		}
 	}
+	
+	
+	
+	try
+	{
+		if (innerModel->transform("root", "robot").norm2() < 10)
+		{
+			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+			structuralChange(w);
+		}
+	}
+	catch(...)
+	{
+		printf("The executive is probably not running, waiting for first AGM model publication...");
+	}
 
+
+
+	
 	QTime cc;
 
 	cc = QTime::currentTime();
 	manageReachedObjects();
-	printf("manageReachedObjects - %d\n", cc.elapsed());
+// 	printf("manageReachedObjects - %d\n", cc.elapsed());
 
 	
 	cc = QTime::currentTime();
@@ -213,8 +226,8 @@ void SpecificWorker::manageReachedObjects()
 			}
 			
 			
-			printf("%d distance %f", node->identifier, d2n);
-			innerModel->transformS("robot", node->getAttribute("imName")).print("rel pose");
+			printf("%d distance %f\n", node->identifier, d2n);
+			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("rel pose");
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -256,7 +269,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STOPS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-// 					rDebug2(("object %d no-reach") % node->identifier);
+					rDebug2(("object %d no-reach") % node->identifier);
 				}
 				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD/*-schmittTriggerThreshold*/)
 				{
@@ -265,7 +278,7 @@ void SpecificWorker::manageReachedObjects()
 					printf("object %d STARTS REACH\n", node->identifier);
 					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
 					changed = true;
-// 					rDebug2(("object %d reach") % node->identifier);
+					rDebug2(("object %d reach") % node->identifier);
 				}
 			}
 		}
@@ -727,7 +740,7 @@ void SpecificWorker::action_GraspObject(bool first)
 				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
-			offset = QVec::vec3(120, 120, -120);
+			offset = QVec::vec3(0, 120, -120);
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
@@ -751,7 +764,7 @@ void SpecificWorker::action_GraspObject(bool first)
 // 				if (ikState.errorT < 40 and ikState.errorR < 0.5)
 				{
 					printf("next state!\n");
-					if (offset.norm2() >= QVec::vec3(70, 0 -70).norm2())
+					if (offset.norm2() >= QVec::vec3(0, 0 -80).norm2())
 						state = 2;
 					else
 						state = 3;
@@ -776,7 +789,6 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			else
 			{
-				offset(0) -= 30;
 				offset(2) += 30;
 			}
 			if (manualMode)
@@ -980,10 +992,11 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	///
 	///  Lift the hand if it's down, to avoid collisions
 	///
-	printf("hand's height: %f\n", innerModel->transform("world", "shellyArm_grasp_pose")(1));
 	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
-	printf("grasp_height %f\n",grasp_height);
-	if (first or grasp_height<1500)
+	printf("grasp_height %f\n", grasp_height);
+	float elbow_height = innerModel->transform("world", "armX2")(1);
+	printf("elbow_height %f\n", elbow_height);
+	if (first or fabs(grasp_height-900)>20 or fabs(elbow_height-632)>20)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
 		backAction = action;
@@ -997,6 +1010,9 @@ void SpecificWorker::action_SetObjectReach(bool first)
 		}
 		setRightArmUp_Reflex();
 	}
+
+
+
 
 
 	///
@@ -1123,10 +1139,6 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 
 void SpecificWorker::setRightArmUp_Reflex()
 {
-	printf("setRightArmUp_Reflex\n");
-	printf("setRightArmUp_Reflex\n");
-	printf("setRightArmUp_Reflex\n");
-	printf("setRightArmUp_Reflex\n");
 	printf("setRightArmUp_Reflex\n");
 	
 	MotorGoalPositionList gpList;
