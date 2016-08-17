@@ -194,6 +194,9 @@ void SpecificWorker::compute()
 	try
 	{
 		omnirobot_proxy->getBaseState(omniState);
+		newState.x = omniState.x;
+		newState.z = omniState.z;
+		newState.alpha = omniState.alpha;
 	}
 	catch (...)
 	{
@@ -205,6 +208,9 @@ void SpecificWorker::compute()
 	if (newCGR)
 	{
 		newCGR = false;
+		newState.x = cgrState.x;
+		newState.z = cgrState.z;
+		newState.alpha = cgrState.alpha;
 	}
 	// april
 	if (newApril)
@@ -213,9 +219,7 @@ void SpecificWorker::compute()
 	}
 	
 	// join bState position
-	newState.x = omniState.x;
-	newState.z = omniState.z;
-	newState.alpha = omniState.alpha;
+
 
 	
 	// Check if base need correction
