@@ -28,6 +28,7 @@
  <node alias="trajectory2d" endpoint="commonbehavior:tcp -p 15299">
   <dependence alias="base" />
   <dependence alias="laser" />
+  <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost trajectory2d /home/robocomp/robocomp/components/robocomp-ursus-rockin/components/trajectoryrobot2d ./bin/TrajectoryRobot2DComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
   <downCommand command="killall -9 TrajectoryRobot2DComp" />
@@ -41,6 +42,7 @@
  <node alias="localizationA" endpoint="commonbehavior:tcp -p 14351">
   <dependence alias="executive" />
   <dependence alias="base" />
+  <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost localizationAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/localizationAgent ./bin/localizationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/localizationAgent.conf" />
   <downCommand command="killall -9 localizationAgent" />
