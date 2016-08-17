@@ -194,9 +194,7 @@ void SpecificWorker::compute()
 	try
 	{
 		omnirobot_proxy->getBaseState(omniState);
-		newState.x = omniState.x;
-		newState.z = omniState.z;
-		newState.alpha = omniState.alpha;
+		newState = omniState;
 	}
 	catch (...)
 	{
@@ -211,6 +209,7 @@ void SpecificWorker::compute()
 		newState.x = cgrState.x;
 		newState.z = cgrState.z;
 		newState.alpha = cgrState.alpha;
+		std::cout<<"CGR correction pose"<<std::endl;
 	}
 	// april
 	if (newApril)
@@ -248,6 +247,7 @@ bool SpecificWorker::enoughDifference(const RoboCompOmniRobot::TBaseState &lastS
 // send corrected position
 void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState)
 {
+	std::cout<<"correct odometer position"<<std::endl;
 	try{
 		omnirobot_proxy->correctOdometer(bState.x, bState.z, bState.alpha); 
 	  
@@ -270,6 +270,16 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 {
 	QMutexLocker l(mutex);
 
+	try
+	{
+		omnirobot_proxy->getBaseState(bState);
+	}
+	catch (...)
+	{
+		printf("Can't connect to the robot!!\n");
+		return false;
+	}
+	
 	int32_t robotId=-1, roomId=-1;
 	robotId = worldModel->getIdentifierByType("robot");
 	if (robotId < 0)
@@ -306,12 +316,14 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 		return false;
 	}
 
-///TODO: fix ==> room id is hardcoded
 	int32_t robotIsActuallyInRoom;
-	if (bState.z < 0)
+	if (bState.correctedZ<0)
 		robotIsActuallyInRoom = 5;
 	else
 		robotIsActuallyInRoom = 3;
+
+	// TODO WARNING FIXME
+	robotIsActuallyInRoom = 3;
 
 	if (roomId != robotIsActuallyInRoom)
 	{
@@ -335,20 +347,20 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				
 				// to reduce the publication frequency
 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.x)>5 or fabs(bStatez - bState.z)>5 or fabs(bStatealpha - bState.alpha)>0.02 or force)
+				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
 					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState model --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState new --> "<<bState.x<<bState.z<<bState.alpha;
+					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
+					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
 
-					edgeRT->setAttribute("tx", float2str(bState.x));
-					edgeRT->setAttribute("tz", float2str(bState.z));
-					edgeRT->setAttribute("ry", float2str(bState.alpha));
+					edgeRT->setAttribute("tx", float2str(bState.correctedX));
+					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
+					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
 				}
 				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
-				AGMMisc::publishModification(newModel, agmexecutive_proxy, "localizationAgent");
-				rDebug2(("localizationAgent moved robot from room"));
+				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
+				rDebug2(("navigationAgent moved robot from room"));
 			}
 			catch (...)
 			{
@@ -375,16 +387,16 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				
 				// to reduce the publication frequency
 // 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.x)>5 or fabs(bStatez - bState.z)>5 or fabs(bStatealpha - bState.alpha)>0.02 or force)
+				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
 // 					printf("\nUpdate odometry...\n");
 // 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
 // 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
 
-					edge->setAttribute("tx", float2str(bState.x));
-					edge->setAttribute("tz", float2str(bState.z));
-					edge->setAttribute("ry", float2str(bState.alpha));
+					edge->setAttribute("tx", float2str(bState.correctedX));
+					edge->setAttribute("tz", float2str(bState.correctedZ));
+					edge->setAttribute("ry", float2str(bState.correctedAlpha));
 					//rDebug2(("navigationAgent edgeupdate"));
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
 // 					printf("done\n");
@@ -405,7 +417,7 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 			return false;
 		}
 	}
-	return true;
+
 }
 
 
