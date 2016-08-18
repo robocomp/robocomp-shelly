@@ -74,7 +74,7 @@ private:
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
 	
 	
-	bool odometryAndLocationIssues(const RoboCompOmniRobot::TBaseState &bState, bool force);
+	bool odometryAndLocationIssues(bool force=false);
 	void includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot);
 	void setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState);
 	bool enoughDifference(const RoboCompOmniRobot::TBaseState &lastState, const RoboCompOmniRobot::TBaseState &newState);
