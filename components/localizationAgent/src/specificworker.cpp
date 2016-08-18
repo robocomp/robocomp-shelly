@@ -225,13 +225,9 @@ void SpecificWorker::compute()
 	if(enoughDifference(omniState, newState))
 	{
 		setCorrectedPosition(newState);
-	}
-	// Check if bState should be published
-	if (enoughDifference(lastState, newState))
-	{
 		lastState = newState;
-		odometryAndLocationIssues(newState, false);
 	}
+	odometryAndLocationIssues();
 }
 
 // compute difference between actual and last value to determine if it should be sent
@@ -266,10 +262,10 @@ void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &b
 
 //update robot position in model
 
-bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseState &bState, bool force)
+bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
 	QMutexLocker l(mutex);
-
+	RoboCompOmniRobot::TBaseState bState;
 	try
 	{
 		omnirobot_proxy->getBaseState(bState);
@@ -338,7 +334,7 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 			// Modify RT edge
 			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
 			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("(was %d now %d) ---[RT]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
+//			printf("(was %d now %d) ---[RT]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
 			try
 			{
 				float bStatex = str2float(edgeRT->getAttribute("tx"));
@@ -346,7 +342,7 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				float bStatealpha = str2float(edgeRT->getAttribute("ry"));
 				
 				// to reduce the publication frequency
-				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
+//				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
@@ -390,9 +386,9 @@ bool SpecificWorker::odometryAndLocationIssues(const RoboCompOmniRobot::TBaseSta
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
-// 					printf("\nUpdate odometry...\n");
-// 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-// 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
+ 					printf("\nUpdate odometry...\n");
+ 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
+ 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
 
 					edge->setAttribute("tx", float2str(bState.correctedX));
 					edge->setAttribute("tz", float2str(bState.correctedZ));
