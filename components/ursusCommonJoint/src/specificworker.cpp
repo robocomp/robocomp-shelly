@@ -37,7 +37,6 @@ SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
 	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
  	osgView->setCameraManipulator(tb);
 #endif
-	mutex = new QMutex(QMutex::Recursive);
 	state = Idle;
 	transitionSteps.clear();
 }
@@ -56,6 +55,7 @@ SpecificWorker::~SpecificWorker()
  */ 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	timer.start(Period);
 	try
@@ -69,6 +69,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 // 	show();
 #endif
 
+// // 	printf("%s %d\n", __FILE__, __LINE__);
 	std::vector<std::pair<QString, QString> > exclusionList; //lista de exclusion de meshes
 	QString exclusion = QString::fromStdString(params["ExclusionList"].value);
  	if (exclusion.size()<2)
@@ -90,6 +91,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  	}
 */ 	
 
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes); //recoge los meshes del xml
 	std::sort(meshes.begin(), meshes.end()); //ordenamos ascendentemente
@@ -110,6 +112,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 			}
 		}
 	}
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	// read collision bounding boxes restrictions
 	QString boxes = QString::fromStdString(params["RestrictedBoundingBoxes"].value);
 	printf("Collision bounding boxes\n");
@@ -127,11 +130,12 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	//NOTE Movemos a pelo la cabeza hacia abajo... se puede quitar para despues
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.8}, {"head_yaw_joint",0} };
 	MotorGoalPosition goal;
 	for (auto init : initializations)
 	{
-		QMutexLocker locker(mutex);
+// 		QMutexLocker locker(mutex);
 		std::pair<QString, QString> ret;
 		goal.position = init.second;
 		goal.name = init.first;
@@ -139,22 +143,30 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		try { prxMap.at(init.first)->setPosition(goal); }
 		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 	}
+// 	printf("%s %d\n", __FILE__, __LINE__);
 
 	// read known positions and transitions
 	printf("TransitionList content:\n");
 	QString transitions = QString::fromStdString(params["knownTransitions"].value);
  	for (auto parejaTexto : transitions.split(";", QString::SkipEmptyParts))
  	{
+// 	printf("%s %d\n", __FILE__, __LINE__);
  		QStringList parejaLista = parejaTexto.split(":" , QString::SkipEmptyParts);
 		QStringList init_final = parejaLista[0].split("," , QString::SkipEmptyParts);
 		QStringList intermediates = parejaLista[1].split("," , QString::SkipEmptyParts);
 		std::pair<QString, QString> key = std::pair<QString,QString>(init_final[0], init_final[1]);
 		std::vector<QString> intermediate_list;
+// 	printf("%s %d\n", __FILE__, __LINE__);
 		for (auto intermdiate_name: intermediates)
-			 intermediate_list.push_back(intermdiate_name);
+		{
+// 			printf("%s %d\n", __FILE__, __LINE__);
+			intermediate_list.push_back(intermdiate_name);
+		}
 		knownTransitions.insert(std::pair<std::pair<QString,QString>,std::vector<QString>>(key,intermediate_list));
 		qDebug()<<"\t transition: "<<init_final[0] << ":"<<init_final[1] <<" => "<<intermediates;
+// 	printf("%s %d\n", __FILE__, __LINE__);
  	}
+// 	printf("%s %d\n", __FILE__, __LINE__);
  	QString positions = QString::fromStdString(params["knownPositions"].value);
  	for (auto parejaTexto : positions.split(";", QString::SkipEmptyParts))
  	{
@@ -170,6 +182,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		}
 		knownPositions.insert(std::pair<QString,std::map<QString,float> >(parejaLista[0], motorList));
 	}
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -184,7 +197,9 @@ void SpecificWorker::compute( )
 	usleep(50000);
 	static clock_t movement_time;
 	// Actualizamos el innerModel y la ventana del viewer
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	RoboCompJointMotor::MotorStateMap mMap;
 	motorStateMap.clear();
 	try
@@ -216,6 +231,7 @@ void SpecificWorker::compute( )
 	{
 		cout<<"--> Excepción en actualizar InnerModel: 1 (FAULHABER)\n" << ex.what();
 	}
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	for (auto j : mMap)
 	{
 		try
@@ -335,6 +351,7 @@ void SpecificWorker::compute( )
  */ 
 void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
@@ -370,6 +387,7 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
  */ 
 void SpecificWorker::setVelocity(const MotorGoalVelocity& goal)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	try { prxMap.at(goal.name)->setVelocity(goal); }
 	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
@@ -380,6 +398,7 @@ void SpecificWorker::setVelocity(const MotorGoalVelocity& goal)
  */ 
 void SpecificWorker::setZeroPos(const string& name)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	try { prxMap.at(name)->setZeroPos(name); }
 	catch (std::exception &ex) { std::cout<<ex.what()<<__FILE__<<__LINE__<<"Motor "<<name<<" not found in proxy list"<<std::endl;};
@@ -390,7 +409,9 @@ void SpecificWorker::setZeroPos(const string& name)
  */ 
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	if (state != Idle)
 	{
 		printf("Going to known position, ignoring actual listGoals\n");
@@ -485,6 +506,7 @@ void SpecificWorker::sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionL
  */ 
 void SpecificWorker::setSyncVelocity(const MotorGoalVelocityList& listGoals)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorGoalVelocityList l0,l1;
 	for (uint i=0;i<listGoals.size();i++)
@@ -516,6 +538,7 @@ void SpecificWorker::setSyncZeroPos()
  */ 
 MotorParams SpecificWorker::getMotorParams(const string& motor)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorParams mp;
 	try { mp = prxMap.at(motor)->getMotorParams(motor); }
@@ -530,6 +553,7 @@ MotorParams SpecificWorker::getMotorParams(const string& motor)
  */ 
 MotorState SpecificWorker::getMotorState(const string& motor)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorState ms;
 	try { ms = prxMap.at(motor)->getMotorState(motor); }
@@ -544,6 +568,7 @@ MotorState SpecificWorker::getMotorState(const string& motor)
  */ 
 MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorList l0,l1;
 	MotorStateMap m0, m1;
@@ -579,6 +604,7 @@ MotorStateMap SpecificWorker::getMotorStateMap(const MotorList& mList)
  */ 
 void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorStateMap map1;
 	try
@@ -607,6 +633,7 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
  */ 
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	return motorParamList;
 }
@@ -617,6 +644,7 @@ MotorParamsList SpecificWorker::getAllMotorParams()
  */ 
 BusParams SpecificWorker::getBusParams()
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 
 	RoboCompJointMotor::BusParams bus;
@@ -630,6 +658,7 @@ BusParams SpecificWorker::getBusParams()
  */ 
 void SpecificWorker::init()
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorParamsList par1, par0;
 	motorParamMap.clear();
@@ -678,6 +707,7 @@ void SpecificWorker::init()
 
 bool SpecificWorker::checkMovementNeeded(const MotorGoalPositionList &goals)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	bool needed = false;
 	for (uint i=0; i<goals.size(); i++)
@@ -693,6 +723,7 @@ bool SpecificWorker::checkMovementNeeded(const MotorGoalPositionList &goals)
 
 bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	for (uint i=0; i<goals.size(); i++)
 	{
@@ -711,6 +742,7 @@ bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::s
  */ 
 bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<QString, QString> &ret)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
 	//Guardamos para cada joint su angulo actual 
@@ -806,6 +838,7 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
  */ 
 void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
 {
+// 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
 
 	InnerModelMesh *mesh;

@@ -73,7 +73,8 @@ private:
 	std::map<QString, std::map<QString, float> > knownPositions;
 	std::map<std::string,RoboCompJointMotor::JointMotorPrx> prxMap; 
 	std::map<QString, std::pair<QVec, QVec> >collisionBoxMap;
-	QStringList transitionSteps;
+	//QStringList transitionSteps;
+	std::list<std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>> transitionSteps;
 	
 	CommonJointState state;
 	
