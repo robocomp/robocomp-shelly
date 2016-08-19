@@ -798,8 +798,8 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 3:
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1",  0.9, 1.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", -0.9, 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			state = 4;
@@ -989,18 +989,10 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	printf("grasp_height %f\n", grasp_height);
 	float elbow_height = innerModel->transform("world", "armX2")(1);
 	printf("elbow_height %f\n", elbow_height);
-	if (first or fabs(grasp_height-900)>20 or fabs(elbow_height-632)>20)
+	if (first)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
 		backAction = action;
-		if (first)
-		{
-			printf("first time, set arm for manipulation\n");
-		}
-		else
-		{
-			printf("arm is down, set arm for manipulation\n");
-		}
 		setRightArmUp_Reflex();
 	}
 
@@ -1053,7 +1045,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			if (angle < -.4) angle = -.4;
 
 			// In the meantime we just move the head downwards:
-			inversekinematics_proxy->setJoint("head_pitch_joint", 0.9, 0.5);
+			inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 0.5);
 			printf("Mandamos angulo %f\n", angle);
 			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 0.5);
 // // // // // // // 			saccadic3D(QVec::vec3(x,y,z), QVec::vec3(0,0,1));
@@ -1150,6 +1142,7 @@ void SpecificWorker::setRightArmUp_Reflex()
         desired_value = 0;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1158,6 +1151,7 @@ void SpecificWorker::setRightArmUp_Reflex()
 	desired_value = -1;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1166,14 +1160,16 @@ void SpecificWorker::setRightArmUp_Reflex()
         desired_value = 0;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
 	
         gp.name ="head_pitch_joint";
-        desired_value = 1;
+        desired_value = 0.8;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1182,6 +1178,7 @@ void SpecificWorker::setRightArmUp_Reflex()
 	desired_value = 2.5;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1190,6 +1187,7 @@ void SpecificWorker::setRightArmUp_Reflex()
 	desired_value = 0;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1198,6 +1196,7 @@ void SpecificWorker::setRightArmUp_Reflex()
 	desired_value = 0.2;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
@@ -1206,6 +1205,7 @@ void SpecificWorker::setRightArmUp_Reflex()
 	desired_value = -0.2;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
+            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
             gp.position = desired_value;
             gpList.push_back(gp);
         }
