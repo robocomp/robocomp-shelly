@@ -141,29 +141,11 @@ int ::localizationAgent::run(int argc, char* argv[])
 	int status=EXIT_SUCCESS;
 
 	LoggerPrx logger_proxy;
-	CGRPrx cgr_proxy;
 	OmniRobotPrx omnirobot_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 	
 	string proxy, tmp;
 	initialize();
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "CGRProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy CGRProxy\n";
-		}
-		cgr_proxy = CGRPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("CGRProxy initialized Ok!");
-	mprx["CGRProxy"] = (::IceProxy::Ice::Object*)(&cgr_proxy);//Remote server proxy creation example
 
 
 	try

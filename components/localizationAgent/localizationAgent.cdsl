@@ -8,7 +8,7 @@ Component localizationAgent
 {
 	Communications
 	{
-		requires OmniRobot, CGR;
+		requires OmniRobot;
 		subscribesTo AprilBasedLocalization, CGRTopic;
 		publishes Logger;
 	};

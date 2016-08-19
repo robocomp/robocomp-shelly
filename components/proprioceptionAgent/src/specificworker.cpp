@@ -149,7 +149,7 @@ void SpecificWorker::compute()
 		{
 			try
 			{
-				printf("edge publication %i\n",edge_sequence.size());
+				printf("edge publication %d\n", (int)edge_sequence.size());
 				if( edge_sequence.size() == 1)
 					AGMMisc::publishEdgeUpdate(edge_sequence.front(), agmexecutive_proxy);
 				else
@@ -239,7 +239,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modifi
 	mutex->lock();
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "room", true);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 	mutex->unlock();
 }
 

@@ -118,20 +118,6 @@ void SpecificWorker::compute( )
 		}
 	}
 	
-	
-	
-	try
-	{
-		if (innerModel->transform("root", "robot").norm2() < 10)
-		{
-			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-			structuralChange(w);
-		}
-	}
-	catch(...)
-	{
-		printf("The executive is probably not running, waiting for first AGM model publication...");
-	}
 
 
 
@@ -227,7 +213,14 @@ void SpecificWorker::manageReachedObjects()
 			
 			
 			printf("%d distance %f\n", node->identifier, d2n);
-			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("rel pose");
+// 			innerModel->transformS("robot", "armY").print("armY in r");
+// 			innerModel->transformS("robot", "armX1").print("armX1 in r");
+// 			innerModel->transformS("robot", "armX2").print("armX2 in r");
+// 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
+//                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
+//                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
+			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
+			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -717,7 +710,7 @@ void SpecificWorker::action_GraspObject(bool first)
 		pose(1) = yspin->value();
 		pose(2) = zspin->value();
 		pose(3) = 0;
-		pose(4) = -0.7853981633974;
+		pose(4) = 0;
 		pose(5) = 0;
 #else
 		qFatal("this shouldn't happen %d\n", __LINE__);
@@ -735,12 +728,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			printf("%d\n", __LINE__);
 			try
 			{
-				inversekinematics_proxy->setJoint("rightFinger1", -0., 0.5);
-				inversekinematics_proxy->setJoint("rightFinger2", +0., 0.5);
-				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
+// 				inversekinematics_proxy->setJoint("gripperFinger1", +0.2, 0.5);
+// 				inversekinematics_proxy->setJoint("gripperFinger2", -0.2, 0.5);
+// 				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
-			offset = QVec::vec3(0, 120, -120);
+			offset = QVec::vec3(0, 80, -280);
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
@@ -757,7 +750,7 @@ void SpecificWorker::action_GraspObject(bool first)
 		//
 		case 1:
 			printf("%d\n", __LINE__);
-			ikState = inversekinematics_proxy->getTargetState("RIGHTARM", lastTargetId);
+			ikState = inversekinematics_proxy->getTargetState("ARM", lastTargetId);
 			if (ikState.finish)
 			{
 				printf("ik finished! te:%f re:%f\n", ikState.errorT, ikState.errorR);
@@ -785,7 +778,7 @@ void SpecificWorker::action_GraspObject(bool first)
 				if (offset(1) > 61)
 					offset(1) -= 60;
 				else
-					offset(1) = -10;
+					offset(1) = -20;
 			}
 			else
 			{
@@ -805,8 +798,8 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 3:
 			try
 			{
-				inversekinematics_proxy->setJoint("rightFinger1", -0.9, 1.5);
-				inversekinematics_proxy->setJoint("rightFinger2", +0.9, 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger1",  0.9, 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.9, 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			state = 4;
@@ -893,7 +886,7 @@ int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offse
 	// add offset and put rotation
 	for (int i=0; i<3; i++) objectsLocationInRobot(i)  += offset(i);
 	objectsLocationInRobot(3) = 0;
-	objectsLocationInRobot(4) = -0.7853981633974;
+	objectsLocationInRobot(4) = 0;
 	objectsLocationInRobot(5) = 0;
 	objectsLocationInRobot.print("objectsLocationInRobot + offset");
 	try
@@ -981,7 +974,7 @@ int SpecificWorker::sendRightArmToPose(QVec targetPose)
 		printf("graspingAgent: Error reading data from cognitive model: (%s:%d)\n", __FILE__, __LINE__);
 	}
 
-	return inversekinematics_proxy->setTargetPose6D("RIGHTARM", target, weights);
+	return inversekinematics_proxy->setTargetPose6D("ARM", target, weights);
 }
 
 void SpecificWorker::action_SetObjectReach(bool first)
@@ -1139,37 +1132,86 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 
 void SpecificWorker::setRightArmUp_Reflex()
 {
+//     printf("not reflex\n");
+//     return;
 	printf("setRightArmUp_Reflex\n");
-	
+        
 	MotorGoalPositionList gpList;
 	MotorGoalPosition gp;
 	gp.maxSpeed = 0.7;
 	
+        
+        float desired_value;
+        MotorStateMap mstateMap;
+        jointmotor_proxy->getAllMotorState(mstateMap);
+        
+        
 	gp.name = "armY";
-	gp.position = 0;
-	gpList.push_back(gp);
+        desired_value = 0;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
 	
 	gp.name = "armX1";
-	gp.position = 1;
-	gpList.push_back(gp);
+	desired_value = -1;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
+	
+        gp.name ="head_yaw_joint";
+        desired_value = 0;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
+	
+        gp.name ="head_pitch_joint";
+        desired_value = 1;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
 	
 	gp.name = "armX2";
-	gp.position = -2.5;
-	gpList.push_back(gp);
+	desired_value = 2.5;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
 	
 	gp.name = "wristX";
-	gp.position = 0;
-	gpList.push_back(gp);
+	desired_value = 0;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
 	
-// 	gp.name = "gripperFinger1";
-// 	gp.position = -0.7;
-// 	gpList.push_back(gp);
-// 	
-// 	gp.name = "gripperFinger2";
-// 	gp.position = 0.7;
-// 	gpList.push_back(gp);
+	gp.name = "gripperFinger1";
+	desired_value = 0.2;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
+	
+	gp.name = "gripperFinger2";
+	desired_value = -0.2;
+        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
+        {
+            gp.position = desired_value;
+            gpList.push_back(gp);
+        }
 
-	jointmotor_proxy->setSyncPosition(gpList);
+        if (gpList.size()>0)
+            jointmotor_proxy->setSyncPosition(gpList);
 }
 
 
