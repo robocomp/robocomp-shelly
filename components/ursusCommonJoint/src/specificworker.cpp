@@ -817,8 +817,8 @@ QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorStateMap mstate
 		goalList.push_back(goal);
 	}
 	return isKnownPosition(goalList);
-	
 }
+
 QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorGoalPositionList goals)
 {
 	bool nextPosition = false;
