@@ -749,11 +749,11 @@ void SpecificWorker::compute()
 		goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
 		printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
 		pathIndex++;
+		waitForMotorsToStop();
 		if (pathIndex>=path.size())
 		{
 			pathIndex = 0;
 			state = GIK_GoToActualTargetSend;
-			waitForMotorsToStop();
 			qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";
 			usleep(2000);
 		}
@@ -1322,9 +1322,11 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	TargetState s;
 	s.finish = false;
 	
+	qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
 	QMutexLocker mm(mutexSolved);
 	for(int i=0; i<solvedList.size(); i++)
 	{
+		qDebug()<<"tengo "<< solvedList[i].id_IKG <<". ENCONTRADO.";
 		if (targetID == solvedList[i].id_IKG)
 		{
 			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
@@ -1389,33 +1391,39 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 void SpecificWorker::waitForMotorsToStop()
 {
 	MotorStateMap allMotorsCurr, allMotorsBack;
-	try{
+	try
+	{
 		jointmotor_proxy->getAllMotorState(allMotorsBack);
-	}catch(...)
+	}
+	catch(...)
 	{
 		std::cout<<"Error retrieving all motors state\n";
 	}
-	usleep(50000);
+	usleep(500000);
 
 	while(true)
 	{
-		printf("%s: %d\n", __FILE__, __LINE__);
-		try{
-			jointmotor_proxy->getAllMotorState(allMotorsCurr); //valor actual		
-		}catch(...)
+		try
+		{
+			jointmotor_proxy->getAllMotorState(allMotorsCurr); // valor actual
+		}
+		catch(...)
 		{
 			std::cout<<"Error retrieving all motors state\n";
 		}
+		bool t = false;
 		for (auto v : allMotorsCurr)
 		{
-			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.05)
+			if (v.second.isMoving)
 			{
 				allMotorsBack = allMotorsCurr;
+				t = true;
 				usleep(50000);
 				break;
 			}
 		}
-		return;
+		if (t == false)
+			return;
 	}
 }
 

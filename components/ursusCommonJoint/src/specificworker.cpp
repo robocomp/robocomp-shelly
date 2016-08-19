@@ -257,21 +257,8 @@ void SpecificWorker::compute( )
 			if (not transitionSteps.empty())
 			{
 				std::pair<QString,RoboCompJointMotor::MotorGoalPositionList> next = transitionSteps.front();
-				
-//				std::queue<std::pair<string,float>> next = transitionSteps.pop();
-//				std::pair<std::string,float> motorPos;
 				std::pair<QString,QString> ret;
 				std::string result;
-/*				RoboCompJointMotor::MotorGoalPositionList goalList
-				while (!next.empty())
-				{
-					motorPos = next.pop();
-					RoboCompJointMotor::MotorGoalPosition goal;
-					goal.name = motorPos.first;
-					goal.position = motorPos.second;
-					goal.maxSpeed = 0.4;
-					goalList.push_back(goal);
-				}*/
 				if(not checkMotorLimits(next.second,result) && not checkFuturePosition(next.second,ret))
 				{
 					sendPos2Motors(next.second);
@@ -306,6 +293,7 @@ void SpecificWorker::compute( )
 			// check motors are moving
 			for (auto motor: motorStateMap)
 			{
+				//qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving"<<motor.second.isMoving;
 				if (motor.second.isMoving)
 				{
 //					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
@@ -325,7 +313,7 @@ void SpecificWorker::compute( )
 				state = Idle;
 				return;
 			}
-//			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
+//			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<nextName;
 			if(actual_state == nextName)
 			{
 				transitionSteps.pop_front();
@@ -414,7 +402,15 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 // 	printf("%s %d\n", __FILE__, __LINE__);
 	if (state != Idle)
 	{
-		printf("Going to known position, ignoring actual listGoals\n");
+		QString newGoal = isKnownPosition(listGoals);
+		if (transitionSteps.back().first == newGoal)
+		{
+			transitionSteps.pop_back();
+			auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(newGoal,listGoals);
+			transitionSteps.push_back( last );
+		}
+		else
+			qDebug()<<"Arm is busy moving through known transitions, new goal skipped";
 		return;
 	}
 	std::pair<QString, QString> ret;

@@ -199,7 +199,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	
 	for(int i=0; i<solvedList.size(); i++)
 	{
-		if(bodyPart=="RIGHTARM" and targetID==solvedList[i].getID_VIK())
+		if(bodyPart=="ARM" and targetID==solvedList[i].getID_VIK())
 		{
 			state.finish = true;
 			if(solvedList[i].getState()==Target::State::NOT_RESOLVED) state.state = "NOT_RESOLVED";
