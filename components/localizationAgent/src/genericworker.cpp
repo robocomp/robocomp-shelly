@@ -23,7 +23,6 @@
 GenericWorker::GenericWorker(MapPrx& mprx) :
 QObject()
 {
-	cgr_proxy = (*(CGRPrx*)mprx["CGRProxy"]);
 	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
