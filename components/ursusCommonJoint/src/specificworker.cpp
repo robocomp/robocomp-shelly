@@ -238,17 +238,27 @@ void SpecificWorker::compute( )
 		case Idle:
 			break;
 		case GoPos:
-			if (not transitionSteps.isEmpty())
+			if (not transitionSteps.empty())
 			{
-				QString next = transitionSteps.first();
-				qDebug()<<"goPos => send pos to motor: "<<next;
+				std::pair<QString,RoboCompJointMotor::MotorGoalPositionList> next = transitionSteps.front();
+				
+//				std::queue<std::pair<string,float>> next = transitionSteps.pop();
+//				std::pair<std::string,float> motorPos;
 				std::pair<QString,QString> ret;
 				std::string result;
-				RoboCompJointMotor::MotorGoalPositionList goalList = convertKnownPos2Goal(next);
-				
-				if(not checkMotorLimits(goalList,result) && not checkFuturePosition(goalList,ret))
+/*				RoboCompJointMotor::MotorGoalPositionList goalList
+				while (!next.empty())
 				{
-					sendPos2Motors(goalList);
+					motorPos = next.pop();
+					RoboCompJointMotor::MotorGoalPosition goal;
+					goal.name = motorPos.first;
+					goal.position = motorPos.second;
+					goal.maxSpeed = 0.4;
+					goalList.push_back(goal);
+				}*/
+				if(not checkMotorLimits(next.second,result) && not checkFuturePosition(next.second,ret))
+				{
+					sendPos2Motors(next.second);
 					state = WaitingToAchive;
 					movement_time = clock(); 
 					usleep(500000);
@@ -287,10 +297,11 @@ void SpecificWorker::compute( )
 				}
 			}
 			QString actual_state = isKnownPosition(motorStateMap);
-			QString next;
-			if (not transitionSteps.isEmpty())
+			QString nextName;
+			if (not transitionSteps.empty())
 			{
-				next = transitionSteps.first();
+				std::pair<QString,RoboCompJointMotor::MotorGoalPositionList> next = transitionSteps.front();
+				nextName = next.first;
 			}
 			else
 			{
@@ -299,15 +310,18 @@ void SpecificWorker::compute( )
 				return;
 			}
 //			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<next;
-			if(actual_state == next)
+			if(actual_state == nextName)
 			{
 				transitionSteps.pop_front();
-				if (not transitionSteps.isEmpty())
+				if (not transitionSteps.empty())
 					state = GoPos;
 				else
 					state = Idle;
 			}
-			
+			else
+			{
+				usleep(25000);
+			}
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -407,10 +421,20 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 				{
 					for (auto pos: it->second)
 					{
-						transitionSteps.append(pos);
+						//std::pair<std::string,RoboCompJointMotor::MotorGoalPositionList> next;
+						auto next = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(pos,convertKnownPos2Goal(pos));
+						transitionSteps.push_back( next );
 					}
-					transitionSteps.append(goal_name);
-					qDebug()<<"Transition list needed: "<<transitionSteps;
+					// Append original last position
+					if (goal_name != "ik"){
+						auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(goal_name,convertKnownPos2Goal(goal_name));
+						transitionSteps.push_back( last );
+					}
+					else{
+						auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(QString("ik"),listGoals);
+						transitionSteps.push_back( last );
+					}
+					qDebug()<<"Transition list needed: "<<transitionSteps.size();
 					state = GoPos;
 				}
 				else
