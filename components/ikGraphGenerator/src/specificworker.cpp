@@ -348,14 +348,15 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 	static MotorGoalPositionList last;
 	if (mpl == last)
 	{
-		printf("skipping same config\n");
+		//printf("skipping same config\n");
 		return;
 	}
 	last = mpl;
 	try
 	{
 		jointmotor_proxy->setSyncPosition(mpl);
-	}catch (const RoboCompJointMotor::CollisionException &ex)
+	}
+	catch (const RoboCompJointMotor::CollisionException &ex)
 	{
 		cout<<"--> Collision in commonjoint" << ex << "\n";
 		lastFinish = "ERROR";
@@ -803,7 +804,7 @@ void SpecificWorker::compute()
 // 						updateFrame(500000);
 // 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
 // #endif
-				usleep(50000);
+				usleep(5000);
 			}
 			qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
 			updateInnerModel();
@@ -1390,39 +1391,46 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
  */ 
 void SpecificWorker::waitForMotorsToStop()
 {
-	MotorStateMap allMotorsCurr, allMotorsBack;
-	try
-	{
-		jointmotor_proxy->getAllMotorState(allMotorsBack);
-	}
-	catch(...)
-	{
-		std::cout<<"Error retrieving all motors state\n";
-	}
-	usleep(500000);
+	MotorStateMap allMotorsCurr/*, allMotorsBack*/;
+// 	try
+// 	{
+// 		jointmotor_proxy->getAllMotorState(allMotorsBack);
+// 	}
+// 	catch(...)
+// 	{
+// 		std::cout<<"Error retrieving all motors state\n";
+// 	}
+// 	
+	bool moveInitialized = false;
+	bool moveFinished = false;
+	QTime waitTime = QTime::currentTime();
 
-	while(true)
+	while (waitTime.elapsed() < 1500)
 	{
 		try
 		{
-			jointmotor_proxy->getAllMotorState(allMotorsCurr); // valor actual
+			jointmotor_proxy->getAllMotorState(allMotorsCurr);
 		}
 		catch(...)
 		{
 			std::cout<<"Error retrieving all motors state\n";
 		}
-		bool t = false;
+		bool someMotorMoving = false;
 		for (auto v : allMotorsCurr)
 		{
 			if (v.second.isMoving)
 			{
-				allMotorsBack = allMotorsCurr;
-				t = true;
+// 				allMotorsBack = allMotorsCurr;
+				someMotorMoving = true;
 				usleep(50000);
 				break;
 			}
 		}
-		if (t == false)
+		
+		if (someMotorMoving==true   ) moveInitialized = true;
+		if (someMotorMoving==false and moveInitialized == true) moveFinished = true;
+
+		if (moveInitialized == true and moveFinished == true)
 			return;
 	}
 }

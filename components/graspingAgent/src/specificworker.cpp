@@ -728,9 +728,9 @@ void SpecificWorker::action_GraspObject(bool first)
 			printf("%d\n", __LINE__);
 			try
 			{
-// 				inversekinematics_proxy->setJoint("gripperFinger1", +0.2, 0.5);
-// 				inversekinematics_proxy->setJoint("gripperFinger2", -0.2, 0.5);
-// 				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
+				inversekinematics_proxy->setJoint("gripperFinger1", +0.2, 0.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.2, 0.5);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			offset = QVec::vec3(0, 80, -280);
@@ -772,18 +772,30 @@ void SpecificWorker::action_GraspObject(bool first)
 		// APPROACH 2
 		//
 		case 2:
+			float yStep = 80;
+			float yGoal = -20;
+			Q_ASSERT(offset(1) >= yGoal);
 			printf("%d\n", __LINE__);
-			if (offset(1) > 0)
+			if (offset(1) > yGoal)
 			{
-				if (offset(1) > 61)
-					offset(1) -= 60;
+				if (offset(1)-yStep >= yGoal)
+					offset(1) -= yStep;
 				else
-					offset(1) = -20;
+					offset(1) = yGoal;
 			}
-			else
+
+			float zStep = 80;
+			float zGoal = 80;
+			Q_ASSERT(offset(2) <= zGoal);
+			printf("%d\n", __LINE__);
+			if (offset(2) < zGoal)
 			{
-				offset(2) += 30;
+				if (offset(2)+zStep <= zGoal)
+					offset(2) += zStep;
+				else
+					offset(2) = zGoal;
 			}
+
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
