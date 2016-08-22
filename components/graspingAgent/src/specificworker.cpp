@@ -139,12 +139,12 @@ void SpecificWorker::compute( )
 		// ACTION EXECUTION
 		actionExecution();
 	}
-	printf("action - %d\n", cc.elapsed());
+// 	printf("action - %d\n", cc.elapsed());
 
 #ifdef USE_QTGUI
 	updateViewer();
 #endif	
-	printf("compute - %d\n", ccc.elapsed());
+// 	printf("compute - %d\n", ccc.elapsed());
 }
 
 
@@ -175,7 +175,7 @@ void SpecificWorker::manageReachedObjects()
 			// Avoid working with tables
 			if (isObjectType(newModel, node, "table")) continue;
 
-			printf("OBJECT: %d\n", node->identifier);
+// 			printf("OBJECT: %d\n", node->identifier);
 			//if the object is in robot continue
 			try
 			{
@@ -462,9 +462,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	cc = QTime::currentTime();
 	QMutexLocker locker(mutex);
 
-	printf("me llega 1 %d\n", modification.version);
 	AGMModelConverter::fromIceToInternal(modification, worldModel);
-	printf("me llega 2 %d\n", worldModel->version);
 	
 	if (innerModel) delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world");
@@ -581,17 +579,22 @@ void SpecificWorker::actionExecution()
 	QMutexLocker locker(mutex);
 
 	static std::string previousAction = "";
+	static QTime actionTime = QTime::currentTime();
 	bool newAction = (previousAction != action);
 
-	qDebug()<<"---------------------------------";
-	cout<<action<<endl;
-	qDebug()<<"---------------------------------";
+// 	qDebug()<<"---------------------------------";
+// 	cout<<action<<endl;
+// 	qDebug()<<"---------------------------------";
 
 	if (newAction)
 	{
+		actionTime = QTime::currentTime();
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
+		ui_actionName->setText(QString::fromStdString(action));
 // 		rDebug2(("action %s") % action.c_str() );
 	}
+
+	ui_actionTime->setText(QString::number(actionTime.elapsed()));
 
 
 	if (action == "findobjectvisuallyintable")
@@ -687,10 +690,30 @@ void SpecificWorker::action_GraspObject(bool first)
 	TargetState ikState;
 	static int lastTargetId = 0;
 
+	static QTime ttt = QTime::currentTime();
+	printf("elapsed: %f\n", (float)ttt.elapsed());
+
 	if (first) state = 0;
 	printf("action_GraspObject: first:%d  state=%d\n", (int)first, state);
 
 
+	static QTime stateTime = QTime::currentTime();
+	ui_state->setText(QString::number(state));
+	ui_stateTime->setText(QString::number(stateTime.elapsed()));
+
+
+	auto targetState = inversekinematics_proxy->getTargetState("ARM", lastTargetId);
+	if (targetState.finish)
+		ui_IKFinished->setChecked(true);
+	else
+		ui_IKFinished->setChecked(false);
+	
+	bool someMotorMoving = isSomeMotorMoving();
+	if (someMotorMoving)
+		ui_motorsMoving->setChecked(true);
+	else
+		ui_motorsMoving->setChecked(false);
+	
 	QVec pose = QVec::vec6();
 	if (not manualMode)
 	{
@@ -716,6 +739,13 @@ void SpecificWorker::action_GraspObject(bool first)
 		qFatal("this shouldn't happen %d\n", __LINE__);
 #endif
 	}
+
+	
+	
+	float yStep = 50;
+	float yGoal = -20;
+	float zStep = 50;
+	float zGoal = 80;
 
 	static QVec offset = QVec::vec3(0,0,0);
 	offset.print("offset");
@@ -758,9 +788,15 @@ void SpecificWorker::action_GraspObject(bool first)
 				{
 					printf("next state!\n");
 					if (offset.norm2() >= QVec::vec3(0, 0 -80).norm2())
+					{
 						state = 2;
+						stateTime = QTime::currentTime();
+					}
 					else
+					{
 						state = 3;
+						stateTime = QTime::currentTime();
+					}
 				}
 			}
 			else
@@ -772,8 +808,6 @@ void SpecificWorker::action_GraspObject(bool first)
 		// APPROACH 2
 		//
 		case 2:
-			float yStep = 80;
-			float yGoal = -20;
 			Q_ASSERT(offset(1) >= yGoal);
 			printf("%d\n", __LINE__);
 			if (offset(1) > yGoal)
@@ -784,8 +818,6 @@ void SpecificWorker::action_GraspObject(bool first)
 					offset(1) = yGoal;
 			}
 
-			float zStep = 80;
-			float zGoal = 80;
 			Q_ASSERT(offset(2) <= zGoal);
 			printf("%d\n", __LINE__);
 			if (offset(2) < zGoal)
@@ -806,6 +838,7 @@ void SpecificWorker::action_GraspObject(bool first)
 				lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols);
 			}
 			state = 1; // Go back to wait state
+			stateTime = QTime::currentTime();
 			break;
 		case 3:
 			try
@@ -813,8 +846,12 @@ void SpecificWorker::action_GraspObject(bool first)
 				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 1.5);
 				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 1.5);
 			}
-			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
+			catch(...)
+			{
+				qFatal("%s: %d\n", __FILE__, __LINE__);
+			}
 			state = 4;
+			stateTime = QTime::currentTime();
 			break;
 		case 4:
 			try
@@ -848,6 +885,7 @@ void SpecificWorker::action_GraspObject(bool first)
 				qFatal("wfuieey78 ");
 			}
 			state = 9999;
+			stateTime = QTime::currentTime();
 			break;
 		////////////////////////////////////////////////////////////////////////////////////////////
 		default:
@@ -883,7 +921,7 @@ void SpecificWorker::leaveObjectSimulation()
 
 int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols)
 {
-	int32_t lastTargetId;
+	int32_t lastTargetId_local;
 	QVec objectsLocationInRobot;
 	// approach the hand
 	try
@@ -903,17 +941,17 @@ int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offse
 	objectsLocationInRobot.print("objectsLocationInRobot + offset");
 	try
 	{
-		lastTargetId = sendRightArmToPose(objectsLocationInRobot);
+		lastTargetId_local = sendRightArmToPose(objectsLocationInRobot);
 		objectsLocationInRobot.print("sent");
 		qDebug()<<"------> 0 step execution";
 	}
 	catch (...)
 	{
-		lastTargetId = -1;
+		lastTargetId_local = -1;
 		printf("%s: %d\n", __FILE__, __LINE__);
 		qFatal("dewer");
 	}
-	return lastTargetId;
+	return lastTargetId_local;
 }
 
 
@@ -1236,4 +1274,27 @@ void SpecificWorker::on_state1_clicked()
 	params["object"].value = "11";
 	params["room"  ].value = "7";
 	params["robot" ].value = "1";
+}
+
+
+bool SpecificWorker::isSomeMotorMoving()
+{
+	MotorStateMap allMotorsCurr;
+	try
+	{
+		jointmotor_proxy->getAllMotorState(allMotorsCurr);
+	}
+	catch(...)
+	{
+		std::cout<<"Error retrieving all motors state\n";
+	}
+	for (auto v : allMotorsCurr)
+	{
+		if (v.second.isMoving)
+		{
+			return true;
+		}
+	}
+
+	return false;	
 }

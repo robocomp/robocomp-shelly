@@ -94,7 +94,7 @@ private:
 	void changeInner ();
 
 	bool robotIsMoving();
-
+	bool isSomeMotorMoving();
 private:
 	
 	std::string action, backAction;
