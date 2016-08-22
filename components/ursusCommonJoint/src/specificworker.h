@@ -95,6 +95,11 @@ private:
 	void sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals);
 	RoboCompJointMotor::MotorGoalPositionList convertKnownPos2Goal(QString pos_name);
 	void stopMotors();
+	
+	
+	
+	void waitForMotorsToStop();
+
 };
 
 #endif

@@ -264,7 +264,7 @@ void SpecificWorker::compute( )
 					sendPos2Motors(next.second);
 					state = WaitingToAchive;
 					movement_time = clock(); 
-					usleep(500000);
+					//waitForMotorsToStop();
 				}else
 				{
 					qDebug()<<"Imposible to achieve intermediate position"<<result.c_str();
@@ -314,7 +314,7 @@ void SpecificWorker::compute( )
 				return;
 			}
 //			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<nextName;
-			if(actual_state == nextName)
+			if (actual_state == nextName)
 			{
 				transitionSteps.pop_front();
 				if (not transitionSteps.empty())
@@ -328,6 +328,43 @@ void SpecificWorker::compute( )
 			}
 	}
 }
+
+void SpecificWorker::waitForMotorsToStop()
+{
+	MotorStateMap allMotorsCurr;
+	bool moveInitialized = false;
+	bool moveFinished = false;
+	QTime waitTime = QTime::currentTime();
+
+	while (waitTime.elapsed() < 1500)
+	{
+		try
+		{
+			jointmotor_proxy->getAllMotorState(allMotorsCurr);
+		}
+		catch(...)
+		{
+			std::cout<<"Error retrieving all motors state\n";
+		}
+		bool someMotorMoving = false;
+		for (auto v : allMotorsCurr)
+		{
+			if (v.second.isMoving)
+			{
+				someMotorMoving = true;
+				usleep(50000);
+				break;
+			}
+		}
+		
+		if (someMotorMoving==true   ) moveInitialized = true;
+		if (someMotorMoving==false and moveInitialized == true) moveFinished = true;
+
+		if (moveInitialized == true and moveFinished == true)
+			return;
+	}
+}
+
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

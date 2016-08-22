@@ -41,6 +41,7 @@ class SpecificWorker(GenericWorker):
 		super(SpecificWorker, self).__init__(proxy_map)
 		self.timer.timeout.connect(self.compute)
 		self.Period = 2000
+		self.lastID = -1
 		self.timer.start(self.Period)
 		
 		self.test_timer = QtCore.QTimer()
@@ -59,23 +60,15 @@ class SpecificWorker(GenericWorker):
 
 
 	def setParams(self, params):
-		#try:
-		#	par = params["InnerModelPath"]
-		#	innermodel_path=par.value
-		#	innermodel = InnerModel(innermodel_path)
-		#except:
-		#	traceback.print_exc()
-		#	print "Error reading config params"
 		return True
 
 	@QtCore.Slot()
 	def compute(self):
-#		print 'SpecificWorker.compute...'
-		#try:
-		#	self.differentialrobot_proxy.setSpeedBase(100, 0)
-		#except Ice.Exception, e:
-		#	traceback.print_exc()
-		#	print e
+		targetState = self.inversekinematics_proxy.getTargetState(bodyPart, self.lastID)
+		if targetState.finish:
+			self.ui.finishedCB.setChecked(True)
+		else:
+			self.ui.finishedCB.setChecked(False)
 		return True
 
 	@QtCore.Slot()
@@ -144,7 +137,7 @@ class SpecificWorker(GenericWorker):
 		weights.ry = 1
 		weights.rz = 1
 		try:
-			self.inversekinematics_proxy.setTargetPose6D(bodyPart, target, weights)
+			self.lastID = self.inversekinematics_proxy.setTargetPose6D(bodyPart, target, weights)
 		except:
 			print sys.exc_info()[0]
 

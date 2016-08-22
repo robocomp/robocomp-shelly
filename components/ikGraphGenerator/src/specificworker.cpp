@@ -1388,7 +1388,7 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 
 /**
  * \brief Waits for the motors to stop
- */ 
+ */
 void SpecificWorker::waitForMotorsToStop()
 {
 	MotorStateMap allMotorsCurr/*, allMotorsBack*/;
