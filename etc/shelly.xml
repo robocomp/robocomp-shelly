@@ -1,5 +1,6 @@
 ﻿<innerModel>
 	<!-- <axes id="sl3" /> -->
+	
 	<omnirobot id="robot" port="12238" >
 		<!-- laser position -->
 		<transform id="laserPose" tx="0" ty="370" tz="230" rx="0" >
@@ -18,7 +19,7 @@
 		</transform>
 
 
-		<!--<mesh id="base_mesh" file="/home/robocomp/robocomp/files/osgModels/robex/robex.3ds"                  tx="0"    ty="10"   tz="0"    rx="+1.5707963267949" scale="1080" collide="1" />-->
+
 		<plane id="base_mesh" size="540,275,700" py="137.5" texture="#666666"  collide="1" />
 		<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds"   tx="-150" ty="1180"  tz="30"          ry="-1.5707963267949" scale="1000" collide="1" />
 		<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds"           tx="0"    ty="700" tz="15"                          scale="40,500,30"  collide="1" />

@@ -21,7 +21,7 @@
 #define MAX_SPEED 40
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 40
+#define STEP_DISTANCE 50
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -242,7 +242,7 @@ void SpecificWorker::initGenerate()
 #endif
 
 	QVec center = QVec::vec3(0, 900, 640);
-	xrange = std::pair<float, float>( center(0)-200, center(0)+200 + 1);
+	xrange = std::pair<float, float>( center(0)-100, center(0)+100 + 1);
 	yrange = std::pair<float, float>( center(1)-200, center(1)+200 + 1);
 	zrange = std::pair<float, float>( center(2)-200, center(2)+200 + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
@@ -631,7 +631,7 @@ void SpecificWorker::computeHard()
 		for (de=0; de < 2 and not goAndWait(nodeSrc, configuration, recursive); de++)
 		{
 			int d=0;
-			goAndWait(0, 850, 550, -1, centerConfiguration, d);
+			goAndWait(0, 850, 650, -1, centerConfiguration, d);
 		}
 		if (de == 2)
 		{
@@ -696,15 +696,18 @@ void SpecificWorker::computeHard()
 
 /** ------------------------------------------------------
  * \brief compute
- * this method executes each 10 iterations
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
 	QMutexLocker l(mutex);
-  
+
+	
+#ifdef USE_QTGUI
+	ui_state->setText(QString::number(state));
+#endif
 	if (not READY) return;
-	static int tick = 0;
-	if (tick++ % 10 != 0) return;
+// 	static int tick = 0;
+// 	if (tick++ % 10 != 0) return;
 
 	updateFrame(10);
 	updateInnerModel();

@@ -143,6 +143,42 @@ public:
 			lineN++;
 		}
 	}
+
+// 	/*
+	ConnectivityGraph *purged()
+	{
+		ConnectivityGraph *ret = new ConnectivityGraph(0);
+		std::map<int, int> mapping;
+		int firstAvailableMapping = 0;
+
+		for (uint node=0; node < vertices.size(); node++)
+		{
+			for (uint node2=0; node2 < vertices.size(); node2++)
+			{
+				if (edges[node][node2] < DJ_INFINITY)
+				{
+					ret->vertices.push_back(vertices[node]);
+					mapping[firstAvailableMapping] = node;
+					firstAvailableMapping += 1;
+					break;
+				}
+			}
+		}
+
+		for (int node=0; node < firstAvailableMapping; node++)
+		{
+			std::vector<float> eds;
+			for (int node2=0; node2 < firstAvailableMapping; node2++)
+			{
+				eds.push_back(edges[mapping[node]][mapping[node2]]);
+			}
+			edges.push_back(eds);
+		}
+
+		return ret;
+	}
+// 	*/
+	
 	
 	// ---------------------------------------OTROS METODOS
 	/**
