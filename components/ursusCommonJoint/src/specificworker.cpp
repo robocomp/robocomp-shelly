@@ -295,7 +295,7 @@ void SpecificWorker::compute( )
 			{
 				//qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving"<<motor.second.isMoving;
 // 				if (motor.second.isMoving)
-				if (fabs(motor.second.vel)>0.3)
+				if (fabs(motor.second.vel)>0.4)
 				{
 //					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
 					return;

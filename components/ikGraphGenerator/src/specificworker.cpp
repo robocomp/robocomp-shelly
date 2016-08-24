@@ -18,7 +18,7 @@
  */
 #include "specificworker.h"
 
-#define MAX_SPEED 40
+#define MAX_SPEED 0.5
 // #define MAX_SPEED 0.7
 
 #define STEP_DISTANCE 50
