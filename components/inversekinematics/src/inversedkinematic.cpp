@@ -8,9 +8,9 @@
 InversedKinematic::InversedKinematic()
 {
 	repetitions = 0;
-    error_threshold = 0.1;
-    errorT_threshold = 0.1;
-    errorR_threshold = 0.001;
+    error_threshold = 1.;
+    errorT_threshold = 1.;
+    errorR_threshold = 0.08;
 }
 /**
  * \brief default destructor
@@ -83,16 +83,21 @@ bool InversedKinematic::deleteTarget()
 
 	if(
 // 	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<errorT_threshold and errorR.norm2()<errorR_threshold)/* or restaAngles.norm2()<0.0001*/)
-	   and
-	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1)
-
+	   (bodypart->getTargetList().head().getTargetTimeExecution()>0.5 or (errorT.norm2()<errorT_threshold and errorR.norm2()<errorR_threshold)/* or restaAngles.norm2()<0.0001*/)
+// 	   and
+// 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1
+		
+	)
 	{
 		repetitions = 0;
+		printf("del t TRUE\n");
 		return true;
 	}
 	else
+	{
+		printf("del t FALSE  T:%f>0.5  ET:%f>%f  ER:%f>%f\n", (float)bodypart->getTargetList().head().getTargetTimeExecution(), errorT.norm2(), errorT_threshold, errorR.norm2(), errorR_threshold);
 		return false;
+	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
@@ -270,6 +275,7 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 // 	H.print("H");
 // 	g.print("g");
 
+	QTime t = QTime::currentTime();
 	while((stop==false) and (k<kMax) and (smallInc == false) and (nanInc == false))
 	{
 		k++;
@@ -288,7 +294,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 			}
 			catch(QString str){ qDebug()<< __FUNCTION__ << __LINE__ << "SINGULAR MATRIX EXCEPTION";	}
 
-// 			if(incrementos.norm2() <= 0.0001)   ///Too small increments
 			if(incrementos.norm2() <= 0.0001)   ///Too small increments
 			{
 				//stop = true;
@@ -316,7 +321,6 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 				{
 					motors.set((T)0);
 					// Estamos descendiendo correctamente --> errorAntiguo > errorNuevo.
-// 					stop = (We*computeErrorVector(target)).norm2() <= 0.001; //1 milimetro de error
 					stop = (We*computeErrorVector(target)).norm2() <= error_threshold; //1 milimetro de error
 					angles = aux;
 					// Recalculamos con nuevos datos.
@@ -340,6 +344,9 @@ void InversedKinematic::levenbergMarquardt(Target& target)
 // 		stop = error.norm2() <= 0.001; //1 milimetro de error
 		stop = error.norm2() <= error_threshold; //1 milimetro de error
 	}
+	
+	printf("TIME SPENT  %d\n", t.elapsed());
+
 	bodypart->getTargetList()[0].setTargetState(Target::FINISH);
 
 	if (stop == true)           bodypart->getTargetList()[0].setTargetFinalState(Target::LOW_ERROR);

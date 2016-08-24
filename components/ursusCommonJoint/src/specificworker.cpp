@@ -294,7 +294,8 @@ void SpecificWorker::compute( )
 			for (auto motor: motorStateMap)
 			{
 				//qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving"<<motor.second.isMoving;
-				if (motor.second.isMoving)
+// 				if (motor.second.isMoving)
+				if (fabs(motor.second.vel)>0.3)
 				{
 //					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
 					return;
@@ -329,41 +330,6 @@ void SpecificWorker::compute( )
 	}
 }
 
-void SpecificWorker::waitForMotorsToStop()
-{
-	MotorStateMap allMotorsCurr;
-	bool moveInitialized = false;
-	bool moveFinished = false;
-	QTime waitTime = QTime::currentTime();
-
-	while (waitTime.elapsed() < 1500)
-	{
-		try
-		{
-			jointmotor_proxy->getAllMotorState(allMotorsCurr);
-		}
-		catch(...)
-		{
-			std::cout<<"Error retrieving all motors state\n";
-		}
-		bool someMotorMoving = false;
-		for (auto v : allMotorsCurr)
-		{
-			if (v.second.isMoving)
-			{
-				someMotorMoving = true;
-				usleep(50000);
-				break;
-			}
-		}
-		
-		if (someMotorMoving==true   ) moveInitialized = true;
-		if (someMotorMoving==false and moveInitialized == true) moveFinished = true;
-
-		if (moveInitialized == true and moveFinished == true)
-			return;
-	}
-}
 
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////

@@ -42,7 +42,9 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 { 
 	READY         = false;
+	printf("STATE: %d\n", state);
 	state         = GIK_NoTarget;
+	printf("STATE CHANGED TO: %d\n", state);
 	targetCounter = 0;
 	mutexSolved   = new QMutex(QMutex::Recursive);
 	// NOTE Inicializamos las nubes de puntos
@@ -360,14 +362,18 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 	{
 		cout<<"--> Collision in commonjoint" << ex << "\n";
 		lastFinish = "ERROR";
+		printf("STATE: %d\n", state);
 		state = GIK_NoTarget;
+		printf("STATE CHANGED TO: %d\n", state);
 		return;
 	}
 	catch (const Ice::Exception &ex)
 	{
 		cout<<"--> Ice::Exception:" << ex.what() <<"\n";
 		lastFinish = "ERROR";
+		printf("STATE: %d\n", state);
 		state = GIK_NoTarget;
+		printf("STATE CHANGED TO: %d\n", state);
 		return;
 	}
 	{
@@ -700,14 +706,22 @@ void SpecificWorker::computeHard()
 void SpecificWorker::compute()
 {
 	QMutexLocker l(mutex);
+	if (not READY) return;
 
 	
+	static int tick = 0;
+	if (tick++ % 3 != 0) return;
+
 #ifdef USE_QTGUI
 	ui_state->setText(QString::number(state));
+	QVec rrr = innerModel->transform6D("robot", "grabPositionHandR");
+	ui_x->setText( (fabs(rrr(0))<0.0001)?QString("0"):QString::number(rrr(0)));
+	ui_y->setText( (fabs(rrr(1))<0.0001)?QString("0"):QString::number(rrr(1)));
+	ui_z->setText( (fabs(rrr(2))<0.0001)?QString("0"):QString::number(rrr(2)));
+	ui_rx->setText((fabs(rrr(3))<0.0001)?QString("0"):QString::number(rrr(3)));
+	ui_ry->setText((fabs(rrr(4))<0.0001)?QString("0"):QString::number(rrr(4)));
+	ui_rz->setText((fabs(rrr(5))<0.0001)?QString("0"):QString::number(rrr(5)));
 #endif
-	if (not READY) return;
-// 	static int tick = 0;
-// 	if (tick++ % 10 != 0) return;
 
 	updateFrame(10);
 	updateInnerModel();
@@ -743,13 +757,18 @@ void SpecificWorker::compute()
 		return;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToInit :
+// 		printf("GIK_GoToInit\n");
 		goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 		pathIndex = 0;
 		if (path.size() > 1) pathIndex = 1;
+		printf("STATE: %d\n", state);
 		state = GIK_GoToEnd;
-	break;
+		printf("STATE CHANGED TO: %d\n", state);
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToEnd:
+// 		printf("GIK_GoToEnd\n");
+
 		goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
 		printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
 		pathIndex++;
@@ -757,66 +776,79 @@ void SpecificWorker::compute()
 		if (pathIndex>=path.size())
 		{
 			pathIndex = 0;
+			printf("STATE: %d\n", state);
 			state = GIK_GoToActualTargetSend;
+			printf("STATE CHANGED TO: %d\n", state);
 			qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";
 			usleep(2000);
 		}
-	break;
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSend:
-	
+// 		printf("GIK_GoToActualTargetSend\n");
+
 		qDebug()<<"SEND---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
 		try {
 			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("ARM", currentTarget.pose, currentTarget.weights);
+			printf("STATE: %d\n", state);
 			state = GIK_GoToActualTargetSent;
+			printf("STATE CHANGED TO: %d\n", state);
 		}
 		catch (Ice::Exception e){ qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();}
-	break;
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSent:
-		TargetState stt = inversekinematics_proxy->getTargetState("ARM", currentTarget.id_IK);
-		if (stt.finish == true)
 		{
-			qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
-			QMutexLocker mm(mutexSolved);
-			currentTarget.state = stt;
-			if (stt.errorT > MAX_ERROR_IK)
+			TargetState stt = inversekinematics_proxy->getTargetState("ARM", currentTarget.id_IK);
+// 			printf("GIK_GoToActualTargetSent\n");
+			if (stt.finish == true)
 			{
-				lastFinish = "ERROR";
-// #ifdef USE_QTGUI
-// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-// #endif
-			}
-			else
-			{
-				MotorGoalPositionList mpl;
-				for (auto gp : stt.motors)
+				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
+				QMutexLocker mm(mutexSolved);
+				currentTarget.state = stt;
+				if (stt.errorT > MAX_ERROR_IK)
 				{
-					MotorGoalPosition mgp;
-					mgp.position = gp.angle;
-					mgp.maxSpeed = MAX_SPEED;
-					mgp.name = gp.name;
-					mpl.push_back(mgp);
+					lastFinish = "ERROR";
+	// #ifdef USE_QTGUI
+	// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+	// #endif
 				}
-				goAndWaitDirect(mpl);
-// 				qFatal("hecho!");
-				waitForMotorsToStop();
-				lastMotorGoalPositionList = mpl;
-				lastFinish = "OK";
-// #ifdef USE_QTGUI
-// 						updateFrame(500000);
-// 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-// #endif
-				usleep(5000);
+				else
+				{
+					MotorGoalPositionList mpl;
+					for (auto gp : stt.motors)
+					{
+						MotorGoalPosition mgp;
+						mgp.position = gp.angle;
+						mgp.maxSpeed = MAX_SPEED;
+						mgp.name = gp.name;
+						mpl.push_back(mgp);
+					}
+					goAndWaitDirect(mpl);
+	// 				qFatal("hecho!");
+					waitForMotorsToStop();
+					lastMotorGoalPositionList = mpl;
+					lastFinish = "OK";
+	// #ifdef USE_QTGUI
+	// 						updateFrame(500000);
+	// 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+	// #endif
+					usleep(5000);
+				}
+				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
+				updateInnerModel();
+				solvedList.enqueue(currentTarget); //guardamos el target
+				printf("(%f %f %f)\n", currentTarget.pose.x, currentTarget.pose.y, currentTarget.pose.z);
+				qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
+				printf("STATE: %d\n", state);
+				state = GIK_NoTarget;
+				printf("STATE CHANGED TO: %d\n", state);
 			}
-			qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
-			updateInnerModel();
-			solvedList.enqueue(currentTarget); //guardamos el target
-			printf("(%f %f %f)\n", currentTarget.pose.x, currentTarget.pose.y, currentTarget.pose.z);
-			qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
-			state = GIK_NoTarget;
-		}
 		break;
+	}
+	default:
+		printf("GIK_ DEFAULT\n");
+
 	}
 }
 
@@ -1155,7 +1187,9 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		innerVisual->updateTransformValues("init", target.x, target.y, target.z, 0,0,0);
 		innerVisual->updateTransformValues("end", target.x, target.y, target.z, 0,0,0);
 #endif
+		printf("STATE: %d\n", state);
 		state = GIK_GoToActualTargetSend;
+		printf("STATE CHANGED TO: %d\n", state);
 	}
 	else
 	{	
@@ -1185,7 +1219,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		if (tempPath.size() > 0)
 		{
 			printf("path A: ");
-			for (uint i=0; i<tempPath.size(); i++) printf("%d", tempPath[i]);
+			for (uint i=0; i<tempPath.size(); i++) printf(" %d ", tempPath[i]);
 			printf("\n");
 
 			// Should we skip the first node?
@@ -1212,11 +1246,12 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 				path.push_back(tempPath[i]);
 			}
 			printf("path B: ");
-			for (uint i=0; i<path.size(); i++) printf("%d", path[i]);
+			for (uint i=0; i<path.size(); i++) printf(" %d ", path[i]);
 			printf("\n");
 		}
 
 		state = GIK_GoToInit;
+		printf("state switched to %d\n", state);
 	}
 	targetCounter++;
 
@@ -1326,11 +1361,10 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	TargetState s;
 	s.finish = false;
 	
-	qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
+	qDebug()<<"PEDIDO TARGET "<<targetID;
 	QMutexLocker mm(mutexSolved);
 	for(int i=0; i<solvedList.size(); i++)
 	{
-		qDebug()<<"tengo "<< solvedList[i].id_IKG <<". ENCONTRADO.";
 		if (targetID == solvedList[i].id_IKG)
 		{
 			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
@@ -1356,7 +1390,9 @@ void SpecificWorker::goHome(const string &bodyPart)
 void SpecificWorker::stop(const string &bodyPart)
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
+	printf("STATE: %d\n", state);
 	state = GIK_NoTarget;
+	printf("STATE CHANGED TO: %d\n", state);
 }
 
 
@@ -1395,15 +1431,7 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 void SpecificWorker::waitForMotorsToStop()
 {
 	MotorStateMap allMotorsCurr/*, allMotorsBack*/;
-// 	try
-// 	{
-// 		jointmotor_proxy->getAllMotorState(allMotorsBack);
-// 	}
-// 	catch(...)
-// 	{
-// 		std::cout<<"Error retrieving all motors state\n";
-// 	}
-// 	
+
 	bool moveInitialized = false;
 	bool moveFinished = false;
 	QTime waitTime = QTime::currentTime();
@@ -1421,9 +1449,8 @@ void SpecificWorker::waitForMotorsToStop()
 		bool someMotorMoving = false;
 		for (auto v : allMotorsCurr)
 		{
-			if (v.second.isMoving)
+			if (fabs(v.second.vel)>0.7)
 			{
-// 				allMotorsBack = allMotorsCurr;
 				someMotorMoving = true;
 				usleep(50000);
 				break;
