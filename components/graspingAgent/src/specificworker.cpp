@@ -745,12 +745,10 @@ void SpecificWorker::action_GraspObject(bool first)
 	
 	
 	const float steps_to_grasp = 1;
-	const float yInit = 80;
+	const float yInit = 40;
 	const float yGoal = -40;
-	const float yStep = (yGoal-yInit)/steps_to_grasp;
-	const float zInit = -200;
+	const float zInit = -180;
 	const float zGoal = -130;
-	const float zStep = (zGoal-zInit)/steps_to_grasp;
 
 
 	static QVec offset = QVec::vec3(0,0,0);
@@ -816,27 +814,6 @@ void SpecificWorker::action_GraspObject(bool first)
 		// APPROACH Middle
 		//
 		case 2:
-			/*
-			Q_ASSERT(offset(1) >= yGoal);
-			printf("%d\n", __LINE__);
-			if (offset(1) > yGoal)
-			{
-				if (offset(1)+yStep >= yGoal)
-					offset(1) += yStep;
-				else
-					offset(1) = yGoal;
-			}
-
-			Q_ASSERT(offset(2) <= zGoal);
-			printf("%d\n", __LINE__);
-			if (offset(2) < zGoal)
-			{
-				if (offset(2)+zStep <= zGoal)
-					offset(2) += zStep;
-				else
-					offset(2) = zGoal;
-			}
-*/
 			offset(0) = 0;
 			offset(1) = yGoal;
 			offset(2) = zGoal;
@@ -847,8 +824,6 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			else
 			{
-// 				if ((offset - QVec::vec3(0, yGoal, zGoal)).norm2() < 10)
-// 				{
 					offsetR = QVec::vec3(-0.15, 0, 0);
 // 				}
 // 				else
@@ -868,6 +843,7 @@ void SpecificWorker::action_GraspObject(bool first)
 				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 1.5);
 				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 1.5);
 // 				inversekinematics_proxy->setJoint("wristX", jointmotor_proxy->getMotorState("wristX").pos-0.15, 1.5);
+				usleep(600000);
 			}
 			catch(...)
 			{
