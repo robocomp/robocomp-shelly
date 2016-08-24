@@ -221,6 +221,8 @@ void SpecificWorker::manageReachedObjects()
 //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
+			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
+			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -742,12 +744,15 @@ void SpecificWorker::action_GraspObject(bool first)
 
 	
 	
-	float yStep = 50;
-	float yGoal = -20;
-	float zStep = 50;
-	float zGoal = 80;
+	const float steps_to_grasp = 1;
+	const float yInit = 40;
+	const float yGoal = -40;
+	const float zInit = -180;
+	const float zGoal = -130;
+
 
 	static QVec offset = QVec::vec3(0,0,0);
+	static QVec offsetR = QVec::vec3(0,0,0);
 	offset.print("offset");
 	switch (state)
 	{
@@ -758,12 +763,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			printf("%d\n", __LINE__);
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1", +0.2, 0.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", -0.2, 0.5);
+				inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 0.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 0.5);
 				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
-			offset = QVec::vec3(0, 80, -280);
+			offset = QVec::vec3(0, yInit, zInit);
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
@@ -771,9 +776,10 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			else
 			{
-				lastTargetId = sendHandToSymbol(symbols["object"],  offset, symbols);
+				offsetR = QVec::vec3(-0.15, 0, 0);
+				lastTargetId = sendHandToSymbol(symbols["object"],  offset, symbols, offsetR);
 			}
-			state=1;
+			state = 1;
 			break;
 		//
 		// Wait for last movement (it can be the first one or a intermediate one)
@@ -787,7 +793,7 @@ void SpecificWorker::action_GraspObject(bool first)
 // 				if (ikState.errorT < 40 and ikState.errorR < 0.5)
 				{
 					printf("next state!\n");
-					if (offset.norm2() >= QVec::vec3(0, 0 -80).norm2())
+					if ((offset - QVec::vec3(0, yGoal, zGoal)).norm2() > 10)
 					{
 						state = 2;
 						stateTime = QTime::currentTime();
@@ -805,29 +811,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			break;
 		//
-		// APPROACH 2
+		// APPROACH Middle
 		//
 		case 2:
-			Q_ASSERT(offset(1) >= yGoal);
-			printf("%d\n", __LINE__);
-			if (offset(1) > yGoal)
-			{
-				if (offset(1)-yStep >= yGoal)
-					offset(1) -= yStep;
-				else
-					offset(1) = yGoal;
-			}
-
-			Q_ASSERT(offset(2) <= zGoal);
-			printf("%d\n", __LINE__);
-			if (offset(2) < zGoal)
-			{
-				if (offset(2)+zStep <= zGoal)
-					offset(2) += zStep;
-				else
-					offset(2) = zGoal;
-			}
-
+			offset(0) = 0;
+			offset(1) = yGoal;
+			offset(2) = zGoal;
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
@@ -835,7 +824,15 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			else
 			{
-				lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols);
+					offsetR = QVec::vec3(-0.15, 0, 0);
+// 				}
+// 				else
+// 				{
+					offsetR = QVec::vec3(0, 0, 0);
+// 				}
+				offset.print("offset 2");
+				offsetR.print("offsetR 2");
+				lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols, offsetR);
 			}
 			state = 1; // Go back to wait state
 			stateTime = QTime::currentTime();
@@ -845,6 +842,8 @@ void SpecificWorker::action_GraspObject(bool first)
 			{
 				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 1.5);
 				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 1.5);
+// 				inversekinematics_proxy->setJoint("wristX", jointmotor_proxy->getMotorState("wristX").pos-0.15, 1.5);
+				usleep(600000);
 			}
 			catch(...)
 			{
@@ -875,14 +874,14 @@ void SpecificWorker::action_GraspObject(bool first)
 				}
 				else
 				{
-					lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols);
+					offsetR = QVec::vec3(-0.09, 0, 0);
+					lastTargetId = sendHandToSymbol(symbols["object"], offset, symbols, offsetR);
 				}
 				state++;
 			}
 			catch(...)
 			{
-				printf("graspingAgent: Couldn't publish new model\n");
-				qFatal("wfuieey78 ");
+				qFatal("graspingAgent: Couldn't publish new model\n");
 			}
 			state = 9999;
 			stateTime = QTime::currentTime();
@@ -919,7 +918,7 @@ void SpecificWorker::leaveObjectSimulation()
 }
 
 
-int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols)
+int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols, QVec offsetR)
 {
 	int32_t lastTargetId_local;
 	QVec objectsLocationInRobot;
@@ -927,23 +926,23 @@ int32_t SpecificWorker::sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offse
 	try
 	{
 		objectsLocationInRobot = getObjectsLocationInRobot(symbols, symbol); //POSE OBJECT IN ROBOT SYSTEM
-		objectsLocationInRobot.print("objectsLocationInRobot");
-		innerModel->transformS("robot", QVec::vec3(0,0,0), symbol->getAttribute("imName")).print("directo");
+// 		objectsLocationInRobot.print("objectsLocationInRobot");
+// 		innerModel->transformS("robot", QVec::vec3(0,0,0), symbol->getAttribute("imName")).print("directo");
 	}
 	catch (...) { printf("%s: %d\n", __FILE__, __LINE__); }
 
-	objectsLocationInRobot.print("objectsLocationInRobot");
+// 	objectsLocationInRobot.print("objectsLocationInRobot");
 	// add offset and put rotation
 	for (int i=0; i<3; i++) objectsLocationInRobot(i)  += offset(i);
-	objectsLocationInRobot(3) = 0;
-	objectsLocationInRobot(4) = 0;
-	objectsLocationInRobot(5) = 0;
-	objectsLocationInRobot.print("objectsLocationInRobot + offset");
+	objectsLocationInRobot(3) = offsetR(0);
+	objectsLocationInRobot(4) = offsetR(1);
+	objectsLocationInRobot(5) = offsetR(2);
+// 	objectsLocationInRobot.print("objectsLocationInRobot + offset");
 	try
 	{
 		lastTargetId_local = sendRightArmToPose(objectsLocationInRobot);
-		objectsLocationInRobot.print("sent");
-		qDebug()<<"------> 0 step execution";
+// 		objectsLocationInRobot.print("sent");
+// 		qDebug()<<"------> 0 step execution";
 	}
 	catch (...)
 	{
@@ -991,11 +990,11 @@ QVec SpecificWorker::fromRobotToRoom(std::map<std::string, AGMModelSymbol::SPtr>
 
 	qDebug() << roomIMID << "  " << robotIMID;
 
-	innerModel->getTransformationMatrix(roomIMID, robotIMID).print("robot to room");
+// 	innerModel->getTransformationMatrix(roomIMID, robotIMID).print("robot to room");
 
 
 
-	innerModel->getTransformationMatrix(roomIMID, robotIMID).extractAnglesR_min().print("angles");
+// 	innerModel->getTransformationMatrix(roomIMID, robotIMID).extractAnglesR_min().print("angles");
 
 	return innerModel->transform6D(roomIMID, vector, robotIMID);
 }
@@ -1073,7 +1072,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			printf("angulo relativa robot %f\n", angleRRobot);
 			// Get object's relative position from the yaw's perspective
 			QVec poseRYaw = innerModel->transformS("head_yaw_joint", goalObject->getAttribute("imName"));
-			poseRYaw.print("relativo al yaw");
+// 			poseRYaw.print("relativo al yaw");
 			float angleRYaw = atan2(poseRYaw.x(), poseRYaw.z());
 			printf("angulo relativa a la camara %f\n", angleRYaw);
 			// Compute current head's yaw

@@ -107,7 +107,7 @@ private:
 	
 	bool active;
 
-	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols);
+	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols, QVec offsetR);
 	
 	
 public slots:
