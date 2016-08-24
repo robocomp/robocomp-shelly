@@ -2,7 +2,7 @@
 	<mesh id="shellyArm_BASE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="70,45,80"  ty="-30" rx="1.5707963267948966" collide="1"/>
 	<mesh id="shellyArm_BASE2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds" scale="20,40,20" ty="80"  collide="1"/>
 	<!-- 'ideal' grasp position of the robot for its arm -->
-	<transform id="shellyArm_grasp_pose" tx="0" ty="190" tz="750">
+	<transform id="shellyArm_grasp_pose" tx="0" ty="190" tz="700">
 <!-- 			<axes id="dewetrteuj53" /> -->
 	</transform>
 
