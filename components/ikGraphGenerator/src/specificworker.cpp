@@ -1449,7 +1449,7 @@ void SpecificWorker::waitForMotorsToStop()
 		bool someMotorMoving = false;
 		for (auto v : allMotorsCurr)
 		{
-			if (fabs(v.second.vel)>0.7)
+			if (fabs(v.second.vel)>0.3)
 			{
 				someMotorMoving = true;
 				usleep(50000);

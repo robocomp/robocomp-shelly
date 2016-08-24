@@ -81,23 +81,23 @@ bool InversedKinematic::deleteTarget()
 		restaAngles[i] = fabs(angles[i]-bodypart->getTargetList().head().getTargetFinalAngles()[i]);
 	angles = bodypart->getTargetList().head().getTargetFinalAngles();
 
-	if(
+// 	if(
 // 	   (bodypart->getTargetList().head().getTargetTimeExecution()>1 or (errorT.norm2()<0.0001 and errorR.norm2()<0.001)/* or restaAngles.norm2()<0.0001*/)
-	   (bodypart->getTargetList().head().getTargetTimeExecution()>0.5 or (errorT.norm2()<errorT_threshold and errorR.norm2()<errorR_threshold)/* or restaAngles.norm2()<0.0001*/)
+// 	   (bodypart->getTargetList().head().getTargetTimeExecution()>0.5 or (errorT.norm2()<errorT_threshold and errorR.norm2()<errorR_threshold)/* or restaAngles.norm2()<0.0001*/)
 // 	   and
 // 	   bodypart->getTargetList().head().getTargetTimeExecution()>0.1
 		
-	)
+// 	)
 	{
 		repetitions = 0;
 		printf("del t TRUE\n");
 		return true;
 	}
-	else
-	{
-		printf("del t FALSE  T:%f>0.5  ET:%f>%f  ER:%f>%f\n", (float)bodypart->getTargetList().head().getTargetTimeExecution(), errorT.norm2(), errorT_threshold, errorR.norm2(), errorR_threshold);
-		return false;
-	}
+// 	else
+// 	{
+// 		printf("del t FALSE  T:%f>0.5  ET:%f>%f  ER:%f>%f\n", (float)bodypart->getTargetList().head().getTargetTimeExecution(), errorT.norm2(), errorT_threshold, errorR.norm2(), errorR_threshold);
+// 		return false;
+// 	}
 }
 ///////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////
