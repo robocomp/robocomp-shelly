@@ -37,6 +37,10 @@ public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
+	
+	//////////////
+	/// SERVANTS
+	//////////////
 	bool activateAgent(const ParameterMap& prs);
 	bool deactivateAgent();
 	StateStruct getAgentState();
@@ -45,6 +49,7 @@ public:
 	void  killAgent();
 	Ice::Int uptimeAgent();
 	bool reloadConfigAgent();
+	
 	void  structuralChange(const RoboCompAGMWorldModel::World & modification);
 	void  symbolUpdated(const RoboCompAGMWorldModel::Node& modification);
 	void  symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence & modification);
@@ -54,6 +59,7 @@ public:
 
 public slots:
  	void compute();
+	void readTrajState();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
@@ -80,6 +86,7 @@ private:
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 	bool haveTarget;
+	QTimer trajReader;
 	
 	RoboCompTrajectoryRobot2D::TargetPose currentTarget;
 	
