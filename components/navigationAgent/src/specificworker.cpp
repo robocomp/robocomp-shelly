@@ -497,7 +497,7 @@ void SpecificWorker::action_WaitingToAchieve()
 		{
 			//check target distance
 			if ( (fabs(currentTarget.x - navState.x) < THRESHOLD) and (fabs(currentTarget.z - navState.z) < THRESHOLD)) 
-//			if (navState.distanceToTarget < THRESHOLD)
+			//if (navState.distanceToTarget < THRESHOLD)
 			{
 				action = "noAction";
 				updateModel(objectID, statusID);
@@ -507,6 +507,10 @@ void SpecificWorker::action_WaitingToAchieve()
 				go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
 			}
 		}
+	}
+	catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
+	{
+		std::cout << ex.text << std::endl;
 	}
 	catch(const Ice::Exception &ex)
 	{
@@ -749,6 +753,10 @@ void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, flo
 	{
 		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << tp.x << ", " << tp.z << ", " << tp.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
 		trajectoryrobot2d_proxy->goReferenced(tp, xRef, zRef, threshold);
+	}
+	catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
+	{
+		std::cout << ex.text << std::endl;
 	}
 	catch(const Ice::Exception &ex)
 	{
