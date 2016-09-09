@@ -531,7 +531,9 @@ bool SpecificWorker::updateModel(int objectID, int statusID)
 	catch (...)
 	{
 		std::cout<<"\nModel update exception!!"<< "\n";
+		return false;
 	}
+	return true;
 }
 
 
