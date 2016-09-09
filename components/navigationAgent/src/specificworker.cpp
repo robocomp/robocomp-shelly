@@ -117,9 +117,6 @@ void SpecificWorker::compute( )
 		}
 	}
 	// ODOMETRY AND LOCATION-RELATED ISSUES
-	if (odometryAndLocationIssues() == false)
-		return;
-	
 	actionExecution();
 }
 
@@ -161,7 +158,15 @@ void SpecificWorker::actionExecution()
 	{
 		action_HandObject(newAction);
 	}
-	else
+	else if (action == "waitingToAchieve")
+	{
+		action_WaitingToAchieve();
+	}
+	else if (action == "noAction")
+	{
+		
+	}
+	else if (action == "stopAction")
 	{
 		action_NoAction(newAction);
 	}
@@ -172,6 +177,7 @@ void SpecificWorker::actionExecution()
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
+	usleep(10000);
 // 	printf("actionExecution>>\n");
 }
 
@@ -290,6 +296,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		currentTarget.ry = 0;
 		currentTarget.rz = 0;
 		currentTarget.doRotation = false;
+		
 	}
 	catch (...) 
 	{ 
@@ -302,7 +309,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		{
 			try
 			{
-				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");				
 				float th=20;
 				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
@@ -353,8 +360,8 @@ void SpecificWorker::action_HandObject(bool newAction)
 }
 
 /**
-*  \brief Called when the robot is sent close to an object's location
-*/ 
+ * \brief Move robot to object reach position
+ */ 
 void SpecificWorker::action_SetObjectReach(bool newAction)
 {
 	// Get symbols' map
@@ -373,13 +380,13 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Get target
-	int roomID, objectID, robotID;
+	int roomID, robotID;
 	try
 	{
 		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
 		{
 			roomID = symbols["room"]->identifier;
-			objectID =symbols["object"]->identifier;
+			objectID = symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
 
 			try // If we can access the 'reach' edge for the object status the action
@@ -394,7 +401,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 						return;
 					}
 					printf("ask the platform to stop\n");
-					trajectoryrobot2d_proxy->stop();
+					stop();
 				}
 			}
 			catch(...)
@@ -458,6 +465,14 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		currentTarget.ry = poseInRoom.ry();
 		currentTarget.rz = 0;
 		currentTarget.doRotation = true;
+		
+		QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
+		O.print("pose relativa");
+		printf("__%f__\n", O.norm2());
+		graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+		
+		
+		statusID = symbols["status"]->identifier;
 	}
 	catch (...) 
 	{ 
@@ -465,361 +480,56 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Execute target
+	go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
+	action = "waitingToAchieve";
+}
+
+
+void SpecificWorker::action_WaitingToAchieve()
+{
+	// Check state
+	RoboCompTrajectoryRobot2D::NavState navState;
 	try
 	{
-// 		if (!haveTarget)
+		navState = trajectoryrobot2d_proxy->getState();
+		std::cout << "trajectorystate=> state: " << navState.state.c_str() << " distance: " << navState.distanceToTarget << std::endl;
+		if (navState.state == "IDLE")
 		{
-			try
+			//check target distance
+			if ( (fabs(currentTarget.x - navState.x) < THRESHOLD) and (fabs(currentTarget.z - navState.z) < THRESHOLD)) 
+//			if (navState.distanceToTarget < THRESHOLD)
 			{
-				QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
-				//O.print("	O pose relativa");
-				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
-				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-				float th=20;
-				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
-				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
-				haveTarget = true;
+				action = "noAction";
+				updateModel(objectID, statusID);
 			}
-			catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
+			else //resend target
 			{
-				std::cout << ex << " " << ex.text << std::endl;
-				throw;
-			}
-			catch(const Ice::Exception &ex)
-			{
-				std::cout << ex << std::endl;
-			}
-		}
-		string state;
-		try
-		{
-			state = trajectoryrobot2d_proxy->getState().state;
-		}
-		catch(const Ice::Exception &ex)
-		{
-			std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
-			throw ex;
-		}
-
-		//state="IDLE";
-		std::cout<<state<<" haveTarget "<<haveTarget;
-		if (state=="IDLE" && haveTarget)
-		{
-			//std::cout<<"\ttrajectoryrobot2d_proxy->getState() "<<trajectoryrobot2d_proxy->getState().state<<"\n";
-			try
-			{
-// 				AGMModel::SPtr newModel(new AGMModel(worldModel));
-// 				int statusID =symbols["status"]->identifier;
-// 				newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
-// 				sendModificationProposal(worldModel, newModel);
-				haveTarget=false;
-			}
-			catch (...)
-			{
-				std::cout<<"\neeeee"<< "\n";
+				go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
 			}
 		}
 	}
 	catch(const Ice::Exception &ex)
 	{
-		std::cout << ex << std::endl;
+		std::cout <<"Error retrieving trajectoryrobot2d->getState() "<< ex << std::endl;
+		throw ex;
 	}
 }
 
-bool SpecificWorker::odometryAndLocationIssues(bool force)
+bool SpecificWorker::updateModel(int objectID, int statusID)
 {
-	QMutexLocker l(mutex);
-
-	//
-	// Get ODOMETRY and update it in the graph. If there's a problem talking to the robot's platform, abort
 	try
 	{
-		omnirobot_proxy->getBaseState(bState);
+		AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+		newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
+		sendModificationProposal(worldModel, newModel);
 	}
 	catch (...)
 	{
-		printf("Can't connect to the robot!!\n");
-		return false;
-	}
-
-	int32_t robotId=-1, roomId=-1;
-
-	robotId = worldModel->getIdentifierByType("robot");
-	if (robotId < 0)
-	{
-		printf("Robot symbol not found, Waiting for the executive...\n");
-		usleep(1000000);
-		return false;
-	}
-
-	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
-	for (auto edge = robot->edgesBegin(worldModel); edge != robot->edgesEnd(worldModel); edge++)
-	{
-		const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
-
-		if (edge->getLabel() == "RT")
-		{
-			const string secondType = worldModel->getSymbol(symbolPair.first)->symbolType;
-			if (symbolPair.second == robotId and secondType == "room")
-			{
-				roomId = symbolPair.first;
-			}
-		}
-	}
-
-	includeMovementInRobotSymbol(robot);
-	
-	if (roomId < 0)
-	{
-		printf("roomId not found, Waiting for Insert innerModel...\n");
-		usleep(1000000);
-		return false;
-	}
-
-	int32_t robotIsActuallyInRoom;
-	if (bState.correctedZ<0)
-		robotIsActuallyInRoom = 5;
-	else
-		robotIsActuallyInRoom = 3;
-
-	// TODO WARNING FIXME
-	robotIsActuallyInRoom = 3;
-
-	if (roomId != robotIsActuallyInRoom)
-	{
-		try
-		{
-			AGMModel::SPtr newModel(new AGMModel(worldModel));
-
-			// Modify IN edge
-			newModel->removeEdgeByIdentifiers(robotId, roomId, "in");
-			newModel->addEdgeByIdentifiers(robotId, robotIsActuallyInRoom, "in");
-
-			// Modify RT edge
-			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
-			printf("(was %d now %d) ---[RT]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
-			try
-			{
-				float bStatex = str2float(edgeRT->getAttribute("tx"));
-				float bStatez = str2float(edgeRT->getAttribute("tz"));
-				float bStatealpha = str2float(edgeRT->getAttribute("ry"));
-				
-				// to reduce the publication frequency
-				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
-				{
-					//Publish update edge
-					printf("\nUpdate odometry...\n");
-					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
-
-					edgeRT->setAttribute("tx", float2str(bState.correctedX));
-					edgeRT->setAttribute("tz", float2str(bState.correctedZ));
-					edgeRT->setAttribute("ry", float2str(bState.correctedAlpha));
-				}
-				newModel->addEdgeByIdentifiers(robotIsActuallyInRoom, robotId, "RT", edgeRT->attributes);
-				AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
-				rDebug2(("navigationAgent moved robot from room"));
-			}
-			catch (...)
-			{
-				printf("Can't update odometry in RT, edge exists but we encountered other problem!!\n");
-				return false;
-			}
-		}
-		catch (...)
-		{
-			printf("Can't update room... do edges exist? !!!\n");
-			return false;
-		}	}
-	else
-	{
-		try
-		{
-			AGMModelEdge edge  = worldModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-// 			printf("%d ---[RT]---> %d  (%d\n", roomId, robotId, __LINE__);
-			try
-			{
-				float bStatex = str2float(edge->getAttribute("tx"));
-				float bStatez = str2float(edge->getAttribute("tz"));
-				float bStatealpha = str2float(edge->getAttribute("ry"));
-				
-				// to reduce the publication frequency
-// 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
-				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
-				{
-					//Publish update edge
-// 					printf("\nUpdate odometry...\n");
-// 					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
-// 					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
-
-					edge->setAttribute("tx", float2str(bState.correctedX));
-					edge->setAttribute("tz", float2str(bState.correctedZ));
-					edge->setAttribute("ry", float2str(bState.correctedAlpha));
-					//rDebug2(("navigationAgent edgeupdate"));
-					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
-// 					printf("done\n");
-				}
-// 				printf(".");
-// 				fflush(stdout);
-			}
-			catch (...)
-			{
-				printf("Can't update odometry in RT, edge exists but we encountered other problem!!\n");
-				return false;
-			}
-		}
-		catch (...)
-		{
-			printf("Can't update odometry in RT, edge does not exist? !!!\n");
-			return false;
-		}
-	}
-	return true;
-}
-
-void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
-{
-	static TimedList list(3000);
-	static RoboCompOmniRobot::TBaseState lastBaseState = bState;
-	
-	const float movX = bState.x - lastBaseState.x;
-	const float movZ = bState.z - lastBaseState.z;
-	const float movA = abs(bState.alpha - lastBaseState.alpha);
-	const float mov = sqrt(movX*movX+movZ*movZ) + 20.*movA;
-// 	printf("add mov: %f\n", mov);
-	list.add(mov);
-	lastBaseState = bState;
-
-	
-	const float currentValue = list.getSum();
-// 	printf("sum: %f\n", currentValue);
-	bool setValue = true;
-	
-	static QTime lastSent = QTime::currentTime(); 
-	try
-	{
-		const float availableValue = str2float(robot->getAttribute("movedInLastSecond"));
-		const float ddiff = abs(currentValue-availableValue);
-		if (ddiff < 5 and lastSent.elapsed()<1000)
-		{
-			setValue = false;
-		}
-	}
-	catch(...)
-	{
-	}
-
-	if (setValue)
-	{
-		lastSent = QTime::currentTime();
-		const std::string attrValue = float2str(currentValue);
-		robot->setAttribute("movedInLastSecond", attrValue);
-		AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+		std::cout<<"\nModel update exception!!"<< "\n";
 	}
 }
 
-
-void SpecificWorker::updateRobotsCognitiveLocation()
-{
-	// If the polygons are not set yet, there's nothing to do...
-	if (roomsPolygons.size()==0)
-		return;
-
-	// Get current location according to the model, if the location is not set yet, there's nothing to do either
-	const int32_t currentLocation = getIdentifierOfRobotsLocation(worldModel);
-	if (currentLocation == -1) return;
-
-	// Compute the robot's location according to the odometry and the set of polygons
-	// If we can't find the room where the robot is, we assume it didn't change, so there's nothing else to do
-	int32_t newLocation = -1;
-	for (auto &kv : roomsPolygons)
-	{
-		if (kv.second.containsPoint(QPointF(bState.x,  bState.z), Qt::OddEvenFill))
-		{
-			newLocation = kv.first;
-			break;
-		}
-	}
-	if (newLocation == -1) return;
-
-	// If everyting is ok AND the robot changed its location, update the new location in the model and
-	// propose the change to the executive
-	if (newLocation != currentLocation and newLocation != -1)
-	{
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
-		setIdentifierOfRobotsLocation(newModel, newLocation);
-// 		AGMModelPrinter::printWorld(newModel);
-		rDebug2(("navigationAgent moved from room %d to room %d") % currentLocation % newLocation );
-		sendModificationProposal(worldModel, newModel);
-	}
-}
-
-
-std::map<int32_t, QPolygonF> SpecificWorker::extractPolygonsFromModel(AGMModel::SPtr &worldModel)
-{
-	std::map<int32_t, QPolygonF> ret;
-
-	for (AGMModel::iterator symbol_itRR=worldModel->begin(); symbol_itRR!=worldModel->end(); symbol_itRR++)
-	{
-		const AGMModelSymbol::SPtr &symbolRR = *symbol_itRR;
-		if (symbolRR->symbolType == "robot")
-		{
-			for (AGMModelSymbol::iterator edge_itRR=symbolRR->edgesBegin(worldModel); edge_itRR!=symbolRR->edgesEnd(worldModel); edge_itRR++)
-			{
-				AGMModelEdge edgeRR = *edge_itRR;
-				if (edgeRR.linking == "know")
-				{
-					const AGMModelSymbol::SPtr &symbol = worldModel->getSymbol(edgeRR.symbolPair.first);
-					if (symbol->symbolType == "object")
-					{
-						printf("object: %d\n", symbol->identifier);
-						for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
-						{
-							AGMModelEdge edge = *edge_it;
-							if (edge.linking == "room")
-							{
-								const QString polygonString = QString::fromStdString(symbol->getAttribute("polygon"));
-								const QStringList coords = polygonString.split(";");
-								printf("  it is a room\n");
-								qDebug() << " " << coords.size() << " ___ " << polygonString ;
-								if (coords.size() < 3)
-								{
-									qDebug() << coords.size() << " ___ " << polygonString ;
-									qDebug() << polygonString;
-									for (int32_t i=0; i<coords.size(); i++)
-										qDebug() << coords[i];
-									qFatal("ABORT %s %d", __FILE__, __LINE__);
-								}
-
-								QVector<QPointF> points;
-								for (int32_t ci=0; ci<coords.size(); ci++)
-								{
-									const QString &pointStr = coords[ci];
-									if (pointStr.size() < 5) qFatal("%s %d", __FILE__, __LINE__);
-									const QStringList coords2 = pointStr.split(",");
-									if (coords2.size() < 2) qFatal("%s %d", __FILE__, __LINE__);
-									QString a = coords2[0];
-									QString b = coords2[1];
-									a.remove(0,1);
-									b.remove(b.size()-1,1);
-									float x = a.toFloat();
-									float z = b.toFloat();
-									points.push_back(QPointF(x, z));
-								}
-								if (points.size() < 3) qFatal("%s %d", __FILE__, __LINE__);
-								ret[symbol->identifier] = QPolygonF(points);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return ret;
-}
 
 int32_t SpecificWorker::getIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel)
 {
@@ -1000,32 +710,79 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 	}
 }
 
-
-/*
-
-void SpecificWorker::action_GraspObject(bool newAction)
-{
-	std::string state = trajectoryrobot2d_proxy->getState().state;
-	printf("action_GraspObject: %s\n", state.c_str());
-	if (state != "IDLE")
-		trajectoryrobot2d_proxy->stop();
-}
-
-*/
-
 void SpecificWorker::action_NoAction(bool newAction)
 {
-	std::string state = trajectoryrobot2d_proxy->getState().state;
-	if (state != "IDLE")
+	try{
+		std::string state = trajectoryrobot2d_proxy->getState().state;
+		if (state != "IDLE")
+		{
+			printf("trajectoryrobot2d state : %s\n", state.c_str());
+			stop();
+		}
+	}catch(...)
 	{
-		printf("trajectoryrobot2d state : %s\n", state.c_str());
-		stop();
+		std::cout<< "Error retrieving trajectory state"<<std::endl;
 	}
 }
 
-////////////////////////////////////////////////////////////////////////////////////////
-//// SERVANTS
-////////////////////////////////////////////////////////////////////////////////////////
+
+// Send target to trajectory
+void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, float zRef, float threshold)
+{
+	RoboCompTrajectoryRobot2D::TargetPose tp;
+	tp.x = x;
+	tp.z = z;
+	tp.y = 0;
+	tp.rx = 0;
+	tp.ry = 0;
+	tp.rz = 0;
+	if (rot)
+	{
+		tp.ry = alpha;
+		tp.doRotation = true;
+	}
+	else
+	{
+		tp.doRotation = false;
+	}
+	try
+	{
+		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << tp.x << ", " << tp.z << ", " << tp.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
+		trajectoryrobot2d_proxy->goReferenced(tp, xRef, zRef, threshold);
+	}
+	catch(const Ice::Exception &ex)
+	{
+		std::cout << ex << std::endl;
+	}
+	catch(...)
+	{
+		printf("Exception: something else %d\n", __LINE__);
+	}
+}
+
+
+void SpecificWorker::stop()
+{
+	try
+	{
+		trajectoryrobot2d_proxy->stop();
+	}
+	catch(const Ice::Exception &ex)
+	{
+		std::cout << ex << std::endl;
+	}
+	catch(...)
+	{
+		printf("Exception: something else %d\n", __LINE__);
+	}
+}
+
+
+
+
+// *************
+// AGENT RELATED
+// *************
 
 bool SpecificWorker::activateAgent(const ParameterMap& prs)
 {
@@ -1225,55 +982,119 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	}
 }
 
-void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, float zRef, float threshold)
+
+
+/* NOT BEING USED NOW CHECK TO ELIMINATE IN FUTURE 
+void SpecificWorker::updateRobotsCognitiveLocation()
 {
-	RoboCompTrajectoryRobot2D::TargetPose tp;
-	tp.x = x;
-	tp.z = z;
-	tp.y = 0;
-	tp.rx = 0;
-	tp.ry = 0;
-	tp.rz = 0;
-	if (rot)
+	// If the polygons are not set yet, there's nothing to do...
+	if (roomsPolygons.size()==0)
+		return;
+
+	// Get current location according to the model, if the location is not set yet, there's nothing to do either
+	const int32_t currentLocation = getIdentifierOfRobotsLocation(worldModel);
+	if (currentLocation == -1) return;
+
+	// Compute the robot's location according to the odometry and the set of polygons
+	// If we can't find the room where the robot is, we assume it didn't change, so there's nothing else to do
+	int32_t newLocation = -1;
+	for (auto &kv : roomsPolygons)
 	{
-		tp.ry = alpha;
-		tp.doRotation = true;
+		if (kv.second.containsPoint(QPointF(bState.x,  bState.z), Qt::OddEvenFill))
+		{
+			newLocation = kv.first;
+			break;
+		}
 	}
-	else
+	if (newLocation == -1) return;
+
+	// If everyting is ok AND the robot changed its location, update the new location in the model and
+	// propose the change to the executive
+	if (newLocation != currentLocation and newLocation != -1)
 	{
-		tp.doRotation = false;
-	}
-	try
-	{
-		trajectoryrobot2d_proxy->goReferenced(tp, 80, 350, threshold);
-	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
-	}
-	catch(...)
-	{
-		printf("something else %d\n", __LINE__);
+		AGMModel::SPtr newModel(new AGMModel(worldModel));
+		setIdentifierOfRobotsLocation(newModel, newLocation);
+// 		AGMModelPrinter::printWorld(newModel);
+		rDebug2(("navigationAgent moved from room %d to room %d") % currentLocation % newLocation );
+		sendModificationProposal(worldModel, newModel);
 	}
 }
 
 
-void SpecificWorker::stop()
+std::map<int32_t, QPolygonF> SpecificWorker::extractPolygonsFromModel(AGMModel::SPtr &worldModel)
 {
-	try
+	std::map<int32_t, QPolygonF> ret;
+
+	for (AGMModel::iterator symbol_itRR=worldModel->begin(); symbol_itRR!=worldModel->end(); symbol_itRR++)
 	{
+		const AGMModelSymbol::SPtr &symbolRR = *symbol_itRR;
+		if (symbolRR->symbolType == "robot")
+		{
+			for (AGMModelSymbol::iterator edge_itRR=symbolRR->edgesBegin(worldModel); edge_itRR!=symbolRR->edgesEnd(worldModel); edge_itRR++)
+			{
+				AGMModelEdge edgeRR = *edge_itRR;
+				if (edgeRR.linking == "know")
+				{
+					const AGMModelSymbol::SPtr &symbol = worldModel->getSymbol(edgeRR.symbolPair.first);
+					if (symbol->symbolType == "object")
+					{
+						printf("object: %d\n", symbol->identifier);
+						for (AGMModelSymbol::iterator edge_it=symbol->edgesBegin(worldModel); edge_it!=symbol->edgesEnd(worldModel); edge_it++)
+						{
+							AGMModelEdge edge = *edge_it;
+							if (edge.linking == "room")
+							{
+								const QString polygonString = QString::fromStdString(symbol->getAttribute("polygon"));
+								const QStringList coords = polygonString.split(";");
+								printf("  it is a room\n");
+								qDebug() << " " << coords.size() << " ___ " << polygonString ;
+								if (coords.size() < 3)
+								{
+									qDebug() << coords.size() << " ___ " << polygonString ;
+									qDebug() << polygonString;
+									for (int32_t i=0; i<coords.size(); i++)
+										qDebug() << coords[i];
+									qFatal("ABORT %s %d", __FILE__, __LINE__);
+								}
+
+								QVector<QPointF> points;
+								for (int32_t ci=0; ci<coords.size(); ci++)
+								{
+									const QString &pointStr = coords[ci];
+									if (pointStr.size() < 5) qFatal("%s %d", __FILE__, __LINE__);
+									const QStringList coords2 = pointStr.split(",");
+									if (coords2.size() < 2) qFatal("%s %d", __FILE__, __LINE__);
+									QString a = coords2[0];
+									QString b = coords2[1];
+									a.remove(0,1);
+									b.remove(b.size()-1,1);
+									float x = a.toFloat();
+									float z = b.toFloat();
+									points.push_back(QPointF(x, z));
+								}
+								if (points.size() < 3) qFatal("%s %d", __FILE__, __LINE__);
+								ret[symbol->identifier] = QPolygonF(points);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return ret;
+}*/
+
+
+
+/*
+
+void SpecificWorker::action_GraspObject(bool newAction)
+{
+	std::string state = trajectoryrobot2d_proxy->getState().state;
+	printf("action_GraspObject: %s\n", state.c_str());
+	if (state != "IDLE")
 		trajectoryrobot2d_proxy->stop();
-	}
-	catch(const Ice::Exception &ex)
-	{
-		std::cout << ex << std::endl;
-	}
-	catch(...)
-	{
-		printf("something else %d\n", __LINE__);
-	}
 }
 
-
-
-
+*/
