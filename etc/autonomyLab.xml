@@ -2,7 +2,7 @@
 	<transform id="world">
 		
 		<!-- FLOOR -->
-		<transform id="floor" tx="2500">
+		<transform id="floor" tx="2500" ty="-10">
 			<plane id="floor_plane" ny="1" size="10000,9500,10" texture="#eebb77" />
 		</transform>
 

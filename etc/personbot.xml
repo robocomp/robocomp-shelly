@@ -1,0 +1,8 @@
+﻿<innerModel>
+	<!-- <axes id="sl3" /> -->
+	
+	<omnirobot id="personbot" port="13238" tx="3400" tz="-500" collide="0">
+		<mesh id="personbot_mesh" file="/home/robocomp/robocomp/files/osgModels/human/bodynoarms.osg" scale="12,12,12" rx="1.570796326794" collide="0"/>
+	</omnirobot>
+	
+</innerModel>
