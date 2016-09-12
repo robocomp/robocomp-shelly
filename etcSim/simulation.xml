@@ -2,6 +2,5 @@
 	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
 	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/autonomyLab.xml"/>
 	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/gualzru.xml"/>
-	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/personbot.xml"/>
 </innermodel>
 
