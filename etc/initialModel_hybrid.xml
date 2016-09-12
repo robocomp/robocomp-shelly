@@ -108,6 +108,11 @@
 	<attribute key="imName" value="world" />
 	<attribute key="imType" value="transform" />
 </symbol>
+<symbol id="52" type="pose">
+	<attribute key="imName" value="waitPose" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="53" type="poseSt"/>
 <symbol id="101" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="laserPose" />
@@ -192,7 +197,7 @@
 </symbol>
 <symbol id="109" type="plane">
 	<attribute key="collidable" value="true" />
-	<attribute key="depth" value="700" />
+	<attribute key="depth" value="540" />
 	<attribute key="height" value="275" />
 	<attribute key="imName" value="base_mesh" />
 	<attribute key="imType" value="plane" />
@@ -694,7 +699,7 @@
 	<attribute key="collidable" value="false" />
 	<attribute key="depth" value="10" />
 	<attribute key="height" value="9500" />
-	<attribute key="imName" value="back" />
+	<attribute key="imName" value="floor_plane" />
 	<attribute key="imType" value="plane" />
 	<attribute key="nx" value="0" />
 	<attribute key="ny" value="1" />
@@ -1638,7 +1643,7 @@
 <link src="20" dst="22" label="reachPosition"/>
 <link src="20" dst="22" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="ry" value="" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="100" />
 	<linkAttribute key="ty" value="0" />
@@ -1821,6 +1826,15 @@
 <link src="3" dst="5" label="transitable"/>
 <link src="5" dst="3" label="transitable"/>
 <link src="1" dst="2" label="hasStatus"/>
+<link src="5" dst="52" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="0" />
+</link>
+<link src="52" dst="53" label="noReach"/>
 <link src="1" dst="101" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
@@ -2338,7 +2352,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="2500" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="-10" />
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="165" dst="166" label="RT">

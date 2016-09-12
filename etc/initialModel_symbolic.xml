@@ -411,5 +411,34 @@
 	</link>
 	<link src="1" dst="2" label="hasStatus" />
 
+
+	
+	
+	
+	
+	
+	
+	<link src="52" dst="5" label="in" >
+	
+	<symbol id="52" type="pose">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="waitPose" />
+	</symbol>
+	<symbol id="53" type="poseSt">
+	</symbol>
+	<link src="5" dst="52" label="RT" >
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>
+	<link src="52" dst="53" label="noReach" />
+
+	
+	
+	
+	
 </AGMModel>
 
