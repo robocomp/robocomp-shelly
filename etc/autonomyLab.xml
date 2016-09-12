@@ -5,6 +5,12 @@
 		<transform id="floor" tx="2500" ty="-10">
 			<plane id="floor_plane" ny="1" size="10000,9500,10" texture="#eebb77" />
 		</transform>
+		
+		
+		<!-- WAIT POSE -->
+<!-- 		<transform id="waitPose" tx="3500" tz="-500"> -->
+<!-- 			<plane id="waitPose_plane" ny="1" size="100,100,100" texture="#222222" /> -->
+<!-- 		</transform> -->
 
 		<!-- ROOM A -->
 		<transform id="pared0" tx="-91.899048" tz="2066.808899" ty="950" >
