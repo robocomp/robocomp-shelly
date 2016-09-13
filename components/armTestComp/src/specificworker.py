@@ -52,6 +52,7 @@ class SpecificWorker(GenericWorker):
 		for name in posDict.keys():
 			print name
 			self.ui.position_cb.addItem(name)
+		self.ui.position_cb.setCurrentIndex(3)
 
 		self.ui.go_pb.clicked.connect( self.set_position_list );
 		self.ui.setPosition_pb.clicked.connect( self.set_position );
@@ -109,7 +110,7 @@ class SpecificWorker(GenericWorker):
 				pos = RoboCompJointMotor.MotorGoalPosition()
 				pos.name = item[0]
 				pos.position = item[1]
-				pos.maxSpeed = 0.4
+				pos.maxSpeed = 1.5
 				posList.append(pos)
 			self.setSyncPosition(posList)
 		else: 
@@ -137,7 +138,10 @@ class SpecificWorker(GenericWorker):
 		weights.ry = 1
 		weights.rz = 1
 		try:
+			t = QtCore.QTime()
+			t = t.currentTime()
 			self.lastID = self.inversekinematics_proxy.setTargetPose6D(bodyPart, target, weights)
+			print 'ELAPSED', t.elapsed()
 		except:
 			print sys.exc_info()[0]
 

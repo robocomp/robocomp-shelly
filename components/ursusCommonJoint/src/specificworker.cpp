@@ -139,7 +139,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		std::pair<QString, QString> ret;
 		goal.position = init.second;
 		goal.name = init.first;
-		goal.maxSpeed = 0.5;
+		goal.maxSpeed = 1.0;
 		try { prxMap.at(init.first)->setPosition(goal); }
 		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 	}
@@ -194,8 +194,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */ 
 void SpecificWorker::compute( )
 {
-	usleep(50000);
-	static clock_t movement_time;
+	static QTime movement_time = QTime::currentTime();
 	// Actualizamos el innerModel y la ventana del viewer
 // 	printf("%s %d\n", __FILE__, __LINE__);
 	QMutexLocker locker(mutex);
@@ -263,7 +262,7 @@ void SpecificWorker::compute( )
 				{
 					sendPos2Motors(next.second);
 					state = WaitingToAchive;
-					movement_time = clock(); 
+					movement_time = QTime::currentTime(); 
 					//waitForMotorsToStop();
 				}else
 				{
@@ -280,11 +279,9 @@ void SpecificWorker::compute( )
 			break;
 		case WaitingToAchive:
 //			qDebug()<<"waitingToAchieve";
-//			qDebug()<<"time "<< (float((clock() - movement_timem)/CLOCKS_PER_SEC));
 			// check how much time has elapsed
-			if (float((clock() - movement_time )/CLOCKS_PER_SEC) >= MOVEMENT_TIME)
+			if (movement_time.elapsed() >= MOVEMENT_TIME)
 			{
-				//stopMotors();
 				transitionSteps.clear();
 				state = Idle;
 				qDebug() << "Too much time to achive position, movement cancelled";
@@ -295,7 +292,7 @@ void SpecificWorker::compute( )
 			{
 				//qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving"<<motor.second.isMoving;
 // 				if (motor.second.isMoving)
-				if (fabs(motor.second.vel)>0.3)
+				if (fabs(motor.second.vel)>0.9)
 				{
 //					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
 					return;
@@ -927,8 +924,8 @@ RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(Q
 			RoboCompJointMotor::MotorGoalPosition goal;
 			goal.name = motor.first.toStdString();
 			goal.position = motor.second;
-			goal.maxSpeed = 0.4;
-			goalList.push_back(goal);	
+			goal.maxSpeed = 2.;
+			goalList.push_back(goal);
 //			qDebug()<<"motor found"<<motor.first <<goal.position;
 		}
 	}

@@ -29,9 +29,9 @@
 #endif
 
 
-#define MAX_MOVE 0.3
+#define MAX_MOVE 0.35
 #define POS_OFFSET 0.1
-#define MOVEMENT_TIME 3000 
+#define MOVEMENT_TIME 800 
 enum CommonJointState { Idle, GoPos, WaitingToAchive };
 
 /**

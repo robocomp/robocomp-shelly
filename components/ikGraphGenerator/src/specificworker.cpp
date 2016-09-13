@@ -18,7 +18,7 @@
  */
 #include "specificworker.h"
 
-#define MAX_SPEED 0.5
+#define MAX_SPEED 1.5
 // #define MAX_SPEED 0.7
 
 #define STEP_DISTANCE 50
@@ -356,7 +356,9 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 	last = mpl;
 	try
 	{
+		QTime t = QTime::currentTime();
 		jointmotor_proxy->setSyncPosition(mpl);
+		printf("elapsed: %d\n", t.elapsed());
 	}
 	catch (const RoboCompJointMotor::CollisionException &ex)
 	{
@@ -385,8 +387,7 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 #endif
 		}
 	}
-	usleep(2000);
-	//sleep(1);
+	usleep(200);
 }
 
 
@@ -709,8 +710,6 @@ void SpecificWorker::compute()
 	if (not READY) return;
 
 	
-	static int tick = 0;
-	if (tick++ % 3 != 0) return;
 
 #ifdef USE_QTGUI
 	ui_state->setText(QString::number(state));
@@ -731,8 +730,12 @@ void SpecificWorker::compute()
 	switch(state)
 	{
 	case GIK_NoTarget:
-		printf(".");
-		fflush(stdout);
+		static int tick = 0;
+		if (tick++ % 3 == 0)
+		{
+			printf(".");
+			fflush(stdout);
+		}
 		break;
 	case GIK_GoToInit:
 		printf("GIK_GoToInit\n");
@@ -756,18 +759,22 @@ void SpecificWorker::compute()
 	case GIK_NoTarget:
 		return;
 	//--------------------------------------------------------------------------------------------------//
+	static QTime t;
 	case GIK_GoToInit :
-// 		printf("GIK_GoToInit\n");
+		t = QTime::currentTime();
+		printf("GIK_GoToInit\n");
 		goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 		pathIndex = 0;
 		if (path.size() > 1) pathIndex = 1;
 		printf("STATE: %d\n", state);
 		state = GIK_GoToEnd;
 		printf("STATE CHANGED TO: %d\n", state);
+		printf("elapsed1: %d\n", t.elapsed());
 		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToEnd:
-// 		printf("GIK_GoToEnd\n");
+		printf("GIK_GoToEnd\n");
+		printf("elapsed1: %d\n", t.elapsed());
 
 		goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
 		printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
@@ -782,10 +789,12 @@ void SpecificWorker::compute()
 			qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";
 			usleep(2000);
 		}
+		printf("elapsed2: %d\n", t.elapsed());
 		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSend:
-// 		printf("GIK_GoToActualTargetSend\n");
+		printf("GIK_GoToActualTargetSend\n");
+		printf("elapsed1: %d\n", t.elapsed());
 
 		qDebug()<<"SEND---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
 		try {
@@ -795,6 +804,8 @@ void SpecificWorker::compute()
 			printf("STATE CHANGED TO: %d\n", state);
 		}
 		catch (Ice::Exception e){ qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();}
+		printf("elapsed2: %d\n", t.elapsed());
+
 		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSent:
@@ -966,23 +977,26 @@ bool SpecificWorker::delete_collision_points()
 							if (innerModel->collide(a, "my_mesh")==false)
 							{
 								graph->vertices[i].state=ConnectivityGraph::VertexState::LOCKED_NODE;
-								
+#ifdef USE_QTGUI
 								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
 													QVec::vec3(graph->vertices[i].pose[0], 
 														graph->vertices[i].pose[1], 
 														graph->vertices[i].pose[2]),
 													QVec::vec3(1,0,0), "#cc2222", QVec::vec3(2,2,2));
+#endif
 								break;
 							}// fin del if
 							else
 							{
 								graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
 								free_nodes++;
+#ifdef USE_QTGUI
 								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
 													QVec::vec3(graph->vertices[i].pose[0], 
 														graph->vertices[i].pose[1], 
 														graph->vertices[i].pose[2]),
 													QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+#endif
 							}
 						}//fin del for
 					}
@@ -990,11 +1004,13 @@ bool SpecificWorker::delete_collision_points()
 					{
 						graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
 						free_nodes++;
+#ifdef USE_QTGUI
 						InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
 											QVec::vec3(graph->vertices[i].pose[0], 
 												graph->vertices[i].pose[1], 
 												graph->vertices[i].pose[2]),
 											QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+#endif
 					}
 				}
 			}
@@ -1361,13 +1377,13 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	TargetState s;
 	s.finish = false;
 	
-	qDebug()<<"PEDIDO TARGET "<<targetID;
+// 	qDebug()<<"PEDIDO TARGET "<<targetID;
 	QMutexLocker mm(mutexSolved);
 	for(int i=0; i<solvedList.size(); i++)
 	{
 		if (targetID == solvedList[i].id_IKG)
 		{
-			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
+// 			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
 			return solvedList[i].state;
 		}
 	}
@@ -1436,7 +1452,7 @@ void SpecificWorker::waitForMotorsToStop()
 	bool moveFinished = false;
 	QTime waitTime = QTime::currentTime();
 
-	while (waitTime.elapsed() < 1500)
+	while (waitTime.elapsed() < 1200)
 	{
 		try
 		{
@@ -1449,7 +1465,7 @@ void SpecificWorker::waitForMotorsToStop()
 		bool someMotorMoving = false;
 		for (auto v : allMotorsCurr)
 		{
-			if (fabs(v.second.vel)>0.3)
+			if (fabs(v.second.vel)>0.8)
 			{
 				someMotorMoving = true;
 				usleep(50000);
