@@ -615,6 +615,10 @@ void SpecificWorker::actionExecution()
  			action_GraspObject(newAction);
 		}
 	}
+	else if (action == "setrestposition")
+	{
+		action_SetRestPosition();
+	}
 
 	if (newAction)
 	{
@@ -885,6 +889,64 @@ void SpecificWorker::action_GraspObject(bool first)
 			}
 			state = 9999;
 			stateTime = QTime::currentTime();
+			break;
+		////////////////////////////////////////////////////////////////////////////////////////////
+		default:
+			break;
+	}
+
+	usleep(200000);
+}
+
+void SpecificWorker::action_SetRestPosition(bool first)
+{
+	static int32_t state = 0;
+	static QTime time;
+
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	TargetState ikState;
+	static int lastTargetId = 0;
+
+	static QTime ttt = QTime::currentTime();
+	printf("elapsed: %f\n", (float)ttt.elapsed());
+
+	if (first) state = 0;
+	printf("action_SetObjectReach: first:%d  state=%d\n", (int)first, state);
+
+
+	bool someMotorMoving = isSomeMotorMoving();
+
+	switch (state)
+	{
+		//
+		// SetRestPosition
+		//
+		case 0:
+			RoboCompJointMotor::MotorGoalPosition goal;
+			goal.maxSpeed = 0.7;
+			goal.name = "armY";
+			goal.position = 0;
+			jointmotor_proxy->setPosition(goal);
+			goal.name = "armX1";
+			goal.position = -1.0;
+			jointmotor_proxy->setPosition(goal);
+			goal.name = "armX2";
+			goal.position = 2.5;
+			jointmotor_proxy->setPosition(goal);
+			goal.name = "wristX";
+			goal.position = 0;
+			jointmotor_proxy->setPosition(goal);
+			state = 1;
+			break;
+		//
+		// Wait for movement to finish
+		//
+		case 1:
+			sleep(2);
+			newModel->addEdge(symbols["robot"], symbols["status"], "rest");
+			sendModificationProposal(newModel, worldModel);
 			break;
 		////////////////////////////////////////////////////////////////////////////////////////////
 		default:
