@@ -25,7 +25,7 @@
   <color value="#FF3333" />
  </node>
 
- <node alias="trajectory2d" endpoint="commonbehavior:tcp -p 15299">
+ <node alias="trajectory2d" endpoint="trajectoryrobot2d:tcp -p 19204">
   <dependence alias="base" />
   <dependence alias="laser" />
   <dependence alias="slam" />

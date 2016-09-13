@@ -1,8 +1,6 @@
 <innermodel>
-<!-- 	<transform id="robotp" tx="2080" tz="3200" ry="-1.5707" > -->
-		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
-<!-- 	</transform> -->
-
-	<include path="/home/robocomp/robocomp/components/prp/experimentFiles/simulation/autonomyLabModel-kitchen.xml"/>
+	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
+	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/autonomyLab.xml"/>
+	<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/gualzru.xml"/>
 </innermodel>
 

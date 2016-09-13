@@ -7,11 +7,11 @@
 		<attribute key="depth" value="700" />
 	</symbol>
 	<link src="3" dst="20" label="RT" >
-		<linkAttribute key="tx" value="1400" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="3180" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="21" type="objectSt">
@@ -48,11 +48,11 @@
 	</symbol>
 	<link src="20" dst="22" label="reachPosition" />
 	<link src="20" dst="22" label="RT" >
-		<linkAttribute key="tx" value="300" />
+		<linkAttribute key="tx" value="100" />
 		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="tz" value="-1300" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="" />
 		<linkAttribute key="rz" value="0" />
 	</link>  
 
@@ -66,9 +66,9 @@
 		<attribute key="tag" value="30" />
 	</symbol>
 	<link src="3" dst="23" label="RT" >
-		<linkAttribute key="tx" value="3200" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="3500" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
@@ -81,11 +81,11 @@
 	</symbol>
 	<link src="23" dst="25" label="reachPosition" />
 	<link src="23" dst="25" label="RT" >
-		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="tz" value="-800" />
 		<linkAttribute key="tx" value="100" />
 		<linkAttribute key="ty" value="0" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.57070" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 
@@ -97,11 +97,11 @@
 		<attribute key="depth" value="700" />
 	</symbol>
 	<link src="3" dst="26" label="RT" >
-		<linkAttribute key="tx" value="5150" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="3180" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="27" type="objectSt">
@@ -112,11 +112,11 @@
 	</symbol>
 	<link src="26" dst="28" label="reachPosition" />
 	<link src="26" dst="28" label="RT" >
-		<linkAttribute key="tz" value="-200" />
-		<linkAttribute key="tx" value="-400" />
+		<linkAttribute key="tz" value="-1300" />
+		<linkAttribute key="tx" value="0" />
 		<linkAttribute key="ty" value="0" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>   
 
@@ -126,9 +126,9 @@
 		<attribute key="imName" value="countertopA" />
 	</symbol>
 	<link src="5" dst="29" label="RT" >
-		<linkAttribute key="tx" value="300" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="-2800" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
@@ -155,9 +155,9 @@
 		<attribute key="imName" value="countertopB" />
 	</symbol>
 	<link src="5" dst="32" label="RT" >
-		<linkAttribute key="tx" value="1300" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="-3700" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
@@ -187,9 +187,9 @@
 		<attribute key="depth" value="700" />		
 	</symbol>
 	<link src="5" dst="35" label="RT" >
-		<linkAttribute key="tx" value="3470" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="-1940" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
@@ -219,11 +219,11 @@
 		<attribute key="depth" value="700" />		
 	</symbol>
 	<link src="5" dst="38" label="RT" >
-		<linkAttribute key="tx" value="6500" />
-		<linkAttribute key="ty" value="800" />
-		<linkAttribute key="tz" value="-2900" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<symbol id="39" type="objectSt">
@@ -411,5 +411,34 @@
 	</link>
 	<link src="1" dst="2" label="hasStatus" />
 
+
+	
+	
+	
+	
+	
+	
+	<link src="52" dst="5" label="in" >
+	
+	<symbol id="52" type="pose">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="waitPose" />
+	</symbol>
+	<symbol id="53" type="poseSt">
+	</symbol>
+	<link src="5" dst="52" label="RT" >
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>
+	<link src="52" dst="53" label="noReach" />
+
+	
+	
+	
+	
 </AGMModel>
 

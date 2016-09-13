@@ -41,6 +41,28 @@ enum CommonJointState { Idle, GoPos, WaitingToAchive };
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
+private:
+	// Attributes
+	RoboCompJointMotor::MotorParamsList motorParamList;
+	RoboCompJointMotor::MotorStateMap motorStateMap;
+	std::map<std::string,RoboCompJointMotor::MotorParams> motorParamMap;
+	std::map<std::string,RoboCompJointMotor::JointMotorPrx> prxMap; 
+
+	CommonJointState state;
+
+	InnerModel *innerModel;
+	// collision related
+	std::vector< std::pair<QString, QString> > pairs; //parejas de meshes que no pueden chocar entre si.
+	std::map< std::pair<QString, QString>, std::vector<QString> > knownTransitions;
+	std::map<QString, std::map<QString, float> > knownPositions;	
+	std::map<QString, std::pair<QVec, QVec> >collisionBoxMap;
+	std::list<std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>> transitionSteps;
+	std::list<RoboCompJointMotor::MotorGoalPositionList> calculateCollisionList;
+	
+#ifdef USE_QTGUI
+	OsgView *osgView;
+	InnerModelViewer *imv;
+#endif
 public:
 	SpecificWorker(MapPrx &mprx);
 	~SpecificWorker();
@@ -63,30 +85,14 @@ public:
 public slots:
 	void compute();
 	
-private:
-	// Attributes
-	RoboCompJointMotor::MotorParamsList motorParamList;
-	RoboCompJointMotor::MotorStateMap motorStateMap;
-	std::map<std::string,RoboCompJointMotor::MotorParams> motorParamMap;
-	std::vector< std::pair<QString, QString> > pairs; //parejas de meshes que no pueden chocar entre si.
-	std::map< std::pair<QString, QString>, std::vector<QString> > knownTransitions;
-	std::map<QString, std::map<QString, float> > knownPositions;
-	std::map<std::string,RoboCompJointMotor::JointMotorPrx> prxMap; 
-	std::map<QString, std::pair<QVec, QVec> >collisionBoxMap;
-	//QStringList transitionSteps;
-	std::list<std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>> transitionSteps;
-	
-	CommonJointState state;
-	
-	InnerModel *innerModel;
-#ifdef USE_QTGUI
-	OsgView *osgView;
-	InnerModelViewer *imv;
-#endif
-
-
+private: 
 	void init();
+	void stopMotors();
+	
+	// collision related
 	bool checkFuturePosition(MotorGoalPositionList goals, std::pair<QString, QString> &ret);
+	bool isSimilarPosition(const RoboCompJointMotor::MotorGoalPositionList &p1,const RoboCompJointMotor::MotorGoalPositionList &p2);
+	bool precalculateCollision(const RoboCompJointMotor::MotorGoalPositionList &goalList);
 	bool checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret);
 	void recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in);
 	bool checkMovementNeeded(const MotorGoalPositionList &goals);
@@ -94,10 +100,6 @@ private:
 	QString isKnownPosition(RoboCompJointMotor::MotorStateMap mstate);
 	void sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals);
 	RoboCompJointMotor::MotorGoalPositionList convertKnownPos2Goal(QString pos_name);
-	void stopMotors();
-	
-	
-	
 
 };
 

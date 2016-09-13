@@ -25,6 +25,8 @@
 
 #include <boost/format.hpp>
 
+#define THRESHOLD 40
+
 /**
        \brief
        @author authorname
@@ -37,6 +39,10 @@ public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
+	
+	//////////////
+	/// SERVANTS
+	//////////////
 	bool activateAgent(const ParameterMap& prs);
 	bool deactivateAgent();
 	StateStruct getAgentState();
@@ -45,6 +51,7 @@ public:
 	void  killAgent();
 	Ice::Int uptimeAgent();
 	bool reloadConfigAgent();
+	
 	void  structuralChange(const RoboCompAGMWorldModel::World & modification);
 	void  symbolUpdated(const RoboCompAGMWorldModel::Node& modification);
 	void  symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence & modification);
@@ -54,25 +61,23 @@ public:
 
 public slots:
  	void compute();
+	void readTrajState();
 
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	bool active;
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
-
-
-
-
 	void includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot);
 
+	
 
+	
 	void go(float x, float z, float alpha=0, bool rot=false, float threshold=200, float xRef=0, float zRef=0);
 	void stop();
-	void updateRobotsCognitiveLocation();
+
 	void actionExecution();
 	int32_t getIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel);
 	void setIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel, int32_t identifier);
-
 
 private:
 	std::string action;
@@ -80,19 +85,22 @@ private:
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 	bool haveTarget;
+	QTimer trajReader;
 	
-	RoboCompTrajectoryRobot2D::TargetPose currentTarget;
-	
+		
 
-	RoboCompOmniRobot::TBaseState bState;
 	RoboCompTrajectoryRobot2D::NavState planningState;
 
 
-	std::map<int32_t, QPolygonF> roomsPolygons;
-	std::map<int32_t, QPolygonF> extractPolygonsFromModel(AGMModel::SPtr &worldModel);
-
+	// Target info
+	RoboCompTrajectoryRobot2D::TargetPose currentTarget;
+	QVec graspRef;
+	int objectID, statusID;
+	
+	bool updateModel(int objectID, int statusID);
 
 private:
+	void action_WaitingToAchieve();
 	void action_ChangeRoom(bool newAction = true);
 	void action_FindObjectVisuallyInTable(bool newAction = true);
 	void action_SetObjectReach(bool newAction = true);
@@ -101,9 +109,12 @@ private:
 	void action_HandObject(bool newAction = true);
 	void action_NoAction(bool newAction = true);
 
-
-	bool odometryAndLocationIssues(bool force=false);
-
+//CHECK
+	//void updateRobotsCognitiveLocation();
+//	std::map<int32_t, QPolygonF> roomsPolygons;
+//	std::map<int32_t, QPolygonF> extractPolygonsFromModel(AGMModel::SPtr &worldModel);	
+//	RoboCompOmniRobot::TBaseState bState;
+	
 };
 
 #endif
