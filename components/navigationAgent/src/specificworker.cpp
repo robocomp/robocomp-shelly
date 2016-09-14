@@ -657,7 +657,7 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 
 void SpecificWorker::action_Stop(bool newAction)
 {
-	stop()
+	stop();
 }
 
 void SpecificWorker::action_ReachPose(bool newAction)
@@ -672,7 +672,7 @@ void SpecificWorker::action_ReachPose(bool newAction)
 	std::string imName = symbols["pose"]->getAttribute("imName");
 	printf("imName: <%s>\n", imName.c_str());
 
-	QVec pose = innerModel->transformS("world", imName);
+	QVec pose = innerModel->transform("world", QString::fromStdString(imName));
 	pose.print("goal pose");
 	const float x = pose(0);
 	const float z = pose(2);

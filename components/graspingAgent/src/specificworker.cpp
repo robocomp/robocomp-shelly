@@ -119,9 +119,6 @@ void SpecificWorker::compute( )
 	}
 	
 
-
-
-	
 	QTime cc;
 
 	cc = QTime::currentTime();
@@ -212,17 +209,17 @@ void SpecificWorker::manageReachedObjects()
 			}
 			
 			
-			printf("%d distance %f\n", node->identifier, d2n);
-// 			innerModel->transformS("robot", "armY").print("armY in r");
-// 			innerModel->transformS("robot", "armX1").print("armX1 in r");
-// 			innerModel->transformS("robot", "armX2").print("armX2 in r");
-// 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
-//                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
-//                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
-			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
-			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
+// 			printf("%d distance %f\n", node->identifier, d2n);
+// // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
+// // // // // // 			innerModel->transformS("robot", "armX1").print("armX1 in r");
+// // // // // // 			innerModel->transformS("robot", "armX2").print("armX2 in r");
+// // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
+// // // // // //                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
+// // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
+// 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
+// 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
 			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
-			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
+// 			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -584,9 +581,9 @@ void SpecificWorker::actionExecution()
 	static QTime actionTime = QTime::currentTime();
 	bool newAction = (previousAction != action);
 
-// 	qDebug()<<"---------------------------------";
-// 	cout<<action<<endl;
-// 	qDebug()<<"---------------------------------";
+	qDebug()<<"---------------------------------";
+	cout<<action<<endl;
+	qDebug()<<"---------------------------------";
 
 	if (newAction)
 	{
@@ -615,9 +612,9 @@ void SpecificWorker::actionExecution()
  			action_GraspObject(newAction);
 		}
 	}
-	else if (action == "setrestposition")
+	else if (action == "setrestarmposition")
 	{
-		action_SetRestPosition();
+		action_SetRestArmPosition();
 	}
 
 	if (newAction)
@@ -748,7 +745,7 @@ void SpecificWorker::action_GraspObject(bool first)
 
 	
 	
-	const float steps_to_grasp = 1;
+// 	const float steps_to_grasp = 1;
 	const float yInit = 40;
 	const float yGoal = -40;
 	const float zInit = -180;
@@ -898,7 +895,7 @@ void SpecificWorker::action_GraspObject(bool first)
 	usleep(200000);
 }
 
-void SpecificWorker::action_SetRestPosition(bool first)
+void SpecificWorker::action_SetRestArmPosition(bool first)
 {
 	static int32_t state = 0;
 	static QTime time;
@@ -907,7 +904,6 @@ void SpecificWorker::action_SetRestPosition(bool first)
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
 	TargetState ikState;
-	static int lastTargetId = 0;
 
 	static QTime ttt = QTime::currentTime();
 	printf("elapsed: %f\n", (float)ttt.elapsed());
@@ -915,42 +911,48 @@ void SpecificWorker::action_SetRestPosition(bool first)
 	if (first) state = 0;
 	printf("action_SetObjectReach: first:%d  state=%d\n", (int)first, state);
 
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "robot", "status");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
 
-	bool someMotorMoving = isSomeMotorMoving();
-
+	RoboCompJointMotor::MotorGoalPosition goal;
 	switch (state)
 	{
-		//
-		// SetRestPosition
-		//
-		case 0:
-			RoboCompJointMotor::MotorGoalPosition goal;
-			goal.maxSpeed = 0.7;
-			goal.name = "armY";
-			goal.position = 0;
-			jointmotor_proxy->setPosition(goal);
-			goal.name = "armX1";
-			goal.position = -1.0;
-			jointmotor_proxy->setPosition(goal);
-			goal.name = "armX2";
-			goal.position = 2.5;
-			jointmotor_proxy->setPosition(goal);
-			goal.name = "wristX";
-			goal.position = 0;
-			jointmotor_proxy->setPosition(goal);
-			state = 1;
-			break;
-		//
-		// Wait for movement to finish
-		//
-		case 1:
-			sleep(2);
-			newModel->addEdge(symbols["robot"], symbols["status"], "rest");
-			sendModificationProposal(newModel, worldModel);
-			break;
-		////////////////////////////////////////////////////////////////////////////////////////////
-		default:
-			break;
+	case 0: // SetRestPosition
+		goal.maxSpeed = 0.7;
+		goal.name = "armY";
+		goal.position = 0;
+		jointmotor_proxy->setPosition(goal);
+		goal.name = "armX1";
+		goal.position = -1.0;
+		jointmotor_proxy->setPosition(goal);
+		goal.name = "armX2";
+		goal.position = 2.5;
+		jointmotor_proxy->setPosition(goal);
+		goal.name = "wristX";
+		goal.position = 0;
+		jointmotor_proxy->setPosition(goal);
+		state = 1;
+		break;
+	case 1: // Wait for movement to finish
+printf("%s: %d\n", __FUNCTION__, __LINE__);
+		sleep(2);
+printf("%s: %d\n", __FUNCTION__, __LINE__);
+		newModel->addEdge(symbols["robot"], symbols["status"], "rest");
+printf("%s: %d\n", __FUNCTION__, __LINE__);
+		sendModificationProposal(newModel, worldModel);
+printf("%s: %d\n", __FUNCTION__, __LINE__);
+		state = 0;
+		break;
+	////////////////////////////////////////////////////////////////////////////////////////////
+	default:
+		qFatal("internal error: non-controlled case");
+		break;
 	}
 
 	usleep(200000);
