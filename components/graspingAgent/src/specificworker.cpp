@@ -897,19 +897,16 @@ void SpecificWorker::action_GraspObject(bool first)
 
 void SpecificWorker::action_SetRestArmPosition(bool first)
 {
-	static int32_t state = 0;
 	static QTime time;
 
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
-	TargetState ikState;
 
 	static QTime ttt = QTime::currentTime();
 	printf("elapsed: %f\n", (float)ttt.elapsed());
 
-	if (first) state = 0;
-	printf("action_SetObjectReach: first:%d  state=%d\n", (int)first, state);
+	printf("action_SetObjectReach: first:%d\n", (int)first);
 
 	try
 	{
@@ -921,39 +918,19 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 	}
 
 	RoboCompJointMotor::MotorGoalPosition goal;
-	switch (state)
-	{
-	case 0: // SetRestPosition
-		goal.maxSpeed = 0.7;
-		goal.name = "armY";
-		goal.position = 0;
-		jointmotor_proxy->setPosition(goal);
-		goal.name = "armX1";
-		goal.position = -1.0;
-		jointmotor_proxy->setPosition(goal);
-		goal.name = "armX2";
-		goal.position = 2.5;
-		jointmotor_proxy->setPosition(goal);
-		goal.name = "wristX";
-		goal.position = 0;
-		jointmotor_proxy->setPosition(goal);
-		state = 1;
-		break;
-	case 1: // Wait for movement to finish
-printf("%s: %d\n", __FUNCTION__, __LINE__);
-		sleep(2);
-printf("%s: %d\n", __FUNCTION__, __LINE__);
-		newModel->addEdge(symbols["robot"], symbols["status"], "rest");
-printf("%s: %d\n", __FUNCTION__, __LINE__);
-		sendModificationProposal(newModel, worldModel);
-printf("%s: %d\n", __FUNCTION__, __LINE__);
-		state = 0;
-		break;
-	////////////////////////////////////////////////////////////////////////////////////////////
-	default:
-		qFatal("internal error: non-controlled case");
-		break;
-	}
+	goal.maxSpeed = 0.7;
+	goal.name = "armY";
+	goal.position = 0;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "armX1";
+	goal.position = -1.0;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "armX2";
+	goal.position = 2.5;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "wristX";
+	goal.position = 0;
+	jointmotor_proxy->setPosition(goal);
 
 	usleep(200000);
 }
