@@ -162,6 +162,14 @@ void SpecificWorker::actionExecution()
 	{
 		action_WaitingToAchieve();
 	}
+	else if (action == "setstop")
+	{
+		action_Stop();
+	}
+	else if (action == "reachpose")
+	{
+		action_ReachPose();
+	}
 	else if (action == "noAction")
 	{
 		
@@ -640,6 +648,53 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 		lastX = x;
 		lastZ = z;
 		printf("changeroom to %d\n", symbols["r2"]->identifier);
+		go(x, z);
+	}
+	else
+	{
+	}
+}
+
+void SpecificWorker::action_Stop(bool newAction)
+{
+	stop()
+}
+
+void SpecificWorker::action_ReachPose(bool newAction)
+{
+	static float lastX = std::numeric_limits<float>::quiet_NaN();
+	static float lastZ = std::numeric_limits<float>::quiet_NaN();
+
+	auto symbols = worldModel->getSymbolsMap(params, "r2");
+	
+	int32_t poseId = symbols["pose"]->identifier;
+	printf("pose symbol: %d\n",  poseId);
+	std::string imName = symbols["pose"]->getAttribute("imName");
+	printf("imName: <%s>\n", imName.c_str());
+
+	QVec pose = innerModel->transformS("world", imName);
+	pose.print("goal pose");
+	const float x = pose(0);
+	const float z = pose(2);
+
+	bool proceed = true;
+	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
+	{
+		if (abs(lastX-x)<10 and abs(lastZ-z)<10)
+			proceed = false;
+		else
+			printf("proceed because the coordinates differ (%f, %f), (%f, %f)\n", x, z, lastX, lastZ);
+	}
+	else
+	{
+		printf("proceed because it's stoped\n");
+	}
+
+	if (proceed)
+	{
+		lastX = x;
+		lastZ = z;
+		printf("setpose %d\n", symbols["r2"]->identifier);
 		go(x, z);
 	}
 	else

@@ -101,6 +101,8 @@ private:
 
 private:
 	void action_WaitingToAchieve();
+	void action_Stop(bool newAction = true);
+	void action_ReachPose(bool newAction = true);
 	void action_ChangeRoom(bool newAction = true);
 	void action_FindObjectVisuallyInTable(bool newAction = true);
 	void action_SetObjectReach(bool newAction = true);
