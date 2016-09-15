@@ -30,7 +30,7 @@
   <dependence alias="laser" />
   <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost trajectory2d /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d ./bin/trajectoryrobot2dcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
+  <upCommand command="rcremote localhost trajectory2d /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d ./bin/trajectoryrobot2d --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
   <downCommand command="killall -9 trajectoryrobot2d" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/trajectoryrobot2d.conf" />
   <xpos value="-150.21909711" />
