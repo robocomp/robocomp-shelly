@@ -138,6 +138,14 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList& params )
 	aux.editable = false;
 	configGetString( "TrajectoryRobot2D","ExcludedObjectsInCollisionCheck", aux.value,"floor_plane");
 	params["ExcludedObjectsInCollisionCheck"] = aux;
+	
+	aux.editable = false;
+	configGetString( "TrajectoryRobot2D","MinimumDetectableRotation", aux.value,"0.03");
+	params["MinimumDetectableRotation"] = aux;
+	
+	aux.editable = false;
+	configGetString( "TrajectoryRobot2D","MinimumDetectableTranslation", aux.value,"10");
+	params["MinimumDetectableTranslation"] = aux;
 }
 
 
