@@ -1,0 +1,14 @@
+# Debug config file
+
+#
+# This property is used to configure the endpoints of the subscriber adapter.
+#
+TrajectoryRobot2DComp.Endpoints=tcp -p 12204
+CommonBehavior.Endpoints=tcp -p 12204
+
+# Remote servers proxies example
+#RemoteProxy = remote:tcp -h remotehost -p 10001
+
+LaserProxy = laser:tcp -h localhost -p 10003
+InnerModelManagerProxy = innermodelmanager:tcp -h localhost -p 11175
+OmniRobotProxy = omnirobot:tcp -h localhost -p 12238
