@@ -116,7 +116,6 @@ void SpecificWorker::compute( )
 			printf("The executive is probably not running, waiting for first AGM model publication...");
 		}
 	}
-	// ODOMETRY AND LOCATION-RELATED ISSUES
 	actionExecution();
 }
 
@@ -158,14 +157,6 @@ void SpecificWorker::actionExecution()
 	{
 		action_HandObject(newAction);
 	}
-	else if (action == "waitingToAchieve")
-	{
-		action_WaitingToAchieve();
-	}
-	else if (action == "noAction")
-	{
-		
-	}
 	else if (action == "stopAction")
 	{
 		action_NoAction(newAction);
@@ -177,7 +168,6 @@ void SpecificWorker::actionExecution()
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
-	usleep(10000);
 // 	printf("actionExecution>>\n");
 }
 
@@ -309,7 +299,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		{
 			try
 			{
-				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");				
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
 				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
@@ -360,8 +350,8 @@ void SpecificWorker::action_HandObject(bool newAction)
 }
 
 /**
- * \brief Move robot to object reach position
- */ 
+*  \brief Called when the robot is sent close to an object's location
+*/ 
 void SpecificWorker::action_SetObjectReach(bool newAction)
 {
 	// Get symbols' map
@@ -380,13 +370,13 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Get target
-	int roomID, robotID;
+	int roomID, objectID, robotID;
 	try
 	{
 		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
 		{
 			roomID = symbols["room"]->identifier;
-			objectID = symbols["object"]->identifier;
+			objectID =symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
 
 			try // If we can access the 'reach' edge for the object status the action
@@ -465,14 +455,6 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		currentTarget.ry = poseInRoom.ry();
 		currentTarget.rz = 0;
 		currentTarget.doRotation = true;
-		
-		QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
-		O.print("pose relativa");
-		printf("__%f__\n", O.norm2());
-		graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-		
-		
-		statusID = symbols["status"]->identifier;
 	}
 	catch (...) 
 	{ 
@@ -480,8 +462,65 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Execute target
-	go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
-	action = "waitingToAchieve";
+	try
+	{
+// 		if (!haveTarget)
+		{
+			try
+			{
+				QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
+				//O.print("	O pose relativa");
+				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+				float th=20;
+				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
+				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
+				haveTarget = true;
+			}
+			catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
+			{
+				std::cout << ex << " " << ex.text << std::endl;
+				throw;
+			}
+			catch(const Ice::Exception &ex)
+			{
+				std::cout << ex << std::endl;
+			}
+		}
+		string state;
+		try
+		{
+			state = trajectoryrobot2d_proxy->getState().state;
+		}
+		catch(const Ice::Exception &ex)
+		{
+			std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
+			throw ex;
+		}
+
+		//state="IDLE";
+		std::cout<<state<<" haveTarget "<<haveTarget;
+		if (state=="IDLE" && haveTarget)
+		{
+			//std::cout<<"\ttrajectoryrobot2d_proxy->getState() "<<trajectoryrobot2d_proxy->getState().state<<"\n";
+			try
+			{
+// 				AGMModel::SPtr newModel(new AGMModel(worldModel));
+// 				int statusID =symbols["status"]->identifier;
+// 				newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
+// 				sendModificationProposal(worldModel, newModel);
+				haveTarget=false;
+			}
+			catch (...)
+			{
+				std::cout<<"\neeeee"<< "\n";
+			}
+		}
+	}
+	catch(const Ice::Exception &ex)
+	{
+		std::cout << ex << std::endl;
+	}
 }
 
 
