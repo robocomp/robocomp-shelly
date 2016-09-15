@@ -66,7 +66,7 @@ public slots:
 private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	bool active;
-	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
+	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel,std::string m);
 	void includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot);
 
 	
@@ -94,11 +94,9 @@ private:
 
 	// Target info
 	RoboCompTrajectoryRobot2D::TargetPose currentTarget;
-	QVec graspRef;
-	int objectID, statusID;
 	
-	bool updateModel(int objectID, int statusID);
-
+	void manageReachedPose();
+	float distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr object);
 private:
 	void action_WaitingToAchieve();
 	void action_Stop(bool newAction = true);

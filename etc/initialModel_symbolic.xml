@@ -436,6 +436,7 @@
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<link src="52" dst="53" label="noReach" />
+	<link src="52" dst="53" label="hasStatus" />
 
 	
 	

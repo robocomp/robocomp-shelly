@@ -161,7 +161,6 @@ void SpecificWorker::manageReachedObjects()
 
 	int robotID = newModel->getIdentifierByType("robot");
 
-
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
@@ -170,7 +169,7 @@ void SpecificWorker::manageReachedObjects()
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
 			// Avoid working with tables
-			if (isObjectType(newModel, node, "table")) continue;
+// 			if (isObjectType(newModel, node, "table")) continue;
 
 // 			printf("OBJECT: %d\n", node->identifier);
 			//if the object is in robot continue
@@ -248,10 +247,12 @@ void SpecificWorker::manageReachedObjects()
 			{
 				qFatal("dededcef or4j ");
 			}
-			QString name = QString::fromStdString(node->toString());
+			
+
+/*			QString name = QString::fromStdString(node->toString());
 			if (node->identifier == 11)
 			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
-
+*/
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
@@ -321,9 +322,39 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 // 	}
 // 	else
 // 	{
+	
+/*	bool debug = false;
+	if (node->identifier == 20)
+	{
+		debug = true;
+	}
+	
+	if (debug) printf("init %d\n", node->identifier);*/
+	AGMModelSymbol::SPtr object = node;
+	try
+	{
+		// check if object has reachPosition
+		for (auto edge = node->edgesBegin(model); edge != node->edgesEnd(model); edge++)
+		{
+			if (edge->getLabel() == "reachPosition")
+			{
+				object = model->getSymbol(edge->getSymbolPair().second);
+//				if (debug) printf("here rp %d\n", object->identifier);
+			}
+		}
+	}
+	catch(...)
+	{
+		printf("ERROR IN GET THE INNERMODEL NAMES\n");
+		exit(2);
+	}
+	
+//	if (debug) printf("final %d\n", object->identifier);
+
+	
 		QVec arm = innerModel->transformS("world", reference_name);
 		arm(1) = 0;
-		QVec obj = innerModel->transformS("world", node->getAttribute("imName"));
+		QVec obj = innerModel->transformS("world", object->getAttribute("imName"));
 		obj(1) = 0;
 		return (arm-obj).norm2();
 // 	}
