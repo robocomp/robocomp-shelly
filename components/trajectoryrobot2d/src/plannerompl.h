@@ -21,7 +21,7 @@
 #include <QObject>
 #include <qmat/QMatAll>
 #include <innermodel/innermodel.h>
-
+#include <boost/bind.hpp>
 #include <ompl/base/spaces/RealVectorStateSpace.h>
 #include <ompl/geometric/SimpleSetup.h>
 #include <ompl/geometric/planners/rrt/RRTstar.h>
