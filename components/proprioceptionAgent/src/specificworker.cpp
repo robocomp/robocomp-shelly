@@ -89,19 +89,20 @@ void SpecificWorker::compute()
 		}
 	}
 	
+	RoboCompJointMotor::MotorStateMap mMap;
 	std::vector<AGMModelEdge> edge_sequence;
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
-		RoboCompJointMotor::MotorStateMap mMap;
 		jointmotor_proxy->getAllMotorState(mMap);
 		for (auto j : mMap)
 		{
+				printf("Updating: %s (%f)\n", j.first.c_str(), mMap[j.first].pos);
  			if (backTimes[j.first].elapsed()>500 or abs(backMotors[j.first].pos-mMap[j.first].pos) > 0.25*M_PIl/180.) /* send if it changed more than half degree */
 			{
 				backTimes[j.first] = QTime::currentTime();
 				backMotors[j.first] = j.second;
-				printf("Updating: %s (%d)\n", j.first.c_str(), newModel->size());
+// 				printf("Updating: %s (%d)\n", j.first.c_str(), newModel->size());
 				bool found = false;
 				for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 				{
@@ -149,12 +150,10 @@ void SpecificWorker::compute()
 		{
 			try
 			{
-				printf("edge publication %d\n", (int)edge_sequence.size());
 				if( edge_sequence.size() == 1)
 					AGMMisc::publishEdgeUpdate(edge_sequence.front(), agmexecutive_proxy);
 				else
 					AGMMisc::publishEdgesUpdate(edge_sequence, agmexecutive_proxy);
-
 			}
 			catch(...)
 			{
@@ -168,8 +167,77 @@ void SpecificWorker::compute()
 	{
 		std::cout<<"--> Exception updating InnerModel"<<std::endl;
 	}
+	
+	manageRestPositionEdge(mMap);
+	
 }
 
+
+bool SpecificWorker::isInRestPosition(const RoboCompJointMotor::MotorStateMap &mMap)
+{
+	try
+	{
+		if (fabs(mMap.at("armY").pos-(0.0))>0.08)
+		{
+			printf("armY noRest %f\n", float(mMap.at("armY").pos));
+			return false;
+		}
+		if (fabs(mMap.at("armX1").pos-(-1.0))>0.08)
+		{
+			printf("armX1 noRest %f\n", float(mMap.at("armX1").pos));
+			return false;
+		}
+		if (fabs(mMap.at("armX2").pos-(2.5))>0.08)
+		{
+			printf("armX2 noRest %f\n", float(mMap.at("armX2").pos));
+			return false;
+		}
+		if (fabs(mMap.at("wristX").pos-(0))>0.08)
+		{
+			printf("wristX noRest %f\n", float(mMap.at("wristX").pos));
+			return false;
+		}
+	}
+	catch(...)
+	{
+		qFatal("Can't query motor state!");
+	}
+	return true;
+}
+
+
+void SpecificWorker::manageRestPositionEdge(const RoboCompJointMotor::MotorStateMap &mMap)
+{
+	QMutexLocker locker(mutex);
+	
+	if (isInRestPosition(mMap)) // We should make sure the link is there
+	{
+		try
+		{
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+		}
+		catch (...)
+		{
+			AGMModel::SPtr newModel(new AGMModel(worldModel));
+			newModel->addEdgeByIdentifiers(1, 2, "restArm");
+			sendModificationProposal(newModel, worldModel);
+		}
+	}
+	else // We should make sure the edge is removed
+	{
+		try
+		{
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+			AGMModel::SPtr newModel(new AGMModel(worldModel));
+			newModel->removeEdgeByIdentifiers(1, 2, "restArm");
+			sendModificationProposal(newModel, worldModel);
+		}
+		catch (...)
+		{
+		}
+	}
+
+}
 
 bool SpecificWorker::reloadConfigAgent()
 {
@@ -327,5 +395,27 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	return true;
 }
 
+void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m)
+{
+	QMutexLocker locker(mutex);
+
+	try
+	{
+		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "proprioceptionAgent")+m);
+	}
+	catch(const RoboCompAGMExecutive::Locked &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+	}
+	catch(const Ice::Exception& e)
+	{
+		exit(1);
+	}
+}
 
 

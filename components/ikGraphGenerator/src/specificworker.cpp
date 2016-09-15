@@ -173,6 +173,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
 		throw;
 	}
+
 	timer.start(10);
 	initFile();
 	//qDebug()<<"[ikGraphGenerator]: READY CONFIG PARAMS";
@@ -871,6 +872,7 @@ void SpecificWorker::compute()
 /////////////////////////////////////////////////////////////////////////////////////////
 bool SpecificWorker::delete_collision_points()
 { 
+#ifdef USE_PCL
 	// Actualizamos el mesh auxiliar para ponerlo donde no estorbe.
 	innerModel->updateTransformValues("my_mesh", 0,0,0,0,0,0, "root");
 
@@ -930,7 +932,7 @@ bool SpecificWorker::delete_collision_points()
 		full_cloud->points.resize(usedPoints);
 		qDebug()<<"Used Points: "<<usedPoints;
 		qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<full_cloud->points.size()<<" --> "<<full_cloud->points.size()/float(point_cloud.size())*100<<" %";
-		
+
 		//Quitamos densidad --> Create the filtering object
 	// 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
 		pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
@@ -938,9 +940,7 @@ bool SpecificWorker::delete_collision_points()
 		sor.setMeanK (50);
 		sor.setStddevMulThresh (1.0);
 		sor.filter (*cloud_filtered);
-		
 		qDebug()<<"Points before: "<<full_cloud->points.size()<<" Points after: "<<cloud_filtered->points.size()<<" --> "<<cloud_filtered->points.size()/float(full_cloud->points.size())*100<<" %";
-		
 		// Pasamos a KDTREE para agilizar búsquedas
 		pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
 		kdtree.setInputCloud (cloud_filtered);
@@ -1019,8 +1019,8 @@ bool SpecificWorker::delete_collision_points()
 		qDebug()<<"NODOS LIBRES: "<<free_nodes<<" DE "<<graph->vertices.size()<<" NODOS EN TOTAL";
 		return true;
 	}
+#endif
 	return false;
-// 	qDebug()<<"FIN DE ESTA MIERDA";
 }
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -1028,6 +1028,7 @@ bool SpecificWorker::delete_collision_points()
 /////////////////////////////////////////////////////////////////////////////////////////
 void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
 {
+#ifdef USE_PCL
 	bool niapa = true;
 	if (niapa)
 	{
@@ -1069,12 +1070,9 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 				recursiveIncludeMeshes(node->children[i], in);
 			}
 		}
-		for (auto a: meshes)
-		{
-			qDebug()<<a;
-		}
 // 		qFatal("dd");
 	}
+#endif
 }
 
 

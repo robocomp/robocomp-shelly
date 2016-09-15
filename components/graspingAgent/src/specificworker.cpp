@@ -119,9 +119,6 @@ void SpecificWorker::compute( )
 	}
 	
 
-
-
-	
 	QTime cc;
 
 	cc = QTime::currentTime();
@@ -212,17 +209,17 @@ void SpecificWorker::manageReachedObjects()
 			}
 			
 			
-			printf("%d distance %f\n", node->identifier, d2n);
-// 			innerModel->transformS("robot", "armY").print("armY in r");
-// 			innerModel->transformS("robot", "armX1").print("armX1 in r");
-// 			innerModel->transformS("robot", "armX2").print("armX2 in r");
-// 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
-//                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
-//                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
-			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
-			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
+// 			printf("%d distance %f\n", node->identifier, d2n);
+// // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
+// // // // // // 			innerModel->transformS("robot", "armX1").print("armX1 in r");
+// // // // // // 			innerModel->transformS("robot", "armX2").print("armX2 in r");
+// // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
+// // // // // //                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
+// // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
+// 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
+// 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
 			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
-			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
+// 			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
 
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -584,9 +581,9 @@ void SpecificWorker::actionExecution()
 	static QTime actionTime = QTime::currentTime();
 	bool newAction = (previousAction != action);
 
-// 	qDebug()<<"---------------------------------";
-// 	cout<<action<<endl;
-// 	qDebug()<<"---------------------------------";
+	qDebug()<<"---------------------------------";
+	cout<<action<<endl;
+	qDebug()<<"---------------------------------";
 
 	if (newAction)
 	{
@@ -614,6 +611,10 @@ void SpecificWorker::actionExecution()
  			rDebug2(("graspingAgent would now start grasping - robot stopped and got 'graspobject'"));
  			action_GraspObject(newAction);
 		}
+	}
+	else if (action == "setrestarmposition")
+	{
+		action_SetRestArmPosition();
 	}
 
 	if (newAction)
@@ -744,7 +745,7 @@ void SpecificWorker::action_GraspObject(bool first)
 
 	
 	
-	const float steps_to_grasp = 1;
+// 	const float steps_to_grasp = 1;
 	const float yInit = 40;
 	const float yGoal = -40;
 	const float zInit = -180;
@@ -890,6 +891,46 @@ void SpecificWorker::action_GraspObject(bool first)
 		default:
 			break;
 	}
+
+	usleep(200000);
+}
+
+void SpecificWorker::action_SetRestArmPosition(bool first)
+{
+	static QTime time;
+
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+
+	static QTime ttt = QTime::currentTime();
+	printf("elapsed: %f\n", (float)ttt.elapsed());
+
+	printf("action_SetObjectReach: first:%d\n", (int)first);
+
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "robot", "status");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+
+	RoboCompJointMotor::MotorGoalPosition goal;
+	goal.maxSpeed = 0.7;
+	goal.name = "armY";
+	goal.position = 0;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "armX1";
+	goal.position = -1.0;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "armX2";
+	goal.position = 2.5;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "wristX";
+	goal.position = 0;
+	jointmotor_proxy->setPosition(goal);
 
 	usleep(200000);
 }

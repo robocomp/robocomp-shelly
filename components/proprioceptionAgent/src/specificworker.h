@@ -58,8 +58,13 @@ public:
 	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification);
 
+	bool isInRestPosition(const RoboCompJointMotor::MotorStateMap &mMap);
+	void manageRestPositionEdge(const RoboCompJointMotor::MotorStateMap &mMap);
+
+	
+	
 public slots:
-	void compute(); 	
+	void compute();
 
 private:
 	std::string action;
@@ -68,7 +73,8 @@ private:
 	InnerModel *innerModel;
 	bool active;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
-	
+	void sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m="");
+
 };
 
 #endif
