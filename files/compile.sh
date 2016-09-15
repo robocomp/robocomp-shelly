@@ -139,7 +139,7 @@ fi
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
 fi
- trajectory
+# trajectory
 if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
 fi
