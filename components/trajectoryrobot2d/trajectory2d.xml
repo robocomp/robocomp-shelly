@@ -1,0 +1,28 @@
+<!-- this world represents our lab -->
+<innerModel>
+	<include path="/home/robocomp/robocomp/components/robocomp-ursus/etc/ursus.xml"/>
+	<transform id="world">
+		<transform id="floor">
+			<plane id="floor_plane" ny="1" size="10000,10000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+		<!--	
+			<transform id="pared_0" tz="800">
+				<plane id="pared0" nz="1" size="5000,1000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+			</transform>
+			<transform id="pared_1" tx="2000" tz="-2000">
+				<plane id="pared1" nx="1" size="3000,1000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+			</transform>
+			<transform id="pared_2" tz="-2000" tx="1500">
+				<plane id="pared2" nz="1" size="3000,1000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+			</transform>
+			<transform id="pared_3" tz="-2000" tx="2000">
+				<plane id="pared3" nx="1" size="3000,1000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+			</transform>
+			<transform id="pared_4" tx="-2000" tz="3000">
+				<plane id="pared4" nz="1" size="4000,1000,10" texture="/home/robocomp/robocomp/files/osgModels/textures/wood.jpg" />
+			</transform>
+		-->
+		</transform>
+	</transform>		
+</innerModel>
+
+

@@ -75,6 +75,7 @@ private:
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 
 	void actionExecution();
+	void action_SetRestArmPosition(bool first=false);
 	void action_FindObjectVisuallyInTable(bool first=false);
 	void action_SetObjectReach(bool first=false);
 	void action_GraspObject(bool first=false);

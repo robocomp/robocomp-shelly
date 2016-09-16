@@ -1836,6 +1836,7 @@
 	<linkAttribute key="tz" value="0" />
 </link>
 <link src="52" dst="53" label="noReach"/>
+<link src="52" dst="53" label="hasStatus"/>
 <link src="1" dst="101" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />

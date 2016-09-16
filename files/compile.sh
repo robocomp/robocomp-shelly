@@ -139,10 +139,6 @@ fi
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
 fi
-# trajectory
-# if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
-	#compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
-# fi
 # laserRGBD
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
@@ -180,9 +176,9 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
 fi
 # dumb trajectory
-if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
-fi
+#if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+#	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
+#fi
 
 
 
@@ -237,3 +233,7 @@ if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 	compile "hokuyo" "/home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp"
 fi
 
+# trajectory
+if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
+	compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
+fi

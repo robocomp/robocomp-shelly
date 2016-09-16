@@ -52,7 +52,7 @@
  </node>
 
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10330">
-  <dependence alias="trajCaca1" />
+  <dependence alias="trajectory2d" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 navAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent ./bin/navigationAgent /home/robocomp/robocomp/components/robocomp-shelly/etc/navigationAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 navigationAgent gdb" />
@@ -131,28 +131,16 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="trajCaca2" endpoint="trajectoryrobot2d:tcp -h 10.0.30.11 -p 12204">
-  <dependence alias="trajCaca1" />
+ <node alias="trajectory2d" endpoint="trajectoryrobot2d:tcp -h 10.0.30.33 -p 19204">
   <dependence alias="base" />
+  <dependence alias="laser" />
+  <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 trjtCaca2 /home/robocomp/robocomp/components/robocomp-robolab/experimental/dumbGlobalTrajectory/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d_global.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 pkill -9 -f dumbGlobalTrajectory" />
-  <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d_global.conf" />
-  <xpos value="-134.012456857" />
-  <ypos value="-40.1546917013" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
-
- <node alias="trajCaca1" endpoint="trajectoryrobot2d:tcp -h 10.0.30.11 -p 19204">
-  <dependence alias="localization" />
-  <dependence alias="base" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 trjtCaca1 /home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d/ python src/dumbTrajectoryRobot2DComp.py /home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 pkill -9 -f dumbTrajectoryRobot2DComp.py" />
-  <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
-  <xpos value="-87.3487778581" />
-  <ypos value="-6.70689534386" />
+  <upCommand command="rcremote 10.0.30.33 trajectory2d /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d ./bin/trajectoryrobot2d --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
+  <downCommand command="rcremote 10.0.30.33 X / killall -9 trajectoryrobot2d" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
+  <xpos value="-150.21909711" />
+  <ypos value="-37.1266528576" />
   <radius value="10.0" />
   <color value="#FF3333" />
  </node>

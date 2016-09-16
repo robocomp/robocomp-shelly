@@ -116,7 +116,6 @@ void SpecificWorker::compute( )
 			printf("The executive is probably not running, waiting for first AGM model publication...");
 		}
 	}
-	// ODOMETRY AND LOCATION-RELATED ISSUES
 	actionExecution();
 }
 
@@ -158,26 +157,25 @@ void SpecificWorker::actionExecution()
 	{
 		action_HandObject(newAction);
 	}
-	else if (action == "waitingToAchieve")
+	else if (action == "setstop")
 	{
-		action_WaitingToAchieve();
+		action_Stop();
+	}
+	else if (action == "reachpose")
+	{
+		action_ReachPose();
 	}
 	else if (action == "noAction")
 	{
 		
 	}
-	else if (action == "stopAction")
-	{
-		action_NoAction(newAction);
-	}
-
 
 	if (newAction)
 	{
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
-	usleep(10000);
+	manageReachedPose();
 // 	printf("actionExecution>>\n");
 }
 
@@ -309,7 +307,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		{
 			try
 			{
-				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");				
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
 				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
@@ -360,8 +358,8 @@ void SpecificWorker::action_HandObject(bool newAction)
 }
 
 /**
- * \brief Move robot to object reach position
- */ 
+*  \brief Called when the robot is sent close to an object's location
+*/ 
 void SpecificWorker::action_SetObjectReach(bool newAction)
 {
 	// Get symbols' map
@@ -380,13 +378,13 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Get target
-	int roomID, robotID;
+	int roomID, objectID, robotID;
 	try
 	{
 		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
 		{
 			roomID = symbols["room"]->identifier;
-			objectID = symbols["object"]->identifier;
+			objectID =symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
 
 			try // If we can access the 'reach' edge for the object status the action
@@ -465,14 +463,6 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		currentTarget.ry = poseInRoom.ry();
 		currentTarget.rz = 0;
 		currentTarget.doRotation = true;
-		
-		QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
-		O.print("pose relativa");
-		printf("__%f__\n", O.norm2());
-		graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-		
-		
-		statusID = symbols["status"]->identifier;
 	}
 	catch (...) 
 	{ 
@@ -480,62 +470,142 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 
 	// Execute target
-	go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
-	action = "waitingToAchieve";
-}
-
-
-void SpecificWorker::action_WaitingToAchieve()
-{
-	// Check state
-	RoboCompTrajectoryRobot2D::NavState navState;
 	try
 	{
-		navState = trajectoryrobot2d_proxy->getState();
-		std::cout << "trajectorystate=> state: " << navState.state.c_str() << " distance: " << navState.distanceToTarget << std::endl;
-		if (navState.state == "IDLE")
+// 		if (!haveTarget)
 		{
-			//check target distance
-			if ( (fabs(currentTarget.x - navState.x) < THRESHOLD) and (fabs(currentTarget.z - navState.z) < THRESHOLD)) 
-			//if (navState.distanceToTarget < THRESHOLD)
+			try
 			{
-				action = "noAction";
-				updateModel(objectID, statusID);
+				QVec O = innerModel->transform("shellyArm_grasp_pose", objectIMID);
+				//O.print("	O pose relativa");
+				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
+				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+				float th=20;
+				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
+				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
+				haveTarget = true;
 			}
-			else //resend target
+			catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
 			{
-				go(currentTarget.x, currentTarget.z, currentTarget.ry, true, THRESHOLD, graspRef.x(), graspRef.z());
+				std::cout << ex << " " << ex.text << std::endl;
+				throw;
+			}
+			catch(const Ice::Exception &ex)
+			{
+				std::cout << ex << std::endl;
+			}
+		}
+		string state;
+		try
+		{
+			state = trajectoryrobot2d_proxy->getState().state;
+		}
+		catch(const Ice::Exception &ex)
+		{
+			std::cout <<"trajectoryrobot2d->getState().state "<< ex << std::endl;
+			throw ex;
+		}
+
+		//state="IDLE";
+		std::cout<<state<<" haveTarget "<<haveTarget;
+		if (state=="IDLE" && haveTarget)
+		{
+			//std::cout<<"\ttrajectoryrobot2d_proxy->getState() "<<trajectoryrobot2d_proxy->getState().state<<"\n";
+			try
+			{
+// 				AGMModel::SPtr newModel(new AGMModel(worldModel));
+// 				int statusID =symbols["status"]->identifier;
+// 				newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
+// 				sendModificationProposal(worldModel, newModel);
+				haveTarget=false;
+			}
+			catch (...)
+			{
+				std::cout<<"\neeeee"<< "\n";
 			}
 		}
 	}
-	catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
-	{
-		std::cout << ex.text << std::endl;
-	}
 	catch(const Ice::Exception &ex)
 	{
-		std::cout <<"Error retrieving trajectoryrobot2d->getState() "<< ex << std::endl;
-		throw ex;
+		std::cout << ex << std::endl;
 	}
 }
 
-bool SpecificWorker::updateModel(int objectID, int statusID)
+void SpecificWorker::manageReachedPose()
 {
-	try
-	{
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
+	float schmittTriggerThreshold = 20;
+	float THRESHOLD_POSE = 100;
+	std::string m ="  ";
 
-		newModel->getEdgeByIdentifiers(objectID, statusID, "noReach").setLabel("reach");
-		sendModificationProposal(worldModel, newModel);
-	}
-	catch (...)
+	bool changed = false;
+	
+	QMutexLocker locker(mutex);
+	
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
-		std::cout<<"\nModel update exception!!"<< "\n";
-		return false;
+		AGMModelSymbol::SPtr node = *symbol_itr;
+		if (node->symboltype() == "pose")
+		{
+			/// Compute distance and new state
+			float d2n;
+			try
+			{
+				d2n = distanceToNode("robot", newModel, node);
+			}
+			catch(...)
+			{
+				printf("Ref: robot: %p\n", (void *)innerModel->getNode("robot"));
+				printf("Pose: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
+				exit(1);
+			}
+			
+		
+			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
+			{
+				AGMModelEdge &edge = *edge_itr;
+				if (edge->getLabel() == "reach" and d2n > THRESHOLD_POSE+schmittTriggerThreshold )
+				{
+					edge->setLabel("noReach");
+					printf("pose %d STOPS REACH\n", node->identifier);
+					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
+					changed = true;
+					rDebug2(("pose %d no-reach") % node->identifier);
+				}
+				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD_POSE/*-schmittTriggerThreshold*/)
+				{
+					edge->setLabel("reach");
+					printf("___ %s ___\n", edge->getLabel().c_str());
+					printf("pose %d STARTS REACH\n", node->identifier);
+					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
+					changed = true;
+					rDebug2(("pose %d reach") % node->identifier);
+				}
+			}
+		}
 	}
-	return true;
+
+	/// Publish new model if changed
+	if (changed)
+	{
+		printf("PUBLISH!!!! version%d\n", newModel->version);
+		sendModificationProposal(newModel, worldModel, m);
+	}
 }
 
+
+float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr object)
+{
+	QMutexLocker locker(mutex);
+
+	QVec arm = innerModel->transformS("world", reference_name);
+	arm(1) = 0;
+	QVec obj = innerModel->transformS("world", object->getAttribute("imName"));
+	obj(1) = 0;
+	return (arm-obj).norm2();
+
+}
 
 int32_t SpecificWorker::getIdentifierOfRobotsLocation(AGMModel::SPtr &worldModel)
 {
@@ -640,6 +710,53 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 		lastX = x;
 		lastZ = z;
 		printf("changeroom to %d\n", symbols["r2"]->identifier);
+		go(x, z);
+	}
+	else
+	{
+	}
+}
+
+void SpecificWorker::action_Stop(bool newAction)
+{
+	stop();
+}
+
+void SpecificWorker::action_ReachPose(bool newAction)
+{
+	static float lastX = std::numeric_limits<float>::quiet_NaN();
+	static float lastZ = std::numeric_limits<float>::quiet_NaN();
+
+	auto symbols = worldModel->getSymbolsMap(params, "r2");
+	
+	int32_t poseId = symbols["pose"]->identifier;
+	printf("pose symbol: %d\n",  poseId);
+	std::string imName = symbols["pose"]->getAttribute("imName");
+	printf("imName: <%s>\n", imName.c_str());
+
+	QVec pose = innerModel->transform("world", QString::fromStdString(imName));
+	pose.print("goal pose");
+	const float x = pose(0);
+	const float z = pose(2);
+
+	bool proceed = true;
+	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
+	{
+		if (abs(lastX-x)<10 and abs(lastZ-z)<10)
+			proceed = false;
+		else
+			printf("proceed because the coordinates differ (%f, %f), (%f, %f)\n", x, z, lastX, lastZ);
+	}
+	else
+	{
+		printf("proceed because it's stoped\n");
+	}
+
+	if (proceed)
+	{
+		lastX = x;
+		lastZ = z;
+		printf("setpose %d\n", symbols["r2"]->identifier);
 		go(x, z);
 	}
 	else
@@ -967,30 +1084,30 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	return true;
 }
 
-void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
+
+void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m)
 {
+	QMutexLocker locker(mutex);
+
 	try
 	{
-		AGMMisc::publishModification(newModel, agmexecutive_proxy, "navigationAgent");
+		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "graspingAgent")+m);
 	}
 	catch(const RoboCompAGMExecutive::Locked &e)
 	{
-		printf("error when sending modification proposal (Locked)\n");
 	}
 	catch(const RoboCompAGMExecutive::OldModel &e)
 	{
-		printf("error when sending modification proposal (OldModel)\n");
 	}
 	catch(const RoboCompAGMExecutive::InvalidChange &e)
 	{
-		printf("error when sending modification proposal (InvalidChange)\n");
 	}
 	catch(const Ice::Exception& e)
 	{
-		printf("error when sending modification proposal\n");
 		exit(1);
 	}
 }
+
 
 
 
