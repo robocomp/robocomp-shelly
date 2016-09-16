@@ -674,7 +674,20 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 	static float lastX = std::numeric_limits<float>::quiet_NaN();
 	static float lastZ = std::numeric_limits<float>::quiet_NaN();
 
-	auto symbols = worldModel->getSymbolsMap(params, "r2");
+	auto symbols = worldModel->getSymbolsMap(params, "r2", "robot");
+
+
+	try
+	{
+		printf("trying to get _in_ edge from %d to %d\n", symbols["robot"]->identifier, symbols["r2"]->identifier);
+		AGMModelEdge e = worldModel->getEdge(symbols["robot"], symbols["r2"], "in");
+		printf("STOP! WE ALREADY GOT THERE!\n");
+		stop();
+		return;
+	}
+	catch(...)
+	{
+	}
 	
 	int32_t roomId = symbols["r2"]->identifier;
 	printf("room symbol: %d\n",  roomId);
@@ -710,7 +723,7 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 		lastX = x;
 		lastZ = z;
 		printf("changeroom to %d\n", symbols["r2"]->identifier);
-		go(x, z);
+		go(x, z, 0, false, 0, 0, 1200);
 	}
 	else
 	{
@@ -724,10 +737,14 @@ void SpecificWorker::action_Stop(bool newAction)
 
 void SpecificWorker::action_ReachPose(bool newAction)
 {
+	printf("action_ReachPose,%d: %d\n", __LINE__, newAction);
 	static float lastX = std::numeric_limits<float>::quiet_NaN();
+	printf("action_ReachPose,%d: %d\n", __LINE__, newAction);
 	static float lastZ = std::numeric_limits<float>::quiet_NaN();
+	printf("action_ReachPose,%d: %d\n", __LINE__, newAction);
 
-	auto symbols = worldModel->getSymbolsMap(params, "r2");
+	auto symbols = worldModel->getSymbolsMap(params, "room", "pose");
+	printf("action_ReachPose,%d: %d\n", __LINE__, newAction);
 	
 	int32_t poseId = symbols["pose"]->identifier;
 	printf("pose symbol: %d\n",  poseId);
@@ -756,7 +773,7 @@ void SpecificWorker::action_ReachPose(bool newAction)
 	{
 		lastX = x;
 		lastZ = z;
-		printf("setpose %d\n", symbols["r2"]->identifier);
+		printf("setpose %d\n", symbols["room"]->identifier);
 		go(x, z);
 	}
 	else
