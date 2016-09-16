@@ -131,13 +131,13 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="trajectory2d" endpoint="trajectoryrobot2d:tcp -p 19204">
+ <node alias="trajectory2d" endpoint="trajectoryrobot2d:tcp -h 10.0.30.33 -p 19204">
   <dependence alias="base" />
   <dependence alias="laser" />
   <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost trajectory2d /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d ./bin/trajectoryrobot2dcomp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
-  <downCommand command="killall -9 trajectoryrobot2d" />
+  <upCommand command="rcremote 10.0.30.33 trajectory2d /home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d ./bin/trajectoryrobot2d --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
+  <downCommand command="rcremote 10.0.30.33 X / killall -9 trajectoryrobot2d" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/trajectoryrobot2d.conf" />
   <xpos value="-150.21909711" />
   <ypos value="-37.1266528576" />

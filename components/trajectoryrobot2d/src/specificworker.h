@@ -229,6 +229,9 @@ class SpecificWorker : public GenericWorker
 
 		void mapBasedTarget(const NavigationParameterMap  &parameters);
 
+		//Values read from config
+		float MINIMUN_DETECTABLE_ROTATION;
+		float MINIMUN_DETECTABLE_TRANSLATION;
 };
 
 

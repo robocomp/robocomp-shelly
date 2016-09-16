@@ -39,6 +39,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		#ifdef USE_QTGUI
 			viewer = new InnerViewer(innerModel);  //makes a copy of innermodel for internal use
 	  #endif
+		MINIMUN_DETECTABLE_ROTATION = QString::fromStdString(params.at("MinimumDetectableRotation").value).toFloat();
+		MINIMUN_DETECTABLE_TRANSLATION = QString::fromStdString(params.at("MinimumDetectableTranslation").value).toFloat(); 
 	}
 	catch (std::exception e)
 	{
@@ -473,7 +475,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	
 	qDebug() << __FUNCTION__
 	         << "----------------------------------------------------------------------------------------------";
-	qDebug() << __FUNCTION__ << ": Target received" << targetT << targetRot << "with ROBOT at" << robotT << robotRot;
+	qDebug() << __FUNCTION__ << ": Target received" << targetT << targetRot << ". Contact Point: " << xRef << zRef << "tolerance: " << threshold << " with ROBOT at" << robotT << robotRot;
 	qDebug() << __FUNCTION__ << "Translation error: " << (targetT - robotT).norm2() << "mm. Rotation error:"
 	         << targetRot.y() - robotRot.y() << "rads";
 
@@ -492,9 +494,8 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 	// Minimun change admitted 60mm and 0.05rads
 	///////////////////////////////////////////////
-	const int MINCHANGE = 7;
-	const float MINROTATION = 0.03;
-	if ((targetT - robotT).norm2() < MINCHANGE and fabs(targetRot.y() - robotRot.y()) < MINROTATION)
+									
+	if ((targetT - robotT).norm2() < MINIMUN_DETECTABLE_TRANSLATION and fabs(targetRot.y() - robotRot.y()) < MINIMUN_DETECTABLE_ROTATION)
 	{
 
 		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
@@ -540,7 +541,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 
 	// move virtualrobot to xref, zRef to act as a surrogate
-	//innerModel->updateTransformValues("virtualRobot", xRef, 0, zRef, 0, 0, 0, "robot");
+	innerModel->updateTransformValues("virtualRobot", xRef, 0, zRef, 0, 0, 0, "robot");
 	//InnerModelDraw::addPlane_ignoreExisting(innerViewer, "virtualRobot", "robot", QVec::vec3(xRef,0,zRef), QVec::vec3(0,0,0), "#555555", QVec::vec3(50,1000,50));
 	
 	road.setThreshold(threshold);
@@ -755,7 +756,7 @@ void SpecificWorker::drawTarget(const QVec &target)
 #ifdef USE_QTGUI
 	//Draw target as red box
 	InnerModelDraw::addPlane_ignoreExisting(viewer->innerViewer, "target", "world", QVec::vec3(target(0), 5, target(2)),
-	                                        QVec::vec3(1, 0, 0), "#990000", QVec::vec3(80, 80, 80));
+	                                        QVec::vec3(1, 0, 0), "#FA0000", QVec::vec3(100, 100, 100));
 #endif
 }
 
@@ -763,7 +764,7 @@ void SpecificWorker::drawGreenBoxOnTarget(const QVec &target)
 {
 #ifdef USE_QTGUI
 	InnerModelDraw::addPlane_ignoreExisting(viewer->innerViewer, "target", "world", QVec::vec3(target(0), 1800, target(2)),
-	                                        QVec::vec3(1, 0, 0), "#009900", QVec::vec3(100, 100, 150));
+	                                        QVec::vec3(1, 0, 0), "#00FA00", QVec::vec3(100, 100, 150));
 #endif
 
 }
