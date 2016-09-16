@@ -795,9 +795,9 @@ void SpecificWorker::action_GraspObject(bool first)
 			printf("%d\n", __LINE__);
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 0.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 0.5);
-				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 0.5);
+				inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
+				inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			offset = QVec::vec3(0, yInit, zInit);
@@ -872,10 +872,10 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 3:
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 1.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 3.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 3.5);
 // 				inversekinematics_proxy->setJoint("wristX", jointmotor_proxy->getMotorState("wristX").pos-0.15, 1.5);
-				usleep(600000);
+				usleep(400000);
 			}
 			catch(...)
 			{
@@ -1112,7 +1112,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	printf("elbow_height %f\n", elbow_height);
 	if (first)
 	{
-		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 0.5);
+		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 2.0);
 		backAction = action;
 		setRightArmUp_Reflex();
 	}
@@ -1166,9 +1166,9 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			if (angle < -.4) angle = -.4;
 
 			// In the meantime we just move the head downwards:
-			inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 0.5);
+			inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
 			printf("Mandamos angulo %f\n", angle);
-			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 0.5);
+			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 1.5);
 // // // // // // // 			saccadic3D(QVec::vec3(x,y,z), QVec::vec3(0,0,1));
 		}
 		catch (...)
@@ -1206,12 +1206,12 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 	RoboCompJointMotor::MotorGoalPosition goal;
 
 	goal.name = "head_yaw_joint";
-	goal.maxSpeed = 0.5;
+	goal.maxSpeed = 1.5;
 	goal.position = jointmotor_proxy->getMotorState("head_yaw_joint").pos - errYaw;
 	jointmotor_proxy->setPosition(goal);
 
 	goal.name = "head_pitch_joint";
-	goal.maxSpeed = 0.5;
+	goal.maxSpeed = 1.5;
 	goal.position = jointmotor_proxy->getMotorState("head_pitch_joint").pos - errPitch;
 	jointmotor_proxy->setPosition(goal);
 
@@ -1251,7 +1251,7 @@ void SpecificWorker::setRightArmUp_Reflex()
         
 	MotorGoalPositionList gpList;
 	MotorGoalPosition gp;
-	gp.maxSpeed = 0.7;
+	gp.maxSpeed = 2.5;
 	
         
         float desired_value;
