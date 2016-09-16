@@ -1875,9 +1875,9 @@
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="tx" value="3000" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-1000" />
+	<linkAttribute key="tz" value="1000" />
 </link>
 <link src="52" dst="53" label="noReach"/>
 <link src="52" dst="53" label="hasStatus"/>
