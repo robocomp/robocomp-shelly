@@ -38,15 +38,6 @@
 		<attribute key="imName" value="tableA_reachPos" />
 	</symbol>
 	<link src="20" dst="22" label="reachPosition" />
-	<link src="20" dst="22" label="RT" >
-		<linkAttribute key="tx" value="100" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="-1300" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="" />
-		<linkAttribute key="rz" value="0" />
-	</link>  
-
 
 	<symbol id="23" type="object">
 		<attribute key="imType" value="transform" />
@@ -63,14 +54,6 @@
 		<attribute key="imName" value="tableB_reachPos" />
 	</symbol>
 	<link src="23" dst="25" label="reachPosition" />
-	<link src="23" dst="25" label="RT" >
-		<linkAttribute key="tz" value="-800" />
-		<linkAttribute key="tx" value="100" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 
 	<symbol id="26" type="object">
 		<attribute key="imType" value="transform" />
@@ -86,15 +69,6 @@
 		<attribute key="imName" value="tableC_reachPos" />
 	</symbol>
 	<link src="26" dst="28" label="reachPosition" />
-	<link src="26" dst="28" label="RT" >
-		<linkAttribute key="tz" value="-1300" />
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>   
-
 
 	<symbol id="29" type="object">
 		<attribute key="imType" value="transform" />
@@ -107,15 +81,6 @@
 		<attribute key="imName" value="countertopA_reachPos" />
 	</symbol>     
 	<link src="29" dst="31" label="reachPosition" />
-	<link src="29" dst="31" label="RT" >
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="tx" value="600" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>  
-
 
 	<symbol id="32" type="object">
 		<attribute key="imType" value="transform" />
@@ -128,15 +93,6 @@
 		<attribute key="imName" value="countertopB_reachPos" />
 	</symbol>
 	<link src="32" dst="34" label="reachPosition" />
-	<link src="32" dst="34" label="RT" >
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="tx" value="-300" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="1.5707" />
-		<linkAttribute key="rz" value="0" />
-	</link>  
-
 
 	<symbol id="35" type="object">
 		<attribute key="imType" value="transform" />
@@ -152,14 +108,6 @@
 		<attribute key="imName" value="tableD_reachPos" />
 	</symbol>
 	<link src="35" dst="37" label="reachPosition" />
-	<link src="35" dst="37" label="RT" >
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="tx" value="-500" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="1.5707" />
-		<linkAttribute key="rz" value="0" />
-	</link>   
 
 
 	<symbol id="38" type="object">
@@ -176,15 +124,6 @@
 		<attribute key="imName" value="tableE_reachPos" />
 	</symbol>
 	<link src="38" dst="40" label="reachPosition" />
-	<link src="38" dst="40" label="RT" >
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="tx" value="-500" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="1.5707" />
-		<linkAttribute key="rz" value="0" />
-	</link>   
-
 
 	<symbol id="1" type="robot">
 		<attribute key="imType" value="transform" />
@@ -413,34 +352,21 @@
 	<link src="1" dst="2" label="hasStatus" />
 
 
-	
-	
-	
-	
-	
-	
-	
 	<symbol id="52" type="pose">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="waitPose" />
 	</symbol>
 	<symbol id="53" type="poseSt" />
-	<link src="52" dst="5" label="in" />
-
-	<link src="5" dst="52" label="RT" >
+	<link src="52" dst="3" label="in" />
+	<link src="3" dst="52" label="RT" >
 		<linkAttribute key="tx" value="0" />
 		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="tz" value="-1000" />
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<link src="52" dst="53" label="noReach" />
 	<link src="52" dst="53" label="hasStatus" />
-
-	
-	
-	
-	
 </AGMModel>
 

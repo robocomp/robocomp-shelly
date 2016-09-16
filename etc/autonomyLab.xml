@@ -7,6 +7,9 @@
 		</transform>
 		
 		
+		
+<!-- 		<transform id="room_3" -->
+		
 		<!-- WAIT POSE -->
 <!-- 		<transform id="waitPose" tx="3500" tz="-500"> -->
 <!-- 			<plane id="waitPose_plane" ny="1" size="100,100,100" texture="#222222" /> -->
@@ -92,6 +95,9 @@
 
 		<!-- TABLE A -->
 		<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" >
+			<transform id="tableA_reachPos" tx="100" tz="-1300">
+				<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
 			<mesh id="tableA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 		</transform>
 		<!-- table A lateral -->
@@ -107,6 +113,9 @@
 
 		<!-- TABLE B -->
 		<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
+			<transform id="tableB_reachPos" tx="100" tz="-800">
+				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
 			<mesh id="tableB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1200,20,800" collide="1" />
 		</transform>
 		<transform id="pared26" tx="2733.1207275" tz="3457.872803" ty="370" >
@@ -124,6 +133,9 @@
 
 
 		<transform id="tableC" tx="4880" tz="3320" ty="760" ry="-0.05" >
+			<transform id="tableC_reachPos" tz="-1200">
+				<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
 			<mesh id="tableC_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 		</transform>
 		<transform id="pared28" tx="4640.7512205" tz="3314.0805665" ty="380" >
@@ -135,14 +147,20 @@
 
 		<!-- TABLE D -->
 		<transform id="tableD" tx="3574" tz="-1767" ty="730" >
+			<transform id="tableD_reachPos" tx="-500" ry="1.5707">
+				<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
 			<mesh id="tableD_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,20" rx="1.570799947" collide="1"/>
 			<transform id="rwreewreet" ty="-365" >
 				<mesh id="tableD_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="40,40,360" rx="1.570799947" collide="1"/>
 			</transform>
 		</transform>
-
+	
 
 		<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
+			<transform id="tableE_reachPos" tx="-500" ry="1.5707">
+				<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
 			<mesh id="tableE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 			<transform id="tableE_p1" tx="-375" tz="885" ty="-370" >
 				<mesh id="tableE_p1_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
@@ -159,8 +177,11 @@
 		</transform>
 
 		<!-- TABLE F -->
-		<transform id="tableF" tx="450" tz="-2920" ty="890" ry="-0.092" >
-			<mesh id="tableF_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="650,20,2500" collide="1" />
+		<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" >
+			<transform id="countertopA_reachPos" tx="600">
+				<plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
+			<mesh id="countertopA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="650,20,2500" collide="1" />
 		</transform>
 		<!-- lateral mesa F -->
 		<transform id="1pared3" tx="314.52948" tz="-1690" ty="445" ry="0.025" >
@@ -172,8 +193,11 @@
 		</transform>
 
 		<!-- FABLE G -->
-		<transform id="tableG" tx="1880" tz="-3800" ty="890" ry="-0.055" >
-			<mesh id="tableG_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="2110,20,650" collide="1" />
+		<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" >
+			<transform id="countertopB_reachPos" tx="-300" ry="1.5707">
+				<plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+			</transform>
+			<mesh id="countertopB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="2110,20,650" collide="1" />
 		</transform>
 		<transform id="pared17" tx="2155.889282" tz="-3486.724121" ty="445" >
 			<plane id="muro17" nx="142.455078" nz="-2637.045654" size="2640.89061313,890,9"  texture="#888800" />
