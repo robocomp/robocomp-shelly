@@ -109,7 +109,7 @@
 		<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
 			<mesh id="tableB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1200,20,800" collide="1" />
 			<transform id="tableB_reachPos" tx="100" tz="-800">
-				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+<!-- 				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
 			</transform>
 
 		</transform>
