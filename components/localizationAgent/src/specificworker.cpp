@@ -211,6 +211,7 @@ void SpecificWorker::compute()
 		newState.alpha = cgrState.alpha;
 		std::cout<<"CGR correction pose"<<std::endl;
 	}
+
 	// april
 	if (newApril)
 	{
@@ -221,12 +222,13 @@ void SpecificWorker::compute()
 
 
 	
-	// Check if base need correction
-	if(enoughDifference(omniState, newState))
+	// Check if base needs correction
+	if (enoughDifference(omniState, newState))
 	{
 		setCorrectedPosition(newState);
 		lastState = newState;
 	}
+
 	odometryAndLocationIssues();
 }
 
@@ -275,7 +277,8 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		printf("Can't connect to the robot!!\n");
 		return false;
 	}
-	
+
+
 	int32_t robotId=-1, roomId=-1;
 	robotId = worldModel->getIdentifierByType("robot");
 	if (robotId < 0)
@@ -284,8 +287,12 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		usleep(1000000);
 		return false;
 	}
-
 	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
+
+	
+	includeMovementInRobotSymbol(robot);
+
+
 	for (auto edge = robot->edgesBegin(worldModel); edge != robot->edgesEnd(worldModel); edge++)
 	{
 		const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
@@ -300,11 +307,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			}
 		}
 	}
-	
-	includeMovementInRobotSymbol(robot);
-	
-	
-	
 	if (roomId < 0)
 	{
 		printf("roomId not found, Waiting for Insert innerModel...\n");
@@ -314,12 +316,14 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 
 	int32_t robotIsActuallyInRoom;
 	if (bState.correctedZ<0)
+	{
 		robotIsActuallyInRoom = 5;
+	}
 	else
+	{
 		robotIsActuallyInRoom = 3;
-
-	// TODO WARNING FIXME
-	robotIsActuallyInRoom = 3;
+	}
+	printf("room %d\n", robotIsActuallyInRoom);
 
 	if (roomId != robotIsActuallyInRoom)
 	{
