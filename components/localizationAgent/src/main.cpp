@@ -97,13 +97,6 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 
-using namespace RoboCompLogger;
-using namespace RoboCompOmniRobot;
-using namespace RoboCompAprilBasedLocalization;
-using namespace RoboCompCGR;
-
-
-
 class localizationAgent : public RoboComp::Application
 {
 public:
@@ -143,7 +136,7 @@ int ::localizationAgent::run(int argc, char* argv[])
 	LoggerPrx logger_proxy;
 	OmniRobotPrx omnirobot_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
-	
+
 	string proxy, tmp;
 	initialize();
 

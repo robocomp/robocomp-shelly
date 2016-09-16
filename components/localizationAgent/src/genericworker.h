@@ -76,7 +76,6 @@ public:
 	
 
 	OmniRobotPrx omnirobot_proxy;
-	CGRPrx cgr_proxy;
 	LoggerPrx logger_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
@@ -95,7 +94,7 @@ public:
 	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
 	virtual void newAprilBasedPose(const float x, const float z, const float alpha) = 0;
 	virtual void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha) = 0;
-	virtual void newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2) = 0;
+	virtual void newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2) = 0;
 
 protected:
 	QTimer timer;

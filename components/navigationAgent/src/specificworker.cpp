@@ -278,6 +278,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 	}
 	
 	// GET THE TARGET POSE: 
+	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
 		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(personIMID)))    return;
@@ -286,14 +287,13 @@ void SpecificWorker::action_HandObject(bool newAction)
 		qDebug()<<"[robotIMID"<<robotIMID<<"roomIMID"<<roomIMID<<"personIMID"<<personIMID<<"]";
 		qDebug()<<" TARGET POSE: "<< poseInRoom;
 
-// 		currentTarget.first = objectID;
-		currentTarget.x = poseInRoom.x();
-		currentTarget.y = 0;
-		currentTarget.z = poseInRoom.z();
-		currentTarget.rx = 0;
-		currentTarget.ry = 0;
-		currentTarget.rz = 0;
-		currentTarget.doRotation = false;
+		tgt.x = poseInRoom.x();
+		tgt.y = 0;
+		tgt.z = poseInRoom.z();
+		tgt.rx = 0;
+		tgt.ry = 0;
+		tgt.rz = 0;
+		tgt.doRotation = false;
 		
 	}
 	catch (...) 
@@ -309,7 +309,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 			{
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
-				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
+				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
 				std::cout << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << currentTarget.doRotation << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;
 			}
@@ -449,20 +449,20 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	}
 	
 	// GET THE TARGET POSE: 
+	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
 		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))    return;
 		QVec poseInRoom = innerModel->transform6D(roomIMID, objectIMID); // FROM OBJECT TO ROOM
 		qDebug() << __FUNCTION__ <<" Target pose: "<< poseInRoom;
 
-// 		currentTarget.first = objectID;
-		currentTarget.x = poseInRoom.x();
-		currentTarget.y = 0;
-		currentTarget.z = poseInRoom.z();
-		currentTarget.rx = 0;
-		currentTarget.ry = poseInRoom.ry();
-		currentTarget.rz = 0;
-		currentTarget.doRotation = true;
+		tgt.x = poseInRoom.x();
+		tgt.y = 0;
+		tgt.z = poseInRoom.z();
+		tgt.rx = 0;
+		tgt.ry = poseInRoom.ry();
+		tgt.rz = 0;
+		tgt.doRotation = true;
 	}
 	catch (...) 
 	{ 
@@ -481,8 +481,8 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
-				trajectoryrobot2d_proxy->goReferenced(currentTarget, graspRef.x(), graspRef.z(), th);
-				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
+				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
+				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;
 			}
 			catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
@@ -869,26 +869,35 @@ void SpecificWorker::action_NoAction(bool newAction)
 // Send target to trajectory
 void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, float zRef, float threshold)
 {
-	RoboCompTrajectoryRobot2D::TargetPose tp;
-	tp.x = x;
-	tp.z = z;
-	tp.y = 0;
-	tp.rx = 0;
-	tp.ry = 0;
-	tp.rz = 0;
+	static bool first = true;
+	
+	RoboCompTrajectoryRobot2D::TargetPose lastTarget = currentTarget;
+
+	currentTarget.x = x;
+	currentTarget.z = z;
+	currentTarget.y = 0;
+	currentTarget.rx = 0;
+	currentTarget.rz = 0;
+
 	if (rot)
 	{
-		tp.ry = alpha;
-		tp.doRotation = true;
+		currentTarget.ry = alpha;
+		currentTarget.doRotation = true;
 	}
 	else
 	{
-		tp.doRotation = false;
+		currentTarget.ry = 0;
+		currentTarget.doRotation = false;
 	}
+	
+	
+	if ((not first) and (lastTarget == currentTarget))
+		return;
+	
 	try
 	{
-		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << tp.x << ", " << tp.z << ", " << tp.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
-		trajectoryrobot2d_proxy->goReferenced(tp, xRef, zRef, threshold);
+		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
+		trajectoryrobot2d_proxy->goReferenced(currentTarget, xRef, zRef, threshold);
 	}
 	catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
 	{

@@ -111,22 +111,26 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::newAprilBasedPose(const float x, const float z, const float alpha)
 {
+	QMutexLocker l(mutex);
 	newApril = true;
-	aprilState.x = x;
-	aprilState.z = z;
-	aprilState.alpha = alpha;
+	aprilState.correctedX = x;
+	aprilState.correctedZ = z;
+	aprilState.correctedAlpha = alpha;
 }
 
 void SpecificWorker::newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha)
 {
+	QMutexLocker l(mutex);
 	newCGR = true;
-	cgrState.x = x;
-	cgrState.z = z;
-	cgrState.alpha = alpha;
+	cgrState.correctedX = x;
+	cgrState.correctedZ = z;
+	cgrState.correctedAlpha = alpha;
 }
 
 void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2)
 {
+	QMutexLocker l(mutex);
+
 	static InnerModel *innermodel=NULL;
 	static InnerModelTransform *corrSLAMBack;
 	static InnerModelTransform *corrSLAMNew;
@@ -137,22 +141,21 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 	{
 		innermodel = new InnerModel();
 		corrSLAMBack = innermodel->newTransform("corrSLAMBack", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
-		innermodel->getRoot()->addChild(corrSLAMBack);	
+		innermodel->getRoot()->addChild(corrSLAMBack);
 		corrSLAMNew = innermodel->newTransform("corrSLAMNew", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
 		innermodel->getRoot()->addChild(corrSLAMNew);
 
 		corrREALBack = innermodel->newTransform("corrREALBack", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
-		innermodel->getRoot()->addChild(corrREALBack);	
+		innermodel->getRoot()->addChild(corrREALBack);
 		corrREALNew = innermodel->newTransform("corrREALNew", "static", corrREALBack, 0,0,0, 0,0,0, 0);
 		corrREALBack->addChild(corrREALNew);
 	}
-	
-	
+
 	innermodel->updateTransformValues("corrSLAMBack",   x1, 0, z1,      0, alpha1, 0  );
 	innermodel->updateTransformValues("corrSLAMNew",    x2, 0, z2,      0, alpha2, 0  );
 	QVec inc = innermodel->transform6D("corrSLAMBack", "corrSLAMNew");
 	
-	inc.print("inc");
+	inc.print("Correction: ");
 	
 	RoboCompOmniRobot::TBaseState bState;
 	try { omnirobot_proxy->getBaseState(bState); }
@@ -161,12 +164,17 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 	innermodel->updateTransformValues("corrREALNew",   inc(0),0,inc(2),    0,inc(4),0);
 	
 	QVec result = innermodel->transform6D("root", "corrREALNew");
-	newCGRPose(poseUncertainty, result(0), result(2), result(4));
+	newCGR = true;
+	cgrState.correctedX = result(0);
+	cgrState.correctedZ = result(2);
+	cgrState.correctedAlpha = result(4);
 }
 
 
 void SpecificWorker::compute()
 {
+	QMutexLocker l(mutex);
+
 	RoboCompOmniRobot::TBaseState newState;
 	static bool first=true;
 	if (first)
@@ -175,7 +183,8 @@ void SpecificWorker::compute()
 		rDebug2(("localizationAgent started"));
 		first = false;
 	}
-	//retrieve model
+
+	// retrieve model
 	if (worldModel->getIdentifierByType("robot") < 0)
 	{
 		try
@@ -201,15 +210,16 @@ void SpecificWorker::compute()
 		printf("Can't connect to the robot!!\n");
 	}
 	
-	
 	// cgr 
 	if (newCGR)
 	{
+// 		printf("ODOM: %f %f %f\n", newState.correctedX, newState.correctedZ, newState.correctedAlpha);
 		newCGR = false;
-		newState.x = cgrState.x;
-		newState.z = cgrState.z;
-		newState.alpha = cgrState.alpha;
+		newState.correctedX = cgrState.correctedX;
+		newState.correctedZ = cgrState.correctedZ;
+		newState.correctedAlpha = cgrState.correctedAlpha;
 		std::cout<<"CGR correction pose"<<std::endl;
+		printf("CGR: %f %f %f\n", newState.correctedX, newState.correctedZ, newState.correctedAlpha);
 	}
 
 	// april
@@ -235,10 +245,10 @@ void SpecificWorker::compute()
 // compute difference between actual and last value to determine if it should be sent
 bool SpecificWorker::enoughDifference(const RoboCompOmniRobot::TBaseState &lastState, const RoboCompOmniRobot::TBaseState &newState)
 {
-	if (fabs(newState.x - lastState.x) > 5 or 
-		fabs(newState.z - lastState.z) > 5 or 
-		fabs(newState.alpha - lastState.alpha) > 0.02)
-			return true;
+	if (fabs(newState.correctedX - lastState.correctedX) > 5 or fabs(newState.correctedZ - lastState.correctedZ) > 5 or fabs(newState.correctedAlpha - lastState.correctedAlpha) > 0.02)
+	{
+		return true;
+	}
 	return false;
 }
 
@@ -246,19 +256,13 @@ bool SpecificWorker::enoughDifference(const RoboCompOmniRobot::TBaseState &lastS
 void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState)
 {
 	std::cout<<"correct odometer position"<<std::endl;
-	try{
-		omnirobot_proxy->correctOdometer(bState.x, bState.z, bState.alpha); 
-	  
-	}catch(Ice::Exception &ex){
-		std::cout<<ex.what()<<std::endl;
-	}
-	if (useCGR)
+	try
 	{
-		try{
-			cgr_proxy->resetPose(bState.x, bState.z, bState.alpha); 
-		}catch(Ice::Exception &ex) {
-			std::cout<<ex.what()<<std::endl;
-		}
+		omnirobot_proxy->correctOdometer(bState.correctedX, bState.correctedZ, bState.correctedAlpha); 
+	}
+	catch(Ice::Exception &ex)
+	{
+		std::cout<<ex.what()<<std::endl;
 	}
 }
 
@@ -266,7 +270,7 @@ void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &b
 
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
-	QMutexLocker l(mutex);
+	// Get robot's odometry
 	RoboCompOmniRobot::TBaseState bState;
 	try
 	{
@@ -278,8 +282,8 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		return false;
 	}
 
-
-	int32_t robotId=-1, roomId=-1;
+	// Get robot's symbol and its identifier
+	int32_t robotId=-1;
 	robotId = worldModel->getIdentifierByType("robot");
 	if (robotId < 0)
 	{
@@ -289,10 +293,11 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	}
 	AGMModelSymbol::SPtr robot = worldModel->getSymbol(robotId);
 
-	
+	// Update odometry in the cognitive model
 	includeMovementInRobotSymbol(robot);
 
-
+	// Get current roomId
+	int roomId=-1;
 	for (auto edge = robot->edgesBegin(worldModel); edge != robot->edgesEnd(worldModel); edge++)
 	{
 		const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
@@ -314,17 +319,24 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		return false;
 	}
 
+	// Query which should actually be the current room based on the corrected odometry odometry
 	int32_t robotIsActuallyInRoom;
-	if (bState.correctedZ<0)
+	float schmittTriggerLikeThreshold = 80;
+	if (bState.correctedZ < -schmittTriggerLikeThreshold)
 	{
 		robotIsActuallyInRoom = 5;
 	}
-	else
+	else if (bState.correctedZ > schmittTriggerLikeThreshold)
 	{
 		robotIsActuallyInRoom = 3;
 	}
+	else
+	{
+		robotIsActuallyInRoom = roomId;
+	}
 	printf("room %d\n", robotIsActuallyInRoom);
 
+	
 	if (roomId != robotIsActuallyInRoom)
 	{
 		try
@@ -338,7 +350,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			// Modify RT edge
 			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
 			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
-//			printf("(was %d now %d) ---[RT]---> %d\n", roomId, robotIsActuallyInRoom, robotId);
 			try
 			{
 				float bStatex = str2float(edgeRT->getAttribute("tx"));
@@ -346,7 +357,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 				float bStatealpha = str2float(edgeRT->getAttribute("ry"));
 				
 				// to reduce the publication frequency
-//				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
@@ -372,38 +382,30 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		{
 			printf("Can't update room... do edges exist? !!!\n");
 			return false;
-		}	}
+		}
+	}
 	else
 	{
 		try
 		{
 			AGMModelEdge edge  = worldModel->getEdgeByIdentifiers(roomId, robotId, "RT");
-// 			printf("%d ---[RT]---> %d  (%d\n", roomId, robotId, __LINE__);
 			try
 			{
 				float bStatex = str2float(edge->getAttribute("tx"));
 				float bStatez = str2float(edge->getAttribute("tz"));
 				float bStatealpha = str2float(edge->getAttribute("ry"));
-				
 				// to reduce the publication frequency
-// 				printf("xModel=%f xBase=%f\n", bStatex, bState.correctedX);
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
 					//Publish update edge
  					printf("\nUpdate odometry...\n");
  					qDebug()<<"bState local --> "<<bStatex<<bStatez<<bStatealpha;
  					qDebug()<<"bState corrected --> "<<bState.correctedX<<bState.correctedZ<<bState.correctedAlpha;
-
 					edge->setAttribute("tx", float2str(bState.correctedX));
 					edge->setAttribute("tz", float2str(bState.correctedZ));
 					edge->setAttribute("ry", float2str(bState.correctedAlpha));
-					//rDebug2(("navigationAgent edgeupdate"));
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
-// 					printf("done\n");
 				}
-// 				printf(".");
-// 				fflush(stdout);
-
 			}
 			catch (...)
 			{
@@ -417,6 +419,8 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			return false;
 		}
 	}
+	
+	return true;
 
 }
 
