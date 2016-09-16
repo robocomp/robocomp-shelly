@@ -36,15 +36,17 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	try
 	{
 		innerModel = new InnerModel(params.at("InnerModel").value);
-		#ifdef USE_QTGUI
-			viewer = new InnerViewer(innerModel);  //makes a copy of innermodel for internal use
-	  #endif
+		innerModel->getNode<InnerModelJoint>("armX1")->setAngle(-1);
+		innerModel->getNode<InnerModelJoint>("armX2")->setAngle(2.5);
+#ifdef USE_QTGUI
+		viewer = new InnerViewer(innerModel);  // makes a copy of innermodel for internal use
+#endif
 		MINIMUN_DETECTABLE_ROTATION = QString::fromStdString(params.at("MinimumDetectableRotation").value).toFloat();
 		MINIMUN_DETECTABLE_TRANSLATION = QString::fromStdString(params.at("MinimumDetectableTranslation").value).toFloat(); 
 	}
 	catch (std::exception e)
 	{
-		qFatal("Aborting. Error reading config params");		//WE COULD THROW HERE AND HAVA A NICE EXIT FROM MAIN
+		qFatal("Aborting. Error reading config params"); // WE COULD THROW HERE AND HAVE A A NICE EXIT FROM MAIN
 	}
 
 	//////////////////////////////
