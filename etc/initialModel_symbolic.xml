@@ -63,14 +63,6 @@
 		<attribute key="imName" value="tableB_reachPos" />
 	</symbol>
 	<link src="23" dst="25" label="reachPosition" />
-	<link src="23" dst="25" label="RT" >
-		<linkAttribute key="tz" value="-800" />
-		<linkAttribute key="tx" value="100" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 
 	<symbol id="26" type="object">
 		<attribute key="imType" value="transform" />
