@@ -27,7 +27,7 @@ bool WaypointsDraw::draw(WayPoints &road, InnerViewer *viewer, const CurrentTarg
 {
 	QMutexLocker ml(viewer->innerViewer->mutex);
 	clearDraw(viewer);
-	if (road.size() == 0) return false;
+	if (road.size() < 1) return false;
 	InnerModelDraw::addTransform_ignoreExisting(viewer->innerViewer, "road", "world");
 
 	///////////////////
@@ -46,11 +46,12 @@ bool WaypointsDraw::draw(WayPoints &road, InnerViewer *viewer, const CurrentTarg
 		
 		viewer->innerViewer->innerModel->updateTransformValues(item, w.pos.x(), 10, w.pos.z(), 0, 0, 0);
 
-		if ((int) i == (int) road.getIndexOfCurrentPoint() + 1) 		{
-			InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, tangent, 600, 30, "#000055");
+		if (i == (int)road.getIndexOfCurrentPoint() + 1)
+		{
+			InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, tangent, 600, 30, "#0000FF");
 		}
 		if (w.isVisible)
-			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#005500"); //TAKE NUMBER FROM ROBOT!!!
+			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#00FF00"); //TAKE WIDTH FROM PARAMS!!!
 		else
 			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#550099");  //Morado
 	}

@@ -109,8 +109,6 @@
 			<plane id="muro25" nx="-1833.086425" nz="-68.48938" size="1834.36545887,754,9"  texture="#118899" />
 		</transform>
 
-
-
 		<!-- TABLE B -->
 		<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
 			<transform id="tableB_reachPos" tx="100" tz="-800">
@@ -131,7 +129,7 @@
 			<mesh id="tableB_mesh5" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
 		</transform>
 
-
+		<!-- TABLE C -->
 		<transform id="tableC" tx="4880" tz="3320" ty="760" ry="-0.05" >
 			<transform id="tableC_reachPos" tz="-1200">
 <!-- 				<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
@@ -145,18 +143,18 @@
 			<plane id="muro29" nx="-39.213379" nz="787.782715" size="788.758071366,760,9"  texture="#998811" />
 		</transform>
 
-		<!-- TABLE D -->
+		<!-- TABLE D MESA REDONDA DEL COMEDOR-->
 		<transform id="tableD" tx="3574" tz="-1767" ty="730" >
 			<transform id="tableD_reachPos" tx="-500" ry="1.5707">
 <!-- 				<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
 			</transform>
 			<mesh id="tableD_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,20" rx="1.570799947" collide="1"/>
 			<transform id="rwreewreet" ty="-365" >
-				<mesh id="tableD_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="40,40,360" rx="1.570799947" collide="1"/>
+				<mesh id="tableD_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,360" rx="1.570799947" collide="1"/>
 			</transform>
 		</transform>
 	
-
+		<!-- TABLE E -->
 		<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
 			<transform id="tableE_reachPos" tx="-500" ry="1.5707">
 <!-- 				<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
@@ -192,7 +190,7 @@
 			<plane id="muro18" nx="-1830.207397" nz="-171.306274" size="1930,890,9"  texture="#008888" />
 		</transform>
 
-		<!-- FABLE G -->
+		<!-- TABLE G -->
 		<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" >
 			<transform id="countertopB_reachPos" tx="-300" ry="1.5707">
 <!-- 				<plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->

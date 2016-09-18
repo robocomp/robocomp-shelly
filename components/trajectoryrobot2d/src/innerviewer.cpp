@@ -24,7 +24,7 @@ InnerViewer::InnerViewer( InnerModel *innerModel_, QObject *parent )
 	QGLFormat fmt;
 	fmt.setDoubleBuffer(true);
 	QGLFormat::setDefaultFormat(fmt);
-	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
+	tb = new osgGA::TrackballManipulator;
 	osg::Vec3d eye(osg::Vec3(4000., 4000., 1000.));
 	osg::Vec3d center(osg::Vec3(0., 0., -0.));
 	osg::Vec3d up(osg::Vec3(0., -1., 0.));
@@ -37,9 +37,10 @@ InnerViewer::InnerViewer( InnerModel *innerModel_, QObject *parent )
 	createWindow(viewer);
 	osg::Group *root = new osg::Group();
 	
-	osg::Vec4 p = viewer.getLight()->getPosition();
-	p.set(p.x(),1,p.z(),p.w());
-	viewer.getLight()->setPosition(p);
+	viewer.getLight()->setPosition(osg::Vec4(1,-1, 1, 0)); // make 4th coord 1 for point
+	viewer.getLight()->setAmbient(osg::Vec4(0.2, 0.2, 0.2, 1.0));
+	//viewer.getLight()->setDiffuse(osg::Vec4(0.7, 0.4, 0.6, 1.0));
+	viewer.getLight()->setSpecular(osg::Vec4(1.0, 1.0, 1.0, 1.0));
 	
 	innerModel = innerModel_->copy();
 	innerViewer = new InnerModelViewer(innerModel, "root", root, true);
@@ -48,35 +49,20 @@ InnerViewer::InnerViewer( InnerModel *innerModel_, QObject *parent )
 	//////////////////////////
 	//RESTORE FORMER VIEW					QUEDA CAPTURAR EL EVENTO DE CIERRE DE LA VENTANA PARA GUARDAR LA MATRIZ ACTUAL
 	/////////////////////////
-	QSettings *settings = new QSettings("RoboComp", "InnerViewer");
+ 	settings = new QSettings("RoboComp", "InnerViewer");
 	QString path(".");
-	if (path == settings->value("path").toString() )
+	QStringList l = settings->value("matrix").toStringList();
+	if (l.size() > 0)
 	{
-		QStringList l = settings->value("matrix").toStringList();
-		if (l.size() > 0)
-		{
-			osg::Matrixd m;
-			for (int i=0; i<4; i++ )
-				for (int j=0; j<4; j++ )
-					m(i,j)=l.takeFirst().toDouble();
-			tb->setByMatrix(m);
-		}
+		osg::Matrixd m;
+		for (int i=0; i<4; i++ )
+			for (int j=0; j<4; j++ )
+				m(i,j)=l.takeFirst().toDouble();
+		tb->setByMatrix(m);
+	}
 		else
 			innerViewer->setMainCamera(tb, InnerModelViewer::TOP_POV);
-	}
-	else
-		settings->setValue("path",path);
-	
-	
-	// 	osg::Matrixd m = tb->getMatrix();
-	// 	QString s="";
-	// 	QStringList l;
-	// 	for (int i=0; i<4; i++ )
-	// 		for (int j=0; j<4; j++ )
-	// 			l.append(s.number(m(i,j)));
-	// 	settings->setValue("matrix", l);
-	// 	settings->sync();
- 	
+	 	
 	viewer.realize();
 }
 
@@ -142,6 +128,16 @@ void InnerViewer::run()
 		innerViewer->mutex->lock();
 			innerViewer->update();
 			viewer.frame();
+			
+// 			osg::Matrixd m = tb->getMatrix();
+// 			QString s="";
+// 			QStringList l;
+// 			for (int i=0; i<4; i++ )
+// 				for (int j=0; j<4; j++ )
+// 	 			l.append(s.number(m(i,j)));
+// 			settings->setValue("matrix", l);
+// 			settings->sync();
+			
 		innerViewer->mutex->unlock();
 		usleep(10000);
 	}

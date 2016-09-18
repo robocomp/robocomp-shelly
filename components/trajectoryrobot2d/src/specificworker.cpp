@@ -253,8 +253,15 @@ SpecificWorker::gotoCommand(InnerModel *innerModel, CurrentTarget &target, Traje
 		controller->stopTheRobot(omnirobot_proxy);
  		//currentTargetBack.setTranslation(innerModel->transform("world", QVec::vec3(0, 0, -250), "robot"));
  		target.setState(CurrentTarget::State::BLOCKED);
+		state.setState("BLOCKED");
 		return false;
  	}
+ 	else
+	{
+		target.setState(CurrentTarget::State::GOTO);
+		state.setState("EXECUTING");
+	}
+		
 
 	// Get here when robot is stuck
 // 	if(myRoad.requiresReplanning == true)
@@ -756,9 +763,9 @@ float SpecificWorker::angmMPI(float angle)
 void SpecificWorker::drawTarget(const QVec &target)
 {
 #ifdef USE_QTGUI
-	//Draw target as red box
+	//Draw target as green box
 	InnerModelDraw::addPlane_ignoreExisting(viewer->innerViewer, "target", "world", QVec::vec3(target(0), 5, target(2)),
-	                                        QVec::vec3(1, 0, 0), "#FA0000", QVec::vec3(100, 100, 100));
+	                                        QVec::vec3(1, 0, 0), "#00FF00", QVec::vec3(150, 150, 150));
 #endif
 }
 
@@ -766,7 +773,7 @@ void SpecificWorker::drawGreenBoxOnTarget(const QVec &target)
 {
 #ifdef USE_QTGUI
 	InnerModelDraw::addPlane_ignoreExisting(viewer->innerViewer, "target", "world", QVec::vec3(target(0), 1800, target(2)),
-	                                        QVec::vec3(1, 0, 0), "#00FA00", QVec::vec3(100, 100, 150));
+	                                        QVec::vec3(1, 0, 0), "#00FA00", QVec::vec3(150, 150, 150));
 #endif
 
 }
