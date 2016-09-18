@@ -48,12 +48,13 @@ bool WaypointsDraw::draw(WayPoints &road, InnerViewer *viewer, const CurrentTarg
 
 		if (i == (int)road.getIndexOfCurrentPoint() + 1)
 		{
-			InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, tangent, 600, 30, "#0000FF");
+			// tangent to road 
+			InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, tangent, 600, 30, "#00FFFF"); 
 		}
 		if (w.isVisible)
 			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#00FF00"); //TAKE WIDTH FROM PARAMS!!!
 		else
-			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#550099");  //Morado
+			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#FF0000");  //Morado
 	}
 	if (currentTarget.hasRotation() == true)    //Draws an arrow indicating final desired orientation
 	{
