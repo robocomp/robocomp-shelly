@@ -158,10 +158,12 @@ bool ElasticBand::shortCut(InnerModel *innermodel, WayPoints &road, const RoboCo
  * @param road ...
  * @return void
  */
-void ElasticBand::addPoints(WayPoints &road, const CurrentTarget &currentTarget)
+bool ElasticBand::addPoints(WayPoints &road, const CurrentTarget &currentTarget)
 {
-	int offset = 1;
+	if( road.size() < 2) 
+		return false;
 
+	int offset = 1;
 	for (int i = 0; i < road.size() - offset; i++)
 	{
 		if (i > 0 and road[i].isVisible == false)
@@ -170,13 +172,14 @@ void ElasticBand::addPoints(WayPoints &road, const CurrentTarget &currentTarget)
 		WayPoint &w = road[i];
 		WayPoint &wNext = road[i + 1];
 		float dist = (w.pos - wNext.pos).norm2();
-		if (dist > ROAD_STEP_SEPARATION)  //SHOULD GET FROM IM
+		if (dist > ROAD_STEP_SEPARATION)  //SHOULD GET FROM PARAMS
 		{
 			float l = 0.9 * ROAD_STEP_SEPARATION / dist;   //Crucial que el punto se ponga mas cerca que la condición de entrada
 			WayPoint wNew((w.pos * (1 - l)) + (wNext.pos * l));
 			road.insert(i + 1, wNew);
 		}
 	}
+	return true;
 
 	//ELIMINATED AS REQUESTED BY MANSO
 	//Move point before last to orient the robot. This works but only if the robots approaches from the lower quadrants
@@ -210,8 +213,11 @@ void ElasticBand::addPoints(WayPoints &road, const CurrentTarget &currentTarget)
  * @param road ...
  * @return void
  */
-void ElasticBand::cleanPoints(WayPoints &road)
+bool ElasticBand::cleanPoints(WayPoints &road)
 {
+	if( road.size() < 2) 
+		return false;
+
 	int i;
 	int offset = 2;
 	//if( road.last().hasRotation ) offset = 3; else offset = 2;
@@ -230,6 +236,7 @@ void ElasticBand::cleanPoints(WayPoints &road)
 			road.removeAt(i + 1);
 		}
 	}
+	return true;
 }
 
 

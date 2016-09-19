@@ -109,11 +109,16 @@ void WayPoints::update()
 	/////////////////////////////////////////////////////////
 	threshold = 20;   //////////////////////////////////////////////////FIX THIS
 	//qDebug() << __FUNCTION__ << "Arrived:" << getRobotDistanceToTarget() <<  this->threshold << getRobotDistanceVariationToTarget();
-	
-	if (((((int) getIndexOfCurrentPoint()+1 == (int) this->size()) or  (getRobotDistanceToTarget() < threshold))) or
+
+	print();
+	printRobotState(innerModel);
+
+	if (((((int) getIndexOfCurrentPoint() == (int) this->size()) or  (getRobotDistanceToTarget() < threshold))) or
 	    ((getRobotDistanceToTarget() < 100) and (getRobotDistanceVariationToTarget() > 0)))	
 	{
-		qDebug() << __FUNCTION__ << "FINISHED";
+		qDebug() << __FUNCTION__ << "ROAD: FINISHED";
+		qDebug() << "	reason: " << ((int) getIndexOfCurrentPoint()+1 == (int) this->size());
+		qDebug() << "	reason: " << (getRobotDistanceToTarget() < threshold);
 		setFinished(true);
 	}
   else
@@ -123,10 +128,10 @@ void WayPoints::update()
 		///////////////////////////////////////////
 		qDebug() << __FUNCTION__ << "ROAD: Robot distance to last visible" << getRobotDistanceToLastVisible();
 		//print();
-		if( getRobotDistanceToLastVisible() < 150  and getIterToLastVisiblePoint() < this->end())
+/*		if( getRobotDistanceToLastVisible() < 150  and getIterToLastVisiblePoint() < this->end())
 			setBlocked(true);
 		else
-			setBlocked(false);
+			setBlocked(false);*/
 	}
 }
 
@@ -284,7 +289,7 @@ float WayPoints::robotDistanceToNextPoint(InnerModel *innerModel)
 
 QLine2D WayPoints::getTangentToCurrentPoint()
 {
-	Q_ASSERT (currentPoint + 1 < size() and size() > 0);
+	Q_ASSERT (indexOfCurrentPoint  + 1 < size() and size() > 0);
 
 	QVec p1 = QVec::vec2((*this)[indexOfCurrentPoint].pos.x(), (*this)[indexOfCurrentPoint].pos.z());
 	QVec p2 = QVec::vec2((*this)[indexOfCurrentPoint + 1].pos.x(), (*this)[indexOfCurrentPoint + 1].pos.z());
@@ -294,7 +299,9 @@ QLine2D WayPoints::getTangentToCurrentPoint()
 
 QLine2D WayPoints::getTangentToCurrentPointInRobot(InnerModel *innerModel)
 {
-	Q_ASSERT (currentPoint + 1 < size() and size() > 0);
+	Q_ASSERT (indexOfCurrentPoint  + 1 == size() and size() > 0);
+
+	qDebug() << indexOfCurrentPoint << this->size();
 
 	QVec p1 = QVec::vec3((*this)[indexOfCurrentPoint].pos.x(), 0., (*this)[indexOfCurrentPoint].pos.z());
 	QVec p2 = QVec::vec3((*this)[indexOfCurrentPoint + 1].pos.x(), 0., (*this)[indexOfCurrentPoint + 1].pos.z());
@@ -303,12 +310,12 @@ QLine2D WayPoints::getTangentToCurrentPointInRobot(InnerModel *innerModel)
 	return line;
 }
 
-void WayPoints::printRobotState(InnerModel *innerModel, const CurrentTarget &currentTarget)
+void WayPoints::printRobotState(InnerModel *innerModel /*, const CurrentTarget &currentTarget*/)
 {
 	QVec robot3DPos = innerModel->transform("world", "robot");
 	qDebug() << "-------Road status report  ---------------------";
 	qDebug() << "	Robot position:" << robot3DPos;
-	qDebug() << "	Target:" << currentTarget.getTranslation();
+	//qDebug() << "	Target:" << currentTarget.getTranslation();
 	qDebug() << "	Target2:" << last().pos;
 	qDebug() << "	Num points:" << this->size();
 	qDebug() << "	Robot dist to closest point in road:" << getRobotDistanceToClosestPoint();

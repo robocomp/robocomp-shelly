@@ -66,7 +66,7 @@ class WayPoints : public QList< WayPoint >
 		void initialize( InnerModel *inner, const RoboCompCommonBehavior::ParameterList &params);
 		void readRoadFromFile(InnerModel *innerModel, std::string name);
 		void readRoadFromList(QList<QVec> list);
-		void printRobotState(InnerModel* innerModel, const CurrentTarget& currentTarget);
+		void printRobotState(InnerModel* innerModel /*, const CurrentTarget& currentTarget*/);
 		void print() const;
 		QList<QVec> backList;
 		

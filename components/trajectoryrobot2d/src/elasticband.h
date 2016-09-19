@@ -46,7 +46,7 @@ class ElasticBand
 		~ElasticBand();
 		void initialize(const RoboCompCommonBehavior::ParameterList& params);
 		bool update(InnerModel* innermodel, WayPoints& road, const RoboCompLaser::TLaserData& laserData, const CurrentTarget& currentTarget, uint iter = 1);
-		void addPoints(WayPoints &road, const CurrentTarget &currentTarget);
+		bool addPoints(WayPoints &road, const CurrentTarget &currentTarget);
 
 	private:		
 		//float computeIntersectionChord( const WayPoint b1, const WayPoint b2);
@@ -55,7 +55,7 @@ class ElasticBand
 		//void checkBlocked(InnerModel* innermodel, WayPoints& road, const RoboCompLaser::TLaserData& laserData);
 		//bool checkCollision(InnerModel* innermodel, WayPoints& road, const RoboCompLaser::TLaserData& laserData, float robotRadius);
 		float computeForces(InnerModel *innermodel, WayPoints &road, const RoboCompLaser::TLaserData& laserData);
-		void cleanPoints(WayPoints &road);
+		bool cleanPoints(WayPoints &road);
 		bool checkVisiblePoints(InnerModel *innermodel, WayPoints &road, const RoboCompLaser::TLaserData &laserData);
 		bool shortCut(InnerModel *innermodel, WayPoints& road, const RoboCompLaser::TLaserData &laserData);
 		bool checkIfNAN(const WayPoints &road);

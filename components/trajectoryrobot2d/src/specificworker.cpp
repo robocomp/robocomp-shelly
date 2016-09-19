@@ -509,8 +509,8 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	{
 
 		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
-		            "mm. Min = 60mm. RDist="
-		            + QString::number(targetRot.y() - robotRot.y()) + "rads. Min = 0.05rads";
+		            "mm. Min = " + QString::number(MINIMUN_DETECTABLE_TRANSLATION) +" RDist="
+		            + QString::number(targetRot.y() - robotRot.y()) + " rads. Min = " + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
 		qDebug() << __FUNCTION__ << s<<"same target";
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
 		ex.text = s.toStdString();
@@ -526,8 +526,8 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	{
 
 		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
-		            "mm. Min = 60mm. RDist="
-		            + QString::number(targetRot.y() - robotRot.y()) + "rads. Min = 0.05rads";
+		            "mm. Min = " + QString::number(MINIMUN_DETECTABLE_TRANSLATION) +" RDist="
+		            + QString::number(targetRot.y() - robotRot.y()) + " rads. Min =" + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
 		qDebug() << __FUNCTION__ << s;
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
 		ex.text = s.toStdString();
@@ -568,7 +568,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 
 	// move virtualrobot to xref, zRef to act as a surrogate
-	innerModel->updateTransformValues("virtualRobot", xRef, 0, zRef, 0, 0, 0, "robot");
+	//innerModel->updateTransformValues("virtualRobot", xRef, 0, zRef, 0, 0, 0, "robot");
 	//InnerModelDraw::addPlane_ignoreExisting(innerViewer, "virtualRobot", "robot", QVec::vec3(xRef,0,zRef), QVec::vec3(0,0,0), "#555555", QVec::vec3(50,1000,50));
 	
 	road.setThreshold(threshold);
