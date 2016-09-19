@@ -125,8 +125,8 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 fi
 
 
-	
-	
+
+
 # gmapping
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gmapping" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp/"
@@ -191,6 +191,10 @@ fi
 # navigationAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "navigation agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/"
+fi
+# localizationAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "localization agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/localizationAgent/"
 fi
 # proprioceptionAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
