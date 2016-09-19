@@ -826,7 +826,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 // printf("%s: %d\n", __FILE__, __LINE__);
 
 	bool proceed = true;
-	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
+	if ( (planningState.state=="IDLE")) //PLANNING" or planningState.state=="EXECUTING") )
 	{
 		if (abs(lastX-x)<10 and abs(lastZ-z)<10)
 			proceed = false;

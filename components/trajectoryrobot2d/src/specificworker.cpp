@@ -52,7 +52,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	//////////////////////////////
 	//Initial update InnerModel from robot
 	//////////////////////////////
-	innerModel->newTransform("virtualRobot", "static", innerModel->getNode("robot"));
+	innerModel->newTransform("virtualTarget", "static", innerModel->getNode("world"));
 	updateInnerModel(innerModel, tState);
 
 	//////////////////////////////////////
@@ -474,12 +474,20 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 		throw ex;
 	}
 
+	QVec targetT = QVec::vec3(target_.x, target_.y, target_.z);
+	QVec targetRot = QVec::vec3(target_.rx, target_.ry, target_.rz);
+	// Update virtual target position
+	if (target_.doRotation)
+	{
+		innerModel->updateTransformValues("virtualTarget", target_.x, 0, target_.z, 0, target_.ry, 0, "world");
+		targetT = innerModel->transform("world", QVec::vec3(-xRef, 0, -zRef), "virtualTarget");
+	}
+	
 	QVec currentT = currentTarget.getTranslation();
 	QVec currentRot = currentTarget.getRotation();
 	QVec robotT = innerModel->transform("world", "robot");
 	QVec robotRot = innerModel->transform6D("world", "robot").subVector(3, 5);
-	QVec targetT = QVec::vec3(target_.x, target_.y, target_.z);
-	QVec targetRot = QVec::vec3(target_.rx, target_.ry, target_.rz);
+	
 	drawTarget(targetT);
 	
 	qDebug() << __FUNCTION__

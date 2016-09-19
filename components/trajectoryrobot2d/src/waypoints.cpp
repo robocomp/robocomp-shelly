@@ -45,11 +45,7 @@ void WayPoints::update()
 	////////////////////////////////////////////////////
 	//Compute closest point in road to robot. If closer than 1000mm it will use the virtual point (tip) instead of the center of the robot.
 	///////////////////////////////////////////////////
- 	if (getRobotDistanceToTarget() < 1000)
- 	{
- 	 		robot3DPos = innerModel->transform("world", "virtualRobot");
- 	}
-	WayPoints::iterator closestPoint = computeClosestPointToRobot(robot3DPos);
+ 	WayPoints::iterator closestPoint = computeClosestPointToRobot(robot3DPos);
 
 	///////////////////////////////////////
 	//Compute roadTangent at closestPoint
@@ -107,18 +103,17 @@ void WayPoints::update()
 	//////////////////////////////////////////////////////////
 	//Check for arrival to target (translation)  TOO SIMPLE
 	/////////////////////////////////////////////////////////
-	threshold = 20;   //////////////////////////////////////////////////FIX THIS
 	//qDebug() << __FUNCTION__ << "Arrived:" << getRobotDistanceToTarget() <<  this->threshold << getRobotDistanceVariationToTarget();
 
-	print();
-	printRobotState(innerModel);
+//	print();
+//	printRobotState(innerModel);
 
-	if (((((int) getIndexOfCurrentPoint() == (int) this->size()) or  (getRobotDistanceToTarget() < threshold))) or
-	    ((getRobotDistanceToTarget() < 100) and (getRobotDistanceVariationToTarget() > 0)))	
+	if (((((int) getIndexOfCurrentPoint() == (int) this->size()) and  (getRobotDistanceToTarget() < threshold))) or
+	    ((getRobotDistanceToTarget() < 200) and (getRobotDistanceVariationToTarget() > 0)))
 	{
 		qDebug() << __FUNCTION__ << "ROAD: FINISHED";
-		qDebug() << "	reason: " << ((int) getIndexOfCurrentPoint()+1 == (int) this->size());
-		qDebug() << "	reason: " << (getRobotDistanceToTarget() < threshold);
+		qDebug() << "	reason: " << ((int) getIndexOfCurrentPoint()+1 == (int) this->size()) << "index " << getIndexOfCurrentPoint();
+		qDebug() << "	reason: " << (getRobotDistanceToTarget() < threshold) << " distance: "<<getRobotDistanceToTarget() << getRobotDistanceVariationToTarget();
 		setFinished(true);
 	}
   else
@@ -289,25 +284,29 @@ float WayPoints::robotDistanceToNextPoint(InnerModel *innerModel)
 
 QLine2D WayPoints::getTangentToCurrentPoint()
 {
-	Q_ASSERT (indexOfCurrentPoint  + 1 < size() and size() > 0);
-
-	QVec p1 = QVec::vec2((*this)[indexOfCurrentPoint].pos.x(), (*this)[indexOfCurrentPoint].pos.z());
-	QVec p2 = QVec::vec2((*this)[indexOfCurrentPoint + 1].pos.x(), (*this)[indexOfCurrentPoint + 1].pos.z());
-	QLine2D line(p1, p2);
-	return line;
+	static QLine2D lineAnt=QLine2D();
+	if ((int)(indexOfCurrentPoint  + 1) < size() and size() > 0)
+	{
+		QVec p1 = QVec::vec2((*this)[indexOfCurrentPoint].pos.x(), (*this)[indexOfCurrentPoint].pos.z());
+		QVec p2 = QVec::vec2((*this)[indexOfCurrentPoint + 1].pos.x(), (*this)[indexOfCurrentPoint + 1].pos.z());
+		QLine2D line(p1, p2);
+		lineAnt = line;
+	}
+	return lineAnt;
 }
 
 QLine2D WayPoints::getTangentToCurrentPointInRobot(InnerModel *innerModel)
 {
-	Q_ASSERT (indexOfCurrentPoint  + 1 == size() and size() > 0);
-
-	qDebug() << indexOfCurrentPoint << this->size();
-
-	QVec p1 = QVec::vec3((*this)[indexOfCurrentPoint].pos.x(), 0., (*this)[indexOfCurrentPoint].pos.z());
-	QVec p2 = QVec::vec3((*this)[indexOfCurrentPoint + 1].pos.x(), 0., (*this)[indexOfCurrentPoint + 1].pos.z());
-	//Use the 3D vector constructor
-	QLine2D line(innerModel->transform("robot", p1, "world"), innerModel->transform("robot", p2, "world"));
-	return line;
+	static QLine2D lineAnt=QLine2D();
+	if ((int)(indexOfCurrentPoint  + 1) < size() and size() > 0)
+	{
+		QVec p1 = QVec::vec3((*this)[indexOfCurrentPoint].pos.x(), 0., (*this)[indexOfCurrentPoint].pos.z());
+		QVec p2 = QVec::vec3((*this)[indexOfCurrentPoint + 1].pos.x(), 0., (*this)[indexOfCurrentPoint + 1].pos.z());
+		//Use the 3D vector constructor
+		QLine2D line(innerModel->transform("robot", p1, "world"), innerModel->transform("robot", p2, "world"));
+		lineAnt = line;
+	}
+	return lineAnt;
 }
 
 void WayPoints::printRobotState(InnerModel *innerModel /*, const CurrentTarget &currentTarget*/)
