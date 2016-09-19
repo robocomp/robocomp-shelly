@@ -80,7 +80,7 @@ bool ElasticBand::update(InnerModel *innermodel, WayPoints &road, const RoboComp
 	/////////////////////////////////////////////
 	//Tags all points in the road ar visible or blocked, depending on laser visibility. Only visible points are processed in this iteration
 	/////////////////////////////////////////////
-	//checkVisiblePoints(innermodel, road, laserData);
+	checkVisiblePoints(innermodel, road, laserData);
 
 	/////////////////////////////////////////////
 	//Check if there is a sudden shortcut to take

@@ -28,9 +28,23 @@ class WaypointsDraw
 		WaypointsDraw();
 		~WaypointsDraw();
 		
+		/**
+		 * @brief Draws the road on an InnerModelViewer
+		 * 
+		 * @param road to be pictured
+		 * @param viewer InnerModelViewer where to do de painting
+		 * @param currentTarget structure containing current target data
+		 * @return bool
+		 */
 		bool draw(WayPoints& road, InnerViewer* viewer, const CurrentTarget& currentTarget);
 	
 	private:
+		/**
+		 * @brief Removes the road from the InnerModelViewer scene graph
+		 * 
+		 * @param viewer target InnerModelViewer
+		 * @return void
+		 */
 		void clearDraw(InnerViewer *viewer);	
 };
 

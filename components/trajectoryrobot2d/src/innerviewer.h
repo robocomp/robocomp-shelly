@@ -43,6 +43,8 @@ class InnerViewer: public QThread
 	private:
 		osgViewer::Viewer viewer;
 		void createWindow(osgViewer::Viewer& viewer);
+		QSettings *settings ;
+		osgGA::TrackballManipulator *tb;
 };
 
 #endif
