@@ -484,12 +484,30 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 	if (relojForInputRateControl.elapsed() < 250)
 	{
+		qDebug() << __FUNCTION__ << "Reject target, Call too close in time";
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
 		ex.text = "Fail. Call too close in time. Please wait and call again";
 		throw ex;
 	}
 	else
 		relojForInputRateControl.restart();
+
+	///////////////////////////////////////////////
+	// Check same target, minimum distance admitted 60mm and 0.05rads
+	///////////////////////////////////////////////
+									
+	if ((currentT - targetT).norm2() < MINIMUN_DETECTABLE_TRANSLATION and fabs(currentRot.y() - targetRot.y()) < MINIMUN_DETECTABLE_ROTATION)
+	{
+
+		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
+		            "mm. Min = 60mm. RDist="
+		            + QString::number(targetRot.y() - robotRot.y()) + "rads. Min = 0.05rads";
+		qDebug() << __FUNCTION__ << s<<"same target";
+		RoboCompTrajectoryRobot2D::RoboCompException ex;
+		ex.text = s.toStdString();
+		tState.setDescription("Same target");
+		throw ex;
+	}
 
 	///////////////////////////////////////////////
 	// Minimun change admitted 60mm and 0.05rads
