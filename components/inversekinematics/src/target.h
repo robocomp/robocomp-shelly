@@ -21,11 +21,11 @@ class Target
 public:
 	enum	TargetType 			{POSE6D, ALIGNAXIS, ADVANCEAXIS};
 	enum	TargetState			{IDLE, IN_PROCESS, FINISH};
-	enum 	TargetFinalState	{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
+	enum 	TargetFinalState		{LOW_ERROR, KMAX, LOW_INCS, NAN_INCS};
 
 private:
 	/// GENERAL ATTRIBUTES
-	int					identifier;
+	int				identifier;
 	bool				divided;
 	QString				nameInInnerModel;
 	QTime 				runTime;
@@ -33,7 +33,7 @@ private:
 	QVec				errorvector;
 	TargetType			type;
 	TargetState			state;
-	TargetFinalState 	finalstate;
+	TargetFinalState 		finalstate;
 	/// ATTRIBUTES OF POSE6D TARGET
 	QVec				pose;
 	QVec				weight;
@@ -45,29 +45,29 @@ public:
 	Target	();
 	Target(int id_,const QVec &pose_, const QVec &weights_, bool divided_,		TargetType type_=TargetType::POSE6D);		/// CONSTRUCTOR FOR POSE6D TARGET
 	Target(int id_,const QVec &pose_, const QVec &weights_, const QVec &axis_, 	TargetType type_=TargetType::ALIGNAXIS);	/// CONSTRUCTOR FOR ALING AXIS
-	Target(int id_,const QVec& axis_, float step_,								TargetType type_=TargetType::ADVANCEAXIS);	/// CONSTRUCTOR FOR ADVANCE AXIS					
+	Target(int id_,const QVec& axis_, float step_,					TargetType type_=TargetType::ADVANCEAXIS);	/// CONSTRUCTOR FOR ADVANCE AXIS					
 	~Target	();
 	
 	Target 				operator=(Target target);
-	inline int					getTargetIdentifier();
+	inline int			getTargetIdentifier		();
 	QString				getTargetNameInInnerModel	();
-	TargetType			getTargetType				();
-	TargetState			getTargetState				();
-	TargetFinalState	getTargetFinalState			();
-	QVec				getTargetPose				();
-	QVec				getTargetWeight				();
-	QVec				getTargetAxis				();
-	float				getTargetStep				();
+	TargetType			getTargetType			();
+	TargetState			getTargetState			();
+	TargetFinalState		getTargetFinalState		();
+	QVec				getTargetPose			();
+	QVec				getTargetWeight			();
+	QVec				getTargetAxis			();
+	float				getTargetStep			();
 	float 			 	getTargetTimeExecution		();
-	QVec				getTargetError				(float &errorT, float &errorR);
+	QVec				getTargetError			(float &errorT, float &errorR);
 	QVec				getTargetFinalAngles		();
-	bool				getTargetDivided			();
+	bool				getTargetDivided		();
 	
-	void				setTargetIdentifier			(int id_);
+	void				setTargetIdentifier		(int id_);
 	void				setTargetNameInInnerModel	(QString nameInInnerModel_);
-	void				setTargetState				(Target::TargetState state_);
-	void				setTargetFinalState			(Target::TargetFinalState finalstate_);
-	void				setTargetError				(QVec errors_);
+	void				setTargetState			(Target::TargetState state_);
+	void				setTargetFinalState		(Target::TargetFinalState finalstate_);
+	void				setTargetError			(QVec errors_);
 	void				setTargetFinalAngles		(QVec finalangles_);
 	
 

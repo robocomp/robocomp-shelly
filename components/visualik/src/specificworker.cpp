@@ -199,7 +199,7 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	
 	for(int i=0; i<solvedList.size(); i++)
 	{
-		if(bodyPart=="RIGHTARM" and targetID==solvedList[i].getID_VIK())
+		if(bodyPart=="ARM" and targetID==solvedList[i].getID_VIK())
 		{
 			state.finish = true;
 			if(solvedList[i].getState()==Target::State::NOT_RESOLVED) state.state = "NOT_RESOLVED";
@@ -426,7 +426,7 @@ bool SpecificWorker::correctPose()
 	printf("target             [ %f %f %f ]\n", target(0), target(1), target(2));
 	printf("visualPose         [ %f %f %f ]\n", rightHandVisualPose(0), rightHandVisualPose(1), rightHandVisualPose(2));
 	printf("internalPose       [ %f %f %f ]\n", rightHandInternalPose(0), rightHandInternalPose(1), rightHandInternalPose(2));
-QMessageBox::warning(NULL, "titulo", "texto");
+// QMessageBox::warning(NULL, "titulo", "texto");
 	if (currentTarget.getRunTime()>umbralMaxTime)
 	{
 		abortCorrection = true;

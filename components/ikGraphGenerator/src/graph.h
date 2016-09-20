@@ -5,22 +5,33 @@
 class ConnectivityGraph
 {
 public:
-	// ATRIBUTOS DE LA CLASE ConnectivityGraph
+	enum class VertexState {FREE_NODE, LOCKED_NODE};  // added to collisions
 	
+	// ATRIBUTOS DE LA CLASE ConnectivityGraph
 	struct VertexData
 	{
 		bool valid;
+		VertexState state;
 		float pose[3];
 		float poseElbow[3];
 		std::vector < MotorGoalPositionList > configurations;
 		std::size_t id;
+		/**
+		 * \brief Default constructor
+		 */ 
 		VertexData()
 		{
 			id = -1;
 			valid = false;
+			state = VertexState::FREE_NODE;
 			pose[0] = pose[1] = pose[2] = 0;
 			poseElbow[0] = poseElbow[1] = poseElbow[2] = 0;
 		}
+		/**
+		 * \brief Parametrized constructor
+		 * @param i size
+		 * @param p vector float
+		 */ 
 		VertexData(std::size_t i, const float *p)
 		{
 			id = i;
@@ -41,6 +52,7 @@ public:
 			pose[1] = y;
 			pose[2] = z;
 			valid = true;
+			state = VertexState::FREE_NODE;
 		}
 		void setElbowPose(const float x, const float y, const float z)
 		{
@@ -50,7 +62,7 @@ public:
 		}
 		float distTo(const float *p)
 		{
-			if (valid)
+			if (valid and state==VertexState::FREE_NODE)
 				return sqrt( (p[0]-pose[0])*(p[0]-pose[0]) + (p[1]-pose[1])*(p[1]-pose[1]) + (p[2]-pose[2])*(p[2]-pose[2]) );
 			return 1000000000000;
 		}
@@ -131,6 +143,42 @@ public:
 			lineN++;
 		}
 	}
+
+// 	/*
+	ConnectivityGraph *purged()
+	{
+		ConnectivityGraph *ret = new ConnectivityGraph(0);
+		std::map<int, int> mapping;
+		int firstAvailableMapping = 0;
+
+		for (uint node=0; node < vertices.size(); node++)
+		{
+			for (uint node2=0; node2 < vertices.size(); node2++)
+			{
+				if (edges[node][node2] < DJ_INFINITY)
+				{
+					ret->vertices.push_back(vertices[node]);
+					mapping[firstAvailableMapping] = node;
+					firstAvailableMapping += 1;
+					break;
+				}
+			}
+		}
+
+		for (int node=0; node < firstAvailableMapping; node++)
+		{
+			std::vector<float> eds;
+			for (int node2=0; node2 < firstAvailableMapping; node2++)
+			{
+				eds.push_back(edges[mapping[node]][mapping[node2]]);
+			}
+			edges.push_back(eds);
+		}
+
+		return ret;
+	}
+// 	*/
+	
 	
 	// ---------------------------------------OTROS METODOS
 	/**
@@ -265,7 +313,7 @@ public:
 
 		for (uint i=0; i<vertices.size(); i++)
 		{
-			if (vertices[i].valid and vertices[i].configurations.size() > 0)
+			if (vertices[i].valid and vertices[i].state==VertexState::FREE_NODE and vertices[i].configurations.size() > 0)
 			{
 				const float d = vertices[i].distTo(p);
 				if (minDist<0 or minDist>d)

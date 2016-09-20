@@ -18,7 +18,7 @@
  */
 #include "specificworker.h"
 
-#define MAX_SPEED 40
+#define MAX_SPEED 1.5
 // #define MAX_SPEED 0.7
 
 #define STEP_DISTANCE 50
@@ -42,9 +42,14 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 { 
 	READY         = false;
+	printf("STATE: %d\n", state);
 	state         = GIK_NoTarget;
+	printf("STATE CHANGED TO: %d\n", state);
 	targetCounter = 0;
 	mutexSolved   = new QMutex(QMutex::Recursive);
+	// NOTE Inicializamos las nubes de puntos
+//	full_cloud     = pcl::PointCloud<pcl::PointXYZ>::Ptr (new pcl::PointCloud<pcl::PointXYZ>);
+//	cloud_filtered = pcl::PointCloud<pcl::PointXYZ>::Ptr (new pcl::PointCloud<pcl::PointXYZ>);
 
 #ifdef USE_QTGUI
 	show();
@@ -103,11 +108,24 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	if( QFile::exists(QString::fromStdString(par.value)) )
 	{
 		innerModel  = new InnerModel(par.value);
+//------------------------------------------------------------------------------------------------------------------------------------------------
+		//my mesh para ver si chocamos con el brazo.
+		//my_mesh = innerModel->newMesh("my_mesh", innerModel->getNode("root"), "/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", 
+		//			       25,25,25,
+		//			       0,
+		//		               0,0,0,0,0,0, 
+		//		               true);
+		//recursiveIncludeMeshes(innerModel->getNode("arm_pose"), meshes);
+		//std::sort(meshes.begin(), meshes.end()); 
+//------------------------------------------------------------------------------------------------------------------------------------------------
+	
 #ifdef USE_QTGUI
 		innerVisual = new InnerModel(par.value);
 		innerViewer = new InnerModelViewer(innerVisual, "root", osgView->getRootGroup(), true);
 		osgView->getRootGroup()->addChild(innerViewer);
 		show();
+// 		//InnerModelDraw::addMesh_ignoreExisting(innerViewer, "my_mesh", "root", QVec::zeros(3), QVec::zeros(3),"/home/robocomp/robocomp/files/osgModels/basics/cube.3ds", QVec::vec3(25,25,25));
+
 #endif
 	}
 	else
@@ -155,9 +173,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("%s:%s:%d: Exception: %s\n", __FILE__, __FUNCTION__, __LINE__, err.toStdString().c_str());
 		throw;
 	}
+
 	timer.start(10);
 	initFile();
-	qDebug()<<"READY CONFIG PARAMS";
+	//qDebug()<<"[ikGraphGenerator]: READY CONFIG PARAMS";
 	return true;
 }
 
@@ -225,9 +244,10 @@ void SpecificWorker::initGenerate()
 	initBox->hide();
 #endif
 
-	xrange = std::pair<float, float>( -150,  150   + 1);
-	yrange = std::pair<float, float>(  750, 1050   + 1);
-	zrange = std::pair<float, float>(  400,  700   + 1);
+	QVec center = QVec::vec3(0, 900, 640);
+	xrange = std::pair<float, float>( center(0)-100, center(0)+100 + 1);
+	yrange = std::pair<float, float>( center(1)-200, center(1)+200 + 1);
+	zrange = std::pair<float, float>( center(2)-200, center(2)+200 + 1);
 // 	QVec center = QVec::vec3((xrange.second+xrange.first)/2, (yrange.second+yrange.first)/2, (zrange.second+zrange.first)/2);
 
 	float step = STEP_DISTANCE;
@@ -241,6 +261,7 @@ void SpecificWorker::initGenerate()
 			{
 
 				QVec pos = QVec::vec3(xpos, ypos, zpos);
+				if ((pos-center).norm2() < 150)
 				{
 					graph->addVertex(ConnectivityGraph::VertexData());
 					QString id = QString("node_") + QString::number(included);
@@ -264,7 +285,7 @@ void SpecificWorker::initGenerate()
 	}
 	int rec = 0;
 // 	if (not goAndWait(0, 900, 560, -1, centerConfiguration, rec))
-	if (not goAndWait(0, 900, 700, -1, centerConfiguration, rec))
+	if (not goAndWait(center(0), center(1), center(2), -1, centerConfiguration, rec))
 		qFatal("Couldn't get initial position");
 
 	workerThread = new WorkerThread(this);
@@ -330,11 +351,34 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 	static MotorGoalPositionList last;
 	if (mpl == last)
 	{
-		printf("skipping same config\n");
+		//printf("skipping same config\n");
 		return;
 	}
 	last = mpl;
-	jointmotor_proxy->setSyncPosition(mpl);
+	try
+	{
+		QTime t = QTime::currentTime();
+		jointmotor_proxy->setSyncPosition(mpl);
+		printf("elapsed: %d\n", t.elapsed());
+	}
+	catch (const RoboCompJointMotor::CollisionException &ex)
+	{
+		cout<<"--> Collision in commonjoint" << ex << "\n";
+		lastFinish = "ERROR";
+		printf("STATE: %d\n", state);
+		state = GIK_NoTarget;
+		printf("STATE CHANGED TO: %d\n", state);
+		return;
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout<<"--> Ice::Exception:" << ex.what() <<"\n";
+		lastFinish = "ERROR";
+		printf("STATE: %d\n", state);
+		state = GIK_NoTarget;
+		printf("STATE CHANGED TO: %d\n", state);
+		return;
+	}
 	{
 		QMutexLocker l(mutex);
 		for (auto g : mpl)
@@ -344,8 +388,7 @@ void SpecificWorker::goAndWaitDirect(const MotorGoalPositionList &mpl)
 #endif
 		}
 	}
-	usleep(2000);
-	//sleep(1);
+	usleep(200);
 }
 
 
@@ -482,6 +525,8 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	goAndWaitDirect(mpl);
 
 	printf("ERROR segun IK %f\n", stt.errorT);
+	printf("time %d\n", initialTime.elapsed());
+	printf("finished: %d\n", stt.finish);
 	printf("IK message %s\n", stt.state.c_str());
 
 	if (stt.errorT > MAX_ERROR_IK or initialTime.elapsed()>15000 or not stt.finish)
@@ -594,7 +639,7 @@ void SpecificWorker::computeHard()
 		for (de=0; de < 2 and not goAndWait(nodeSrc, configuration, recursive); de++)
 		{
 			int d=0;
-			goAndWait(0, 850, 550, -1, centerConfiguration, d);
+			goAndWait(0, 850, 650, -1, centerConfiguration, d);
 		}
 		if (de == 2)
 		{
@@ -659,15 +704,24 @@ void SpecificWorker::computeHard()
 
 /** ------------------------------------------------------
  * \brief compute
- * this method executes each 10 iterations
  * ------------------------------------------------------*/
 void SpecificWorker::compute()
 {
 	QMutexLocker l(mutex);
-  
 	if (not READY) return;
-	static int tick = 0;
-	if (tick++ % 10 != 0) return;
+
+	
+
+#ifdef USE_QTGUI
+	ui_state->setText(QString::number(state));
+	QVec rrr = innerModel->transform6D("robot", "grabPositionHandR");
+	ui_x->setText( (fabs(rrr(0))<0.0001)?QString("0"):QString::number(rrr(0)));
+	ui_y->setText( (fabs(rrr(1))<0.0001)?QString("0"):QString::number(rrr(1)));
+	ui_z->setText( (fabs(rrr(2))<0.0001)?QString("0"):QString::number(rrr(2)));
+	ui_rx->setText((fabs(rrr(3))<0.0001)?QString("0"):QString::number(rrr(3)));
+	ui_ry->setText((fabs(rrr(4))<0.0001)?QString("0"):QString::number(rrr(4)));
+	ui_rz->setText((fabs(rrr(5))<0.0001)?QString("0"):QString::number(rrr(5)));
+#endif
 
 	updateFrame(10);
 	updateInnerModel();
@@ -677,8 +731,12 @@ void SpecificWorker::compute()
 	switch(state)
 	{
 	case GIK_NoTarget:
-		printf(".");
-		fflush(stdout);
+		static int tick = 0;
+		if (tick++ % 3 == 0)
+		{
+			printf(".");
+			fflush(stdout);
+		}
 		break;
 	case GIK_GoToInit:
 		printf("GIK_GoToInit\n");
@@ -695,115 +753,150 @@ void SpecificWorker::compute()
 	default:
 		printf("%s: %d\n", __FILE__, __LINE__);
 	}
-	
-	
-    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-    // ALERT ALERT ALERT ALERT TODO TODO TODO TODO
-	//delete_collision_points();
-       
+
 
 	switch(state)
 	{
 	case GIK_NoTarget:
 		return;
 	//--------------------------------------------------------------------------------------------------//
+	static QTime t;
 	case GIK_GoToInit :
+		t = QTime::currentTime();
+		printf("GIK_GoToInit\n");
 		goAndWaitDirect(graph->vertices[closestToInit].configurations[0]);
 		pathIndex = 0;
 		if (path.size() > 1) pathIndex = 1;
+		printf("STATE: %d\n", state);
 		state = GIK_GoToEnd;
-	break;
+		printf("STATE CHANGED TO: %d\n", state);
+		printf("elapsed1: %d\n", t.elapsed());
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToEnd:
+		printf("GIK_GoToEnd\n");
+		printf("elapsed1: %d\n", t.elapsed());
+
 		goAndWaitDirect(graph->vertices[path[pathIndex]].configurations[0]);
 		printf("%d %f %f %f\n", pathIndex, graph->vertices[path[pathIndex]].pose[0], graph->vertices[path[pathIndex]].pose[1], graph->vertices[path[pathIndex]].pose[2]);
 		pathIndex++;
+		waitForMotorsToStop();
 		if (pathIndex>=path.size())
 		{
 			pathIndex = 0;
+			printf("STATE: %d\n", state);
 			state = GIK_GoToActualTargetSend;
-			waitForMotorsToStop();
+			printf("STATE CHANGED TO: %d\n", state);
 			qDebug()<<"\n\nPASAMOS A LA IK!!!!!!!!!\n";
 			usleep(2000);
 		}
-	break;
+		printf("elapsed2: %d\n", t.elapsed());
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSend:
-	
+		printf("GIK_GoToActualTargetSend\n");
+		printf("elapsed1: %d\n", t.elapsed());
+
 		qDebug()<<"SEND---->("<<currentTarget.pose.x<<", "<<currentTarget.pose.y<<", "<<currentTarget.pose.z<<")";
 		try {
 			currentTarget.id_IK = inversekinematics_proxy->setTargetPose6D("ARM", currentTarget.pose, currentTarget.weights);
+			printf("STATE: %d\n", state);
 			state = GIK_GoToActualTargetSent;
+			printf("STATE CHANGED TO: %d\n", state);
 		}
 		catch (Ice::Exception e){ qDebug()<<"cannot connect with inversekinematics_proxy"<<e.what();}
-	break;
+		printf("elapsed2: %d\n", t.elapsed());
+
+		break;
 	//--------------------------------------------------------------------------------------------------//
 	case GIK_GoToActualTargetSent:
-		TargetState stt = inversekinematics_proxy->getTargetState("ARM", currentTarget.id_IK);
-		if (stt.finish == true)
 		{
-			qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
-			QMutexLocker mm(mutexSolved);
-			currentTarget.state = stt;
-			if (stt.errorT > MAX_ERROR_IK)
+			TargetState stt = inversekinematics_proxy->getTargetState("ARM", currentTarget.id_IK);
+// 			printf("GIK_GoToActualTargetSent\n");
+			if (stt.finish == true)
 			{
-				lastFinish = "ERROR";
-// #ifdef USE_QTGUI
-// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-// #endif
-			}
-			else
-			{
-				MotorGoalPositionList mpl;
-				for (auto gp : stt.motors)
+				qDebug()<<"HE TERMINADO!!: "<<currentTarget.id_IK<<"..."<<currentTarget.id_IKG;
+				QMutexLocker mm(mutexSolved);
+				currentTarget.state = stt;
+				if (stt.errorT > MAX_ERROR_IK)
 				{
-					MotorGoalPosition mgp;
-					mgp.position = gp.angle;
-					mgp.maxSpeed = MAX_SPEED;
-					mgp.name = gp.name;
-					mpl.push_back(mgp);
+					lastFinish = "ERROR";
+	// #ifdef USE_QTGUI
+	// 		QMessageBox::information(this, "finished ERR", QString("can't go: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+	// #endif
 				}
-				goAndWaitDirect(mpl);
-// 				qFatal("hecho!");
-				waitForMotorsToStop();
-				lastMotorGoalPositionList = mpl;
-				lastFinish = "OK";
-// #ifdef USE_QTGUI
-// 						updateFrame(500000);
-// 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
-// #endif
-				usleep(50000);
+				else
+				{
+					MotorGoalPositionList mpl;
+					for (auto gp : stt.motors)
+					{
+						MotorGoalPosition mgp;
+						mgp.position = gp.angle;
+						mgp.maxSpeed = MAX_SPEED;
+						mgp.name = gp.name;
+						mpl.push_back(mgp);
+					}
+					goAndWaitDirect(mpl);
+	// 				qFatal("hecho!");
+					waitForMotorsToStop();
+					lastMotorGoalPositionList = mpl;
+					lastFinish = "OK";
+	// #ifdef USE_QTGUI
+	// 						updateFrame(500000);
+	// 						QMessageBox::information(this, "finished OK", QString("target reached: error=")+QString::number(stt.errorT)+QString("\n")+QString::fromStdString(stt.state));
+	// #endif
+					usleep(5000);
+				}
+				qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
+				updateInnerModel();
+				solvedList.enqueue(currentTarget); //guardamos el target
+				printf("(%f %f %f)\n", currentTarget.pose.x, currentTarget.pose.y, currentTarget.pose.z);
+				qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
+				printf("STATE: %d\n", state);
+				state = GIK_NoTarget;
+				printf("STATE CHANGED TO: %d\n", state);
 			}
-			qDebug()<<"finish: "<<QString::fromStdString(lastFinish);
-			updateInnerModel();
-			solvedList.enqueue(currentTarget); //guardamos el target
-			printf("(%f %f %f)\n", currentTarget.pose.x, currentTarget.pose.y, currentTarget.pose.z);
-			qDebug()<<"ERROR T: "<<currentTarget.state.errorT;
-			state = GIK_NoTarget;
-		}
 		break;
 	}
+	default:
+		printf("GIK_ DEFAULT\n");
+
+	}
 }
+
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////
-void SpecificWorker::delete_collision_points()
-{
-	RoboCompRGBD::PointSeq point_cloud;
-	RoboCompJointMotor::MotorStateMap hState;
-	RoboCompDifferentialRobot::TBaseState bState;
-	rgbd_proxy->getXYZ(point_cloud, hState, bState);  // obtenemos la nube de puntos
+bool SpecificWorker::delete_collision_points()
+{ 
+#ifdef USE_PCL
+	// Actualizamos el mesh auxiliar para ponerlo donde no estorbe.
+	innerModel->updateTransformValues("my_mesh", 0,0,0,0,0,0, "root");
+
+	float collision_threshold = 40;                  // Los centímetros entre el punto y los nodos del grafo 8 cm
+	RoboCompRGBD::PointSeq point_cloud;              // Los puntos detectados por la RGBD
+	RoboCompJointMotor::MotorStateMap hState;        // Para sacar los puntos de la RGBD
+	RoboCompDifferentialRobot::TBaseState bState;    // Para sacar los puntos de la RGBD
 	
+	// Obtenemos la nube de puntos
+	try{
+		rgbd_proxy->getXYZ(point_cloud, hState, bState); 
+	}catch(...)
+	{
+		std::cout<<"Error point cloud\n";
+	}
+
 	//Pasamos puntos a pcl: full_cloud es un array que contiene estructuras del tipo PointXYZ
 	full_cloud->points.resize(point_cloud.size()); // Numero de puntos en la nube PCL
-	
+
+	// ALERT Valores puestos a pelo desde el fichero del grafo
+	// TODO Método que te devuelva el punto más cercano y el más lejano para hacer el cubo espacial
 	// Guardamos los puntos dentro del array si estan dentro del volumen de trabajo del robot.
-	float minx= 50.0, miny= 750.0, minz=180.0;
-	float maxx=400.0, maxy=1100.0, maxz=450.0;
+	float minx= -120.0, miny= 820.0, minz=560.0;
+	float maxx=  120.0, maxy= 1020.0, maxz=760.0;
 	
 	QMat mat = innerModel->getTransformationMatrix("robot", "rgbd"); //matriz de transformacion
 	int32_t usedPoints = 0;
@@ -813,59 +906,173 @@ void SpecificWorker::delete_collision_points()
 	omp_set_num_threads(num_hilos);
 	
 	#pragma omp parallel for shared(usedPoints) ordered schedule(static,1)
-	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
+	for (uint32_t i=0; i<point_cloud.size(); /*i++*/i=i+10) //casi mismo resultado que si computamos con todos los puntos
 	{
 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
-					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
+		                           point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
 		
 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
 		{
 			#pragma omp ordered
 			{
-			full_cloud->points[usedPoints].x =  v(0);
-			full_cloud->points[usedPoints].y =  v(1);
-			full_cloud->points[usedPoints].z =  v(2);
-			usedPoints++;
-			}
-		}
+
+				full_cloud->points[usedPoints].x =  v(0);
+				full_cloud->points[usedPoints].y =  v(1);
+				full_cloud->points[usedPoints].z =  v(2);
+				usedPoints++;
+			}//fin del pragma
+		}//fin del if
 	}
 	
-// 	#pragma omp parallel for shared(usedPoints)
-// 	for (uint32_t i=0; i<point_cloud.size(); i=i+10)
-// 	{
-// 		QVec v = (mat * QVec::vec4(point_cloud[i].x, point_cloud[i].y, point_cloud[i].z, 
-// 					point_cloud[i].w)).fromHomogeneousCoordinates(); //transformamos al robot
-// 					
-// 		if (v(0)>=minx and v(0)<=maxx and v(1)>=miny and v(1)<=maxy and v(2)>=minz and v(2)<=maxz)
-// 		{
-// 			full_cloud->points[usedPoints].x =  v(0);
-// 			full_cloud->points[usedPoints].y =  v(1);
-// 			full_cloud->points[usedPoints].z =  v(2);
-// 			#pragma omp critical
-// 			usedPoints++;
-// 		}
-// 	}
-	full_cloud->width = usedPoints;
-	full_cloud->height = 1;
-	full_cloud->points.resize(usedPoints);
-	qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<usedPoints<<" --> "<<usedPoints/float(point_cloud.size())*100<<" %";
-	
-	//Quitamos densidad --> Create the filtering object
-	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
-	pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
-	sor.setInputCloud (full_cloud);
-	sor.setMeanK (50);
-	sor.setStddevMulThresh (1.0);
-	sor.filter (*cloud_filtered);
-	
-	qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<usedPoints<<" --> "<<usedPoints/float(point_cloud.size())*100<<" %";
+	if (usedPoints>0)
+	{
+		// AHora guardamos los puntos restantes en la nube
+		full_cloud->width = usedPoints;
+		full_cloud->height = 1;
+		full_cloud->points.resize(usedPoints);
+		qDebug()<<"Used Points: "<<usedPoints;
+		qDebug()<<"Points before: "<<point_cloud.size()<<" Points after: "<<full_cloud->points.size()<<" --> "<<full_cloud->points.size()/float(point_cloud.size())*100<<" %";
 
+		//Quitamos densidad --> Create the filtering object
+	// 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloud_filtered (new pcl::PointCloud<pcl::PointXYZ>);
+		pcl::StatisticalOutlierRemoval<pcl::PointXYZ> sor;
+		sor.setInputCloud (full_cloud);
+		sor.setMeanK (50);
+		sor.setStddevMulThresh (1.0);
+		sor.filter (*cloud_filtered);
+		qDebug()<<"Points before: "<<full_cloud->points.size()<<" Points after: "<<cloud_filtered->points.size()<<" --> "<<cloud_filtered->points.size()/float(full_cloud->points.size())*100<<" %";
+		// Pasamos a KDTREE para agilizar búsquedas
+		pcl::KdTreeFLANN<pcl::PointXYZ> kdtree;
+		kdtree.setInputCloud (cloud_filtered);
+		
+		// Comparamos los nodos del grafo con el KDTREE:
+// 		pcl::PointXYZ searchPoint;                     //estructura para comparar
+// 		std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
+// 		std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
+		//recorremos grafo
+		int free_nodes=0;
+
+		#pragma omp parallel for shared(free_nodes) ordered schedule(static,1)
+		for (uint i=0; i<graph->vertices.size(); i++)
+		{
+			pcl::PointXYZ searchPoint;                     //estructura para comparar
+			std::vector<int> pointIdxRadiusSearch;         //auxiliar, no se utilizara
+			std::vector<float> pointRadiusSquaredDistance; //auxiliar, no se utilizara
+		
+			if (graph->vertices[i].valid)
+			{
+				// Pasamos el nodo a PointXYZ
+				searchPoint.x = graph->vertices[i].pose[0];
+				searchPoint.y = graph->vertices[i].pose[1];
+				searchPoint.z = graph->vertices[i].pose[2];
+				// Si hay puntos que chocan contra el vertice dle grafo, hay que invalidarlo
+				#pragma omp ordered
+				{
+					if (kdtree.radiusSearch (searchPoint, collision_threshold, pointIdxRadiusSearch, pointRadiusSquaredDistance) > 0 )
+					{
+						// De esos puntos quitamos los que se correspondan con el brazo
+						innerModel->updateTransformValues("my_mesh", searchPoint.x, searchPoint.y, searchPoint.z,0,0,0, "root");
+						for (auto a: meshes)
+						{
+							if (innerModel->collide(a, "my_mesh")==false)
+							{
+								graph->vertices[i].state=ConnectivityGraph::VertexState::LOCKED_NODE;
+#ifdef USE_QTGUI
+								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+													QVec::vec3(graph->vertices[i].pose[0], 
+														graph->vertices[i].pose[1], 
+														graph->vertices[i].pose[2]),
+													QVec::vec3(1,0,0), "#cc2222", QVec::vec3(2,2,2));
+#endif
+								break;
+							}// fin del if
+							else
+							{
+								graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
+								free_nodes++;
+#ifdef USE_QTGUI
+								InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+													QVec::vec3(graph->vertices[i].pose[0], 
+														graph->vertices[i].pose[1], 
+														graph->vertices[i].pose[2]),
+													QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+#endif
+							}
+						}//fin del for
+					}
+					else
+					{
+						graph->vertices[i].state=ConnectivityGraph::VertexState::FREE_NODE;
+						free_nodes++;
+#ifdef USE_QTGUI
+						InnerModelDraw::addPlane_ignoreExisting(innerViewer, (QString("node_") + QString::number(i)), "root",
+											QVec::vec3(graph->vertices[i].pose[0], 
+												graph->vertices[i].pose[1], 
+												graph->vertices[i].pose[2]),
+											QVec::vec3(1,0,0), "#22cc22", QVec::vec3(2,2,2));
+#endif
+					}
+				}
+			}
+		}
+		// http://pointclouds.org/documentation/tutorials/kdtree_search.php
+		qDebug()<<"NODOS LIBRES: "<<free_nodes<<" DE "<<graph->vertices.size()<<" NODOS EN TOTAL";
+		return true;
+	}
+#endif
+	return false;
+}
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QString> &in)
+{
+#ifdef USE_PCL
+	bool niapa = true;
+	if (niapa)
+	{
+		in.push_back("shellyArm_BASE_mesh");
+		in.push_back("shellyArm_BASE2_mesh");
+		in.push_back("shellyArm_HUMERO_mesh");
+		in.push_back("shellyArm_CODO_mesh");
+		in.push_back("shellyArm_ANTEBRAZO_mesh");
+		in.push_back("finger_wrist_mesh");
+		in.push_back("handMeshBase");
+		in.push_back("handMesh2");
+		in.push_back("finger_wrist_1_mesh2");
+		in.push_back("finger_wrist_1_mesh3");
+		in.push_back("finger_wrist_1_mesh4");
+		in.push_back("finger_wrist_1_mesh5");
+		in.push_back("finger_wrist_1_mesh6");
+		in.push_back("finger_wrist_1_mesh7");
+		in.push_back("finger_wrist_2_mesh2");
+		in.push_back("finger_wrist_2_mesh3");
+		in.push_back("finger_wrist_2_mesh4");
+	}
+	else
+	{
+		QMutexLocker locker(mutex);
 	
-	// Pasamos a un kdtree para realizar mejor las busquedas.
-//  	pcl::search::KdTree<pcl::PointXYZ>::Ptr cloud_kdtree (new pcl::search::KdTree<pcl::PointXYZ>);
-// 	cloud_kdtree->setInputCloud(full_cloud);
-// 	
-// 	cloud_kdtree = NULL;
+		InnerModelMesh *mesh;
+		InnerModelPlane *plane;
+		InnerModelTransform *transformation;
+
+		if ((mesh = dynamic_cast<InnerModelMesh *>(node)) or (plane = dynamic_cast<InnerModelPlane *>(node)))
+		{
+			in.push_back(node->id);
+		}
+
+		else if ((transformation = dynamic_cast<InnerModelTransform *>(node)))
+		{
+			for (int i=0; i<node->children.size(); i++)
+			{
+				recursiveIncludeMeshes(node->children[i], in);
+			}
+		}
+// 		qFatal("dd");
+	}
+#endif
 }
 
 
@@ -994,7 +1201,9 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		innerVisual->updateTransformValues("init", target.x, target.y, target.z, 0,0,0);
 		innerVisual->updateTransformValues("end", target.x, target.y, target.z, 0,0,0);
 #endif
+		printf("STATE: %d\n", state);
 		state = GIK_GoToActualTargetSend;
+		printf("STATE CHANGED TO: %d\n", state);
 	}
 	else
 	{	
@@ -1024,7 +1233,7 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 		if (tempPath.size() > 0)
 		{
 			printf("path A: ");
-			for (uint i=0; i<tempPath.size(); i++) printf("%d", tempPath[i]);
+			for (uint i=0; i<tempPath.size(); i++) printf(" %d ", tempPath[i]);
 			printf("\n");
 
 			// Should we skip the first node?
@@ -1051,11 +1260,12 @@ int SpecificWorker::setTargetPose6D(const string &bodyPart, const Pose6D &target
 				path.push_back(tempPath[i]);
 			}
 			printf("path B: ");
-			for (uint i=0; i<path.size(); i++) printf("%d", path[i]);
+			for (uint i=0; i<path.size(); i++) printf(" %d ", path[i]);
 			printf("\n");
 		}
 
 		state = GIK_GoToInit;
+		printf("state switched to %d\n", state);
 	}
 	targetCounter++;
 
@@ -1165,12 +1375,13 @@ TargetState SpecificWorker::getTargetState(const string &bodyPart, const int tar
 	TargetState s;
 	s.finish = false;
 	
+// 	qDebug()<<"PEDIDO TARGET "<<targetID;
 	QMutexLocker mm(mutexSolved);
 	for(int i=0; i<solvedList.size(); i++)
 	{
 		if (targetID == solvedList[i].id_IKG)
 		{
-			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
+// 			qDebug()<<"PEDIDO TARGET "<<targetID<<". ENCONTRADO.";
 			return solvedList[i].state;
 		}
 	}
@@ -1193,7 +1404,9 @@ void SpecificWorker::goHome(const string &bodyPart)
 void SpecificWorker::stop(const string &bodyPart)
 {
 	printf("%s: %d\n", __FILE__, __LINE__);
+	printf("STATE: %d\n", state);
 	state = GIK_NoTarget;
+	printf("STATE CHANGED TO: %d\n", state);
 }
 
 
@@ -1228,27 +1441,41 @@ void SpecificWorker::setJoint(const string &joint, const float angle, const floa
 
 /**
  * \brief Waits for the motors to stop
- */ 
+ */
 void SpecificWorker::waitForMotorsToStop()
 {
-	MotorStateMap allMotorsCurr, allMotorsBack;
-	jointmotor_proxy->getAllMotorState(allMotorsBack);
-	usleep(50000);
+	MotorStateMap allMotorsCurr/*, allMotorsBack*/;
 
-	while(true)
+	bool moveInitialized = false;
+	bool moveFinished = false;
+	QTime waitTime = QTime::currentTime();
+
+	while (waitTime.elapsed() < 1200)
 	{
-		printf("%s: %d\n", __FILE__, __LINE__);
-		jointmotor_proxy->getAllMotorState(allMotorsCurr); //valor actual		
+		try
+		{
+			jointmotor_proxy->getAllMotorState(allMotorsCurr);
+		}
+		catch(...)
+		{
+			std::cout<<"Error retrieving all motors state\n";
+		}
+		bool someMotorMoving = false;
 		for (auto v : allMotorsCurr)
 		{
-			if (abs(v.second.pos - allMotorsBack[v.first].pos) > 0.05)
+			if (fabs(v.second.vel)>0.8)
 			{
-				allMotorsBack = allMotorsCurr;
+				someMotorMoving = true;
 				usleep(50000);
 				break;
 			}
 		}
-		return;
+		
+		if (someMotorMoving==true   ) moveInitialized = true;
+		if (someMotorMoving==false and moveInitialized == true) moveFinished = true;
+
+		if (moveInitialized == true and moveFinished == true)
+			return;
 	}
 }
 
@@ -1256,7 +1483,7 @@ void SpecificWorker::waitForMotorsToStop()
 
 int SpecificWorker::mapBasedTarget(const string &bodyPart, const StringMap &strings, const ScalarMap &scalars)
 {
-
+	return 0;
 }
 
 

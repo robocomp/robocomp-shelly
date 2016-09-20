@@ -1,0 +1,22 @@
+<innerModel>
+		
+		<transform id="target">
+			<axes id="targetAxes" length="120" width="10" />
+		</transform>
+
+		<transform id="visual_hand">
+			<axes id="handAxes" length="80" width="20" />
+		</transform>
+
+		<transform id="corr_hand">
+<!--			<axes id="corrAxes" length="40" width="5" />-->
+		</transform>
+		
+		<transform id="corrected">
+<!--			<transform id="correctedMenosError" />-->
+		</transform>
+		
+		<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly.xml"/>
+
+
+</innerModel>

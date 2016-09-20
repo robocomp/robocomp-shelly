@@ -14,8 +14,7 @@ SET ( HEADERS
 
 include_directories( "/usr/include/eigen3" "/usr/local/include/pcl-1.7"  "/usr/local/include/pcl-1.8")
 
-INCLUDE($ENV{ROBOCOMP}/cmake/modules/ipp.cmake)
-INCLUDE($ENV{ROBOCOMP}/cmake/modules/pcl.cmake)
+#INCLUDE($ENV{ROBOCOMP}/cmake/modules/pcl.cmake)
 
 #find_package(OMPL)
 

@@ -1,0 +1,124 @@
+<AGMModel>
+	<symbol id="20" type="object">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="tableA" />
+		<attribute key="width" value="1750" />
+		<attribute key="height" value="800" />
+		<attribute key="depth" value="700" />
+	</symbol>
+	<link src="3" dst="20" label="RT" >
+		<linkAttribute key="tx" value="1400" />
+		<linkAttribute key="ty" value="800" />
+		<linkAttribute key="tz" value="3180" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="rz" value="0" />
+	</link>
+	<symbol id="21" type="objectSt">
+	</symbol>
+	<symbol id="50" type="object">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="bluemug" />
+		<attribute key="tag"    value="31" />
+	</symbol>
+	<symbol id="51" type="objectSt">
+	</symbol>
+	<link src="50" dst="51" label="hasStatus" />
+	<link src="50" dst="51" label="mug" />
+	<link src="50" dst="51" label="see" />
+	<link src="50" dst="51" label="noReach" />
+	<link src="50" dst="51" label="reachable" />
+	<link src="50" dst="51" label="position" />
+	<link src="50" dst="51" label="classified" />
+	<link src="50" dst="20" label="in" />
+	<link src="50" dst="3" label="in" />
+
+	<link src="20" dst="50" label="RT" >
+		<linkAttribute key="tx" value="-1000" />
+		<linkAttribute key="ty" value="110" />
+		<linkAttribute key="tz" value="-600" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>  
+	
+	<symbol id="22" type="objectSt">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="tableA_reachPos" />
+	</symbol>
+	<link src="20" dst="22" label="reachPosition" />
+	<link src="20" dst="22" label="RT" >
+		<linkAttribute key="tx" value="300" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="-1.5707" />
+		<linkAttribute key="rz" value="0" />
+	</link>  
+
+
+
+	<symbol id="1" type="robot">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="robot" />
+	</symbol>
+	<symbol id="2" type="status">
+	</symbol>
+	<link src="1" dst="2" label="hasStatus" />
+
+
+	<symbol id="3" type="room">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="room_3" />
+		<attribute key="x" value="3300" />
+		<attribute key="z" value="1000" />
+	</symbol>
+	<symbol id="4" type="roomSt">
+	</symbol>
+	<symbol id="100" type="world">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="world" />
+	</symbol>
+	<link src="100" dst="3" label="RT" >
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>
+	<link src="3" dst="4" label="room" >
+	</link>
+	<link src="1" dst="3" label="in" >
+	</link>
+	<link src="3" dst="1" label="RT" >
+		<linkAttribute key="tz" value="0" />
+		<linkAttribute key="tx" value="0" />
+		<linkAttribute key="ty" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>
+	<link src="1" dst="3" label="know" >
+	</link>
+	<link src="1" dst="50" label="know" >
+	</link>
+
+
+	<link src="20" dst="3" label="in" >
+	</link>
+	<link src="20" dst="21" label="hasStatus" >
+	</link>
+	<link src="20" dst="21" label="noReach" >
+	</link>
+	<link src="20" dst="21" label="reachable" >
+	</link>
+	<link src="20" dst="21" label="table" >
+	</link>
+	<link src="1" dst="20" label="know" >
+	</link>
+	
+	
+
+</AGMModel>
+

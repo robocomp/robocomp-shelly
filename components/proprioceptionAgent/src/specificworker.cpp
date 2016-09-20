@@ -81,25 +81,28 @@ void SpecificWorker::compute()
 			{
 				backTimes[j.first] = QTime::currentTime().addSecs(-1000000);
 			}
+			first = false;
 		}
 		catch (const Ice::Exception &ex)
 		{
 			std::cout << __FILE__ << ":" << __LINE__ << " --> Can't update InnerModel" << std::endl;
 		}
 	}
-
+	
+	RoboCompJointMotor::MotorStateMap mMap;
+	std::vector<AGMModelEdge> edge_sequence;
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
-		RoboCompJointMotor::MotorStateMap mMap;
 		jointmotor_proxy->getAllMotorState(mMap);
 		for (auto j : mMap)
 		{
+				printf("Updating: %s (%f)\n", j.first.c_str(), mMap[j.first].pos);
  			if (backTimes[j.first].elapsed()>500 or abs(backMotors[j.first].pos-mMap[j.first].pos) > 0.25*M_PIl/180.) /* send if it changed more than half degree */
 			{
 				backTimes[j.first] = QTime::currentTime();
 				backMotors[j.first] = j.second;
-				printf("Updating: %s (%d)\n", j.first.c_str(), newModel->size());
+// 				printf("Updating: %s (%d)\n", j.first.c_str(), newModel->size());
 				bool found = false;
 				for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 				{
@@ -112,7 +115,7 @@ void SpecificWorker::compute()
 						try { imName = symbol->getAttribute("imName"); } catch(...) { }
 						if (imName == j.first)
 						{
-							printf("found!\n");
+//							printf("found!\n");
 							found = true;
 							auto parent = newModel->getParentByLink(symbol->identifier, "RT");
 // printf("%d (%d -> %d)\n", __LINE__, parent->identifier, symbol->identifier);
@@ -124,46 +127,117 @@ void SpecificWorker::compute()
 							e.setAttribute("rz", "0");
 							std::string axis = symbol->getAttribute("axis");
 							e.setAttribute("r"+symbol->getAttribute("axis"), float2str(j.second.pos));
-							try
-							{
-// 								printf("  axis    %s\n", symbol->getAttribute("axis").c_str());
-// 								printf("  edge rx %s\n", e.getAttribute("rx").c_str());
-// 								printf("  edge rz %s\n", e.getAttribute("rz").c_str());
-// 								printf("  edge ry %s\n", e.getAttribute("ry").c_str());
-								AGMMisc::publishEdgeUpdate(e, agmexecutive_proxy);
-								usleep(500);
-// 								printf(" done!\n");
-							}
-							catch(...)
-							{
-								printf(" can't update node\n");
-							}
+// 							printf("  axis    %s\n", symbol->getAttribute("axis").c_str());
+//							printf("  edge rx %s\n", e.getAttribute("rx").c_str());
+//							printf("  edge rz %s\n", e.getAttribute("rz").c_str());
+//							printf("  edge ry %s\n", e.getAttribute("ry").c_str());
+							edge_sequence.push_back(e);
 							break;
 						}
 					}
 					catch(...)
 					{
-						printf("ddet erte\n");
+						printf(" couldn't retrieve node\n");
 					}
-
 				}
+				
 				if (not found)
-					printf("   couln't find joint: %s\n", j.first.c_str());
+					printf(" couln't find joint: %s\n", j.first.c_str());
 			}
 		}
-		
-		
-		if (first)
+		//publish
+		if (edge_sequence.size() > 0)
 		{
-			first = false;
+			try
+			{
+				if( edge_sequence.size() == 1)
+					AGMMisc::publishEdgeUpdate(edge_sequence.front(), agmexecutive_proxy);
+				else
+					AGMMisc::publishEdgesUpdate(edge_sequence, agmexecutive_proxy);
+			}
+			catch(...)
+			{
+				printf(" can't update node\n");
+			}
 		}
+		usleep(500);
+		//	printf(" done!\n");
 	}
 	catch (const Ice::Exception &ex)
 	{
-		std::cout<<"--> Excepción en actualizar InnerModel"<<std::endl;
+		std::cout<<"--> Exception updating InnerModel"<<std::endl;
 	}
+	
+	manageRestPositionEdge(mMap);
+	
 }
 
+
+bool SpecificWorker::isInRestPosition(const RoboCompJointMotor::MotorStateMap &mMap)
+{
+	try
+	{
+		if (fabs(mMap.at("armY").pos-(0.0))>0.08)
+		{
+			printf("armY noRest %f\n", float(mMap.at("armY").pos));
+			return false;
+		}
+		if (fabs(mMap.at("armX1").pos-(-1.0))>0.08)
+		{
+			printf("armX1 noRest %f\n", float(mMap.at("armX1").pos));
+			return false;
+		}
+		if (fabs(mMap.at("armX2").pos-(2.5))>0.08)
+		{
+			printf("armX2 noRest %f\n", float(mMap.at("armX2").pos));
+			return false;
+		}
+		if (fabs(mMap.at("wristX").pos-(0))>0.08)
+		{
+			printf("wristX noRest %f\n", float(mMap.at("wristX").pos));
+			return false;
+		}
+	}
+	catch(...)
+	{
+		qFatal("Can't query motor state!");
+	}
+	return true;
+}
+
+
+void SpecificWorker::manageRestPositionEdge(const RoboCompJointMotor::MotorStateMap &mMap)
+{
+	QMutexLocker locker(mutex);
+	
+	if (isInRestPosition(mMap)) // We should make sure the link is there
+	{
+		try
+		{
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+		}
+		catch (...)
+		{
+			AGMModel::SPtr newModel(new AGMModel(worldModel));
+			newModel->addEdgeByIdentifiers(1, 2, "restArm");
+			sendModificationProposal(newModel, worldModel);
+		}
+	}
+	else // We should make sure the edge is removed
+	{
+		try
+		{
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+			AGMModel::SPtr newModel(new AGMModel(worldModel));
+			newModel->removeEdgeByIdentifiers(1, 2, "restArm");
+			sendModificationProposal(newModel, worldModel);
+		}
+		catch (...)
+		{
+		}
+	}
+
+}
 
 bool SpecificWorker::reloadConfigAgent()
 {
@@ -233,7 +307,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modifi
 	mutex->lock();
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
 	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "room", true);
+	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 	mutex->unlock();
 }
 
@@ -321,5 +395,27 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	return true;
 }
 
+void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m)
+{
+	QMutexLocker locker(mutex);
+
+	try
+	{
+		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "proprioceptionAgent")+m);
+	}
+	catch(const RoboCompAGMExecutive::Locked &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::OldModel &e)
+	{
+	}
+	catch(const RoboCompAGMExecutive::InvalidChange &e)
+	{
+	}
+	catch(const Ice::Exception& e)
+	{
+		exit(1);
+	}
+}
 
 

@@ -1,0 +1,23 @@
+<innermodel>
+	<transform id="world">
+		<transform id="floor" tx="0" tz="0">
+			<plane id="back" ny="1" size="8500,8500,10" texture="#eebb77" />
+		</transform>
+
+		
+		<transform id="tableA" tx="1400.0" tz="3180.0" ty="800" ry="-1.5707" >
+			<plane id="tableAC" ny="1" size="0.001,0.001,0.001"  texture="#cccccc" />
+			<transform id="bluemug" >
+				<transform id="mugRPr" tx="-10" ty="-50">
+					<mesh id="mugR" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" scale="120,120,120" rx="1.5707" rz="-1.5707" collide="1" />
+				</transform>
+				<plane id="mugTag" ny="1" py="0" size="70,-70,5.0" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" />
+				<plane id="mugTagb" ny="1" py="0" size="80,-80,3.5" texture="#ffffff" />
+			</transform> 
+		</transform> 
+		
+	</transform>
+
+
+</innermodel>
+

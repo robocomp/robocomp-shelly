@@ -75,6 +75,7 @@ private:
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 
 	void actionExecution();
+	void action_SetRestArmPosition(bool first=false);
 	void action_FindObjectVisuallyInTable(bool first=false);
 	void action_SetObjectReach(bool first=false);
 	void action_GraspObject(bool first=false);
@@ -94,7 +95,7 @@ private:
 	void changeInner ();
 
 	bool robotIsMoving();
-
+	bool isSomeMotorMoving();
 private:
 	
 	std::string action, backAction;
@@ -107,7 +108,7 @@ private:
 	
 	bool active;
 
-	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols);
+	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols, QVec offsetR);
 	
 	
 public slots:

@@ -37,7 +37,9 @@ SpecificWorker::SpecificWorker(MapPrx & mprx) : GenericWorker(mprx)
 	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
  	osgView->setCameraManipulator(tb);
 #endif
-	mutex = new QMutex(QMutex::Recursive);
+	state = Idle;
+	transitionSteps.clear();
+	calculateCollisionList.clear();
 }
 
 /**
@@ -69,21 +71,24 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	std::vector<std::pair<QString, QString> > exclusionList; //lista de exclusion de meshes
 	QString exclusion = QString::fromStdString(params["ExclusionList"].value);
-	if (exclusion.size()<2)
-	{
-		qFatal("Couldn't read ExclusionList\n");
-		return false;
-	}
-	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
-	{
-		QStringList parejaLista = parejaTexto.split(",");
-		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
-		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
-	}
-	for (auto e: exclusionList)
-	{
-		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
-	}
+ 	if (exclusion.size()<2)
+ 	{
+ 		qFatal("Couldn't read ExclusionList\n");
+ 		return false;
+ 	}
+ 	for (auto parejaTexto : exclusion.split(";", QString::SkipEmptyParts))
+ 	{
+ 		QStringList parejaLista = parejaTexto.split(",");
+		qDebug()<<parejaLista;
+ 		exclusionList.push_back(std::pair<QString, QString>(parejaLista[0], parejaLista[1]));
+ 		exclusionList.push_back(std::pair<QString, QString>(parejaLista[1], parejaLista[0]));
+ 	}
+/* 	printf("ExclusionList content:\n");
+ 	for (auto e: exclusionList)
+ 	{
+ 		printf("%s %s\n", e.first.toStdString().c_str(), e.second.toStdString().c_str());
+ 	}
+*/ 	
 
 	std::vector<QString> meshes;
 	recursiveIncludeMeshes(innerModel->getNode("robot"), meshes); //recoge los meshes del xml
@@ -99,27 +104,74 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 					if (a>b and (std::find(exclusionList.begin(), exclusionList.end(), std::pair<QString, QString>(a, b)) == exclusionList.end()))
 					{
 						pairs.push_back(std::pair<QString,QString>(a, b)); //guardamos pareja que no puede chocarse
-						printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
+						//printf("pair: %s - %s\n", a.toStdString().c_str(), b.toStdString().c_str());
 					}
 				}
 			}
 		}
 	}
+	// read collision bounding boxes restrictions
+	QString boxes = QString::fromStdString(params["RestrictedBoundingBoxes"].value);
+	printf("Collision bounding boxes\n");
+	for (auto boxValues : boxes.split(";", QString::SkipEmptyParts))
+ 	{
+ 		QStringList voxPoints = boxValues.split(",");
+		if (voxPoints.size() != 7){
+			qFatal("Bounding boxes collision errors");
+			return false;
+		}
+		qDebug()<<voxPoints;
+		QVec a1 = QVec::vec3(voxPoints[1].toFloat(),voxPoints[2].toFloat(),voxPoints[3].toFloat());
+		QVec a2 = QVec::vec3(voxPoints[4].toFloat(),voxPoints[5].toFloat(),voxPoints[6].toFloat());
+		collisionBoxMap[voxPoints[0]] = std::pair<QVec,QVec>(a1,a2);
+	}
 	//NOTE cuidado al meter motores nuevos a pelo: los xml no coinciden
 	//NOTE Movemos a pelo la cabeza hacia abajo... se puede quitar para despues
-	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.95}, {"head_yaw_joint",0}, {"leftEye",0}, {"rightEye",0} };
+	std::vector<std::pair<std::string, float> > initializations = { {"head_pitch_joint",0.8}, {"head_yaw_joint",0} };
 	MotorGoalPosition goal;
 	for (auto init : initializations)
 	{
-		QMutexLocker locker(mutex);
+// 		QMutexLocker locker(mutex);
 		std::pair<QString, QString> ret;
 		goal.position = init.second;
 		goal.name = init.first;
-		goal.maxSpeed = 0.5;
+		goal.maxSpeed = 1.0;
 		try { prxMap.at(init.first)->setPosition(goal); }
 		catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 	}
 
+	// read known positions and transitions
+	printf("TransitionList content:\n");
+	QString transitions = QString::fromStdString(params["knownTransitions"].value);
+ 	for (auto parejaTexto : transitions.split(";", QString::SkipEmptyParts))
+ 	{
+ 		QStringList parejaLista = parejaTexto.split(":" , QString::SkipEmptyParts);
+		QStringList init_final = parejaLista[0].split("," , QString::SkipEmptyParts);
+		QStringList intermediates = parejaLista[1].split("," , QString::SkipEmptyParts);
+		std::pair<QString, QString> key = std::pair<QString,QString>(init_final[0], init_final[1]);
+		std::vector<QString> intermediate_list;
+		for (auto intermdiate_name: intermediates)
+		{
+			intermediate_list.push_back(intermdiate_name);
+		}
+		knownTransitions.insert(std::pair<std::pair<QString,QString>,std::vector<QString>>(key,intermediate_list));
+		qDebug()<<"\t transition: "<<init_final[0] << ":"<<init_final[1] <<" => "<<intermediates;
+ 	}
+ 	QString positions = QString::fromStdString(params["knownPositions"].value);
+ 	for (auto parejaTexto : positions.split(";", QString::SkipEmptyParts))
+ 	{
+		qDebug()<<"position name =>"<<parejaTexto;
+		std::map<QString, float> motorList;
+ 		QStringList parejaLista = parejaTexto.split("," , QString::SkipEmptyParts);
+		QStringList motors = QString(parejaLista[1]).remove(QChar('[')).remove(QChar(']')).split("_" , QString::SkipEmptyParts);
+		for (auto motor : motors)
+		{
+			QStringList motor_values = motor.split(":", QString::SkipEmptyParts);
+			motorList.insert(std::pair<QString, float>(motor_values[0],motor_values[1].toFloat()));
+//			qDebug()<<motor_values[0] << "=>"<<motor_values[1];
+		}
+		knownPositions.insert(std::pair<QString,std::map<QString,float> >(parejaLista[0], motorList));
+	}
 	return true;
 }
 ////////////////////////////////////////////////////////////////////////////////////
@@ -131,13 +183,15 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
  */ 
 void SpecificWorker::compute( )
 {
-	usleep(50000);
+	static QTime movement_time = QTime::currentTime();
 	// Actualizamos el innerModel y la ventana del viewer
 	QMutexLocker locker(mutex);
 	RoboCompJointMotor::MotorStateMap mMap;
+	motorStateMap.clear();
 	try
 	{
 		jointmotor0_proxy->getAllMotorState(mMap); 
+		motorStateMap.insert(mMap.begin(), mMap.end());
 	}
 	catch (const Ice::Exception &ex)
 	{
@@ -157,6 +211,7 @@ void SpecificWorker::compute( )
 	try
 	{
 		jointmotor1_proxy->getAllMotorState(mMap);
+		motorStateMap.insert(mMap.begin(), mMap.end());
 	}
 	catch (const Ice::Exception &ex)
 	{
@@ -178,7 +233,87 @@ void SpecificWorker::compute( )
 	if (imv) imv->update();
 	osgView->frame();
 #endif
+	
+	switch(state)
+	{
+		case Idle:
+			break;
+		case GoPos:
+			if (not transitionSteps.empty())
+			{
+				std::pair<QString,RoboCompJointMotor::MotorGoalPositionList> next = transitionSteps.front();
+				std::pair<QString,QString> ret;
+				std::string result;
+				if(not checkMotorLimits(next.second,result) && not checkFuturePosition(next.second,ret))
+				{
+					sendPos2Motors(next.second);
+					state = WaitingToAchive;
+					movement_time = QTime::currentTime(); 
+					//waitForMotorsToStop();
+				}else
+				{
+					qDebug()<<"Imposible to achieve intermediate position"<<result.c_str();
+					printf("|| GoPos: %s,%s\n",ret.first.toStdString().c_str(),ret.second.toStdString().c_str());
+					transitionSteps.clear();
+					state = Idle;
+				}
+			}
+			else
+			{
+				state = Idle;
+			}
+			break;
+		case WaitingToAchive:
+//			qDebug()<<"waitingToAchieve";
+			// check how much time has elapsed
+			if (movement_time.elapsed() >= MOVEMENT_TIME)
+			{
+				transitionSteps.clear();
+				state = Idle;
+				qDebug() << "Too much time to achive position, movement cancelled";
+				return;
+			}
+			// check motors are moving
+			for (auto motor: motorStateMap)
+			{
+				//qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving"<<motor.second.isMoving;
+// 				if (motor.second.isMoving)
+				if (fabs(motor.second.vel)>0.9)
+				{
+//					qDebug()<<"waiting motor " <<QString::fromStdString(motor.first) << " is moving";
+					return;
+				}
+			}
+			QString actual_state = isKnownPosition(motorStateMap);
+			QString nextName;
+			if (not transitionSteps.empty())
+			{
+				std::pair<QString,RoboCompJointMotor::MotorGoalPositionList> next = transitionSteps.front();
+				nextName = next.first;
+			}
+			else
+			{
+				qDebug()<<"ERROR: TransitionSteps should not be empty, check!!!";
+				state = Idle;
+				return;
+			}
+//			qDebug() << "Waiting ==> actual: "<< actual_state<<" next step : " <<nextName;
+			if (actual_state == nextName)
+			{
+				transitionSteps.pop_front();
+				if (not transitionSteps.empty())
+					state = GoPos;
+				else
+					state = Idle;
+			}
+			else
+			{
+				usleep(25000);
+			}
+	}
 }
+
+
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////////
@@ -194,16 +329,30 @@ void SpecificWorker::setPosition(const MotorGoalPosition &goal)
 	MotorGoalPositionList listGoals;
 	listGoals.push_back(goal); //guardamos el angulo objetivo para un motor
 	std::pair<QString, QString> ret;
-	if (checkFuturePosition(listGoals, ret) and false)//NOTE para desactivar, descomente "and false"
+	std::string result;
+	if (checkMovementNeeded(listGoals))
 	{
-		//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
-		//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
-		printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		if (checkFuturePosition(listGoals, ret))
+		{
+			//Si la comprobacion de choque devuelve TRUE, entonces hay colision.
+			//Lanzamos la excepcion y NO movemos motores. NOTE para desactivar comente el throw exception
+			printf("|| setPosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+			throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		}
+		if (checkMotorLimits(listGoals, result))
+		{
+			printf("|| setPosition: %s\n", result.c_str());
+			throw RoboCompJointMotor::OutOfRangeException(result);
+		}
+		//movemos el motor:
+		try
+		{ 
+			prxMap.at(goal.name)->setPosition(goal);
+		}catch (std::exception &ex) 
+		{ 
+			std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; 
+		}
 	}
-	//movemos el motor:
-	try { prxMap.at(goal.name)->setPosition(goal);}
-	catch (std::exception &ex) { std::cout << ex.what() << __FILE__ << __LINE__ << "Motor " << goal.name << std::endl; };
 }
 /**
  * \brief this method changes the speed of the motor.
@@ -232,13 +381,76 @@ void SpecificWorker::setZeroPos(const string& name)
 void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 {
 	QMutexLocker locker(mutex);
-	std::pair<QString, QString> ret;
-	//NOTE COLISIONES ACTIVADAS: para desactivar comente el throw exception
-	if (checkFuturePosition(listGoals, ret))
+	if (state != Idle)
 	{
-		printf("|| setSyncPosition: %s,%s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
- 		//throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+		QString newGoal = isKnownPosition(listGoals);
+		if (transitionSteps.back().first == newGoal)
+		{
+			transitionSteps.pop_back();
+			auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(newGoal,listGoals);
+			transitionSteps.push_back( last );
+		}
+		else
+			qDebug()<<"Arm is busy moving through known transitions, new goal skipped";
+		return;
 	}
+	std::pair<QString, QString> ret;
+	std::string result;
+	if (checkMovementNeeded(listGoals))
+	{
+		if (checkMotorLimits(listGoals, result))
+		{
+			printf("|| setPosition: %s\n", result.c_str());
+			throw RoboCompJointMotor::OutOfRangeException(result);
+		}
+		else
+		{ // inside motor limits
+			if (checkFuturePosition(listGoals, ret)) 
+			{ //collision
+				//Try to avoid using known positions
+				QString goal_name = isKnownPosition(listGoals);
+				QString actual_name = isKnownPosition(motorStateMap);
+				qDebug()<<"|| Check if there is known transition chain from: "<<goal_name << " to: "<<actual_name;
+				
+				// search position in known list
+				std::map< std::pair<QString, QString>, std::vector<QString> >::iterator it;
+				it = knownTransitions.find(std::pair<QString, QString>(actual_name,goal_name));
+				if (it != knownTransitions.end())
+				{
+					for (auto pos: it->second)
+					{
+						//std::pair<std::string,RoboCompJointMotor::MotorGoalPositionList> next;
+						auto next = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(pos,convertKnownPos2Goal(pos));
+						transitionSteps.push_back( next );
+					}
+					// Append original last position
+					if (goal_name != "ik"){
+						auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(goal_name,convertKnownPos2Goal(goal_name));
+						transitionSteps.push_back( last );
+					}
+					else{
+						auto last = std::pair<QString,RoboCompJointMotor::MotorGoalPositionList>(QString("ik"),listGoals);
+						transitionSteps.push_back( last );
+					}
+					qDebug()<<"Transition found ==> "<<transitionSteps.size()<<"steps needed";
+					state = GoPos;
+				}
+				else
+				{
+					printf("|| Unkown transition chain\n");
+					throw RoboCompJointMotor::CollisionException("collision between "+ret.first.toStdString()+" and "+ret.second.toStdString());
+				}
+			}
+			else
+			{ //no collision
+				sendPos2Motors(listGoals);
+			}
+		}
+	}
+}
+
+void SpecificWorker::sendPos2Motors(const RoboCompJointMotor::MotorGoalPositionList &listGoals)
+{
 	RoboCompJointMotor::MotorGoalPositionList l0,l1;
 	for (uint i=0; i<listGoals.size(); i++)
 	{
@@ -249,11 +461,22 @@ void SpecificWorker::setSyncPosition(const MotorGoalPositionList& listGoals)
 		else
 			std::cout<<__FILE__<<__FUNCTION__<<__LINE__<<"Motor "<<listGoals[i].name<<" not found in proxy list\n";
 	}
-	try { jointmotor0_proxy->setSyncPosition(l0); }
-	catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;};
-	try { jointmotor1_proxy->setSyncPosition(l1); }
-	catch(std::exception &ex) {std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;};
+	try{ 
+		jointmotor0_proxy->setSyncPosition(l0); 
+	}
+	catch(std::exception &ex)
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 0"<<std::endl;
+	}
+	try{
+		jointmotor1_proxy->setSyncPosition(l1); 
+	}
+	catch(std::exception &ex){
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in setSyncPosition prx 1"<<std::endl;
+	}
 }
+
+
 /**
  * \brief this method changes more than one motor speed at the same time.
  * @param listGoals list of target speeds
@@ -383,22 +606,9 @@ void SpecificWorker::getAllMotorState(MotorStateMap& mstateMap)
 MotorParamsList SpecificWorker::getAllMotorParams()
 {
 	QMutexLocker locker(mutex);
-	MotorParamsList par1, par;
-
-	try
-	{ par = jointmotor0_proxy->getAllMotorParams(); }
-	catch(std::exception &ex)
-	{ std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error reading getAllMotorParams from Dynamixel bus"<<std::endl;};
-
-	try
-	{ par1 = jointmotor1_proxy->getAllMotorParams(); }
-	catch(std::exception &ex)
-	{std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error reading getAllMotorParams from Faulhaber bus"<< std::endl;};
-
-	par.insert(par.end(), par1.begin(), par1.end());
-
-	return par;
+	return motorParamList;
 }
+
 /**
  * \brief this method returns the params of the motors bus.
  * @return BusParams
@@ -411,28 +621,31 @@ BusParams SpecificWorker::getBusParams()
 	std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Not implemented" << std::endl;
 	return bus;
 }
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////////////////////////////
-//AUXILIAR AND PRIVATE METHODS
+
+
 /**
  * \brief This initializes the Dynamixel bus and the Faulhaber bus.
  */ 
 void SpecificWorker::init()
 {
 	QMutexLocker locker(mutex);
+	MotorParamsList par1, par0;
+	motorParamMap.clear();
+	motorParamList.clear();
 	//DYNAMIXEL bus
 	try
 	{
-		motorList0 = jointmotor0_proxy->getAllMotorParams();
+		par0 = jointmotor0_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for (uint i=0; i<motorList0.size(); i++)
+		for (uint i=0; i<par0.size(); i++)
 		{
-			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList0[i].name, jointmotor0_proxy));
+			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(par0[i].name, jointmotor0_proxy));
+			motorParamMap.insert(std::pair<std::string,RoboCompJointMotor::MotorParams>(par0[i].name, par0[i]));
+			motorParamList.push_back(par0[i]);
 			if (ret.second == false)
 			{
 				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << ret.first->second << " already exists" << endl;
-				qFatal("Name %s already exists\n", motorList0[i].name.c_str());
+				qFatal("Name %s already exists\n", par0[i].name.c_str());
 			}
 		}
 	}catch(const Ice::Exception &ex)
@@ -440,54 +653,207 @@ void SpecificWorker::init()
 	//FAULHABER bus
 	try
 	{
-		motorList1 = jointmotor1_proxy->getAllMotorParams();
+		par1 = jointmotor1_proxy->getAllMotorParams();
 		std::pair<std::map< std::string, RoboCompJointMotor::JointMotorPrx >:: iterator, bool> ret;
-		for (uint i=0; i<motorList1.size(); i++)
+		for (uint i=0; i<par1.size(); i++)
 		{
-			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(motorList1[i].name, jointmotor1_proxy));
+			ret = prxMap.insert(std::pair<std::string, RoboCompJointMotor::JointMotorPrx>(par1[i].name, jointmotor1_proxy));
+			motorParamMap.insert(std::pair<std::string,RoboCompJointMotor::MotorParams>(par1[i].name, par1[i]));
+			motorParamList.push_back(par1[i]);
 			if( ret.second == false )
 			{
-				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << motorList1[i].name.c_str() << " already exists" << endl;
-				qFatal("Name %s already exists\n", motorList1[i].name.c_str());
+				std::cout << __FILE__ << __FUNCTION__ << __LINE__ << "Name " << par1[i].name.c_str() << " already exists" << endl;
+				qFatal("Name %s already exists\n", par1[i].name.c_str());
 			}
 		}
-	}catch (const Ice::Exception &ex)
-	{std::cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex <<std::endl;};
+	}
+	catch (const Ice::Exception &ex)
+	{
+		std::cout << __FUNCTION__ << "Error communicating with jointmotor1_proxy " << ex <<std::endl;
+		
+	}
 }
+
+bool SpecificWorker::checkMovementNeeded(const MotorGoalPositionList &goals)
+{
+	QMutexLocker locker(mutex);
+	bool needed = false;
+	for (uint i=0; i<goals.size(); i++)
+	{
+		if(fabs(goals[i].position - innerModel->getJoint(goals[i].name)->getAngle()) > 0.01)
+		{
+			needed = true;
+			break;
+		}
+	}
+	return needed;
+}
+
+bool SpecificWorker::checkMotorLimits(const MotorGoalPositionList &goals, std::string &ret)
+{
+	QMutexLocker locker(mutex);
+	for (uint i=0; i<goals.size(); i++)
+	{
+		if ( goals[i].position < motorParamMap.at(goals[i].name).minPos || goals[i].position > motorParamMap.at(goals[i].name).maxPos ){
+			ret = "Goal position outside motor limit, " +  goals[i].name + " => pos: " + std::to_string(goals[i].position) + " range[" + std::to_string(motorParamMap.at(goals[i].name).minPos) + "," + std::to_string(motorParamMap.at(goals[i].name).maxPos) + "]"; 
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * \brief Check if position goal is included in calculate collision list
+ * @param p1 MotorGoalPositionList
+ * @return boolean TRUE if position goal is included, FALSE otherwise
+ */
+bool SpecificWorker::precalculateCollision(const RoboCompJointMotor::MotorGoalPositionList &goalList)
+{
+	for (auto collisionPos: calculateCollisionList)
+	{
+		if (isSimilarPosition(collisionPos, goalList))
+			return true;
+	}
+	return false;
+}
+
+/**
+ * \brief Check if to goal position list are equals
+ * @param p1 MotorGoalPositionList
+ * @param p2 MotorGoalPositionList
+ * @return boolean TRUE if both list have similar goal position points
+ */
+bool SpecificWorker::isSimilarPosition(const RoboCompJointMotor::MotorGoalPositionList &p1,const RoboCompJointMotor::MotorGoalPositionList &p2)
+{
+	if(p1.size() != p2.size())
+		return false;
+	
+	for (auto motor: p1)
+	{
+		for (uint i=0; i<p2.size(); i++)
+		{
+			if ( motor.name == p2[i].name)
+			{
+				if (fabs(motor.position - p2[i].position) >= POS_OFFSET)
+				{
+					return false;
+				}
+				else
+				{
+					break;
+				}
+			}
+		}
+	}
+	return true;
+}
+
 /**
  * \brief This method checks the final state in which the robot would stay if we move its motors.
  * @param goals list of taget poses of the motors
  * @param ret pair of meshes that colliding between each other
  * @return boolean TRUE if there is a collision and FALSE if there is not a collision.
  */ 
-bool SpecificWorker::checkFuturePosition(const MotorGoalPositionList &goals, std::pair<QString, QString> &ret)
+bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<QString, QString> &ret)
 {
 	QMutexLocker locker(mutex);
+	
+	//check if goals is a collision position previously calculated
+	if (precalculateCollision(goals))
+	{
+		printf("|| checkFuturePosition::precalculateCollision\n");
+		return true;
+	}
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
 	//Guardamos para cada joint su angulo actual 
+	float position = 0.f,actual_position=0.f, iter_move = 0.f;
+	float range = 0.f, time = 0.f,iter_time = 0.f;
 	for (uint i=0; i<goals.size(); i++)
-		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
-	
-	//Metemos en el innerModel el angulo objetivo (simulamos movimiento)
-	for (uint i=0; i<goals.size(); i++)
-		innerModel->getJoint(backPoses[i].name)->setAngle(goals[i].position, true);
-
-	innerModel->cleanupTables(); 
-	//si colisionan dos meshes deshacemos el movimiento, los motores vuelven a su angulo original
-	for (auto p: pairs)
 	{
-		if (innerModel->collide(p.first, p.second))
+//		qDebug()<< "max speed motor "<< i << goals[i].maxSpeed << "inverse" <<motorParamMap[goals[i].name].invertedSign;
+		// If maxSpeed not provided, is taken from motor param
+		if ( isnan(goals[i].maxSpeed) || goals[i].maxSpeed > motorParamMap[goals[i].name].maxVelocity || goals[i].maxSpeed <= 0)
 		{
-			for (uint i=0; i<goals.size(); i++)
-				innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
-		
-			innerModel->cleanupTables();
-			ret = p;
-			printf("|| checkFuturePosition: %s with %s\n", p.first.toStdString().c_str(), p.second.toStdString().c_str());
-			return true;
+			goals[i].maxSpeed = motorParamMap[goals[i].name].maxVelocity;
+//			qDebug() << "truncate vel"<< goals[i].maxSpeed;
+		}
+		backPoses[i].position = innerModel->getJoint(backPoses[i].name)->getAngle();
+		if( (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed ) > time )
+		{
+			range = fabs(goals[i].position - backPoses[i].position);
+			time = (range / goals[i].maxSpeed);
+		}
+//		qDebug()<< "motor: "<< i <<"range: "<<backPoses[i].position << goals[i].position << fabs(goals[i].position - backPoses[i].position) << "time" << (fabs(goals[i].position - backPoses[i].position) / goals[i].maxSpeed);
+	}
+	bool collision = false;
+	uint num_iter = round(range / MAX_MOVE);
+	if (num_iter == 0)	//at least one iteration is needed
+		num_iter = 1;
+	iter_time = time / num_iter;
+
+	uint j=0;
+	while(!collision and j < num_iter)
+	{
+		// Insert objective angle into innermodel
+		uint i=0;
+		while(!collision and i < goals.size())
+		{
+			actual_position = innerModel->getJoint(backPoses[i].name)->getAngle();
+			int direction = 1;
+			if (goals[i].position < backPoses[i].position)
+				direction = -1;
+			iter_move = (goals[i].maxSpeed * iter_time);
+			if (iter_move < fabs(goals[i].position - actual_position))
+				position = actual_position + iter_move*direction;
+			else
+				position = goals[i].position;
+			
+//			qDebug()<<"iter " << j << "motor: "<< i <<" max position "<<goals[i].position << position;
+			innerModel->getJoint(backPoses[i].name)->setAngle(position, true);
+			// check collision
+			innerModel->cleanupTables(); 
+			for (auto p: pairs)
+			{
+				//if (innerModel->collide(p.first, p.second))
+				if (innerModel->distance(p.first, p.second)< 100) //Using minimum distance instead of collision flag
+				{
+					ret = p;
+					collision = true;
+					break;
+				}
+			}
+			i++;
+		}
+		j++;
+	}
+	if(not collision) 
+	{
+		//check not inside bounding box
+		for (auto box: collisionBoxMap)
+		{
+	//		printf("node %s\n",box.first.toStdString().c_str());
+			QVec point = innerModel->transform("robot",box.first.toStdString().c_str());
+			QVec a = box.second.first;
+			QVec b = box.second.second;
+			if((a(0) < point(0) && point(0) < b(0)) && (a(1) < point(1) && point(1) < b(1))  && (a(2) < point(2) && point(2) < b(2))){
+				collision = true;
+				ret = std::pair<QString, QString>("Collision box",box.first);
+				break;
+			}
 		}
 	}
-	return false;
+	
+	// If there is a collision, all joints return to previous position
+	if (collision)
+	{
+		for (uint i=0; i<goals.size(); i++)
+			innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
+		
+		innerModel->cleanupTables();
+		calculateCollisionList.push_back(goals);
+		printf("|| checkFuturePosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
+	}
+	return collision;
 }
 /**
  * \brief this method checks the meshes from one node of the innerModel
@@ -513,4 +879,104 @@ void SpecificWorker::recursiveIncludeMeshes(InnerModelNode *node, std::vector<QS
 	{
 		in.push_back(node->id);
 	}
+}
+
+
+//check if position is known
+// position is similar if all motor involved are 0.1 or closer 
+//return position name if found "none "otherwise
+QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorStateMap mstate)
+{
+	// convert MotorStateMap to MotorGoalPositionList
+	RoboCompJointMotor::MotorGoalPositionList goalList;
+	for (auto state: mstate)
+	{
+		RoboCompJointMotor::MotorGoalPosition goal;
+		goal.name = state.first;
+		goal.position = state.second.pos;
+		goalList.push_back(goal);
+	}
+	return isKnownPosition(goalList);
+}
+
+QString SpecificWorker::isKnownPosition(RoboCompJointMotor::MotorGoalPositionList goals)
+{
+	bool nextPosition = false;
+	for (auto position: knownPositions)
+	{
+//		qDebug()<<"check position "<< position.first;
+		uint cont = 0;
+		for (auto motor: position.second)
+		{
+			for (uint i=0; i<goals.size(); i++)
+			{
+				if ( motor.first == QString::fromStdString(goals[i].name))
+				{
+					if (fabs(motor.second-goals[i].position) <= POS_OFFSET)
+					{
+						cont++;
+						continue;
+					}
+					else
+					{
+						nextPosition = true;
+						break;
+					}
+				}
+			}
+			if(nextPosition)
+			{
+				nextPosition = false;
+				break;
+			}
+		}
+		if (cont == position.second.size())
+		{
+			return position.first;
+		}
+	}
+	return "ik";
+}
+
+RoboCompJointMotor::MotorGoalPositionList SpecificWorker::convertKnownPos2Goal(QString pos_name)
+{
+	RoboCompJointMotor::MotorGoalPositionList goalList;
+	std::map<QString, std::map<QString, float> >::iterator it;
+	it = knownPositions.find(pos_name);
+//	qDebug()<<"pos to motor values ";
+	if (it != knownPositions.end())
+	{
+		for (auto motor: it->second)
+		{
+			RoboCompJointMotor::MotorGoalPosition goal;
+			goal.name = motor.first.toStdString();
+			goal.position = motor.second;
+			goal.maxSpeed = 2.;
+			goalList.push_back(goal);
+//			qDebug()<<"motor found"<<motor.first <<goal.position;
+		}
+	}
+	return goalList;
+}
+
+//TODO: Stop motor not implmented yet in JointMotor 
+void SpecificWorker::stopMotors()
+{
+	try
+	{ 
+		//jointmotor0_proxy->stop(); 
+	}
+	catch(std::exception &ex) 
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in stop Motor jointmotor0"<<std::endl;
+	}
+	try 
+	{ 
+		//jointmotor1_proxy->stop(); 
+	}
+	catch(std::exception &ex) 
+	{
+		std::cout<<ex.what()<<__FILE__<<__FUNCTION__<<__LINE__<<"Error in stop Motor jointmotor1"<<std::endl; 
+	}
+	
 }

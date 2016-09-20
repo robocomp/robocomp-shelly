@@ -1,0 +1,35 @@
+# Sources set
+SET ( SOURCES
+  specificworker.cpp
+  specificmonitor.cpp
+  controller.cpp
+  qline2d.cpp
+  elasticband.cpp
+  innermodeldraw.cpp
+  waypoints.cpp
+  plannerompl.cpp
+  #plannerthunder.cpp
+  currenttarget.cpp
+  plannerprm.cpp
+  sampler.cpp
+  linesimplifier/simplifyPath.cpp
+  innerviewer.cpp
+  graphdraw.cpp
+  waypointsdraw.cpp
+)
+
+# Headers set
+SET ( HEADERS
+  specificworker.h
+  specificmonitor.h
+  plannerprm.h
+  plannerompl.h
+  innerviewer.h
+)
+
+#find_package(OMPL)
+
+SET (LIBS ${LIBS} -losgViewer)
+include_directories(/usr/include/eigen3)
+ADD_DEFINITIONS( -std=c++14 -DEIGEN_NO_EIGEN2_DEPRECATED_WARNING)
+SET (LIBS ${LIBS} -L/usr/local/lib/ fcl -lpointmatcher -lnabo -lboost_system  -lboost_filesystem -lrt -lompl -lboost_graph)

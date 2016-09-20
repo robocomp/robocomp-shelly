@@ -1,5 +1,5 @@
 #number of compiling threads
-N=8
+N=3
 
 
 ### Help
@@ -62,6 +62,10 @@ git pull
 echo "update prp"
 cd /home/robocomp/robocomp/components/prp
 git pull
+# test
+echo "update test"
+cd /home/robocomp/robocomp/components/robocomp-test
+git pull
 
 sleep 4
 
@@ -121,20 +125,20 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 fi
 
 
-	
-	
+
+
 # gmapping
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gmapping" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp/"
+fi
+# CGR
+if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR"
 fi
 # stable odometry
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
 fi
-# trajectory
-# if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
-	#compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
-# fi
 # laserRGBD
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
@@ -172,9 +176,9 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
 fi
 # dumb trajectory
-if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
-fi
+#if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+#	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
+#fi
 
 
 
@@ -187,6 +191,10 @@ fi
 # navigationAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "navigation agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/navigationAgent/"
+fi
+# localizationAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "localization agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/localizationAgent/"
 fi
 # proprioceptionAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
@@ -229,3 +237,7 @@ if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 	compile "hokuyo" "/home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp"
 fi
 
+# trajectory
+if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
+	compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
+fi

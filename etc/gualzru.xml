@@ -1,0 +1,8 @@
+﻿<innerModel>
+	<!-- <axes id="sl3" /> -->
+	
+	<omnirobot id="gualzru" port="13338"  tx="3100" tz="1400" collide="0">
+		<mesh id="gualzru_mesh" file="/home/robocomp/robocomp/files/osgModels/Gualzru/Gualzru.osg" scale="20,20,20" rx="1.570796326794" rz="-1.570796326794" collide="0"/>
+	</omnirobot>
+	
+</innerModel>

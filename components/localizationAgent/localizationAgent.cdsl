@@ -1,0 +1,18 @@
+import "/robocomp/interfaces/IDSLs/Logger.idsl";
+import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
+import "/robocomp/interfaces/IDSLs/AprilBasedLocalization.idsl";
+import "/robocomp/interfaces/IDSLs/CGR.idsl";
+
+
+Component localizationAgent
+{
+	Communications
+	{
+		requires OmniRobot;
+		subscribesTo AprilBasedLocalization, CGRTopic;
+		publishes Logger;
+	};
+	language Cpp;
+	options agmagent;
+};
+

@@ -29,22 +29,22 @@ public:
 	BodyPart	();
 	~BodyPart	();
 	
-	QString			getPartName		();
-	QString			getTipName		();
+	QString			getPartName	();
+	QString			getTipName	();
 	QStringList		getMotorList	();
-	QQueue<Target>	&getTargetList	();
+	QQueue<Target>		&getTargetList	();
 	void 			removeTarget	();
 	
 	void			addTargetToList	(Target &target);
-	void 			reset			();
+	void 			reset		();
 	
 private:
 	QString			partName;
 	QString			tipName;
 	QStringList		motorList;
-	QQueue<Target>	targetList;
+	QQueue<Target>		targetList;
 	//QQueue<Target>	solvedList;
-	int				counter;
+	int			counter;
 	
 };
 

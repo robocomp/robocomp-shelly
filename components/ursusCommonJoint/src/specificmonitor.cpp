@@ -95,6 +95,15 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList &params )
 
 	configGetString( "ExclusionList", aux.value," ");
 	params["ExclusionList"] = aux;
+	
+	configGetString( "RestrictedBoundingBoxes", aux.value," ");
+	params["RestrictedBoundingBoxes"] = aux;
+	
+	configGetString( "knownPositions", aux.value," ");
+	params["knownPositions"] = aux;
+	
+	configGetString( "knownTransitions", aux.value," ");
+	params["knownTransitions"] = aux;
 }
 
 //comprueba que los parametros sean correctos y los transforma a la estructura del worker

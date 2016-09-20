@@ -31,7 +31,7 @@ QObject()
 	jointmotor0_proxy = (*(JointMotorPrx*)mprx["JointMotor0Proxy"]);
 	jointmotor1_proxy = (*(JointMotorPrx*)mprx["JointMotor1Proxy"]);
 
-	mutex = new QMutex();
+	mutex = new QMutex(QMutex::Recursive);
 	#ifdef USE_QTGUI
 		setupUi(this);
  		show();
