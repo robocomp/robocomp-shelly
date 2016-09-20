@@ -40,10 +40,24 @@
  <node alias="oracleA" endpoint="agmcommonbehavior:tcp -h localhost -p 10338">
   <dependence alias="IS" />
   <dependence alias="executive" />
+  <dependence alias="semanticSimilarity" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-shelly/etc/objectoracle.conf" />
   <downCommand command="killall -9 objectoracle" />
   <configFile path="kate /home/robocomp/robocomp/componentsnt.conf" />
+  <xpos value="70.6004087308" />
+  <ypos value="-167.60494147" />
+  <radius value="13.0" />
+  <color value="#33FF33" />
+ </node>
+ 
+  <node alias="semanticSimilarity" endpoint="agmcommonbehavior:tcp -h localhost -p 10500">
+  <dependence alias="IS" />
+  <dependence alias="executive" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle/src python semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
+  <downCommand command="killall -9 semanticsimilarity" />
+  <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
   <xpos value="70.6004087308" />
   <ypos value="-167.60494147" />
   <radius value="13.0" />

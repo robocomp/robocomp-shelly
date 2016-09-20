@@ -1,3 +1,4 @@
+set(cmake_automoc true)
 
 # Sources set
 SET ( SOURCES
