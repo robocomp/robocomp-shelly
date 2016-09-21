@@ -19,9 +19,6 @@
 #ifndef AGMEXECUTIVETOPIC_H
 #define AGMEXECUTIVETOPIC_H
 
-// QT includes
-#include <QtCore/QObject>
-
 // Ice includes
 #include <Ice/Ice.h>
 #include <AGMExecutive.h>
@@ -31,11 +28,10 @@
 
 using namespace RoboCompAGMExecutive;
 
-class AGMExecutiveTopicI : public QObject , public virtual RoboCompAGMExecutive::AGMExecutiveTopic
+class AGMExecutiveTopicI : public virtual RoboCompAGMExecutive::AGMExecutiveTopic
 {
-Q_OBJECT
 public:
-	AGMExecutiveTopicI( GenericWorker *_worker, QObject *parent = 0 );
+	AGMExecutiveTopicI(GenericWorker *_worker);
 	~AGMExecutiveTopicI();
 	
 	void structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&);
@@ -44,12 +40,9 @@ public:
 	void symbolUpdated(const RoboCompAGMWorldModel::Node  &modification, const Ice::Current&);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modification, const Ice::Current&);
 
-	QMutex *mutex;
 private:
 
 	GenericWorker *worker;
-public slots:
-
 
 };
 

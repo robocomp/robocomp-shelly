@@ -18,10 +18,9 @@
  */
 #include "cgrtopicI.h"
 
-CGRTopicI::CGRTopicI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+CGRTopicI::CGRTopicI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 
@@ -34,10 +33,11 @@ void CGRTopicI::newCGRPose(const float  poseUncertainty, const float  x, const f
 	worker->newCGRPose(poseUncertainty, x, z, alpha);
 }
 
-void CGRTopicI::newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2, const Ice::Current&)
+void CGRTopicI::newCGRCorrection(const float  poseUncertainty, const float  x1, const float  z1, const float  alpha1, const float  x2, const float  z2, const float  alpha2, const Ice::Current&)
 {
 	worker->newCGRCorrection(poseUncertainty, x1, z1, alpha1, x2, z2, alpha2);
 }
+
 
 
 

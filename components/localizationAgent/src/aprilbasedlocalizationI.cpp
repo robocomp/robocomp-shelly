@@ -18,10 +18,9 @@
  */
 #include "aprilbasedlocalizationI.h"
 
-AprilBasedLocalizationI::AprilBasedLocalizationI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+AprilBasedLocalizationI::AprilBasedLocalizationI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 

@@ -19,9 +19,6 @@
 #ifndef CGRTOPIC_H
 #define CGRTOPIC_H
 
-// QT includes
-#include <QtCore/QObject>
-
 // Ice includes
 #include <Ice/Ice.h>
 #include <CGR.h>
@@ -31,22 +28,18 @@
 
 using namespace RoboCompCGR;
 
-class CGRTopicI : public QObject , public virtual RoboCompCGR::CGRTopic
+class CGRTopicI : public virtual RoboCompCGR::CGRTopic
 {
-Q_OBJECT
 public:
-	CGRTopicI( GenericWorker *_worker, QObject *parent = 0 );
+	CGRTopicI(GenericWorker *_worker);
 	~CGRTopicI();
 	
-	void newCGRPose(const float poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
-	void newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2, const Ice::Current&);
-	
-	QMutex *mutex;
+	void newCGRPose(const float  poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
+	void newCGRCorrection(const float  poseUncertainty, const float  x1, const float  z1, const float  alpha1, const float  x2, const float  z2, const float  alpha2, const Ice::Current&);
+
 private:
 
 	GenericWorker *worker;
-public slots:
-
 
 };
 
