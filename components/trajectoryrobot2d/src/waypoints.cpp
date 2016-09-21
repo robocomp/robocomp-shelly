@@ -35,6 +35,7 @@ void WayPoints::initialize(InnerModel* inner, const RoboCompCommonBehavior::Para
 /////////////////
 void WayPoints::update()
 {
+static QTime reloj = QTime::currentTime();
 	//////////////////////////////////////////////////////
 	//Get robot's position in world and create robot's nose
 	//////////////////////////////////////////////////////
@@ -107,9 +108,15 @@ void WayPoints::update()
 
 //	print();
 //	printRobotState(innerModel);
+qDebug() << "time "<< reloj.restart();
+qDebug() << "*********************************************";
+qDebug() << "current point: "<<(int)getIndexOfCurrentPoint()+1 << " size: "<<(int)this->size();
+qDebug() << "robot distance target: "<< getRobotDistanceToTarget() << "thershold: "<<threshold;
+qDebug() << "robot distance variation " <<getRobotDistanceVariationToTarget();
 
-	if (((((int) getIndexOfCurrentPoint() == (int) this->size()) and  (getRobotDistanceToTarget() < threshold))) or
-	    ((getRobotDistanceToTarget() < 200) and (getRobotDistanceVariationToTarget() > 0)))
+
+	if (((((int) getIndexOfCurrentPoint()+1 == (int) this->size()) and  (getRobotDistanceToTarget() < threshold))) or
+	    (((int) getIndexOfCurrentPoint()+1 == (int) this->size()) and (getRobotDistanceVariationToTarget() > 0)))
 	{
 		qDebug() << __FUNCTION__ << "ROAD: FINISHED";
 		qDebug() << "	reason: " << ((int) getIndexOfCurrentPoint()+1 == (int) this->size()) << "index " << getIndexOfCurrentPoint();
