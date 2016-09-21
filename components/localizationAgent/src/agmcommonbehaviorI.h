@@ -19,9 +19,6 @@
 #ifndef AGMCOMMONBEHAVIOR_H
 #define AGMCOMMONBEHAVIOR_H
 
-// QT includes
-#include <QtCore/QObject>
-
 // Ice includes
 #include <Ice/Ice.h>
 #include <AGMCommonBehavior.h>
@@ -31,11 +28,10 @@
 
 using namespace RoboCompAGMCommonBehavior;
 
-class AGMCommonBehaviorI : public QObject , public virtual RoboCompAGMCommonBehavior::AGMCommonBehavior
+class AGMCommonBehaviorI : public virtual RoboCompAGMCommonBehavior::AGMCommonBehavior
 {
-Q_OBJECT
 public:
-	AGMCommonBehaviorI( GenericWorker *_worker, QObject *parent = 0 );
+	AGMCommonBehaviorI(GenericWorker *_worker);
 	~AGMCommonBehaviorI();
 	
 	bool reloadConfigAgent(const Ice::Current&);
@@ -47,12 +43,9 @@ public:
 	bool deactivateAgent(const Ice::Current&);
 	StateStruct getAgentState(const Ice::Current&);
 
-	QMutex *mutex;
 private:
 
 	GenericWorker *worker;
-public slots:
-
 
 };
 

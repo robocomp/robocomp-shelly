@@ -19,9 +19,6 @@
 #ifndef APRILBASEDLOCALIZATION_H
 #define APRILBASEDLOCALIZATION_H
 
-// QT includes
-#include <QtCore/QObject>
-
 // Ice includes
 #include <Ice/Ice.h>
 #include <AprilBasedLocalization.h>
@@ -31,21 +28,17 @@
 
 using namespace RoboCompAprilBasedLocalization;
 
-class AprilBasedLocalizationI : public QObject , public virtual RoboCompAprilBasedLocalization::AprilBasedLocalization
+class AprilBasedLocalizationI : public virtual RoboCompAprilBasedLocalization::AprilBasedLocalization
 {
-Q_OBJECT
 public:
-	AprilBasedLocalizationI( GenericWorker *_worker, QObject *parent = 0 );
+	AprilBasedLocalizationI(GenericWorker *_worker);
 	~AprilBasedLocalizationI();
 	
 	void newAprilBasedPose(const float  x, const float  z, const float  alpha, const Ice::Current&);
 
-	QMutex *mutex;
 private:
 
 	GenericWorker *worker;
-public slots:
-
 
 };
 

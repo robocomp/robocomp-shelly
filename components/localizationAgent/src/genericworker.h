@@ -75,8 +75,8 @@ public:
 	bool isActive() { return active; }
 	
 
-	OmniRobotPrx omnirobot_proxy;
 	LoggerPrx logger_proxy;
+	OmniRobotPrx omnirobot_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;

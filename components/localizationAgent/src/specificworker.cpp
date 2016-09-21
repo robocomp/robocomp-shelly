@@ -334,7 +334,6 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	{
 		robotIsActuallyInRoom = roomId;
 	}
-	printf("room %d\n", robotIsActuallyInRoom);
 
 	
 	if (roomId != robotIsActuallyInRoom)
@@ -462,7 +461,14 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 		lastSent = QTime::currentTime();
 		const std::string attrValue = float2str(currentValue);
 		robot->setAttribute("movedInLastSecond", attrValue);
-		AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+		try
+		{
+			AGMMisc::publishNodeUpdate(robot, agmexecutive_proxy);
+		}
+		catch (...)
+		{
+			printf("Executive not running?\n");
+		}
 	}
 }
 
