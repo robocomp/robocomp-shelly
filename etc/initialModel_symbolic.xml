@@ -24,14 +24,6 @@
 	<link src="50" dst="51" label="classified" />
 	<link src="50" dst="20" label="in" />
 
-	<link src="20" dst="50" label="RT" >
-		<linkAttribute key="tx" value="-1000" />
-		<linkAttribute key="ty" value="110" />
-		<linkAttribute key="tz" value="-600" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>  
 	
 	<symbol id="22" type="objectSt">
 		<attribute key="imType" value="transform" />
