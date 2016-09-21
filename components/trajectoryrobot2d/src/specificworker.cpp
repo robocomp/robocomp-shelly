@@ -347,8 +347,6 @@ SpecificWorker::setHeadingCommand(InnerModel *innerModel, float alfa, CurrentTar
 		return true;
 	}
 
-	const float MAX_ORIENTATION_ERROR = 0.04;
-
 	float angRobot = innerModel->getRotationMatrixTo("world", "robot").extractAnglesR_min().y();
 	alfa = angmMPI(alfa);
 	float error = angmMPI(angRobot - alfa);
@@ -357,7 +355,7 @@ SpecificWorker::setHeadingCommand(InnerModel *innerModel, float alfa, CurrentTar
 	/////////////////////////////
 	/// Check for minimun admisible orientation error
 	//////////////////////////////
-	if (fabs(error) < MAX_ORIENTATION_ERROR)
+	if (fabs(error) < MINIMUN_DETECTABLE_ROTATION)
 	{
 		target.setState(CurrentTarget::State::STOP);
 		return true;
@@ -493,8 +491,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	qDebug() << __FUNCTION__
 	         << "----------------------------------------------------------------------------------------------";
 	qDebug() << __FUNCTION__ << ": Target received" << targetT << targetRot << ". Contact Point: " << xRef << zRef << "tolerance: " << threshold << " with ROBOT at" << robotT << robotRot;
-	qDebug() << __FUNCTION__ << "Translation error: " << (targetT - robotT).norm2() << "mm. Rotation error:"
-	         << targetRot.y() - robotRot.y() << "rads";
+	qDebug() << __FUNCTION__ << "Translation error: " << (targetT - robotT).norm2() << "mm. Rotation error:" << angmMPI(targetRot.y() - robotRot.y()) << "rads";
 
 	///////////////////////////////////////////////
 	//Maximun admitted rate of requests  (one each 250 ms)
@@ -518,7 +515,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 
 		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
 		            "mm. Min = " + QString::number(MINIMUN_DETECTABLE_TRANSLATION) +" RDist="
-		            + QString::number(targetRot.y() - robotRot.y()) + " rads. Min = " + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
+		            + QString::number(angmMPI(targetRot.y() - robotRot.y())) + " rads. Min = " + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
 		qDebug() << __FUNCTION__ << s<<"same target";
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
 		ex.text = s.toStdString();
@@ -530,12 +527,12 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	// Minimun change admitted 60mm and 0.05rads
 	///////////////////////////////////////////////
 									
-	if ((targetT - robotT).norm2() < MINIMUN_DETECTABLE_TRANSLATION and fabs(targetRot.y() - robotRot.y()) < MINIMUN_DETECTABLE_ROTATION)
+	if ((targetT - robotT).norm2() < MINIMUN_DETECTABLE_TRANSLATION and angmMPI(targetRot.y() - robotRot.y()) < MINIMUN_DETECTABLE_ROTATION)
 	{
 
 		QString s = "Fail. Target too close to current pose. TDist=" + QString::number((targetT - robotT).norm2()) +
 		            "mm. Min = " + QString::number(MINIMUN_DETECTABLE_TRANSLATION) +" RDist="
-		            + QString::number(targetRot.y() - robotRot.y()) + " rads. Min =" + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
+		            + QString::number(angmMPI(targetRot.y() - robotRot.y())) + " rads. Min =" + QString::number(MINIMUN_DETECTABLE_ROTATION) + " rads.";
 		qDebug() << __FUNCTION__ << s;
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
 		ex.text = s.toStdString();

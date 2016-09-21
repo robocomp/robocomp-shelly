@@ -80,6 +80,7 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	/////////////////////////////////////////////////
 	//////  CHECK CPU AVAILABILITY. If lagging reduce speed
 	/////////////////////////////////////////////////
+
 	if ( this->time.elapsed() > this->delay )   //Initial wait in secs so the robot waits for everything is setup. Maybe it could be moved upwards
 	{
 		if( epoch  > MAX_LAG )				//Damp max speed if elapsed time is too long  TAKE CONSTANT OUT!
@@ -115,20 +116,24 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	//We want the speed vector to align with the tangent to road at the current point.
 	//	First get the radial line leaving the robot along the road:
 	QLine2D radialLine = road.getTangentToCurrentPointInRobot(innerModel);
-	
+	if ( (int)(road.getIndexOfCurrentPoint()+1) == road.size() )
+	{
+		radialLine = QLine2D( innerModel->transform("world", "robot"), road.last().pos);
+	}			
 	//Normalize it into a unitary 2D vector
 	QVec radialDir = radialLine.getNormalizedDirectionVector();
-	
+
 	//Now change sense and scale according to properties of the road and target
 	float modulus = MAX_ADV_SPEED 
 									* exp(-fabs(1.6 * road.getRoadCurvatureAtClosestPoint()))
-									* exponentialFunction(1./road.getRobotDistanceToTarget(),1./500,0.5, 0.1)
+									* exponentialFunction(1./road.getRobotDistanceToTarget(),1./700,0.4, 0.1)
 									* exponentialFunction(vrot, 0.6, 0.01);
 									
 	radialDir = radialDir * (T)-modulus;
 	
 	//Next, decompose it into vadvance and vside componentes by projecting on robot's Z and X axis
 	float vside = radialDir * QVec::vec2(1.,0.);
+	vside += road.getRobotPerpendicularDistanceToRoad()*0.2;
 	float vadvance = radialDir * QVec::vec2(0.,1.);
 
 	if(vadvance > MAX_ADV_SPEED) vadvance = MAX_ADV_SPEED;
@@ -157,6 +162,7 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	try { omnirobot_proxy->setSpeedBase(vside, vadvance, vrot);}
 	catch (const Ice::Exception &e) { std::cout << e << "Omni robot not responding" << std::endl; }
 
+qDebug()<< "controller => time elapsed: "<<reloj.elapsed();
 	epoch = reloj.restart();  //epoch time in ms
 	return false;
 }
