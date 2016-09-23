@@ -350,17 +350,8 @@ void Sampler::recursiveIncludeMeshes(InnerModelNode *node, QString robotId, bool
 				in.push_back(node->id);
 			}
 			else
-			{
-				if(mesh)
-					if(mesh->id == "gualzru_mesh")
-						qDebug() << __FUNCTION__ << mesh->id << mesh->collidable;
-				if( mesh ) 
-					if( mesh->collidable )
-						out.push_back(node->id);
-				if( plane ) 
-					if( plane->collidable )
-						out.push_back(node->id);
-			}
+				if(mesh or plane)
+					out.push_back(node->id);
 		}
 	}
 }
