@@ -966,7 +966,13 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 	goal.name = "wristX";
 	goal.position = 0;
 	jointmotor_proxy->setPosition(goal);
-
+	goal.name = "gripperFinger1";
+	goal.position = 0.2;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "gripperFinger2";
+	goal.position = -0.2;
+	jointmotor_proxy->setPosition(goal);	
+	
 	usleep(200000);
 }
 
