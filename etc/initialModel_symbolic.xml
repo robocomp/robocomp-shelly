@@ -129,30 +129,6 @@
 		<attribute key="x" value="3300" />
 		<attribute key="z" value="1000" />
 	</symbol>
-	<link src="3" dst="20" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="3" dst="26" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="3" dst="23" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 	<link src="50" dst="3" label="in" />
 
 	<symbol id="4" type="roomSt">
@@ -163,71 +139,15 @@
 		<attribute key="x" value="3300" />
 		<attribute key="z" value="-1000" />
 	</symbol>
-	<link src="5" dst="35" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="5" dst="29" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="5" dst="32" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="5" dst="38" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 	<symbol id="6" type="roomSt">
 	</symbol>
 	<symbol id="100" type="world">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="world" />
 	</symbol>
-	<link src="100" dst="5" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
-	<link src="100" dst="3" label="RT" >
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 	<link src="3" dst="4" label="room" >
 	</link>
 	<link src="1" dst="3" label="in" >
-	</link>
-	<link src="3" dst="1" label="RT" >
-		<linkAttribute key="tz" value="0" />
-		<linkAttribute key="tx" value="0" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
-		<linkAttribute key="rz" value="0" />
 	</link>
 	<link src="1" dst="3" label="know" >
 	</link>
@@ -350,15 +270,15 @@
 	</symbol>
 	<symbol id="53" type="poseSt" />
 	<link src="52" dst="3" label="in" />
-	<link src="3" dst="52" label="RT" >
-		<linkAttribute key="tx" value="3000" />
-		<linkAttribute key="ty" value="0" />
-		<linkAttribute key="tz" value="1000" />
-		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="3.141592" />
-		<linkAttribute key="rz" value="0" />
-	</link>
 	<link src="52" dst="53" label="noReach" />
 	<link src="52" dst="53" label="hasStatus" />
+	
+	
+	<symbol id="55" type="person" >
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="person" />
+	</symbol>
+	<link src="55" dst="3" label="in" />
+
 </AGMModel>
 
