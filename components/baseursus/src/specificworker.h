@@ -48,6 +48,8 @@ private:
 	QMat M_vels_2_wheels;
 	// Odometry control
 	QMutex *dataMutex;
+	
+	
 	QVec wheelVels;
 	float angle, x, z;
 	float corrAngle, corrX, corrZ;
@@ -65,6 +67,13 @@ private:
 	void correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	
 	double getElapsedSeconds(bool clear = false);
+	
+	
+	QMutex *speedMutex;
+	float dSpeedX, dSpeedZ, dSpeedAlpha;
+	QTime lastSpeedSet;
+	bool speedSet;
+
 };
 
 #endif

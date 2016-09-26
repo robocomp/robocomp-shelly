@@ -26,6 +26,7 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mprx, parent)	
 {
 	dataMutex = new QMutex(QMutex::Recursive);
+	speedMutex = new QMutex(QMutex::Recursive);
 
 	wheelVels = QVec::vec4(0,0,0,0);
 	x     = z     = angle     = 0;
@@ -45,6 +46,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx, QObject *parent) : GenericWorker(mp
 	corrNewPose = innermodel->newTransform("corrNewPose", "static", corrBackPose, 0,0,0, 0,0,0, 0);
 	corrBackPose->addChild(corrNewPose);
 	
+	dSpeedX = dSpeedZ = dSpeedAlpha = 0;
+	lastSpeedSet = QTime::currentTime();
+	speedSet = 0;
 }
 
 /**
@@ -112,6 +116,24 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::SpecificWorker::compute()
 {
 	computeOdometry(false);
+	
+
+	
+	QMutexLocker locker(speedMutex);
+
+	if (speedSet)
+	{
+		const QVec v = QVec::vec3(dSpeedX, dSpeedZ, dSpeedAlpha);
+		const QVec wheels = M_vels_2_wheels * v;
+		setWheels(wheels);
+		speedSet = false;
+	}
+	
+	if (lastSpeedSet.elapsed() > 5000)
+	{
+		stopBase();
+	}
+	
 }
 
 double SpecificWorker::getElapsedSeconds(bool clear)
@@ -200,16 +222,17 @@ void SpecificWorker::getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alp
 
 void SpecificWorker::setSpeedBase(::Ice::Float advx, ::Ice::Float advz, ::Ice::Float rotv)
 {
-	computeOdometry(true);
-	QMutexLocker locker(dataMutex);
-	const QVec v = QVec::vec3(advz, advx, rotv);
-	const QVec wheels = M_vels_2_wheels * v;
-	setWheels(wheels);
+	QMutexLocker locker(speedMutex);
+	dSpeedX = advx;
+	dSpeedZ = advz;
+	dSpeedAlpha = rotv;
+	lastSpeedSet = QTime::currentTime();
+	speedSet = true;
 }
 
 void SpecificWorker::stopBase()
 {
-	setWheels(QVec::vec4(0,0,0,0));
+	setSpeedBase(0,0,0);
 }
 
 void SpecificWorker::resetOdometer()
