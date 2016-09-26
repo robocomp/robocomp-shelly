@@ -72,7 +72,7 @@ private:
 	
 
 	
-	void go(float x, float z, float alpha=0, bool rot=false, float threshold=200, float xRef=0, float zRef=0);
+	void go(float x, float z, float alpha=0, bool rot=false, float xRef=0, float zRef=0, float threshold=200);
 	void stop();
 
 	void actionExecution();

@@ -218,8 +218,11 @@ void SpecificWorker::manageReachedObjects()
 // 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
 // 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
 			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
-// 			fprintf(stderr, "(%f, %f, %f) - %f\n", oinp(0), oinp(1), oinp(2), oinp.norm2());
-
+			if (node->identifier == 50)
+			{
+				oinp(1) = 0;
+				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
+			}
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
@@ -614,6 +617,7 @@ void SpecificWorker::actionExecution()
 
 	qDebug()<<"---------------------------------";
 	cout<<action<<endl;
+	cerr<<action<<endl;
 	qDebug()<<"---------------------------------";
 
 	if (newAction)
@@ -778,7 +782,7 @@ void SpecificWorker::action_GraspObject(bool first)
 	
 // 	const float steps_to_grasp = 1;
 	const float yInit = 40;
-	const float yGoal = -40;
+	const float yGoal = -20;
 	const float zInit = -180;
 	const float zGoal = -130;
 
@@ -872,8 +876,8 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 3:
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1",  0.89, 3.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", -0.89, 3.5);
+				inversekinematics_proxy->setJoint("gripperFinger1",  0.75, 3.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.75, 3.5);
 // 				inversekinematics_proxy->setJoint("wristX", jointmotor_proxy->getMotorState("wristX").pos-0.15, 1.5);
 				usleep(400000);
 			}
@@ -962,7 +966,13 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 	goal.name = "wristX";
 	goal.position = 0;
 	jointmotor_proxy->setPosition(goal);
-
+	goal.name = "gripperFinger1";
+	goal.position = 0.2;
+	jointmotor_proxy->setPosition(goal);
+	goal.name = "gripperFinger2";
+	goal.position = -0.2;
+	jointmotor_proxy->setPosition(goal);	
+	
 	usleep(200000);
 }
 

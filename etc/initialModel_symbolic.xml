@@ -355,7 +355,7 @@
 		<linkAttribute key="ty" value="0" />
 		<linkAttribute key="tz" value="1000" />
 		<linkAttribute key="rx" value="0" />
-		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="ry" value="3.141592" />
 		<linkAttribute key="rz" value="0" />
 	</link>
 	<link src="52" dst="53" label="noReach" />

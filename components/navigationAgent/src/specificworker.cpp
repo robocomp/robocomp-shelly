@@ -481,7 +481,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
-				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
+				go(tgt.x, tgt.z, 0, tgt.doRotation, graspRef.x(), graspRef.z(), th);
 				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;
 			}
@@ -552,7 +552,12 @@ void SpecificWorker::manageReachedPose()
 			float d2n;
 			try
 			{
+				QVec arm = innerModel->transformS("world", "robot");
+				QVec obj = innerModel->transformS("world", node->getAttribute("imName"));
+				(arm-obj).print("error");
+
 				d2n = distanceToNode("robot", newModel, node);
+qDebug()<<"distance "<<d2n;
 			}
 			catch(...)
 			{
@@ -751,10 +756,11 @@ void SpecificWorker::action_ReachPose(bool newAction)
 	std::string imName = symbols["pose"]->getAttribute("imName");
 	printf("imName: <%s>\n", imName.c_str());
 
-	QVec pose = innerModel->transform("world", QString::fromStdString(imName));
+	QVec pose = innerModel->transform6D("world", QString::fromStdString(imName));
 	pose.print("goal pose");
 	const float x = pose(0);
 	const float z = pose(2);
+	const float ry = pose(4);
 
 	bool proceed = true;
 	if ( (planningState.state=="PLANNING" or planningState.state=="EXECUTING") )
@@ -774,7 +780,7 @@ void SpecificWorker::action_ReachPose(bool newAction)
 		lastX = x;
 		lastZ = z;
 		printf("setpose %d\n", symbols["room"]->identifier);
-		go(x, z);
+		go(x, z, ry, true);
 	}
 	else
 	{
