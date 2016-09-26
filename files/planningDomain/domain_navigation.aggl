@@ -1,0 +1,133 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_navigation
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+setStop : active(1)
+{
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)*
+	}
+	=>
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)
+	}
+}
+
+unsetStop : passive(1)
+{
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)
+	}
+	=>
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)*
+	}
+}
+
+
+
+
+changeRoom : active(1)
+{
+	{
+		s2:roomSt(25,75)
+		s1:roomSt(-200,75)
+		r1:room(-200,-35)
+		r2:room(25,-35)
+		robot:robot(-95,-145)
+		robot->r1(in)
+		r1->r2(transitable)
+		r1->s1(room)
+		r2->s2(room)
+	}
+	=>
+	{
+		s2:roomSt(25,75)
+		s1:roomSt(-200,75)
+		r1:room(-200,-35)
+		r2:room(25,-35)
+		robot:robot(-95,-145)
+		robot->r2(in)
+		r1->r2(transitable)
+		r1->s1(room)
+		r2->s2(room)
+	}
+	effect
+	{
+		(forall
+			something:object
+			(when
+				(in something robot)
+				(and
+					(not (in something s1))
+					(in something s2)
+				)
+			)
+		)
+	}
+}
+
+reachPose : active(1)
+{
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(noReach)
+	}
+	=>
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(reach)
+	}
+}
+
+setNoReachPose : active(1)
+{
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(reach)
+	}
+	=>
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(noReach)
+	}
+}
+

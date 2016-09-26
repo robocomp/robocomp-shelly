@@ -1,0 +1,14 @@
+{
+	1:robot(1,1)
+	2:status(1,1)
+	50:object(1,1)
+	52:pose(1,1)
+	53:poseSt(1,1)
+	1->2(restArm)
+	50->1(in)
+	52->53(reach)
+}
+precondition
+{
+}
+

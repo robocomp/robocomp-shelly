@@ -1,0 +1,212 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_basic_perception
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+
+setRoomExplored : passive(1)
+{
+	{
+		status:roomSt(250,0)
+		object:room(0,0)
+		object->status(noExplored)
+	}
+	=>
+	{
+		status:roomSt(250,0)
+		object:room(0,0)
+		object->status(explored)
+	}
+}
+
+setRoomNotExplored : passive(1)
+{
+	{
+		status:roomSt(250,0)
+		object:room(0,0)
+		object->status(explored)
+	}
+	=>
+	{
+		status:roomSt(250,0)
+		object:room(0,0)
+		object->status(noExplored)
+	}
+}
+
+setObjectReach : active(1)
+{
+	{
+		status:objectSt(250,0)
+		object:object(65,0)
+		robot:robot(-205,0)
+		room:room(-70,0)
+		object->status(hasStatus)
+		object->status(noReach)
+		object->status(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		status:objectSt(250,0)
+		object:object(65,0)
+		robot:robot(-205,0)
+		room:room(-70,0)
+		object->status(hasStatus)
+		object->status(reach)
+		object->status(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+}
+
+setObjectNotReach : passive(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(50,-40)
+		object->status(hasStatus)
+		object->status(reach)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(50,-40)
+		object->status(hasStatus)
+		object->status(noReach)
+	}
+}
+
+setObjectReachable : passive(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(35,-40)
+		object->status(hasStatus)
+		object->status(noReachable)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(55,-40)
+		object->status(hasStatus)
+		object->status(reachable)
+	}
+}
+
+setObjectNotReachable : passive(1)
+{
+	{
+		status:objectSt(285,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(reachable)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(35,-45)
+		object->status(hasStatus)
+		object->status(noReachable)
+	}
+}
+
+setObjectSee : active(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(noSee)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(see)
+	}
+}
+
+setObjectNotSee : passive(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(see)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(noSee)
+	}
+}
+
+setObjectPosition : active(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(noPosition)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(position)
+	}
+}
+
+setObjectNotPosition : passive(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(position)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(80,-40)
+		object->status(hasStatus)
+		object->status(noPosition)
+	}
+}
+
+recognizeObjFails : active(1)
+{
+	{
+		status:objectSt(105,-80)
+		object:object(-135,-80)
+		robot:robot(-290,-80)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(unclassified)
+	}
+	=>
+	{
+		status:objectSt(95,-75)
+		object:object(-130,-75)
+		robot:robot(-295,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(classifailed)
+	}
+}
+
