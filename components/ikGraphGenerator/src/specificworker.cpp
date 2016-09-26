@@ -21,7 +21,7 @@
 #define MAX_SPEED 1.5
 // #define MAX_SPEED 0.7
 
-#define STEP_DISTANCE 50
+#define STEP_DISTANCE 40
 // #define CLOSE_DISTANCE (STEP_DISTANCE*2.5)
 #define CLOSE_DISTANCE (STEP_DISTANCE*1.8)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -175,7 +175,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	}
 
 	timer.start(10);
-	initFile();
+// 	initFile();
 	//qDebug()<<"[ikGraphGenerator]: READY CONFIG PARAMS";
 	return true;
 }
@@ -425,11 +425,11 @@ bool SpecificWorker::goAndWait(float x, float y, float z, int node, MotorGoalPos
 	
 	float rely = (y - yrange.first) / (yrange.second - yrange.first);
 	if (rely < 0.33)
-		target.rx = 0.3;
+		target.rx = 0.0;
 	else if (rely < 0.66)
 		target.rx = 0;
 	else
-		target.rx = -0.3;
+		target.rx = -0.0;
 	target.rx = 0;
 	
 	

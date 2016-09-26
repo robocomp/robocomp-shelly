@@ -1,0 +1,152 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_basic
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+
+
+graspObject : active(1)
+{
+	{
+		table:object(0,110)
+		object:object(130,0)
+		room:room(-130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		object->ost(reach)
+	}
+	=>
+	{
+		table:object(0,110)
+		object:object(130,0)
+		room:room(-130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		object->ost(reach)
+	}
+}
+
+handObject_offer : active(1)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		person->room(in)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->person(in)
+		object->robot(in)
+		robot->room(in)
+		person->room(in)
+	}
+}
+
+handObject_leave : active(1)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		object->person(in)
+		robot->room(in)
+		person->room(in)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->person(in)
+		robot->room(in)
+		person->room(in)
+	}
+}
+
+leaveObjectInTable : active(1)
+{
+	{
+		table:object(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		table:object(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+	}
+}
+
+setRestArmPosition : active(1)
+{
+	{
+		robot:robot(0,-110)
+		status:status(0,110)
+		robot->status(hasStatus)
+		robot->status(restArm)*
+	}
+	=>
+	{
+		robot:robot(0,-110)
+		status:status(0,110)
+		robot->status(hasStatus)
+		robot->status(restArm)
+	}
+}
+
+unsetRestArmPosition : passive(1)
+{
+	{
+		robot:robot(0,-110)
+		status:status(0,110)
+		robot->status(hasStatus)
+		robot->status(restArm)
+	}
+	=>
+	{
+		robot:robot(0,-110)
+		status:status(0,110)
+		robot->status(hasStatus)
+		robot->status(restArm)*
+	}
+}
+

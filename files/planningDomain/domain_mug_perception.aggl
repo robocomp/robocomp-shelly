@@ -1,0 +1,150 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_basic
+vertexDiameter=40
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+
+imagineMostLikelyMugInPosition : active(2)
+{
+	{
+		status:status(-5,-305)
+		robot:robot(-5,-160)
+		table:object(-135,-160)
+		tableSt:objectSt(-300,-160)
+		room:room(-130,0)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:protoObject(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->mugSt(hasStatus)
+		mug->mugSt(noReach)
+		mug->mugSt(reachable)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+verifyImaginaryMug : active(1)
+{
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:protoObject(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		robot->status(usedOracle)
+		mug->room(in)
+		mug->mugSt(mug)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:object(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		mug->mugSt(mug)
+		mug->room(in)
+		table->tableSt(table)
+	}
+}
+
+hierarchical hierarchical_verifyImaginaryMug : active(2) activates(verifyImaginaryMug)
+{
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:protoObject(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:object(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		mug->mugSt(mug)
+		mug->room(in)
+		table->tableSt(table)
+	}
+}
+
+
+recognizeObjMug : active(1)
+{
+	{
+		status:objectSt(65,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(unclassified)
+	}
+	=>
+	{
+		status:objectSt(60,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(classified)
+		object->status(mug)
+	}
+}
+
