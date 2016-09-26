@@ -123,7 +123,7 @@ void SpecificWorker::SpecificWorker::compute()
 
 	if (speedSet)
 	{
-		const QVec v = QVec::vec3(dSpeedX, dSpeedZ, dSpeedAlpha);
+		const QVec v = QVec::vec3(dSpeedZ, dSpeedX, dSpeedAlpha);
 		const QVec wheels = M_vels_2_wheels * v;
 		setWheels(wheels);
 		speedSet = false;
