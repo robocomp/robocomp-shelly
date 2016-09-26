@@ -8,11 +8,11 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_navigation.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_basic_perception.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_table_perception.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_mug_perception.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_coffeepot_perception.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_milk_perception.aggl)
-include(/home/robocomp/robocomp/components/prp/planningDomain/domain_manipulation.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_navigation.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_basic_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_table_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_mug_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_coffeepot_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_milk_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_manipulation.aggl)
 

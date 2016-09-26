@@ -14,6 +14,7 @@ graspObject : active(1)
 {
 	{
 		table:object(0,110)
+		rSt:status(0, -250)
 		object:object(130,0)
 		room:room(-130,0)
 		ost:objectSt(290,0)
@@ -23,10 +24,12 @@ graspObject : active(1)
 		robot->room(in)
 		table->room(in)
 		object->ost(reach)
+		robot->rSt(hasStatus)
 	}
 	=>
 	{
 		table:object(0,110)
+		rSt:status(0, -250)
 		object:object(130,0)
 		room:room(-130,0)
 		ost:objectSt(290,0)
@@ -36,6 +39,8 @@ graspObject : active(1)
 		robot->room(in)
 		table->room(in)
 		object->ost(reach)
+		robot->rSt(hasStatus)
+		robot->rSt(restArm)*
 	}
 }
 
