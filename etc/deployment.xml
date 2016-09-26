@@ -11,20 +11,6 @@
   <simulation hookes="0.07" springlength="0.5" friction="0.4" step="0.5" fieldforce="20000.0" />
  </generalInformation>
 
- <node alias="slamCGR" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12010">
-  <dependence alias="laser" />
-  <dependence alias="base" />
-  <dependence alias="IS" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 CGR /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR ./bin/CGRc etc/config" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 CGRc" />
-  <configFile path="kate /home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR/etc/config" />
-  <xpos value="-56.2740579165" />
-  <ypos value="82.3788237497" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
- </node>
-
  <node alias="slam" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 11059">
   <dependence alias="laser" />
   <dependence alias="base" />
@@ -77,7 +63,7 @@
  </node>
 
  <node alias="graspingA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10332">
-  <dependence alias="vik" />
+  <dependence alias="gik" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 graspingAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent ./bin/graspingComp /home/robocomp/robocomp/components/robocomp-shelly/etc/graspingAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 graspingComp" />
@@ -106,7 +92,6 @@
   <dependence alias="ppcptnA" />
   <dependence alias="objectA" />
   <dependence alias="graspingA" />
-  <dependence alias="oracleA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
   <downCommand command="killall -9 agmmission" />
@@ -276,7 +261,6 @@
 
  <node alias="objectA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10331">
   <dependence alias="april" />
-  <dependence alias="objectD" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 objAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/objectagent ./bin/objectagent /home/robocomp/robocomp/components/robocomp-shelly/etc/objectAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 objectagent" />
@@ -310,19 +294,6 @@
   <ypos value="13.2650458054" />
   <radius value="10.0" />
   <color value="#3333FF" />
- </node>
-
- <node alias="vik" endpoint="inversekinematics:tcp -h 10.0.30.11 -p 10242">
-  <dependence alias="gik" />
-  <dependence alias="april" />
-  <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.11 VIK /home/robocomp/robocomp/components/robocomp-shelly/components/visualik/ ./bin/VisualBIK /home/robocomp/robocomp/components/robocomp-shelly/etc/vik.conf" />
-  <downCommand command="ssh robolab@10.0.30.11 killall -9 VisualBIK" />
-  <configFile path="xxx" />
-  <xpos value="93.4634909597" />
-  <ypos value="-57.3256032733" />
-  <radius value="10.0" />
-  <color value="#FF3333" />
  </node>
 
  <node alias="gik" endpoint="inversekinematics:tcp -h 10.0.30.11 -p 10241">

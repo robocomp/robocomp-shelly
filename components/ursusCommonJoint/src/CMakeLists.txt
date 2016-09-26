@@ -21,15 +21,6 @@ SET ( SOURCES
   $ENV{ROBOCOMP}/classes/qlog/qlog.cpp
 )
 
-# Headers set
-SET ( HEADERS
-  ${HEADERS}
-  jointmotorI.h
-
-  genericmonitor.h
-  commonbehaviorI.h
-  genericworker.h
-)
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
 ROBOCOMP_WRAP_ICE( CommonBehavior   JointMotor)
@@ -43,8 +34,8 @@ SET( QT_USE_QTOPENGL TRUE )
 SET( QT_USE_QTXML TRUE )
 SET( QT_USE_QTSTATE TRUE )
 SET( QT_USE_QTSTATEMACHINE TRUE )
+SET( CMAKE_AUTOMOC TRUE )
 INCLUDE( ${QT_USE_FILE} )
-QT4_WRAP_CPP( MOC_SOURCES ${HEADERS} )
 QT4_WRAP_UI( UI_HEADERS guiDlg.ui )
 # Specify construction and link process
 ADD_EXECUTABLE( ursuscommonjointcomp ${SOURCES} ${MOC_SOURCES} ${RC_SOURCES} ${UI_HEADERS} )

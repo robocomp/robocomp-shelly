@@ -759,11 +759,11 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 	QMutexLocker locker(mutex);
 	
 	//check if goals is a collision position previously calculated
-	if (precalculateCollision(goals))
+/*	if (precalculateCollision(goals))
 	{
 		printf("|| checkFuturePosition::precalculateCollision\n");
 		return true;
-	}
+// 	}*/
 	MotorGoalPositionList backPoses = goals; //guardamos nombres de los motores
 	//Guardamos para cada joint su angulo actual 
 	float position = 0.f,actual_position=0.f, iter_move = 0.f;
@@ -795,8 +795,7 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 	while(!collision and j < num_iter)
 	{
 		// Insert objective angle into innermodel
-		uint i=0;
-		while(!collision and i < goals.size())
+		for (uint i=0;i < goals.size();i++)
 		{
 			actual_position = innerModel->getJoint(backPoses[i].name)->getAngle();
 			int direction = 1;
@@ -808,21 +807,25 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 			else
 				position = goals[i].position;
 			
-//			qDebug()<<"iter " << j << "motor: "<< i <<" max position "<<goals[i].position << position;
+//			qDebug()<<"iter " << j << "motor: "<< goals[i].name.c_str() <<" max position "<<goals[i].position << position;
 			innerModel->getJoint(backPoses[i].name)->setAngle(position, true);
-			// check collision
-			innerModel->cleanupTables(); 
-			for (auto p: pairs)
+		}
+		// check collision
+		innerModel->cleanupTables(); 
+		for (auto p: pairs)
+		{
+			int static rabo=0;
+			int dist = innerModel->distance(p.first, p.second);
+			//if (innerModel->collide(p.first, p.second))
+			if ( dist < 100) //Using minimum distance instead of collision flag
 			{
-				//if (innerModel->collide(p.first, p.second))
-				if (innerModel->distance(p.first, p.second)< 100) //Using minimum distance instead of collision flag
-				{
-					ret = p;
-					collision = true;
-					break;
-				}
+				qDebug()<<"distancia "<< dist;
+				ret = p;
+				collision = true;
+				rabo += 1;
+				innerModel->save(QString::number(rabo)+"_Collision.xml");
+				break;
 			}
-			i++;
 		}
 		j++;
 	}
@@ -846,13 +849,14 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 	// If there is a collision, all joints return to previous position
 	if (collision)
 	{
-		for (uint i=0; i<goals.size(); i++)
-			innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
-		
 		innerModel->cleanupTables();
 		calculateCollisionList.push_back(goals);
 		printf("|| checkFuturePosition: %s with %s\n", ret.first.toStdString().c_str(), ret.second.toStdString().c_str());
 	}
+	for (uint i=0; i<goals.size(); i++)
+	{
+		innerModel->getJoint(backPoses[i].name)->setAngle(backPoses[i].position, true);
+	}	
 	return collision;
 }
 /**
