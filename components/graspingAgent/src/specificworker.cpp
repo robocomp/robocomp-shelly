@@ -985,14 +985,14 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 	goal.name = "gripperFinger1";
 	goal.position = 0.2;
 	try{
-		jointmotor_proxy->setPosition(goal);
+	//	jointmotor_proxy->setPosition(goal);
 	}catch(...){
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
 	goal.name = "gripperFinger2";
 	goal.position = -0.2;
 	try{
-		jointmotor_proxy->setPosition(goal);	
+	//	jointmotor_proxy->setPosition(goal);	
 	}catch(...){
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
