@@ -956,22 +956,46 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 	goal.maxSpeed = 0.7;
 	goal.name = "armY";
 	goal.position = 0;
-	jointmotor_proxy->setPosition(goal);
+	try{
+		jointmotor_proxy->setPosition(goal);
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	goal.name = "armX1";
 	goal.position = -1.0;
-	jointmotor_proxy->setPosition(goal);
+	try{
+		jointmotor_proxy->setPosition(goal);
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	goal.name = "armX2";
 	goal.position = 2.5;
-	jointmotor_proxy->setPosition(goal);
+	try{
+		jointmotor_proxy->setPosition(goal);
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	goal.name = "wristX";
 	goal.position = 0;
-	jointmotor_proxy->setPosition(goal);
+	try{
+		jointmotor_proxy->setPosition(goal);
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	goal.name = "gripperFinger1";
 	goal.position = 0.2;
-	jointmotor_proxy->setPosition(goal);
+	try{
+		jointmotor_proxy->setPosition(goal);
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	goal.name = "gripperFinger2";
 	goal.position = -0.2;
-	jointmotor_proxy->setPosition(goal);	
+	try{
+		jointmotor_proxy->setPosition(goal);	
+	}catch(...){
+		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	}
 	
 	usleep(200000);
 }
