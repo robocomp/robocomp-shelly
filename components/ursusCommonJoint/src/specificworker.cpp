@@ -817,7 +817,7 @@ bool SpecificWorker::checkFuturePosition(MotorGoalPositionList goals, std::pair<
 			int static rabo=0;
 			int dist = innerModel->distance(p.first, p.second);
 			//if (innerModel->collide(p.first, p.second))
-			if ( dist < 100) //Using minimum distance instead of collision flag
+			if ( dist < 50) //Using minimum distance instead of collision flag
 			{
 				qDebug()<<"distancia "<< dist;
 				ret = p;

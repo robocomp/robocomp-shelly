@@ -1,0 +1,13 @@
+import "/robocomp/interfaces/IDSLs/Speech.idsl";
+
+Component dialogagent
+{
+	Communications
+	{
+		requires Speech;
+	};
+	language Cpp;
+	gui Qt(QWidget);
+	options agmagent;
+};
+
