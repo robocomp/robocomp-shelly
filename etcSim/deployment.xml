@@ -78,7 +78,7 @@
  <node alias="dialogA" endpoint="agmcommonbehavior:tcp  -p 10334">
   <dependence alias="speech" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost dialog /home/robocomp/robocomp/components/robocomp-shelly/components/dialogAgent ./bin/dialogagent /home/robocomp/robocomp/components/robocomp-shelly/etc/graspingAgent.conf" />
+  <upCommand command="rcremote localhost dialog /home/robocomp/robocomp/components/robocomp-shelly/components/dialogAgent ./bin/dialogagent /home/robocomp/robocomp/components/robocomp-shelly/etc/dialogagent.conf" />
   <downCommand command="killall -9 dialogagent" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etcSim/dialog.conf" />
   <xpos value="149.024542054" />
