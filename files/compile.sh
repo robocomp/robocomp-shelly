@@ -212,6 +212,10 @@ fi
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
 fi
+# dialogAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+        compile "dialog agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/dialogAgent/"
+fi
 # objectAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "object agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/objectagent/"
