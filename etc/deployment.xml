@@ -285,7 +285,7 @@
   <color value="#AAAAAA" />
  </node>
 
- <node alias="speech" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 10696">
+ <node alias="speech" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 10021">
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.11 speechComp /home/robocomp/robocomp/components/robocomp-robolab/components/speechComp/ python src/speechComp.py --Ice.Config=etc/config" />
   <downCommand command="ssh robolab@10.0.30.11 pkill -9 -f speechComp.py" />
