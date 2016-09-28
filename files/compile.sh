@@ -1,6 +1,14 @@
-#number of compiling threads
-N=3
+#!/usr/bin/env bash
 
+
+if [ -z "$ROBOCOMP_COMPILE_THREADS" ]
+then
+	ROBOCOMP_COMPILE_THREADS=2
+	echo "ROBOCOMP_COMPILE_THREADS environment variable not defined. Using default value: $ROBOCOMP_COMPILE_THREADS"
+fi
+N=$ROBOCOMP_COMPILE_THREADS
+
+echo "Using $N threads to compile."
 
 ### Help
 help()
@@ -132,17 +140,17 @@ if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gmapping" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/gmappingComp/"
 fi
 # CGR
-if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR"
-fi
+#if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+#	compile "cgr" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/CGR"
+#fi
 # stable odometry
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "stable odometry" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/stableOdometry"
 fi
 # laserRGBD
-if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
-fi
+#if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+#	compile "laserRGBD" "/home/robocomp/robocomp/components/robocomp-robolab/experimental/laserRGBDComp2/"
+#fi
 # base
 if [ $1 -eq 1 ] || [ $1 -eq 0 ]; then
 	compile "baseursus" "/home/robocomp/robocomp/components/robocomp-shelly/components/baseursus/"
