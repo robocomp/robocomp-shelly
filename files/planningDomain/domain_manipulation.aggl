@@ -44,7 +44,32 @@ graspObject : active(1)
 	}
 }
 
-handObject_offer : active(1)
+hierarchical handObject : active(1) activates(handObject_offer, handObject_leave)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+dormant handObject_offer : active(1)
 {
 	{
 		person:person(0,110)
@@ -70,7 +95,7 @@ handObject_offer : active(1)
 	}
 }
 
-handObject_leave : active(1)
+dormant handObject_leave : active(1)
 {
 	{
 		person:person(0,110)

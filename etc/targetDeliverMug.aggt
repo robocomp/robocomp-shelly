@@ -3,6 +3,7 @@
 	55:person
 	50:object
 	50->55(in)
+	50->1(in)*
 }
 precondition
 {
