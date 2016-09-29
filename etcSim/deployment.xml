@@ -23,6 +23,18 @@
   <color value="#FF3333" />
  </node>
 
+ <node alias="telegram" endpoint="commonbehavior:tcp -p 12070">
+  <dependence alias="executive" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost rclogger /home/robocomp/ rclogger" />
+  <downCommand command="killall -9 rclogger" />
+  <configFile path="" />
+  <xpos value="19.6886380899" />
+  <ypos value="41.8712115064" />
+  <radius value="10.0" />
+  <color value="#FF3333" />
+ </node>
+
  <node alias="navigA" endpoint="agmcommonbehavior:tcp -h localhost -p 10330">
   <dependence alias="executive" />
   <dependence alias="trajectory2d" />

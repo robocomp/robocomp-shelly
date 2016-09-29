@@ -84,7 +84,7 @@ class SpecificWorker(GenericWorker):
 
 		# Telegram stuff
 		self.bot = telepot.Bot(self.TELEGRAM_API)
-		self.bot.notifyOnMessage(self.handle)
+		self.bot.message_loop(self.handle)
 
 		return True
 
@@ -105,7 +105,7 @@ class SpecificWorker(GenericWorker):
 		d = dateStringFromTimestamp(message['date'])
 		r = sr.Recognizer()
 		file_path = d + '_voice.ogg'
-		self.bot.downloadFile(message['voice']['file_id'], file_path)
+		self.bot.download_file(message['voice']['file_id'], file_path)
 		os.system('avconv -y -i ' + file_path + ' audio.wav')
 		with sr.WavFile("audio.wav") as source:
 			audio = r.record(source)
