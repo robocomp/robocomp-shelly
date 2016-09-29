@@ -64,7 +64,13 @@ private:
 	bool active;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
-	
+
+	void actionExecution();
+	void action_handObject_offer();
+
+
+	std::map<std::string, AGMModelSymbol::SPtr> symbols;
+
 };
 
 #endif

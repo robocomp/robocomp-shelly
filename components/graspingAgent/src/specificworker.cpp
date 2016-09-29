@@ -651,6 +651,10 @@ void SpecificWorker::actionExecution()
 	{
 		action_SetRestArmPosition();
 	}
+	else if (action == "handObject_leave")
+	{
+		action_handObject_leave();
+	}
 
 	if (newAction)
 	{
@@ -658,6 +662,52 @@ void SpecificWorker::actionExecution()
 		printf("New action: %s\n", action.c_str());
 	}
 }
+
+void SpecificWorker::action_handObject_leave(bool first)
+{
+	// Lock mutex and get a model's copy
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	// Get action parameters
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "object", "person", "robot");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+
+
+	// Attempt to get the (object)--[in]--->(person) edge, in which case we're done
+	try
+	{
+		newModel->getEdge(symbols["object"], symbols["person"], "in");
+		return;
+	}
+	catch(...)
+	{
+	}
+
+	// Proceed
+	try
+	{
+		inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
+		inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
+		// World grammar rule implementation.
+		newModel->addEdge(   symbols["object"], symbols["person"], "in");
+		newModel->removeEdge(symbols["object"], symbols["person"], "offered");
+		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+		// Publish the modification
+		sendModificationProposal(newModel, worldModel);
+	}
+	catch(...)
+	{
+		// Edge not present yet or some error raised. Try again in a few milliseconds.
+	}
+}
+
 
 // Check if robot is stopped befora calling to graspAction
 bool SpecificWorker::robotIsMoving()

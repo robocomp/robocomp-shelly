@@ -60,18 +60,61 @@ void SpecificWorker::compute()
 {
 	QMutexLocker locker(mutex);
 	
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
+	actionExecution();
 }
 
+void SpecificWorker::actionExecution()
+{
+	if (action == "handobject_offer")
+	{
+		action_handObject_offer();
+	}
+}
+
+void SpecificWorker::action_handObject_offer()
+{
+	// Lock mutex and get a model's copy
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	// Get action parameters
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "object", "person", "status");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+
+	// Attempt to get the 'offered' edge, in which case we're done
+	try
+	{
+		newModel->getEdge(symbols["object"], symbols["person"], "offered");
+		return;
+	}
+	catch(...)
+	{
+	}
+
+	// Attempt to get the person "reach" edge. Proceed if successfull.
+	try
+	{
+		// Get the person "reach" edge.
+		newModel->getEdge(symbols["person"], symbols["status"], "reach");
+		// Make the robot speak
+		speech_proxy->say("toma la puta taza, que cansinos sois con la jodida taza",false);
+		sleep(2);
+		// Make the action noticeable in the model.
+		newModel->addEdge(symbols["object"], symbols["person"], "offered");
+		// Publish the modification
+		sendModificationProposal(newModel, worldModel);
+	}
+	catch(...)
+	{
+		// Edge not present yet or some error raised. Try again in a few milliseconds.
+	}
+}
 
 bool SpecificWorker::reloadConfigAgent()
 {
