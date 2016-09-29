@@ -117,6 +117,7 @@
 	<attribute key="imName" value="person" />
 	<attribute key="imType" value="transform" />
 </symbol>
+<symbol id="56" type="personSt"/>
 <symbol id="101" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="floor" />
@@ -1742,6 +1743,8 @@
 <link src="52" dst="53" label="noReach"/>
 <link src="52" dst="53" label="hasStatus"/>
 <link src="55" dst="3" label="in"/>
+<link src="55" dst="56" label="hasStatus"/>
+<link src="55" dst="56" label="noReach"/>
 <link src="100" dst="101" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
@@ -1810,9 +1813,9 @@
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="4800" />
+	<linkAttribute key="tx" value="3000" />
 	<linkAttribute key="ty" value="2000" />
-	<linkAttribute key="tz" value="-1900" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="55" dst="107" label="RT">
 	<linkAttribute key="rx" value="0" />

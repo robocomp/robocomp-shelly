@@ -150,6 +150,7 @@ void SpecificWorker::manageReachedObjects()
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
 	float THRESHOLD_table = 400;
+	float THRESHOLD_person = 700;
 	std::string m ="  ";
 
 	bool changed = false;
@@ -164,7 +165,7 @@ void SpecificWorker::manageReachedObjects()
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
-		if (node->symboltype() == "object")
+		if ((node->symboltype() == "object") or (node->symboltype() == "person"))
 		{
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
@@ -217,12 +218,12 @@ void SpecificWorker::manageReachedObjects()
 // // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
 // 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
 // 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
-			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
+			/*QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 			if (node->identifier == 50)
 			{
 				oinp(1) = 0;
 				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
-			}
+			}*/
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
@@ -246,16 +247,20 @@ void SpecificWorker::manageReachedObjects()
 			{
 				THRESHOLD = THRESHOLD_table;
 			}
+			else if (node->symbolType == "person")
+			{
+				THRESHOLD = THRESHOLD_person;
+			}
 			else
 			{
 				qFatal("dededcef or4j ");
 			}
 			
 
-/*			QString name = QString::fromStdString(node->toString());
-			if (node->identifier == 11)
-			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
-*/
+			QString name = QString::fromStdString(node->toString());
+//			if (node->identifier == 11)
+//			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
+
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
@@ -651,6 +656,10 @@ void SpecificWorker::actionExecution()
 	{
 		action_SetRestArmPosition();
 	}
+	else if (action == "handobject_leave")
+	{
+		action_handObject_leave();
+	}
 
 	if (newAction)
 	{
@@ -658,6 +667,66 @@ void SpecificWorker::actionExecution()
 		printf("New action: %s\n", action.c_str());
 	}
 }
+
+void SpecificWorker::action_handObject_leave(bool first)
+{
+	// Lock mutex and get a model's copy
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+
+	// Get action parameters
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "object", "person", "robot");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+
+
+	// Attempt to get the (object)--[in]--->(person) edge, in which case we're done
+	try
+	{
+		newModel->getEdge(symbols["object"], symbols["person"], "in");
+		return;
+	}
+	catch(...)
+	{
+	}
+
+	// Proceed
+	try
+	{
+		inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
+		inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
+		// World grammar rule implementation.
+		try
+		{
+			newModel->addEdge(   symbols["object"], symbols["person"], "in");
+			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
+//			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			try
+			{
+				// Publish the modification
+				sendModificationProposal(newModel, worldModel);
+			}
+			catch (...)
+			{
+				printf("Error publishing the model in handObject_leave\n");
+			}
+		}
+		catch (...)
+		{
+			printf("Error in the implementation of the rule handObject_leave\n");
+		}
+	}
+	catch(...)
+	{
+		// Edge not present yet or some error raised. Try again in a few milliseconds.
+	}
+}
+
 
 // Check if robot is stopped befora calling to graspAction
 bool SpecificWorker::robotIsMoving()
@@ -1010,9 +1079,8 @@ void SpecificWorker::leaveObjectSimulation()
 		newModel->addEdge(   symbols["object"], symbols["table"], "in");
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 		{
-			QMutexLocker locker(mutex);
 // 			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
-			sendModificationProposal(newModel, worldModel);
+			sendModificationProposal(worldModel, newModel);
 		}
 	}
 	catch(...)

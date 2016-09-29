@@ -76,10 +76,12 @@ dormant handObject_offer : active(1)
 		object:object(130,0)
 		robot:robot(0,-110)
 		room:room(-130,0)
+		status:personSt(0,220)
 		robot->object(know)
 		object->robot(in)
 		robot->room(in)
 		person->room(in)
+		person->status(hasStatus)
 	}
 	=>
 	{
@@ -87,11 +89,13 @@ dormant handObject_offer : active(1)
 		object:object(130,0)
 		robot:robot(0,-110)
 		room:room(-130,0)
+		status:personSt(0,220)
 		object->person(offered)
 		object->robot(in)
 		robot->room(in)
 		robot->object(know)
 		person->room(in)
+		person->status(hasStatus)
 	}
 }
 
