@@ -150,6 +150,7 @@ void SpecificWorker::manageReachedObjects()
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
 	float THRESHOLD_table = 400;
+	float THRESHOLD_person = 700;
 	std::string m ="  ";
 
 	bool changed = false;
@@ -164,7 +165,7 @@ void SpecificWorker::manageReachedObjects()
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
-		if (node->symboltype() == "object")
+		if ((node->symboltype() == "object") or (node->symboltype() == "person"))
 		{
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
@@ -217,12 +218,12 @@ void SpecificWorker::manageReachedObjects()
 // // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
 // 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
 // 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
-			QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
+			/*QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 			if (node->identifier == 50)
 			{
 				oinp(1) = 0;
 				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
-			}
+			}*/
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
@@ -246,16 +247,20 @@ void SpecificWorker::manageReachedObjects()
 			{
 				THRESHOLD = THRESHOLD_table;
 			}
+			else if (node->symbolType == "person")
+			{
+				THRESHOLD = THRESHOLD_person;
+			}
 			else
 			{
 				qFatal("dededcef or4j ");
 			}
 			
 
-/*			QString name = QString::fromStdString(node->toString());
-			if (node->identifier == 11)
-			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
-*/
+			QString name = QString::fromStdString(node->toString());
+//			if (node->identifier == 11)
+//			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
+
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
