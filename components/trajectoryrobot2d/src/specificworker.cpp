@@ -543,7 +543,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 	// Check if robot is inside limits and not in collision.
 	///////////////////////////////////////////////
-	auto r = sampler.checkRobotValidStateAtTarget(robotT, robotRot);
+/*	auto r = sampler.checkRobotValidStateAtTarget(robotT, robotRot);
 	if (std::get<bool>(r) == false)
 	{
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
@@ -566,7 +566,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 		tState.setDescription(ex.text);
 		currentTarget.setState(CurrentTarget::State::TARGET_COLLISION);
 		throw ex;
-	}
+	}*/
 
 	///////////////////////////////////////////////
 	// Let's see what these guys want
