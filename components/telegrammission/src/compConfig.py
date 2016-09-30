@@ -2,6 +2,7 @@ def getLanguageParams(desiredLanguage):
 		if desiredLanguage == 'es-ES':
 			goSet    = set(['ve', 'ir', 'vete', 'vente', 'acercate', 'corre', 'muevete'])
 			graspSet = set(['coge', 'toma', 'agarra', 'pilla'])
+			bringSet = set(['trae', 'traeme', 'dame', 'acercame'])
 			objects = {
 				   u'mesa a'          : 'tableA',
 				   u'mesa uno'        : 'tableA',
@@ -44,10 +45,11 @@ def getLanguageParams(desiredLanguage):
 				   u'descansar': 'waitPosition',
 				   u'parada': 'waitPosition'
 			}
-			return (goSet, graspSet, objects)
+			return (goSet, graspSet, bringSet, objects)
 		elif desiredLanguage == 'en-UK' or desiredLanguage == 'en-US':
 			goSet = set(['go', 'approach', 'move'])
 			graspSet = set(['grasp', 'take', 'get'])
+			graspSet = set(['bring'])
 			objects = {
 				   u'mesa a'          : 'tableA',
 				   u'mesa one'        : 'tableA',
@@ -75,7 +77,7 @@ def getLanguageParams(desiredLanguage):
 				   u'rest': 'waitPosition',
 				   u'stop': 'waitPosition'
 			}
-			return (goSet, graspSet, objects)
+			return (goSet, graspSet, bringSet, objects)
 		else:
 			print 'Language "'+desiredLanguage+'" not supported'
 			retun (None, None, None)
