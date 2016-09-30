@@ -2023,7 +2023,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-800" />
+	<linkAttribute key="tz" value="-400" />
 </link>
 <link src="50" dst="128" label="RT">
 	<linkAttribute key="rx" value="0" />

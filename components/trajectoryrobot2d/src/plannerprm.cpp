@@ -88,7 +88,7 @@ bool PlannerPRM::computePath(QVec& target, InnerModel* innerModel)
 	QVec robotRotation = innerModel->getRotationMatrixTo("world", "robot").extractAnglesR_min();
 	
  	qDebug() << __FUNCTION__ << "Starting planning with robot at:" << robot <<  "and target at:" << target;
-
+/*
 	/////////////////////////////////////////////
 	//If robot on obstacle we can¡t proceed
 	/////////////////////////////////////////////
@@ -106,7 +106,7 @@ bool PlannerPRM::computePath(QVec& target, InnerModel* innerModel)
 		qDebug() << __FUNCTION__ << "Robot collides in target. Aborting planner";  //Should search a next obs-free target
 		return false;
 	}
-	
+*/	
 	////////////////////////////////////////////
 	// PLanner uses another instance of InnerModel to plan so we resynchronize both before initiate planning
 	////////////////////////////////////////////

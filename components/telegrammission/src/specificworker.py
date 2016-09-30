@@ -72,11 +72,13 @@ class SpecificWorker(GenericWorker):
 		
 		
 
-		self.goSet, self.graspSet, self.objects = getLanguageParams(self.LANGUAGE)
+		self.goSet, self.graspSet, self.bringSet, self.objects = getLanguageParams(self.LANGUAGE)
 		print 'goSet'
 		print self.goSet
 		print 'graspSet'
 		print self.graspSet
+		print 'bringSet'
+		print self.bringSet
 		print 'objects'
 		print self.objects
 		
@@ -156,13 +158,15 @@ class SpecificWorker(GenericWorker):
 		print 'IR?:', ir
 		coger = len(wordSet.intersection(self.graspSet)) > 0
 		print 'COGER?:', coger
+		dar = len(wordSet.intersection(self.bringSet)) > 0
+		print 'DAR?:', dar
 		objects = []
 		for o in self.objects:
 			if o in text:
 				objects.append(self.objects[o])
 		print 'OBJECTS:', objects
-		output_message += 'VARIABLES: ir("'+str(ir)+') coger('+str(coger)+') objetos('+str(objects)+')\n'
-		if (ir and not coger):# and len(objects) == 1:
+		output_message += 'VARIABLES: ir("'+str(ir)+') coger('+str(coger)+') dar('+str(dar)+') objetos('+str(objects)+')\n'
+		if (ir and not coger and not dar):# and len(objects) == 1:
 			if   objects[0] == 'tableA':
 				mission = 'ReachTableA'
 				output_message += 'MISION: '+mission+'\n'
@@ -186,9 +190,15 @@ class SpecificWorker(GenericWorker):
 				output_message += 'MISION: '+mission+'\n'
 			else:
 				output_message += 'No entiendo bien a donde quieres que vaya\n'
-		elif (coger and not ir):# and len(objects) == 1:
+		elif (coger and not ir and not dar):# and len(objects) == 1:
 			if objects[0] == 'mug':
 				mission = 'GraspMug'
+				output_message += 'MISION: '+mission+'\n'
+			else:
+				output_message += 'No entiendo bien que quieres que coja\n'
+		elif (dar and not ir and not coger):# and len(objects) == 1:
+			if objects[0] == 'mug':
+				mission = 'DeliverMug'
 				output_message += 'MISION: '+mission+'\n'
 			else:
 				output_message += 'No entiendo bien que quieres que coja\n'
