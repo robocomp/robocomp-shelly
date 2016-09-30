@@ -150,7 +150,7 @@ void SpecificWorker::manageReachedObjects()
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
 	float THRESHOLD_table = 400;
-	float THRESHOLD_person = 700;
+	float THRESHOLD_person = 400;
 	std::string m ="  ";
 
 	bool changed = false;
@@ -673,11 +673,12 @@ void SpecificWorker::action_handObject_leave(bool first)
 	// Lock mutex and get a model's copy
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
-
+printf("init action_handobject_leave\n");
 	// Get action parameters
 	try
 	{
 		symbols = newModel->getSymbolsMap(params, "object", "person", "robot");
+printf("get symbols map\n");
 	}
 	catch(...)
 	{
@@ -689,10 +690,12 @@ void SpecificWorker::action_handObject_leave(bool first)
 	try
 	{
 		newModel->getEdge(symbols["object"], symbols["person"], "in");
+printf("get edge\n");
 		return;
 	}
 	catch(...)
 	{
+printf("get edge exception\n");
 	}
 
 	// Proceed
@@ -700,16 +703,18 @@ void SpecificWorker::action_handObject_leave(bool first)
 	{
 		inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
 		inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
+printf("inverserkinmatics joints\n");
 		// World grammar rule implementation.
 		try
 		{
 			newModel->addEdge(   symbols["object"], symbols["person"], "in");
 			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
-//			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 			try
 			{
 				// Publish the modification
 				sendModificationProposal(newModel, worldModel);
+printf("modify model\n");
 			}
 			catch (...)
 			{
@@ -724,6 +729,7 @@ void SpecificWorker::action_handObject_leave(bool first)
 	catch(...)
 	{
 		// Edge not present yet or some error raised. Try again in a few milliseconds.
+printf("exception set joints\n");
 	}
 }
 
@@ -870,7 +876,7 @@ void SpecificWorker::action_GraspObject(bool first)
 			{
 				inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
 				inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
-				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 1.5);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			offset = QVec::vec3(0, yInit, zInit);

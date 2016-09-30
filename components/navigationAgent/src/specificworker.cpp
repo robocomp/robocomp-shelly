@@ -155,7 +155,7 @@ void SpecificWorker::actionExecution()
 	}
 	else if (action == "handobject")
 	{
-		action_HandObject(newAction);
+//		action_HandObject(newAction);
 	}
 	else if (action == "setstop")
 	{
@@ -433,19 +433,6 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
 		roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
 		personIMID = QString::fromStdString(worldModel->getSymbol(personID)->getAttribute("imName"));
-		
-		// check if object has reachPosition
-		AGMModelSymbol::SPtr object = worldModel->getSymbol(personID);
-		for (auto edge = object->edgesBegin(worldModel); edge != object->edgesEnd(worldModel); edge++)
-		{
-			if (edge->getLabel() == "reachPosition")
-			{
-				const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
-				personID = symbolPair.second;
-				personIMID = QString::fromStdString(worldModel->getSymbol(personID)->getAttribute("imName"));
-				qDebug() << __FUNCTION__ << "Target object " << symbolPair.first<<"->"<<symbolPair.second<<" object "<<personIMID;
-			}
-		}
 	}
 	catch(...)
 	{
@@ -481,7 +468,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		{
 			QVec O = innerModel->transform("shellyArm_grasp_pose", personIMID);
 			QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-			go(tgt.x, tgt.z, 0, tgt.doRotation, graspRef.x(), graspRef.z(), 20);
+			go(tgt.x, tgt.z, -3.141592, tgt.doRotation, graspRef.x(), graspRef.z(), 20);
 			qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 			haveTarget = true;
 		}
@@ -508,8 +495,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 *  \brief Called when the robot is sent close to an object's location
 */ 
 void SpecificWorker::action_SetObjectReach(bool newAction)
-{
-	// Get symbols' map
+{	// Get symbols' map
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
