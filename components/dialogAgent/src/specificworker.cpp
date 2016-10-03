@@ -65,18 +65,22 @@ void SpecificWorker::compute()
 
 void SpecificWorker::actionExecution()
 {
+	static std::string previousAction = "";
+	bool newAction = (previousAction != action);
+	
 	if (action == "handobject_offer")
 	{
-		action_handObject_offer();
+		action_handObject_offer(newAction);
 	}
+	previousAction = action;
 }
 
-void SpecificWorker::action_handObject_offer()
+void SpecificWorker::action_handObject_offer(bool first)
 {
 	// Lock mutex and get a model's copy
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
-
+	
 	// Get action parameters
 	try
 	{
@@ -86,7 +90,6 @@ void SpecificWorker::action_handObject_offer()
 	{
 		printf("graspingAgent: Couldn't retrieve action's parameters\n");
 	}
-
 	// Attempt to get the 'offered' edge, in which case we're done
 	try
 	{
@@ -103,12 +106,15 @@ void SpecificWorker::action_handObject_offer()
 		// Get the person "reach" edge.
 		newModel->getEdge(symbols["person"], symbols["status"], "reach");
 		// Make the robot speak
-		speech_proxy->say("toma la puta taza, que cansinos sois con la jodida taza",false);
+		if (first)
+		{
+			speech_proxy->say("toma la puta taza, que cansinos sois con la jodida taza",false);
+		}
 		sleep(2);
 		// Make the action noticeable in the model.
 		newModel->addEdge(symbols["object"], symbols["person"], "offered");
 		// Publish the modification
-		sendModificationProposal(newModel, worldModel);
+		sendModificationProposal(worldModel, newModel);
 	}
 	catch(...)
 	{
@@ -189,40 +195,35 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
 	mutex->unlock();
 }
 
-void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification)
+void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
 {
-	QMutexLocker locker(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	QMutexLocker lockIM(mutex);
+	for (auto modification : modifications)
+	{
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
+	}
 }
 
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 }
 
-void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
+void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
 }
 
-void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
+void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
 {
-	QMutexLocker locker(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	QMutexLocker l(mutex);
+
+	for (auto modification : modifications)
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 }
 
 
@@ -275,11 +276,30 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 {
 	try
 	{
-		AGMModelPrinter::printWorld(newModel);
+		//AGMModelPrinter::printWorld(newModel);
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, "dialogagentAgent");
 	}
-	catch(...)
+	catch(RoboCompAGMExecutive::Locked ex)
 	{
+		std::cout<<"Exception => locked"<<std::endl;
+	}
+	catch(RoboCompAGMExecutive::OldModel ex)
+	{
+		std::cout<<"Exception => OldModel"<<std::endl;
+		try
+		{
+			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+			structuralChange(w);
+		}
+		catch(...)
+		{
+			printf("The executive is probably not running, waiting for first AGM model publication...");
+		}
+
+	}
+	catch(RoboCompAGMExecutive::InvalidChange ex)
+	{
+		std::cout<<"Exception => InvalidChange"<<std::endl;
 		exit(1);
 	}
 }

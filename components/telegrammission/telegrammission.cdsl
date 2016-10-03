@@ -1,0 +1,11 @@
+import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
+
+Component telegrammission
+{
+	Communications
+	{
+		requires AGMExecutive;
+	};
+	language python;
+};
+

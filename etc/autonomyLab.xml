@@ -27,7 +27,7 @@
 		
 		<transform id="room_3">
 			<!-- PERSON -->
-			<transform id="person" tx="4800" tz="-1900" ty="2000" >
+			<transform id="person" tx="3000" tz="0" ty="2000" >
 				<plane id="person_mesh" nx="1" size="300,300,300"  texture="#884444" />
 			</transform>
 
@@ -76,7 +76,7 @@
 		<!-- 				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
 				</transform>
 				<mesh id="tableB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1200,20,800" collide="1" />
-				<transform id="bluemug" tz="-800">
+				<transform id="bluemug" tz="-400">
 					<transform id="mugRPr" tx="-10" ty="50">
 						<mesh id="mugR" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" scale="120,120,120" rx="1.5707" rz="-1.5707" collide="1" />
 					</transform>

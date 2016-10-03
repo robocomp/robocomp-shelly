@@ -66,7 +66,7 @@ private:
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
 
 	void actionExecution();
-	void action_handObject_offer();
+	void action_handObject_offer(bool newAction=false);
 
 
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;

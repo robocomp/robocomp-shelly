@@ -656,7 +656,7 @@ void SpecificWorker::actionExecution()
 	{
 		action_SetRestArmPosition();
 	}
-	else if (action == "handObject_leave")
+	else if (action == "handobject_leave")
 	{
 		action_handObject_leave();
 	}
@@ -701,11 +701,25 @@ void SpecificWorker::action_handObject_leave(bool first)
 		inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
 		inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
 		// World grammar rule implementation.
-		newModel->addEdge(   symbols["object"], symbols["person"], "in");
-		newModel->removeEdge(symbols["object"], symbols["person"], "offered");
-		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
-		// Publish the modification
-		sendModificationProposal(newModel, worldModel);
+		try
+		{
+			newModel->addEdge(   symbols["object"], symbols["person"], "in");
+			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
+//			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			try
+			{
+				// Publish the modification
+				sendModificationProposal(newModel, worldModel);
+			}
+			catch (...)
+			{
+				printf("Error publishing the model in handObject_leave\n");
+			}
+		}
+		catch (...)
+		{
+			printf("Error in the implementation of the rule handObject_leave\n");
+		}
 	}
 	catch(...)
 	{
@@ -1065,9 +1079,8 @@ void SpecificWorker::leaveObjectSimulation()
 		newModel->addEdge(   symbols["object"], symbols["table"], "in");
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 		{
-			QMutexLocker locker(mutex);
 // 			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
-			sendModificationProposal(newModel, worldModel);
+			sendModificationProposal(worldModel, newModel);
 		}
 	}
 	catch(...)
