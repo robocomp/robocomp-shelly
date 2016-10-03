@@ -169,7 +169,14 @@ void SpecificWorker::actionExecution()
 	{
 		
 	}
-
+	else if (action == "handobject_offer")
+	{
+		action_HandObject_Offer();
+	}
+	else if (action == "handobject_leave")
+	{
+		action_HandObject_leave();
+	}
 	if (newAction)
 	{
 		previousAction = action;
@@ -179,6 +186,18 @@ void SpecificWorker::actionExecution()
 // 	printf("actionExecution>>\n");
 }
 
+void SpecificWorker::action_HandObject_leave(bool newAction)
+{
+	try
+	{	
+		trajectoryrobot2d_proxy->stop();
+		omnirobot_proxy->setSpeedBase(0.,0.,0.0);
+	}
+	catch(...)
+	{
+		printf("Can't stop the robot!!\n");
+	}
+}
 void SpecificWorker::action_DetectPerson(bool newAction)
 {
 
@@ -356,6 +375,150 @@ void SpecificWorker::action_HandObject(bool newAction)
 	
 
 }
+
+/**
+*  \brief Called when the robot is sent close to a person to offer the object
+*/ 
+void SpecificWorker::action_HandObject_Offer(bool newAction)
+{
+	// Get symbols' map
+	std::map<std::string, AGMModelSymbol::SPtr> symbols;
+	try
+	{
+		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
+		
+	}
+	catch(...)
+	{
+		printf("navigationAgent: Couldn't retrieve action's parameters\n");
+		printf("<<WORLD\n");
+		AGMModelPrinter::printWorld(worldModel);
+		printf("WORLD>>\n");
+		if (worldModel->size() > 0) { exit(-1); }
+	}
+	
+	// Get target
+	int roomID, personID, robotID;
+	try
+	{
+		if (symbols["room"].get() and symbols["person"].get() and symbols["robot"].get() and symbols["status"].get())
+		{
+			roomID = symbols["room"]->identifier;
+			personID =symbols["person"]->identifier;
+			robotID = symbols["robot"]->identifier;
+
+			try // If we can access the 'reach' edge for the object status the action
+			{   // is not really necessary. The planner is probably replanning.
+				worldModel->getEdgeByIdentifiers(personID, symbols["status"]->identifier, "reach");
+				{
+					static QTime lastMsg = QTime::currentTime().addSecs(-1000);
+					if (lastMsg.elapsed() > 1000)
+					{
+						rDebug2(("navigationAgent ignoring action setHandObject_Offer (person currently reached)"));
+						lastMsg = QTime::currentTime();
+						return;
+					}
+					printf("ask the platform to stop\n");
+					stop();
+				}
+			}
+			catch(...)
+			{
+			}
+
+		}
+		else
+		{
+			printf("parameters not in the model yet\n");
+			return;
+		}
+	}
+	catch(...)
+	{
+		printf("ERROR: SYMBOL DOESN'T EXIST \n");
+		exit(2);
+	}
+	
+	
+	// GET THE INNERMODEL NAMES OF TH SYMBOLS
+	QString robotIMID;
+	QString roomIMID;
+	QString personIMID;
+	try
+	{
+		robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
+		roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
+		personIMID = QString::fromStdString(worldModel->getSymbol(personID)->getAttribute("imName"));
+		
+		// check if object has reachPosition
+		AGMModelSymbol::SPtr object = worldModel->getSymbol(personID);
+		for (auto edge = object->edgesBegin(worldModel); edge != object->edgesEnd(worldModel); edge++)
+		{
+			if (edge->getLabel() == "reachPosition")
+			{
+				const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
+				personID = symbolPair.second;
+				personIMID = QString::fromStdString(worldModel->getSymbol(personID)->getAttribute("imName"));
+				qDebug() << __FUNCTION__ << "Target object " << symbolPair.first<<"->"<<symbolPair.second<<" object "<<personIMID;
+			}
+		}
+	}
+	catch(...)
+	{
+		printf("ERROR IN GET THE INNERMODEL NAMES\n");
+		exit(2);
+	}
+	
+	// GET THE TARGET POSE: 
+	RoboCompTrajectoryRobot2D::TargetPose tgt;
+	try
+	{
+		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(personIMID)))    return;
+		QVec poseInRoom = innerModel->transform6D(roomIMID, personIMID); // FROM PERSON TO ROOM
+		qDebug() << __FUNCTION__ <<" Target pose: "<< poseInRoom;
+
+		tgt.x = poseInRoom.x();
+		tgt.y = 0;
+		tgt.z = poseInRoom.z();
+		tgt.rx = 0;
+		tgt.ry = poseInRoom.ry();
+		tgt.rz = 0;
+		tgt.doRotation = true;
+	}
+	catch (...) 
+	{ 
+		qDebug()<< __FUNCTION__ << "InnerModel Exception. Element not found in tree";
+	}
+
+	// Execute target
+	try
+	{
+		try
+		{
+			QVec O = innerModel->transform("shellyArm_grasp_pose", personIMID);
+			QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+			go(tgt.x, tgt.z, 0, tgt.doRotation, graspRef.x(), graspRef.z(), 20);
+			qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
+			haveTarget = true;
+		}
+		catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
+		{
+			std::cout << ex << " " << ex.text << std::endl;
+			throw;
+		}
+		catch(const Ice::Exception &ex)
+		{
+			std::cout << ex << std::endl;
+		}
+	}
+	catch(const Ice::Exception &ex)
+	{
+		std::cout << ex << std::endl;
+	}
+
+	
+}
+
 
 /**
 *  \brief Called when the robot is sent close to an object's location

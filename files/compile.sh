@@ -175,14 +175,16 @@ fi
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "ik" "/home/robocomp/robocomp/components/robocomp-shelly/components/inversekinematics"
 fi
-# gik visual
+# gik
 if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "gik" "/home/robocomp/robocomp/components/robocomp-shelly/components/ikGraphGenerator/"
 fi
-# ik visual
-if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
-fi
+
+# vik
+#if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+#	compile "ik visual" "/home/robocomp/robocomp/components/robocomp-shelly/components/visualik/"
+#fi
+
 # dumb trajectory
 #if [ $1 -eq 1 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 #	compile "dumb trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/dumbtrajectoryrobot2d"
@@ -211,6 +213,10 @@ fi
 # graspingAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "grasping agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent/"
+fi
+# dialogAgent
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+        compile "dialog agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/dialogAgent/"
 fi
 # objectAgent
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then

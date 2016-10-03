@@ -108,7 +108,8 @@ private:
 	void action_DetectPerson (bool newAction = true);
 	void action_HandObject(bool newAction = true);
 	void action_NoAction(bool newAction = true);
-
+	void action_HandObject_Offer(bool newAction = true);
+	void action_HandObject_leave(bool newAction = true);
 //CHECK
 	//void updateRobotsCognitiveLocation();
 //	std::map<int32_t, QPolygonF> roomsPolygons;

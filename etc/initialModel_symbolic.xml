@@ -279,6 +279,16 @@
 		<attribute key="imName" value="person" />
 	</symbol>
 	<link src="55" dst="3" label="in" />
-
+	
+	<symbol id="56" type="personSt" >
+	</symbol>
+	
+	<link src="55" dst="56" label="hasStatus" >
+	</link>
+	<link src="55" dst="56" label="noReach" >
+	</link>
+	
+	
+	
 </AGMModel>
 
