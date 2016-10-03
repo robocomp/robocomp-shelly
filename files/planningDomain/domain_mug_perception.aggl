@@ -43,7 +43,7 @@ imagineMostLikelyMugInPosition : active(2)
 	}
 }
 
-imaginaryMugNotFound : active(1)
+imaginaryMugNotFound : passive(1)
 {
 	{
 		status:status(-90,-240)
