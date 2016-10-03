@@ -173,6 +173,10 @@ void SpecificWorker::actionExecution()
 	{
 		action_HandObject_Offer();
 	}
+	else if (action == "handobject_leave")
+	{
+		action_HandObject_leave();
+	}
 	if (newAction)
 	{
 		previousAction = action;
@@ -182,6 +186,18 @@ void SpecificWorker::actionExecution()
 // 	printf("actionExecution>>\n");
 }
 
+void SpecificWorker::action_HandObject_leave(bool newAction)
+{
+	try
+	{	
+		trajectoryrobot2d_proxy->stop();
+		omnirobot_proxy->setSpeedBase(0.,0.,0.0);
+	}
+	catch(...)
+	{
+		printf("Can't stop the robot!!\n");
+	}
+}
 void SpecificWorker::action_DetectPerson(bool newAction)
 {
 
