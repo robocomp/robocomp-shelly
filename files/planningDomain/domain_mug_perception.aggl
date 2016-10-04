@@ -43,6 +43,40 @@ imagineMostLikelyMugInPosition : active(2)
 	}
 }
 
+imaginaryMugNotFound : passive(1)
+{
+	{
+		status:status(-90,-240)
+		robot:robot(-90,-115)
+		mug:protoObject(-335,-225)
+		mugSt:objectSt(-335,-400)
+		table:object(-335,-115)
+		tableSt:objectSt(-460,-115)
+		room:room(-130,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->mugSt(hasStatus)
+		mug->mugSt(noReach)
+		mug->mugSt(reachable)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(-5,-305)
+		robot:robot(-5,-160)
+		table:object(-135,-160)
+		tableSt:objectSt(-300,-160)
+		room:room(-130,0)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
 verifyImaginaryMug : active(1)
 {
 	{
