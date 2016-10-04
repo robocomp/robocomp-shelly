@@ -146,6 +146,10 @@ void SpecificMonitor::readConfig(RoboCompCommonBehavior::ParameterList& params )
 	aux.editable = false;
 	configGetString( "TrajectoryRobot2D","MinimumDetectableTranslation", aux.value,"10");
 	params["MinimumDetectableTranslation"] = aux;
+	
+	aux.editable = false;
+	configGetString( "TrajectoryRobot2D","MinimumSafetyDistance", aux.value,"100");
+	params["MinimumSafetyDistance"] = aux;
 }
 
 

@@ -19,7 +19,7 @@
 
 #include "innerviewer.h"
 
-InnerViewer::InnerViewer( InnerModel *innerModel_, QObject *parent )
+InnerViewer::InnerViewer( InnerModel *innerModel_, uint period_, QObject *parent ) : period(period_)
 {
 	QGLFormat fmt;
 	fmt.setDoubleBuffer(true);
@@ -85,8 +85,8 @@ void InnerViewer::createWindow(osgViewer::Viewer& viewer)
 	osg::ref_ptr<osg::GraphicsContext::Traits> traits = new osg::GraphicsContext::Traits;
 	traits->x = 0;
 	traits->y = 0;
-	traits->width = 400;
-	traits->height = 400;
+	traits->width = 700;
+	traits->height = 700;
 	traits->windowDecoration = true;
 	traits->doubleBuffer = true;
 	traits->sharedContext = 0;
@@ -120,15 +120,19 @@ void InnerViewer::createWindow(osgViewer::Viewer& viewer)
 	}
 }
 
-
 void InnerViewer::run()
 {
 	while( true)
 	{
 		innerViewer->mutex->lock();
 			innerViewer->update();
-			viewer.frame();
-			
+			viewer.frame();			
+		innerViewer->mutex->unlock();
+		usleep(period);
+	}
+}
+
+// UNTIL we know how to capture the close window signal from OSG/X11
 // 			osg::Matrixd m = tb->getMatrix();
 // 			QString s="";
 // 			QStringList l;
@@ -137,8 +141,4 @@ void InnerViewer::run()
 // 	 			l.append(s.number(m(i,j)));
 // 			settings->setValue("matrix", l);
 // 			settings->sync();
-			
-		innerViewer->mutex->unlock();
-		usleep(10000);
-	}
-}
+

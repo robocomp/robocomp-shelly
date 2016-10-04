@@ -34,12 +34,13 @@ Controller::Controller(InnerModel *innerModel, const RoboCompLaser::TLaserData &
 		MAX_ROT_SPEED = QString::fromStdString(params.at("MaxRotationSpeed").value).toFloat();
 		MAX_SIDE_SPEED = QString::fromStdString(params.at("MaxXSpeed").value).toFloat();
 		MAX_LAG = std::stof(params.at("MinControllerPeriod").value);
-		
-		qDebug() << "SHIRTTTTTTTTT" << MAX_ADV_SPEED << MAX_ROT_SPEED << MAX_SIDE_SPEED;
+		ROBOT_RADIUS_MM =  QString::fromStdString(params.at("RobotRadius").value).toFloat();
+
+		qDebug()<< __FUNCTION__ << "CONTROLLER: Params from config:"  << MAX_ADV_SPEED << MAX_ROT_SPEED << MAX_SIDE_SPEED << MAX_LAG << ROBOT_RADIUS_MM;
 		
 	}
 	catch (const std::out_of_range& oor) 
-	{   std::cerr << "Controller. Out of Range error reading parameters: " << oor.what() << '\n'; }
+	{   std::cerr << "CONTROLLER. Out of Range error reading parameters: " << oor.what() << '\n'; }
 }
 
 Controller::~Controller()
@@ -59,26 +60,26 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	//////////////////////////////////////////////	
 	if(road.isFinished() == true ) 
 	{		
-		qDebug() << __FUNCTION__ << "Controller: road finished. Returning to main";
+		qDebug() << __FUNCTION__ << "CONTROLLER: road finished. Returning to main";
 		stopTheRobot(omnirobot_proxy);
 		return false;
 	}
 	if(road.requiresReplanning == true ) 
 	{		
-		qDebug() << __FUNCTION__ << "Controller: requiresReplanning. Returning to main";
+		qDebug() << __FUNCTION__ << "CONTROLLER: requiresReplanning. Returning to main";
 		stopTheRobot(omnirobot_proxy);
 		return false;
 	}
 	if(road.isLost == true ) 
 	{		
-		qDebug() << __FUNCTION__ << "robot is lost. Returning to main";
+		qDebug() << __FUNCTION__ << "CONTROLLER: robot is lost. Returning to main";
 		stopTheRobot(omnirobot_proxy);
 		return false;
 	}
 		
 
 	/////////////////////////////////////////////////
-	//////  CHECK CPU AVAILABILITY. If lagging reduce speed
+	//////  CHECK CPU AVAILABILITY. If lagging reduce speed  CURRENTLY DISBLED!!!!!!!!!!!!!
 	/////////////////////////////////////////////////
 
 	if ( this->time.elapsed() > this->delay )   //Initial wait in secs so the robot waits for everything is setup. Maybe it could be moved upwards
@@ -97,43 +98,46 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	///  SPEED DIRECTION AND MODULUS
 	////////////////////////////////////////////////
 	
-	
-	
-	//Rotational speed 
-	//Now we incorporate the rotational component without changing the advance speed
+	// Rotational speed 
+	// Now we incorporate the rotational component without changing the advance speed
 	//	- We want the most of the turn required to align with the road be made ASAP, so laser field becomes effective
 	//	- We also want the final orientation is solved before arriving to the target, so a subsequent turniong action is avoided
 	//	- Also, is the target is very close, <500mm, avoid turning to allow for small correcting displacements
+	
 	float vrot = 0;
-	if( road.getRobotDistanceToTarget() > 500 )
+	if( road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM )						// No rotation if target is close so small translational movements are allowed
 	{
-		vrot = 0.5 * road.getAngleWithTangentAtClosestPoint();
+		vrot = 0.7 * road.getAngleWithTangentAtClosestPoint();
  		if(vrot > MAX_ROT_SPEED) vrot = MAX_ROT_SPEED;
  		if(vrot < -MAX_ROT_SPEED) vrot = -MAX_ROT_SPEED;
 	}
 	
-	//Translational speed
-	//We want the speed vector to align with the tangent to road at the current point.
-	//	First get the radial line leaving the robot along the road:
+	// Translational speed:
+	// 	We want the speed vector to align with the tangent to road at the current point
+	// 	and point slightly inwards if the robot is displaced
+	// 	First get the line tangent to the road at current point
+	
 	QLine2D radialLine = road.getTangentToCurrentPointInRobot(innerModel);
-	if ( (int)(road.getIndexOfCurrentPoint()+1) == road.size() )
-	{
-		radialLine = QLine2D( innerModel->transform("world", "robot"), road.last().pos);
-	}			
-	//Normalize it into a unitary 2D vector
+	
+	// Normalize it into a unitary 2D vector
 	QVec radialDir = radialLine.getNormalizedDirectionVector();
 
+	// Turn radialDir towards the road if robot's perpendicular distance to road is != 0
+	float mod = exponentialFunction(1.f/road.getRobotPerpendicularDistanceToRoad(), 1./250, 0.5, 0 );
+	Rot2D fix( mod * sgn(road.getRobotPerpendicularDistanceToRoad()));
+	radialDir = fix * radialDir;
+	
 	//Now change sense and scale according to properties of the road and target
 	float modulus = MAX_ADV_SPEED 
-									* exp(-fabs(1.6 * road.getRoadCurvatureAtClosestPoint()))
-									* exponentialFunction(1./road.getRobotDistanceToTarget(),1./700,0.4, 0.1)
-									* exponentialFunction(vrot, 0.6, 0.01);
+									* exponentialFunction(road.getRoadCurvatureAtClosestPoint(), 5, 0.7 , 0.1)									
+									* exponentialFunction(1./road.getRobotDistanceToTarget(),1./700, 0.4, 0.1)
+									* exponentialFunction(vrot, 0.6, 0.1);
 									
 	radialDir = radialDir * (T)-modulus;
 	
 	//Next, decompose it into vadvance and vside componentes by projecting on robot's Z and X axis
 	float vside = radialDir * QVec::vec2(1.,0.);
-	vside += road.getRobotPerpendicularDistanceToRoad()*0.2;
+	//vside += road.getRobotPerpendicularDistanceToRoad()*0.2;
 	float vadvance = radialDir * QVec::vec2(0.,1.);
 
 	if(vadvance > MAX_ADV_SPEED) vadvance = MAX_ADV_SPEED;
@@ -149,9 +153,13 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	if( print )
 	{
 		qDebug() << "------------------Controller Report ---------------;";
-		qDebug() <<"	VAdv: " << vadvance << "|\nVRot: " << vrot << "\nVSide: " 
-						<< vside << "\n Dist2Target: " << road.getRobotDistanceToTarget()
-						<< "\n PerpDist: " << road.getRobotPerpendicularDistanceToRoad();
+		qDebug() << "	VAdv: " << vadvance;
+		qDebug() << "	VRot: " << vrot;
+		qDebug() << "	VSide:"	<< vside;
+		qDebug() << "	Dist2Target: " << road.getRobotDistanceToTarget();
+		qDebug() << "	PerpDist: " << road.getRobotPerpendicularDistanceToRoad();
+		qDebug() << " Modulus" << modulus;
+		qDebug() << " RadialDir" << radialDir.x() << radialDir.z();
 		qDebug() << "---------------------------------------------------;";
 	}
 	
@@ -209,7 +217,7 @@ void Controller::stopTheRobot(RoboCompOmniRobot::OmniRobotPrx omnirobot_proxy)
 
 float Controller::exponentialFunction(float value, float xValue, float yValue, float min)
 {
-	Q_ASSERT( yValue>0 );
+	if( yValue <= 0) return 1.f;
 
 	float landa = -fabs(xValue) / log(yValue);
 	//qDebug() << landa << value << value/landa << exp(-fabs(value)/landa);

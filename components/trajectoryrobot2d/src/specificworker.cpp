@@ -248,10 +248,10 @@ SpecificWorker::gotoCommand(InnerModel *innerModel, CurrentTarget &target, Traje
 		target.setState(CurrentTarget::State::SETHEADING);
 		return true;
 	}
- 	if (myRoad.isBlocked() == true)		//Road BLOCKED, go to BLOCKED state and wait it the obstacle moves
+	//Check if road is blocked and the robot is moving forward.
+ 	if (myRoad.isBlocked() == true and bState.advVz > 10)		//Road BLOCKED, go to BLOCKED state and wait it the obstacle moves PARAMS
  	{
 		controller->stopTheRobot(omnirobot_proxy);
- 		//currentTargetBack.setTranslation(innerModel->transform("world", QVec::vec3(0, 0, -250), "robot"));
  		target.setState(CurrentTarget::State::BLOCKED);
 		state.setState("BLOCKED");
 		return false;
@@ -316,7 +316,7 @@ SpecificWorker::gotoCommand(InnerModel *innerModel, CurrentTarget &target, Traje
 	/////////////////////////////////////////////////////
 	//move the robot according to the current force field
 	//////////////////////////////////////////////////////
-	controller->update(innerModel, lData, omnirobot_proxy, myRoad);
+	controller->update(innerModel, lData, omnirobot_proxy, myRoad, true);
 
 	
 	#ifdef USE_QTGUI
@@ -543,7 +543,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	///////////////////////////////////////////////
 	// Check if robot is inside limits and not in collision.
 	///////////////////////////////////////////////
-/*	auto r = sampler.checkRobotValidStateAtTarget(robotT, robotRot);
+	auto r = sampler.checkRobotValidStateAtTarget(robotT, robotRot);
 	if (std::get<bool>(r) == false)
 	{
 		RoboCompTrajectoryRobot2D::RoboCompException ex;
@@ -566,7 +566,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 		tState.setDescription(ex.text);
 		currentTarget.setState(CurrentTarget::State::TARGET_COLLISION);
 		throw ex;
-	}*/
+	}
 
 	///////////////////////////////////////////////
 	// Let's see what these guys want
@@ -788,7 +788,7 @@ void SpecificWorker::drawTarget(const QVec &target)
 #ifdef USE_QTGUI
 	//Draw target as green box
 	InnerModelDraw::addPlane_ignoreExisting(viewer->innerViewer, "target", "world", QVec::vec3(target(0), 5, target(2)),
-	                                        QVec::vec3(1, 0, 0), "#00FF00", QVec::vec3(150, 150, 150));
+	                                        QVec::vec3(1, 0, 0), "#00FF00", QVec::vec3(100, 100, 100));
 #endif
 }
 

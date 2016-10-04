@@ -28,20 +28,18 @@
 #include "qline2d.h"
 #include "currenttarget.h"
 
-#define ROBOT_RADIUS 250   //GET FROM XML
-
 class WayPoint
 {
 	public:
-		WayPoint()			{ pos = QVec::zeros(3); minDist = ROBOT_RADIUS; minDistAnt = 0.f; isVisible = true; minDistPoint = QVec::zeros(3); hasRotation = false;};
-		WayPoint(QVec p) 	{ pos = p; minDist = ROBOT_RADIUS; minDistAnt = 0.f; isVisible = true; minDistPoint = QVec::zeros(3); hasRotation = false;};
-		~WayPoint()			{};
+		WayPoint()			  { pos = QVec::zeros(3); isVisible = true; hasRotation = false;};
+		WayPoint(QVec p) 	{ pos = p; isVisible = true; hasRotation = false;};
+		~WayPoint()			  {};
 	
 		//For ElasticBand
-		QVec pos;								// 3D point (x,y,z)
-		QVec rot;								// Euler angles (0,ry,0)
-		float minDist, minDistAnt;
-		QVec minDistPoint; //In world ref system
+		QVec pos;																													// 3D point (x,y,z)
+		QVec rot;																													// Euler angles (0,ry,0)
+		float minDist, minDistAnt = std::numeric_limits<float>::max();
+		QVec minDistPoint; 																								//In world ref system
 		float bMinusY, bPlusY, bMinusX, bPlusX;
 		bool minDistHasChanged;
 		QString centerTransformName, centerMeshName, centerLineName, centerPointName, ballTransformName, ballMeshName;
@@ -126,6 +124,7 @@ class WayPoints : public QList< WayPoint >
 		* @return QLine2D in ROBOT system of reference
 		*/
 		QLine2D getTangentToCurrentPointInRobot(InnerModel *innerModel);
+		
 		/**
 		 * @brief returns a WayPoints iterator to the closest point in the road to the robot
 		 * 
@@ -153,6 +152,13 @@ class WayPoints : public QList< WayPoint >
 		* @return float distance in mm
 		*/
 		float getRobotPerpendicularDistanceToRoad()	const													{ return robotPerpendicularDistanceToRoad;};
+		
+		/**
+		 * @brief True if current point is last point in the road.
+		 * 
+		 * @return bool
+		 */
+		bool atLastPoint() const 																									{ return (int)(getIndexOfCurrentPoint()+1) == size();}
 		QLine2D roadTangentAtClosestPoint;
 		float getAngleWithTangentAtClosestPoint() const														{ return angleWithTangentAtClosestPoint;};
 		uint getIndexOfCurrentPoint() const																				{ return indexOfCurrentPoint;};
@@ -225,6 +231,9 @@ class WayPoints : public QList< WayPoint >
 		*/
 		QLine2D computeTangentAt(WayPoints::iterator w) const;
 		WayPoints::iterator computeClosestPointToRobot(const QVec& robot);
+		
+		float MINIMUM_SAFETY_DISTANCE;
+		float ROBOT_RADIUS;
 };
 
 #endif // WAYPOINTS_H

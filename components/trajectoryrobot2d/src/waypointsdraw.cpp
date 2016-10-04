@@ -56,14 +56,15 @@ bool WaypointsDraw::draw(WayPoints &road, InnerViewer *viewer, const CurrentTarg
 		else
 			InnerModelDraw::drawLine(viewer->innerViewer, item + "_point", item, normal, 500, 50, "#FF0000");  //Morado
 	}
+	
 	if (currentTarget.hasRotation() == true)    //Draws an arrow indicating final desired orientation
 	{
 		float rot = currentTarget.getRotation().y();
 		WayPoint &w = road.last();
 		QLine2D l(w.pos, w.pos + QVec::vec3((T) (500 * sin(rot)), 0, (T) (500 * cos(rot))));
-		QVec ln = l.getNormalForOSGLineDraw();
+		QVec ln = l.getNormalForOSGLineDraw() + QVec::vec3(100,0,100);
 		QString item = "p_" + QString::number(road.size() - 1);
-		InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, ln, 600, 30, "#400055");
+		InnerModelDraw::drawLine(viewer->innerViewer, item + "_line", item, ln, 600, 40, "#0044AA");
 	}
 	return true;
 }

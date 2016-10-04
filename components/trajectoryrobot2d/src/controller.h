@@ -27,6 +27,7 @@
 #include "waypoints.h"
 #include <innermodel/innermodel.h>
 #include <Laser.h>
+#include <assert.h>
 
 
 class Controller
@@ -48,6 +49,7 @@ class Controller
 		float MAX_ROT_SPEED;
 		float MAX_SIDE_SPEED;
 		float MAX_LAG; //ms
+		float ROBOT_RADIUS_MM; //mm
 
 		/**
 		* @brief Computes de exponential of value with parameters computed from anchor points
@@ -67,7 +69,7 @@ class Controller
 		*/
 		std::vector<float> computeRobotOffsets(InnerModel *innerModel, const RoboCompLaser::TLaserData &laserData);
 	
-		
+		template <typename T> int sgn(T val) { return (T(0) < val) - (val < T(0));}
 };
 
 #endif // CONTROLLER_H
