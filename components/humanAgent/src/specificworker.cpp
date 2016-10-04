@@ -335,27 +335,23 @@ void SpecificWorker::updatePeopleInnerFullB()
 			
 		}
 	}
+
 	//remove
 	qDebug()<<"lsymbols person to remove:"<<lSymbolsPersons;
 	for (int i=0; i<lSymbolsPersons.size(); i++)
-	{	
-	  
+	{
 		int symbolID = AGMInner::findSymbolIDWithInnerModelName(worldModel, QString::fromStdString(int2str(lSymbolsPersons.at(i)))+"XN_SKEL_TORSO");
 		qDebug()<<__FUNCTION__<<__LINE__<<innerModelMap.size()<<"lSymbolsPersons.at(i)"<<lSymbolsPersons.at(i)<<"symbol"<<symbolID;
 		//CAUTION el vector innermodelMap no contiene nada en esa posición
 		//agmInner.remove_Im(innerModelMap.at(lSymbolsPersons.at(i)));
 		QList <int> listaDescendientes;
-		bool loop=false;	
-		AGMInner::checkLoop(worldModel, symbolID,listaDescendientes,"RT",loop);
-// 		
-		//qDebug()<<"listaDescendientes"<<listaDescendientes;
+		AGMInner::loopRecursive(worldModel, symbolID, listaDescendientes, "RT");
 		for (int j=0; j<listaDescendientes.size();j++)
 		    worldModel->removeSymbol(listaDescendientes.at(j));
 		modification = true;
-		
-		
 	}
-	//add, 
+
+	// add
 	qDebug()<<"lInsertions"<<lInsertions;
 	for (int i=0; i<lInsertions.size(); i++)
 	{
@@ -435,14 +431,14 @@ void SpecificWorker::updatePeopleInnerFullB()
 			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
 		}
 		catch (const std::out_of_range& oor)
-		{	
+		{
 			qDebug()<<"at exception InnerModelMap"<<__FUNCTION__<<__LINE__;
 			std::cerr << "Out of Range error: " << oor.what() << '\n';			
 			continue;
 		}
 		
 		int TrackingId = lUpdates.at(i);
-		int symbolID = agmInner.findSymbolIDWithInnerModelName(worldModel,QString::fromStdString(int2str(TrackingId))+"XN_SKEL_TORSO");
+		int symbolID = AGMInner::findSymbolIDWithInnerModelName(worldModel,QString::fromStdString(int2str(TrackingId))+"XN_SKEL_TORSO");
 		
 		AGMModelSymbol::SPtr symbolPerson = worldModel->getSymbol(symbolID);
 		//rgb color
@@ -487,7 +483,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 		symbolPerson->setAttribute("Color",colorName);
 		
 		//state
-		int state = personList.at(TrackingId).state;
+		int state = personList.at(TrackingId).trackedState;
 		symbolPerson->setAttribute("State",int2str(state));
 		
 		
@@ -813,13 +809,13 @@ void SpecificWorker::initDictionary()
 // 	dictionaryNames[ "WallPose" ] = "WALL_POSE";
 // 	dictionaryNames[ "Wall" ] = "XN_SUCCESS_WALL";
 
-	dictionaryEnum[ "Spine" ] = Spine;
+	dictionaryEnum[ "Spine" ] = SpineMid;
 	dictionaryEnum[ "Head" ] = Head;
 	dictionaryEnum[ "ShoulderLeft" ] = ShoulderLeft;
 	dictionaryEnum[ "ShoulderRight" ] = ShoulderRight;
 	dictionaryEnum[ "ElbowLeft" ] = ElbowLeft;
 	dictionaryEnum[ "ElbowRight" ] = ElbowRight;
-	dictionaryEnum[ "HipCenter" ] = HipCenter;
+	dictionaryEnum[ "HipCenter" ] = SpineBase;
 	dictionaryEnum[ "HipLeft" ] = HipLeft;
 	dictionaryEnum[ "HipRight" ] = HipRight;
 	dictionaryEnum[ "KneeLeft" ] = KneeLeft;
@@ -1439,7 +1435,7 @@ void SpecificWorker::updateHumanInnerFull()
 	//añadir
 	if ( symbolPersonID == -1 )
 	{
-		AGMModelSymbol::SPtr newSymbolPerson =worldModel->newSymbol("person");		
+		AGMModelSymbol::SPtr newSymbolPerson =worldModel->newSymbol("person");
 		
 		int personID = newSymbolPerson->identifier;
 	
@@ -1449,14 +1445,14 @@ void SpecificWorker::updateHumanInnerFull()
 		//state está en personList
 		try
 		{
-			int state = (*personList.begin()).second.state;
+			int state = (*personList.begin()).second.trackedState;
 			newSymbolPerson->setAttribute("State",int2str(state));
 		}
 
 		catch (const std::out_of_range& oor)
 		{
 			qDebug()<<"PersonList at exception";
-			std::cerr << "Out of Range error: " << oor.what() << '\n';			
+			std::cerr << "Out of Range error: " << oor.what() << '\n';
 		}
 		
 		try
@@ -1471,7 +1467,7 @@ void SpecificWorker::updateHumanInnerFull()
 			catch (const std::out_of_range& oor)
 			{	
 				qDebug()<<__FILE__<<__LINE__<<"at exception InnerModelMap";
-				std::cerr << "Out of Range error: " << oor.what() << '\n';							
+				std::cerr << "Out of Range error: " << oor.what() << '\n';
 			}
 		}
 		catch (...)
