@@ -644,7 +644,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
 				float th=20;
-				go(tgt.x, tgt.z, 0, tgt.doRotation, graspRef.x(), graspRef.z(), th);
+				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
 				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;
 			}

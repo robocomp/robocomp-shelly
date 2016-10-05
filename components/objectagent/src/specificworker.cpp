@@ -128,7 +128,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		return false;
 	}
 	
-	if (!cb_simulation->isChecked())
+	if (!cb_simulation->isChecked() )
 	{
 		printf("checking with real pipeline\n");
 		//Pipelining!!
@@ -262,7 +262,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		retValue = true;
 		publishModel = true;
 	}  
-	else if (waitTime.elapsed() > 10000) //if not found remove protoObject
+	else //if (waitTime.elapsed() > 10000) //if not found remove protoObject
 	{
 		try
 		{
