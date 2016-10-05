@@ -51,10 +51,10 @@ void PlannerPRM::initialize(Sampler* sampler_, const RoboCompCommonBehavior::Par
 	{
 		try
 		{
-			nPointsInGraph = std::stoi(params.at("PlannerGraphPoints").value);
-			nNeighboursInGraph = std::stoi(params.at("PlannerGraphNeighbours").value);
-			maxDistToSearchmm = std::stof(params.at("PlannerGraphMaxDistanceToSearch").value);
-			robotRadiusmm = std::stof(params.at("RobotRadius").value);
+			nPointsInGraph =  QString::fromStdString(params.at("PlannerGraphPoints").value).toInt();
+			nNeighboursInGraph =  QString::fromStdString(params.at("PlannerGraphNeighbours").value).toInt();
+			maxDistToSearchmm =  QString::fromStdString(params.at("PlannerGraphMaxDistanceToSearch").value).toFloat();
+			robotRadiusmm =  QString::fromStdString(params.at("RobotRadius").value).toFloat();
 		}
 		catch(...)
 		{ qFatal("Planner-Initialize. Aborting. Some Planner graph parameters not found in config file"); }
@@ -88,7 +88,7 @@ bool PlannerPRM::computePath(QVec& target, InnerModel* innerModel)
 	QVec robotRotation = innerModel->getRotationMatrixTo("world", "robot").extractAnglesR_min();
 	
  	qDebug() << __FUNCTION__ << "Starting planning with robot at:" << robot <<  "and target at:" << target;
-/*
+
 	/////////////////////////////////////////////
 	//If robot on obstacle we can¡t proceed
 	/////////////////////////////////////////////
@@ -106,7 +106,7 @@ bool PlannerPRM::computePath(QVec& target, InnerModel* innerModel)
 		qDebug() << __FUNCTION__ << "Robot collides in target. Aborting planner";  //Should search a next obs-free target
 		return false;
 	}
-*/	
+	
 	////////////////////////////////////////////
 	// PLanner uses another instance of InnerModel to plan so we resynchronize both before initiate planning
 	////////////////////////////////////////////

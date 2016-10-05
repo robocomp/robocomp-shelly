@@ -24,19 +24,21 @@
 #include <iostream>
 #include <fstream>
 #include "waypoints.h"
-#include <QtCore>
-
-//#include <osgviewer/osgview.h>
 #include <osgViewer/Viewer>
 #include <innermodel/innermodelviewer.h>
 #include <innermodeldraw.h>
 
+/**
+ * @brief Threaded InnerModelViewer to be used inside components to visualize the model
+ * 
+ */
 class InnerViewer: public QThread
 {
 	public:
-		InnerViewer(InnerModel *innerModel_, QObject *parent = 0);
+		InnerViewer(InnerModel *innerModel_, uint period = 100000, QObject *parent = 0);
 		virtual ~InnerViewer();
 		void run();
+		
 		InnerModelViewer *innerViewer;
 		InnerModel *innerModel;
 
@@ -45,6 +47,7 @@ class InnerViewer: public QThread
 		void createWindow(osgViewer::Viewer& viewer);
 		QSettings *settings ;
 		osgGA::TrackballManipulator *tb;
+		uint period;
 };
 
 #endif

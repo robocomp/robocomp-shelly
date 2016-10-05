@@ -26,7 +26,9 @@ WayPoints::~WayPoints()
 void WayPoints::initialize(InnerModel* inner, const RoboCompCommonBehavior::ParameterList& params)
 {
 	innerModel = inner;
-	threshold = std::stof(params.at("ArrivalTolerance").value);
+	threshold =  QString::fromStdString(params.at("ArrivalTolerance").value).toFloat();
+	MINIMUM_SAFETY_DISTANCE =  QString::fromStdString(params.at("MinimumSafetyDistance").value).toFloat(); 
+	ROBOT_RADIUS =  QString::fromStdString(params.at("RobotRadius").value).toFloat(); 
 	
 }
 
@@ -106,13 +108,13 @@ static QTime reloj = QTime::currentTime();
 	/////////////////////////////////////////////////////////
 	//qDebug() << __FUNCTION__ << "Arrived:" << getRobotDistanceToTarget() <<  this->threshold << getRobotDistanceVariationToTarget();
 
-//	print();
-//	printRobotState(innerModel);
-qDebug() << "time "<< reloj.restart();
-qDebug() << "*********************************************";
-qDebug() << "current point: "<<(int)getIndexOfCurrentPoint()+1 << " size: "<<(int)this->size();
-qDebug() << "robot distance target: "<< getRobotDistanceToTarget() << "thershold: "<<threshold;
-qDebug() << "robot distance variation " <<getRobotDistanceVariationToTarget();
+	//	print();
+	//	printRobotState(innerModel);
+	qDebug() << "time "<< reloj.restart();
+	qDebug() << "*********************************************";
+	qDebug() << "current point: "<<(int)getIndexOfCurrentPoint()+1 << " size: "<<(int)this->size();
+	qDebug() << "robot distance target: "<< getRobotDistanceToTarget() << "thershold: "<<threshold;
+	qDebug() << "robot distance variation " <<getRobotDistanceVariationToTarget();
 
 
 	if (((((int) getIndexOfCurrentPoint()+1 == (int) this->size()) and  (getRobotDistanceToTarget() < threshold))) or
@@ -130,13 +132,16 @@ qDebug() << "robot distance variation " <<getRobotDistanceVariationToTarget();
 		///////////////////////////////////////////
 		qDebug() << __FUNCTION__ << "ROAD: Robot distance to last visible" << getRobotDistanceToLastVisible();
 		//print();
-/*		if( getRobotDistanceToLastVisible() < 150  and getIterToLastVisiblePoint() < this->end())
+		if( getRobotDistanceToLastVisible() < 150  and   			//PARAMS
+			  getIterToLastVisiblePoint() < this->end())
 			setBlocked(true);
 		else
-			setBlocked(false);*/
+			setBlocked(false);
 	}
+	
+	printRobotState(innerModel);
+	//print();
 }
-
 
 	//////////////////////////////////////////////	
 	///CHECK ROBOT FOR INMINENT COLLISION. 																						
@@ -246,27 +251,11 @@ void WayPoints::readRoadFromList(QList<QVec> list)
 
 void WayPoints::computeDistancesToNext()
 {
-	for (int i = 0; i + 1 < this->size(); i++) // exlude 0 because it is underneath the robot
-	{
+	for (int i = 0; i + 1 < this->size(); i++) 
 		this->operator[](i).initialDistanceToNext = (this->operator[](i).pos - this->operator[](i + 1).pos).norm2();
-	}
 }
 
-// void WayPoints::removeFirst(InnerModelViewer *innerViewer)
-// {
-// 	InnerModelDraw::removeObject(innerViewer, first().centerTransformName);
-// 	InnerModelDraw::removeObject(innerViewer, first().centerMeshName);
-// 	InnerModelDraw::removeObject(innerViewer, first().ballTransformName);
-// 	InnerModelDraw::removeObject(innerViewer, first().ballMeshName);
-// 
-// 	QList<WayPoint>::removeFirst();
-// }
 
-/**
- * @brief Compute QLine2D corresponding to the robot Z axis in World reference frame
- *
- * @return QLine2D
- */
 QLine2D WayPoints::getRobotZAxis(InnerModel *innerModel)
 {
 	Q_ASSERT(currentPoint + 1 < road.size() and road.size() > 0);
@@ -276,7 +265,6 @@ QLine2D WayPoints::getRobotZAxis(InnerModel *innerModel)
 	QVec nose = innerModel->transform("world", QVec::vec3(0, 0, 1000), "robot");
 	//QVec noseR = QVec::vec2(nose.x(),nose.z());
 	return QLine2D(robotPos, nose);
-
 }
 
 float WayPoints::robotDistanceToCurrentPoint(InnerModel *innerModel)
@@ -316,7 +304,7 @@ QLine2D WayPoints::getTangentToCurrentPointInRobot(InnerModel *innerModel)
 	return lineAnt;
 }
 
-void WayPoints::printRobotState(InnerModel *innerModel /*, const CurrentTarget &currentTarget*/)
+void WayPoints::printRobotState(InnerModel *innerModel)
 {
 	QVec robot3DPos = innerModel->transform("world", "robot");
 	qDebug() << "-------Road status report  ---------------------";
@@ -354,8 +342,7 @@ void WayPoints::print() const
 	for (int i = 0; i < this->size(); i++)
 	{
 		const WayPoint &w = (*this)[i];
-		qDebug() << "		-" << w.pos << w.rot << i << "Visible" << w.isVisible << "MinDist" << w.minDist << "MinDistVector"
-		         << w.minDistPoint;
+		qDebug() << "		-" << w.pos << w.rot << i << "Visible" << w.isVisible;
 		qDebug() << "		" << "laser ang visibility" << w.visibleLaserAngle << "laser dist visibility"
 		         << w.visibleLaserDist << "in robot frame" << w.posInRobotFrame;
 	}
@@ -433,7 +420,7 @@ QLine2D WayPoints::computeTangentAt(WayPoints::iterator w) const
 		post->pos.print("post");
 		l.print("line");
 		print();
-		qFatal("Fary in tg");
+		qFatal("Fary in tangent");
 	}
 	antLine = l;
 	return l;
