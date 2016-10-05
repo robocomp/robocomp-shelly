@@ -68,6 +68,7 @@ void SpecificWorker::actionExecution()
 	static std::string previousAction = "";
 	bool newAction = (previousAction != action);
 	
+//	printf("action %s (first:%d)  (back:%s)\n", action.c_str(), newAction, previousAction.c_str());
 	if (action == "handobject_offer")
 	{
 		action_handObject_offer(newAction);
@@ -77,6 +78,16 @@ void SpecificWorker::actionExecution()
 
 void SpecificWorker::action_handObject_offer(bool first)
 {
+	static QTime time;
+	static bool localFirst=true;
+	if (localFirst)
+	{
+		time = QTime::currentTime();
+		time.addSecs(-1000);
+		localFirst = false;
+	}
+
+
 	// Lock mutex and get a model's copy
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
@@ -98,6 +109,7 @@ void SpecificWorker::action_handObject_offer(bool first)
 	}
 	catch(...)
 	{
+
 	}
 
 	// Attempt to get the person "reach" edge. Proceed if successfull.
@@ -106,11 +118,11 @@ void SpecificWorker::action_handObject_offer(bool first)
 		// Get the person "reach" edge.
 		newModel->getEdge(symbols["person"], symbols["status"], "reach");
 		// Make the robot speak
-		if (first)
+		if (/*first or */time.elapsed() > 15000)
 		{
-			speech_proxy->say("toma la puta taza, que cansinos sois con la jodida taza",false);
+			time = QTime::currentTime();
+			speech_proxy->say("Aquii tienes",false);
 		}
-		sleep(2);
 		// Make the action noticeable in the model.
 		newModel->addEdge(symbols["object"], symbols["person"], "offered");
 		// Publish the modification
@@ -230,7 +242,6 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
 {
-	printf("<<< setParametersAndPossibleActivation\n");
 	// We didn't reactivate the component
 	reactivated = false;
 
@@ -268,8 +279,6 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 		reactivated = true;
 	}
 
-	printf("setParametersAndPossibleActivation >>>\n");
-
 	return true;
 }
 void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
@@ -281,7 +290,7 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	}
 	catch(RoboCompAGMExecutive::Locked ex)
 	{
-		std::cout<<"Exception => locked"<<std::endl;
+	//	std::cout<<"Exception => locked"<<std::endl;
 	}
 	catch(RoboCompAGMExecutive::OldModel ex)
 	{

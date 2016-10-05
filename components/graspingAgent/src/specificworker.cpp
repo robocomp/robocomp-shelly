@@ -150,7 +150,7 @@ void SpecificWorker::manageReachedObjects()
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
 	float THRESHOLD_table = 400;
-	float THRESHOLD_person = 700;
+	float THRESHOLD_person = 400;
 	std::string m ="  ";
 
 	bool changed = false;
@@ -620,10 +620,10 @@ void SpecificWorker::actionExecution()
 	static QTime actionTime = QTime::currentTime();
 	bool newAction = (previousAction != action);
 
-	qDebug()<<"---------------------------------";
+/*	qDebug()<<"---------------------------------";
 	cout<<action<<endl;
 	cerr<<action<<endl;
-	qDebug()<<"---------------------------------";
+	qDebug()<<"---------------------------------";*/
 
 	if (newAction)
 	{
@@ -673,7 +673,6 @@ void SpecificWorker::action_handObject_leave(bool first)
 	// Lock mutex and get a model's copy
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
-
 	// Get action parameters
 	try
 	{
@@ -698,14 +697,14 @@ void SpecificWorker::action_handObject_leave(bool first)
 	// Proceed
 	try
 	{
-		inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
-		inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
+		inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
+		inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);
 		// World grammar rule implementation.
 		try
 		{
 			newModel->addEdge(   symbols["object"], symbols["person"], "in");
 			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
-//			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 			try
 			{
 				// Publish the modification
@@ -868,9 +867,9 @@ void SpecificWorker::action_GraspObject(bool first)
 			printf("%d\n", __LINE__);
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1", -0.3, 15);
-				inversekinematics_proxy->setJoint("gripperFinger2", 0.3, 15);
-				inversekinematics_proxy->setJoint("head_pitch_joint", 1., 1.5);
+				inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
+				inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			offset = QVec::vec3(0, yInit, zInit);
@@ -1052,14 +1051,14 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
 	goal.name = "gripperFinger1";
-	goal.position = 0.2;
+	goal.position = 0.0;
 	try{
 	//	jointmotor_proxy->setPosition(goal);
 	}catch(...){
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
 	goal.name = "gripperFinger2";
-	goal.position = -0.2;
+	goal.position = 0.0;
 	try{
 	//	jointmotor_proxy->setPosition(goal);	
 	}catch(...){
@@ -1284,7 +1283,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 		printf("don't have the object to reach in my model %d\n", objectId);
 	}
 
-	printf("--------------------\n");
+//	printf("--------------------\n");
 
 	///
 	/// No more work to do. The label is set passively (from this agent's point of view)
@@ -1416,7 +1415,7 @@ void SpecificWorker::setRightArmUp_Reflex()
         }
 	
 	gp.name = "gripperFinger1";
-	desired_value = 0.2;
+	desired_value = 0.0;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
             printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
@@ -1425,7 +1424,7 @@ void SpecificWorker::setRightArmUp_Reflex()
         }
 	
 	gp.name = "gripperFinger2";
-	desired_value = -0.2;
+	desired_value = 0.0;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
             printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
