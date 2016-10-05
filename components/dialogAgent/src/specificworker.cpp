@@ -68,7 +68,7 @@ void SpecificWorker::actionExecution()
 	static std::string previousAction = "";
 	bool newAction = (previousAction != action);
 	
-	printf("action %s (first:%d)  (back:%s)\n", action.c_str(), newAction, previousAction.c_str());
+//	printf("action %s (first:%d)  (back:%s)\n", action.c_str(), newAction, previousAction.c_str());
 	if (action == "handobject_offer")
 	{
 		action_handObject_offer(newAction);
@@ -109,6 +109,7 @@ void SpecificWorker::action_handObject_offer(bool first)
 	}
 	catch(...)
 	{
+
 	}
 
 	// Attempt to get the person "reach" edge. Proceed if successfull.
@@ -120,7 +121,7 @@ void SpecificWorker::action_handObject_offer(bool first)
 		if (/*first or */time.elapsed() > 15000)
 		{
 			time = QTime::currentTime();
-			speech_proxy->say("Toma la taza",false);
+			speech_proxy->say("Aquii tienes",false);
 		}
 		// Make the action noticeable in the model.
 		newModel->addEdge(symbols["object"], symbols["person"], "offered");
