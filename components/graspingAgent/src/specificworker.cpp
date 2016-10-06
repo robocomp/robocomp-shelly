@@ -807,13 +807,19 @@ void SpecificWorker::action_GraspObject(bool first)
 	ui_state->setText(QString::number(state));
 	ui_stateTime->setText(QString::number(stateTime.elapsed()));
 
-
-	auto targetState = inversekinematics_proxy->getTargetState("ARM", lastTargetId);
-	if (targetState.finish)
-		ui_IKFinished->setChecked(true);
-	else
-		ui_IKFinished->setChecked(false);
-	
+	try
+	{
+		auto targetState = inversekinematics_proxy->getTargetState("ARM", lastTargetId);
+		if (targetState.finish)
+			ui_IKFinished->setChecked(true);
+		else
+			ui_IKFinished->setChecked(false);
+	}
+	catch(...)
+	{
+		printf("Exception: Reading target state from inversekinematics\n");
+	}
+		
 	bool someMotorMoving = isSomeMotorMoving();
 	if (someMotorMoving)
 		ui_motorsMoving->setChecked(true);
@@ -847,7 +853,6 @@ void SpecificWorker::action_GraspObject(bool first)
 	}
 
 	
-	
 // 	const float steps_to_grasp = 1;
 	const float yInit = 40;
 	const float yGoal = -20;
@@ -865,6 +870,27 @@ void SpecificWorker::action_GraspObject(bool first)
 		//
 		case 0:
 			printf("%d\n", __LINE__);
+			//check if object is visible
+			bool visible = false;
+			try
+			{
+				QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
+				qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
+				if (timeRead.secsTo(QTime::currentTime()) < 5 ) //Seen in last three seconds, 
+				{
+					visible = true;
+				}
+			}
+			catch(...)
+			{
+				printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
+			}
+			if(not visible)
+			{
+				printf("Object not visible, waiting!!\n");
+				break;
+			}
+			
 			try
 			{
 				inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
