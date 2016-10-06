@@ -845,9 +845,9 @@ void SpecificWorker::initDictionary()
 			idJoint = dictionaryNamesIt.first;
 			x=y=z=rx=ry=rz=0.0;
 			
-			x = 1000*mapJointRotations[ idJoint ].getTr().x();
-			y = 1000*mapJointRotations[ idJoint ].getTr().y();
-			z = 1000*mapJointRotations[ idJoint ].getTr().z();		
+			x = 1000.*mapJointRotations[ idJoint ].getTr().x();
+			y = 1000.*mapJointRotations[ idJoint ].getTr().y();
+			z = 1000.*mapJointRotations[ idJoint ].getTr().z();		
 			
 			QVec rot =mapJointRotations[ idJoint ].extractAnglesR_min();
 			rx = rot(0);

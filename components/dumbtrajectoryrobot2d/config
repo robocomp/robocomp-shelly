@@ -1,4 +1,4 @@
-TrajectoryRobot2D.Endpoints=tcp -p 12204
+TrajectoryRobot2D.Endpoints=tcp -p 19204
 CommonBehavior.Endpoints=tcp -p 15299
 JoystickAdapterTopic.Endpoints=tcp -p 12226
 
