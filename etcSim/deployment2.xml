@@ -119,9 +119,9 @@
 
  <node alias="laser" endpoint="laser:tcp -h localhost -p 10003">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation.xml -f 200" />
+  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation2.xml -f 200" />
   <downCommand command="killall -9 rcis" />
-  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation.xml" />
+  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation2.xml" />
   <xpos value="-55.7757418921" />
   <ypos value="155.48414445" />
   <radius value="10.0" />
@@ -154,9 +154,9 @@
 
  <node alias="base" endpoint="omnirobot:tcp -h localhost -p 12238">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation.xml -f 200" />
+  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation2.xml -f 200" />
   <downCommand command="killall -9 rcis" />
-  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation.xml" />
+  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation2.xml" />
   <xpos value="-113.662044463" />
   <ypos value="154.74863036" />
   <radius value="10.0" />
@@ -178,9 +178,9 @@
 
  <node alias="faulhaber" endpoint="jointmotor:tcp -p 10067">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation.xml -f 200" />
+  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation2.xml -f 200" />
   <downCommand command="killall -9 rcis" />
-  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation.xml" />
+  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation2.xml" />
   <xpos value="66.1057091954" />
   <ypos value="156.522551712" />
   <radius value="10.0" />
@@ -211,9 +211,9 @@
 
  <node alias="rgbd" endpoint="rgbd:tcp -p 10096">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation.xml -f 200" />
+  <upCommand command="rcremote localhost rgbd /home/robocomp/robocomp/components/robocomp-shelly/etcSim rcis simulation2.xml -f 200" />
   <downCommand command="killall -9 rcis" />
-  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation.xml" />
+  <configFile path="rcremote localhost configs /home/robocomp/robocomp/components/robocomp-shelly/etcSim kate simulation2.xml" />
   <xpos value="3.65094827558" />
   <ypos value="155.642107071" />
   <radius value="10.0" />
