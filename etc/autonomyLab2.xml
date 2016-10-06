@@ -160,8 +160,8 @@
 
 			<!-- TABLE D MESA REDONDA DEL COMEDOR-->
 			<transform id="tableD" tx="3574" tz="-1767" ty="730" >
-				<transform id="tableD_reachPos" tx="-500" ry="1.5707">
-	<!-- 				<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+				<transform id="tableD_reachPos" tx="700" tz="-500" ry="3.14">
+	 				<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> 
 				</transform>
 				<mesh id="tableD_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,20" rx="1.570799947" collide="1"/>
 				<transform id="rwreewreet" ty="-365" >
@@ -172,7 +172,7 @@
 			<!-- TABLE E -->
 			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
 				<transform id="tableE_reachPos" tx="-500" ry="1.5707">
-	<!-- 				<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+	 				<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> 
 				</transform>
 				<mesh id="tableE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 				<transform id="tableE_p1" tx="-375" tz="885" ty="-370" >

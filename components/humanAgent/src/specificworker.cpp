@@ -194,12 +194,22 @@ void SpecificWorker::insertNodeInnerModel(InnerModel* im, InnerModelNode* node, 
 
 void SpecificWorker::compute()
 {
-  QMutexLocker m (mutex);
-  if (worldModel->numberOfSymbols()==0)
-  {
-	  qDebug()<<"waiting for executive";
-	  return;
-  }
+	QMutexLocker m (mutex);
+	if (worldModel->numberOfSymbols()==0)
+	{
+		printf("Trying to fetch the current world model...\n");
+		try
+		{
+			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+			structuralChange(w);
+		}
+		catch(...)
+		{
+			printf("The executive is probably not running, waiting for first AGM model publication...");
+		}
+
+		return;
+	}
 	
 /********************* TEST CODE***********************************************	
 	if (innerModelMap.empty())
@@ -280,11 +290,11 @@ void SpecificWorker::updatePeopleInnerFullB()
 	bool modification = false;
 
 	///CAUTION CHAPUZA PA PROBAR A COLGAR DLE MUNDO 
-	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room");
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room_3");
 	if (roomID < 0)
 	{
-		printf("ROOOM symbol not found, \n");
-		qFatal("abort");
+		printf("ROOM symbol not found\n");
+		//qFatal("abort");
 		return;
 	}
 	
@@ -750,23 +760,31 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 
 void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
 {
-	QMutexLocker m (mutex);	
-	try
+	QMutexLocker locker(mutex);
+
+	for (int i=0; i<20; i++)
 	{
-// 		AGMModelPrinter::printWorld(newModel);
-		AGMMisc::publishModification(newModel, agmexecutive_proxy, "humanCompAgent");
+		try
+		{
+			AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "humanAgent"));
+			return;
+		}
+		catch(const RoboCompAGMExecutive::Locked &e)
+		{
+		}
+		catch(const RoboCompAGMExecutive::OldModel &e)
+		{
+			throw;
+		}
+		catch(const RoboCompAGMExecutive::InvalidChange &e)
+		{
+			throw;
+		}
+		catch(const Ice::Exception& e)
+		{
+			exit(1);
+		}
 	}
-	catch(Ice::Exception e)
-	{
-		std::cout<<"que pasa amigo" << e.what()<<"\n";
-		exit(1);
-	}
-	catch(...)
-	{
-		qDebug()<<"que pasa amigo";
-		exit(1);
-	}
-  
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -905,7 +923,7 @@ void SpecificWorker::initDictionary()
 	
 	v.print("v");
 	v(0)*=fScale;v(1)*=fScale;v(2)*=fScale;
-	QVec ff = innerModelAGM->transform6D("room",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
+	QVec ff = innerModelAGM->transform6D("room_3",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
 	
 	ff.print("ff");
 	innerModelMap[ idPerson ]->updateTransformValues( torsoName,ff(0),ff(1),ff(2),ff(3),ff(4),ff(5) );
@@ -1186,7 +1204,7 @@ void SpecificWorker::saveInnerModels(QString number)
 		qDebug()<<"Saving innermodels : "<<pre+"innerHuman.xml";
 		m.second->save(number+"_"+pre+"innerHuman.xml");			
 	}		
-	AGMInner::extractInnerModel(worldModel,"room", true)->save(number+"_extractInnerModelFromRoom.xml");
+	AGMInner::extractInnerModel(worldModel,"room_3", true)->save(number+"_extractInnerModelFromRoom.xml");
 	
 }
 
@@ -1397,7 +1415,7 @@ void SpecificWorker::updateHumanInnerFull()
 	bool modification = false;
 
 	///Human hangs on room symbol
-	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room");
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room_3");
 	if (roomID < 0)
 	{
 		printf("ROOOM symbol not found, \n");
@@ -1435,11 +1453,13 @@ void SpecificWorker::updateHumanInnerFull()
 	//añadir
 	if ( symbolPersonID == -1 )
 	{
-		AGMModelSymbol::SPtr newSymbolPerson =worldModel->newSymbol("person");
+		AGMModelSymbol::SPtr newSymbolPerson = worldModel->newSymbol("person");
 		
 		int personID = newSymbolPerson->identifier;
-	
+
 		newSymbolPerson->setAttribute("TrackingId",int2str(idSingle));
+		newSymbolPerson->setAttribute("imName", "person");
+		newSymbolPerson->setAttribute("imType", "transform");
 		std::cout<<" añado un nuevo symbolo persona "<<newSymbolPerson->toString()<<" TrackingID "<<idSingle<<"\n";
 		
 		//state está en personList
@@ -1481,10 +1501,10 @@ void SpecificWorker::updateHumanInnerFull()
 	{
 		
 		//update
-		qDebug()<<"update Human in mission";
+		qDebug()<<"Update Human in AGM model";
 		try
 		{
-			InnerModel* imTmp =innerModelMap.at(idSingle);		
+			InnerModel* imTmp = innerModelMap.at(idSingle);		
 			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
 		}
 		catch (const std::out_of_range& oor)
@@ -1499,7 +1519,20 @@ void SpecificWorker::updateHumanInnerFull()
 	{
 		qDebug()<<"----------- MODIFICATION -----------------------";
  		AGMModel::SPtr newModel(new AGMModel(worldModel));	
- 		sendModificationProposal(worldModel, newModel);					
+		try
+		{
+	 		sendModificationProposal(worldModel, newModel);
+		}
+		catch(const RoboCompAGMExecutive::OldModel &e)
+		{
+			printf("OLD MODEL!?!??\n");
+			return;
+		}
+		catch(const RoboCompAGMExecutive::InvalidChange &e)
+		{
+			printf("INVALID CHANGE!?!??\n");
+			return;
+		}
 		//saveInnerModels(QString::number(number));
 		number++;
 // 		if (number>2)
