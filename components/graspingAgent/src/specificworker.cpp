@@ -863,6 +863,7 @@ void SpecificWorker::action_GraspObject(bool first)
 	static QVec offset = QVec::vec3(0,0,0);
 	static QVec offsetR = QVec::vec3(0,0,0);
 	offset.print("offset");
+	bool visible = false;
 	switch (state)
 	{
 		//
@@ -871,7 +872,6 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 0:
 			printf("%d\n", __LINE__);
 			//check if object is visible
-			bool visible = false;
 			try
 			{
 				QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
