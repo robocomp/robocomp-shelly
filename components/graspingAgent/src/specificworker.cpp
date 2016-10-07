@@ -1031,7 +1031,7 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
 	goal.name = "armX1";
-	goal.position = -1.0;
+	goal.position = -1.34;
 	try{
 		jointmotor_proxy->setPosition(goal);
 	}catch(...){
@@ -1371,7 +1371,7 @@ void SpecificWorker::setRightArmUp_Reflex()
         }
 	
 	gp.name = "armX1";
-	desired_value = -1;
+	desired_value = -1.34;
         if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
         {
             printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
