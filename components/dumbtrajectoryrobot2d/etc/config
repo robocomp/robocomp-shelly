@@ -1,10 +1,10 @@
 # Endpoints for implemented interfaces
-TrajectoryRobot2D.Endpoints=tcp -p 12204
+TrajectoryRobot2D.Endpoints=tcp -p 19204
 
 
 # Proxies for required interfaces
-LaserProxy = laser:tcp -h robonuc1.local -p 10033
-OmniRobotProxy = omnirobot:tcp -h robonuc1.local -p 12238
+LaserProxy = laser:tcp -p 10003
+OmniRobotProxy = omnirobot:tcp -p 12238
 
 
 # This property is used by the clients to connect to IceStorm.

@@ -128,7 +128,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		return false;
 	}
 	
-	if (!cb_simulation->isChecked())
+	if (!cb_simulation->isChecked() )
 	{
 		printf("checking with real pipeline\n");
 		//Pipelining!!
@@ -262,7 +262,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		retValue = true;
 		publishModel = true;
 	}  
-	else if (waitTime.elapsed() > 10000) //if not found remove protoObject
+	else //if (waitTime.elapsed() > 10000) //if not found remove protoObject
 	{
 		try
 		{
@@ -681,6 +681,41 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 	// If the mug already exists: update its position
 	if (existing)
 	{
+		//Update last seen tag
+		QTime time = QTime::currentTime(); 
+		try
+		{
+			QTime timeRead = QTime::fromString(QString::fromStdString(symbol->getAttribute("LastSeenTimeStamp")),"hhmmss");
+			qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
+			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
+			{
+				symbol->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+				try
+				{
+					AGMMisc::publishNodeUpdate(symbol, agmexecutive_proxy);
+				}
+				catch (...)
+				{
+					printf("Exception: Executive not running?\n");
+				}
+			}
+		}
+		catch(...)
+		{
+			//Create atributte first time
+			symbol->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+			try
+			{
+				AGMMisc::publishNodeUpdate(symbol, agmexecutive_proxy);
+			}
+			catch (...)
+			{
+				printf("Exception: Executive not running?\n");
+			}
+			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
+		}
+	
+		//Update innermodel pose
 		QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
 		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
 		QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen

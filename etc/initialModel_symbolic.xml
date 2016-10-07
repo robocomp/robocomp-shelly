@@ -287,7 +287,16 @@
 	</link>
 	<link src="55" dst="56" label="noReach" >
 	</link>
-	
+
+
+	<link src="100" dst="1" label="RT" >
+		<linkAttribute key="x" value="0" />
+		<linkAttribute key="y" value="0" />
+		<linkAttribute key="z" value="0" />
+		<linkAttribute key="rx" value="0" />
+		<linkAttribute key="ry" value="0" />
+		<linkAttribute key="rz" value="0" />
+	</link>
 	
 	
 </AGMModel>
