@@ -27,7 +27,7 @@ from genericworker import *
 
 from collections import OrderedDict
 
-
+import math
 
 ROBOCOMP = ''
 try:
@@ -62,17 +62,7 @@ from asrpublishI import *
 ############		MANAGEMENT NUCS IN BACKGROUND		##############
 ##############################################################################
 
-tempN1 = ''
-tempN2 = ''
-loadN1 = ''
-loadN2 = ''
-wifiN1 = ''
-wifiN2 = ''
-#on_1 = True
-#on_2 = True
 hosts = dict()
-statusN1 = "on"     # on/reboot/off/unknown
-statusN2 = "on"
 
 class MyShellyThread(QtCore.QThread):
 	def __init__(self, parent = super):
@@ -85,129 +75,54 @@ class MyShellyThread(QtCore.QThread):
 	def run(self):
 		reloj = QtCore.QTime.currentTime()
 		while True:
-			#print "thead executing"			
-			if reloj.elapsed() > 5000:
-				print "load data Nucs"
-				self.loadTemp()
-				self.loadAverage()
-				self.loadWiFiSignal()
-				reloj.restart();
+			time.sleep(1)
+			try:
+				if reloj.elapsed() > 5000:
+					self.loadAverage()
+					reloj.restart();
+			except:
+				traceback.print_exc()
+				print "can't load NUCs data"
+				time.sleep(10)
 
-			global statusN1, statusN2
-			if statusN1 == "off":
-				self.shutdownNUC1()
-				statusN1 = "unknown"
-			elif statusN1 == "reboot":
-				self.resetNUC1()
-				statusN1 = "on"
-			if statusN2 == "off":
-				self.shutdownNUC2()
-				statusN2 = "unknown"
-			elif statusN2 == "reboot":
-				self.resetNUC2()
-				statusN1 = "on"
-
-	def loadTemp(self):
-		global statusN1, statusN2
-		if statusN1 == "on" or statusN2 == "on":
-			hostnames = ["robonuc1.local","robonuc2.local"]
-			for hostname in hostnames:
-				global hosts
-				self.connect(hostname,"robolab",hosts[hostname])
-				output=self.runcmd('sensors')
-				if not "ERROR" in output:
-					output = output.split('\n')
-					temC1 = (output[8].split('         ')[1].split('  ')[0])[1:-3]
-					temC2 = (output[9].split('         ')[1].split('  ')[0])[1:-3]
-					global tempN1, tempN2
-					if hostname == 'robonuc1.local':					
-						#self.ui.temperatura1.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
-						#global tempN1
-						tempN1 = 'Temp: '+ str((float(temC1) + float(temC2))/float(2.0))
-					else:
-						#self.ui.temperatura2.setText('Temp: '+ str((float(temC1) + float(temC2))/float(2.0)))
-						#global tempN2
-						tempN2 = 'Temp: '+ str((float(temC1) + float(temC2))/float(2.0))
-					self.disconnect()
-				else:
-					print 'ERROR with: '+str(hostname)
-					#global tempN1, tempN2
-					tempN1 = tempN2 = "ERROR"
-		else:
-			print "not nucs working"
 
 	def loadAverage(self):
-		global statusN1, statusN2
-		if statusN1 == "on" and statusN2 == "on":
-			maxAttemp = 50
-			hostnames = ['robonuc1.local','robonuc2.local']
-			for hostname in hostnames:
-				global hosts
-				self.connect(hostname,"robolab",hosts[hostname])
-				output=self.runcmd('top -bn '+str(maxAttemp)+' -d 0.01 | grep \'%Cpu(s)\' | gawk \'{print $2+$4+$6}\'')
-				#if output:
-				if not "ERROR" in output:
-					output = output.split('\n')
-					aux = 0
-					cont = 0
-					for load in output:
-						if load != '':
-							aux += float(load[:-1])
-							cont += 1
-					aux = aux / maxAttemp
-					global loadN1, loadN2
-					if hostname == 'robonuc1.local':
-						#self.ui.loadavg1.setText('Load: '+str(aux))
-						#global loadN1
-						loadN1 = 'Load: '+str(aux)
-					else:
-						#self.ui.loadavg2.setText('Load: '+str(aux))
-						#global loadN2
-						loadN2 = 'Load: '+str(aux)
-				else:
-					print 'ERROR with: '+str(hostname)				
-					loadN1 = loadN2 = "ERROR"
-		else:
-			print "not nucs working"
+		global hosts
+		i = 1
+		maxAttemp = 50
+		while i <= 3:
+			hostname = 'robonuc'+str(i)+'.local'
+			self.ssh_connect(hostname, "robolab", hosts[hostname])
+			output=self.runcmd('top -bn '+str(maxAttemp)+' -d 0.01 | grep \'%Cpu(s)\' | gawk \'{print $2+$4+$6}\'')
+			#if output:
+			if not "ERROR" in output:
+				output = output.split('\n')
+				aux = 0
+				cont = 0
+				for load in output:
+					if load != '':
+						aux += float(load[:-1])
+						cont += 1
+				aux = aux / maxAttemp
+				global loadN1, loadN2
+				if i == 1:
+					self.ui.load1.setText(aux)
+				elif i == 2:
+					self.ui.load2.setText(aux)
+				elif i == 3:
+					self.ui.load3.setText(aux)
+			else:
+				print 'ERROR with: '+str(hostname)				
+				loadN1 = loadN2 = "ERROR"
 
-	def loadWiFiSignal(self):
-		global statusN1, statusN2
-		if statusN1 == "on" and statusN2 == "on":
-			ifaceN1 = 'wlan2'
-			ifaceN2 = 'wlan3'
-			hostnames = ['robonuc1.local','robonuc2.local']
-			for hostname in hostnames:
-				global hosts
-				self.connect(hostname,"robolab",hosts[hostname])
-				if hostname == 'robonuc1.local':
-					output=self.runcmd('iwconfig '+ifaceN1+' | grep -e "Signal level"')
-				else:
-					output=self.runcmd('iwconfig '+ifaceN2+' | grep -e "Signal level"')
-				#if output:
-				if not "ERROR" in output:
-					signal = 'Wifi: '+((output.split('='))[2])
-					global wifiN1, wifiN2
-					if hostname == 'robonuc1.local':
-						#self.ui.loadwifi1.setText(signal)
-						#print 'Wifi NUC1',signal
-						wifiN1 = 'WifiN1: '+str(signal)
-					else:
-						#self.ui.loadwifi2.setText(signal)
-						#print 'Wifi NUC2',signal
-						wifiN2 = 'WifiN2: '+str(signal)
-				else:
-					print 'ERROR with: '+str(hostname)
-					wifiN1 = wifiN2 = "ERROR"
-		else:
-			print "not nucs working"
 
-	def disconnect (self):
+	def ssh_disconnect (self):
 		if self.transport is not None:
 			self.transport.close()
 		if self.ssh is not None:
 			self.ssh.close()
 
-	def connect(self,hostname,username,password,port=22):
+	def ssh_connect(self,hostname,username,password,port=22):
 		self.hostname = hostname
 		self.username = username
 		self.password = password
@@ -241,79 +156,107 @@ class MyShellyThread(QtCore.QThread):
 		session.close()
 		return output
 
-	@QtCore.Slot()
-	def shutdownNUC1(self):
-		print "POWEROFF NUC1"
-		hostname = 'robonuc1.local'
-		i = 3
-		global hosts
-		while i > 0:
-			self.connect(hostname,"robolab",hosts[hostname])
-			output=self.runcmd('sudo poweroff')
-			if output:
-				print output
-				self.disconnect()
-				#global on_1
-				#on_1 = False
-				break
-			else:
-				i -= 1
-				print 'ERROR shutdown NUC1. Trying number '+str(i)
 
 	@QtCore.Slot()
-	def resetNUC1(self):
+	def resetNUC(self, n):
 		global hosts
-		print "REBOOT NUC1"
-		hostname = 'robonuc1.local'
+		print "REBOOT NUC" + str(n)
+		hostname = 'robonuc'+n+'.local'
 		i = 3
 		while i > 0:
-			self.connect(hostname,"robolab",hosts[hostname])
+			self.ssh_connect(hostname,"robolab",hosts[hostname])
 			output=self.runcmd('sudo reboot')
 			if output:
 				print output
-				self.disconnect()
+				self.ssh_disconnect()
 				break
 			else:
 				i -= 1
-				print ' Error reset NUC1.  Trying number '+str(i)
+				print ' Error reset NUC'+n+'.  Attempt number '+str(i)
 
 	@QtCore.Slot()
-	def shutdownNUC2(self):
-		print "POWEROFF NUC2"
-		hostname = 'robonuc2.local'
+	def shutdownNUC(self, n):
+		print "POWEROFF NUC" + str(n)
+		hostname = 'robonuc'+n+'.local'
 		i = 3
 		global hosts
 		while i > 0:
-			self.connect(hostname,"robolab",hosts[hostname])
+			self.ssh_connect(hostname,"robolab",hosts[hostname])
 			output=self.runcmd('sudo poweroff')
 			if output:
 				print output
-				self.disconnect()
+				self.ssh_disconnect()
 				#global on_2
 				#on_2 = False
 				break;
 			else:
 				i -= 1
-				print 'ERROR shutdown NUC2.  Trying number '+str(i)
+				print 'ERROR shutdown NUC'+n+'.  Trying number '+str(i)
+
 
 	@QtCore.Slot()
+	def shutdownNUC1(self):
+		self.shutdownNUC(1)
+	@QtCore.Slot()
+	def resetNUC1(self):
+		self.resetNUC(1)
+	@QtCore.Slot()
+	def shutdownNUC2(self):
+		self.shutdownNUC(1)
+	@QtCore.Slot()
 	def resetNUC2(self):
-		global hosts
-		print "REBOOT NUC2"
-		hostname = 'robonuc2.local'
-		i = 3
-		while i > 0:
-			self.connect(hostname,"robolab",hosts[hostname])
-			output=self.runcmd('sudo reboot')
-			if output:
-				print output
-	                        self.disconnect()
-				break
-			else:
-				i -= 1
-				print 'ERROR reset NUC1. Trying number '+str(i)
+		self.resetNUC(1)
+	@QtCore.Slot()
+	def shutdownNUC3(self):
+		self.shutdownNUC(1)
+	@QtCore.Slot()
+	def resetNUC3(self):
+		self.resetNUC(1)
+	@QtCore.Slot()
+	def shutdownNUC4(self):
+		print 'TODO shutdownNUC4'
+	@QtCore.Slot()
+	def resetNUC4(self):
+		print 'TODO resetNUC4'
 
 
+class LaserDraw(QtGui.QGraphicsScene):
+	def __init__(self, parent, main):
+		super(LaserDraw, self).__init__(parent)
+		self.main = main
+
+	def work(self):
+		if self.main.ui.tabWidget.currentIndex()==5:
+			print 'LaserDraw::work'
+			self.clear()
+			try:
+				if len(self.main.laser_data) <= 0:
+					print 'no laser data a'
+					return
+			except:
+				print 'no laser data b'
+				return
+			print 'eeeeoo'
+			ww = self.main.ui.laser_graphicsView.width()
+			wh = self.main.ui.laser_graphicsView.height()
+			xOff = ww/2.
+			yOff = wh/2.
+
+			#painter = QtGui.QPainter()
+			#painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+
+			for point in self.main.laser_data:
+				newCoor = self.main.laser_measure2coord(point)
+				self.addRect(newCoor[0]-1, newCoor[1]-1, 2, 2)
+
+			#for wm in range(10):
+				#w = 1000. * (1.+wm) * self.main.ui.laserSpinBox.value()
+				#painter.drawEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
+			#for wm in range(5):
+				#w = 200. * (1.+wm) * self.main.ui.laserSpinBox.value()
+				#painter.drawEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
+			#painter.end()
+			#painter = None
 
 ####################################################################################################
 class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
@@ -330,15 +273,15 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 		self.setSceneRect(-100,-100,200,200)
 		# Regla de 3. Para extrapolar el valor de la escena que va de 0 a 100 a los de 0 a 1024 del pwm
 		# El negativo es porque en el scene el punto el 0,1 es en el centro hacia abajo.
-		self.vAdvanceRobot = -800/100
+		self.vAdvanceRobot = 300.
 		# No le pongo el negativo porque izquierda y derecha es correcto.
-		self.vRotationRobot = .1#10/100
+		self.vRotationRobot = 0.2
 
 		posX = 0
 		posY = 0
 		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
-		self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
-		self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+		self.crosslineW = QtCore.QLineF(-self.width(),posY,self.width(),posY)
+		self.crosslineH = QtCore.QLineF(posX,-self.height(),posX,self.height())
 		self.vacaW = self.addLine(self.crosslineW)
 		self.vacaH = self.addLine(self.crosslineH)
 		self.update()
@@ -353,14 +296,16 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 			posX = event.scenePos().x()
 			posY = event.scenePos().y()
 			self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
-			self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
-			self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+			self.crosslineW = QtCore.QLineF(-self.width(),posY,self.width(),posY)
+			self.crosslineH = QtCore.QLineF(posX,-self.height(),posX,self.height())
 			self.vacaW = self.addLine(self.crosslineW)
 			self.vacaH = self.addLine(self.crosslineH)
 			self.update()
 			if self.timerJoystick.elapsed() > 500:
-				print "Moving--> Advance: ", posY*self.vAdvanceRobot, " <--> Rotation: ", posX*self.vRotationRobot
-				self.parent.setRobotSpeed(posY*self.vAdvanceRobot,posX*self.vRotationRobot)
+				cmd_z = -posY*self.vAdvanceRobot/200.
+				cmd_r = posX*self.vRotationRobot/200
+				print "Moving--> Advance: ", cmd_z, " <--> Rotation: ", cmd_r
+				self.parent.setRobotSpeed(cmd_z, cmd_r)
 				self.timerJoystick.restart()
   
 	def mousePressEvent(self,event):
@@ -381,8 +326,8 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 		posX = 0
 		posY = 0
 		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
-		self.crosslineW = QtCore.QLineF(-self.width()/2,posY,self.width()/2,posY)
-		self.crosslineH = QtCore.QLineF(posX,-self.height()/2,posX,self.height()/2)
+		self.crosslineW = QtCore.QLineF(-self.width(), posY,self.width(), posY)
+		self.crosslineH = QtCore.QLineF(posX, -self.height(), posX, self.height())
 		self.vacaW = self.addLine(self.crosslineW)
 		self.vacaH = self.addLine(self.crosslineH)
 		self.update()
@@ -397,16 +342,16 @@ class SpecificWorker(GenericWorker):
 		self.timer.start(self.Period)
 		
 		self.ui.navigationButton.clicked.connect(self.goNavigation)
-		self.ui.ikButton.clicked.connect(self.goIK)
-		self.ui.vikButton.clicked.connect(self.goVIK)
-		self.ui.lowButton.clicked.connect(self.lowPosition)
-		self.ui.topButton.clicked.connect(self.topPosition)
-		self.ui.shutdown1Button.clicked.connect(self.putOffN1)
-		self.ui.shutdown2Button.clicked.connect(self.putOffN2)
-		self.ui.reset1Button.clicked.connect(self.putRebootN1)
-		self.ui.reset2Button.clicked.connect(self.putRebootN2)
+
+
+		self.ui.sayButton.clicked.connect(self.sayText)
+		self.ui.jointButton.clicked.connect(self.jointCommand)
 
 		self.sceneJoyStick = myGraphicsSceneJoyStick(self)
+
+		self.laserDrawer = LaserDraw(self.ui.laser_graphicsView, self)
+		self.ui.laser_graphicsView.setScene(self.laserDrawer)
+
 		self.vaca = self.ui.graphicsViewJoyStick.setScene(self.sceneJoyStick)
 		self.sceneJoyStick.update()
 		
@@ -430,55 +375,99 @@ class SpecificWorker(GenericWorker):
 					print ("can't find password for "+str(s[0])+" in ~/.rcremote  (format 'host#password')")
 		except:
 			print ("can't open file ~/.rcmemote")
+			
+		self.ui.shutdown1Button.clicked.connect(self.thread.shutdownNUC1)
+		self.ui.shutdown2Button.clicked.connect(self.thread.shutdownNUC2)
+		self.ui.shutdown3Button.clicked.connect(self.thread.shutdownNUC3)
+		self.ui.shutdown4Button.clicked.connect(self.thread.shutdownNUC4)
+		self.ui.reset1Button.clicked.connect(self.thread.resetNUC1)
+		self.ui.reset2Button.clicked.connect(self.thread.resetNUC2)
+		self.ui.reset3Button.clicked.connect(self.thread.resetNUC3)
+		self.ui.reset4Button.clicked.connect(self.thread.resetNUC4)
+
+		self.initializeMotors()
 
 
-	def setRobotSpeed(self,vAdvance,vRotation):	  
-		self.omnirobot_proxy.setSpeedBase(vAdvance,vRotation,0)
+	def initializeMotors(self):
+		self.joint_motors = self.jointmotor_proxy.getAllMotorParams()
+		print 'Motors: ',
+		for item in self.joint_motors:
+			print item.name
+			self.ui.jointCombo.addItem(item.name)
+		if len(self.joint_motors) == 0:
+			print 'JointMotor: Error: No motors.'
+		self.states = self.jointmotor_proxy.getAllMotorState()
+
+
+
+	def setRobotSpeed(self,vAdvance,vRotation):
+		self.omnirobot_proxy.setSpeedBase(0, vAdvance, vRotation)
 		return True
+	
+	def sayText(self):
+		self.speech_proxy.say(self.ui.ttsEdit.text(), False)
+	
+	def jointCommand(self):
+		goal = MotorGoalPosition()
+		goal.position = self.ui.jointTarget.value()
+		goal.name = str(self.ui.jointCombo.currentText())
+		goal.maxSpeed = self.ui.jointSpeed.value()
+		print "target pos" , goal.position, "name", goal.name, "maxSpeed" , goal.maxSpeed
+		self.jointmotor_proxy.setPosition(goal)
+
 
 	def setParams(self, params):
 		return True
 
 	@QtCore.Slot()
 	def compute(self):
-		print 'SpecificWorker.compute...'
-		global tempN1, tempN2,loadN1,loadN2, wifiN1, wifiN2
-		if tempN1 != '':
-			self.ui.temperatura1.setText(tempN1)
-			tempN1 = ''		
-		if tempN2 != '':
-			self.ui.temperatura2.setText(tempN2)
-			tempN2 = ''		
-		if loadN1 != '':
-			self.ui.loadavg1.setText(loadN1)
-			loadN1 = ''
-		if loadN2 != '':
-			self.ui.loadavg2.setText(loadN2)
-			loadN2 = ''
-		if wifiN1 != '':
-			self.ui.wifi1.setText(wifiN1)
-			wifiN1 = ''
-		if wifiN2 != '':
-			self.ui.wifi2.setText(wifiN2)
-			wifiN2 = ''
+		self.computeJointMotor()
+		self.computeLaser()
+		self.computeRGBD()
+
+	def computeJointMotor(self):
+		if self.ui.tabWidget.currentIndex() != 4:
+			return;
+		self.states = self.jointmotor_proxy.getAllMotorState()
+		state = self.states[str(self.ui.jointCombo.currentText())]
+		self.ui.jointPosition.setValue(state.pos)
+
+	def computeLaser(self):
+		if self.ui.tabWidget.currentIndex() != 5:
+			return;
+
+		#try:
+		self.laser_data, basura = self.laser_proxy.getLaserAndBStateData()
+		print '-----'
+		m = -1
+		M = -1
+		for d in self.laser_data:
+			if m == -1 or d.dist < m:
+				m = d.dist
+			if M == -1 or d.dist > M:
+				M = d.dist
+		print len(self.laser_data), ' from', m, 'to', M
+		
+		self.laserDrawer.update()
+		#except:
+			#print 'No laser connection.'
+		self.laserDrawer.work()
+
+	def laser_measure2coord(self, measure):
+		const_mul = self.ui.laserSpinBox.value()
+		x = math.cos(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.width())
+		y = math.sin(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.height())
+		return x, y
+
+	
+	
+	def computeRGBD(self):
+		if self.ui.tabWidget.currentIndex() != 6:
+			return;
 
 
-########################################################################
-#### MANAGEMENT
-# TODO IF NUC NOT INIT ON INIT SHELLY PANEL
-	def putOffN1(self):
-		global statusN1
-		statusN1 = "off"
-	def putOffN2(self):
-		global statusN2
-		statusN2 = "off"
-	def putRebootN1(self):
-		global statusN1
-		statusN1 = "reboot"
-	def putRebootN2(self):
-		global statusN2
-		statusN2 = "reboot"
-#################################################################################
+	def paintEvent(self, event=None):
+		self.laserDrawer.update()
 
 
 	#
@@ -594,99 +583,11 @@ class SpecificWorker(GenericWorker):
 		except:
 			print "Error: Sleeping 10 :-)"
 			time.sleep(10)
-######################################################################	
-#### MANIPULACION
-	@QtCore.Slot()
-	def lowPosition(self):
-		print "LOW POSITION"
-		mapa = [['rightWrist2',0.0], ['rightWrist1',0.0], ['rightForeArm',0.1], ['rightElbow',0.15], ['rightShoulder3',0.10], ['rightShoulder2',-0.10], ['rightShoulder1',-0.10]]
-		#, 'leftWrist2':0.0, 'leftWrist1':0.0 , 'leftForeArm':0.0 , 'leftElbow':-0.1 , 'leftShoulder3':-0.1 , 'leftShoulder2':0.1, 'leftShoulder1':0.1, 'head_yaw_joint':0.0, 'head_pitch_joint':0.85
-		for motor in mapa:
-			goal = MotorGoalPosition()
-			goal.name = str(motor[0])
-			goal.position = float(motor[1])
-			goal.maxSpeed = float(0.5)
-			time.sleep(3)
-			try:
-				self.jointmotor_proxy.setPosition(goal)
-			except CollisionException:
-				print "Error en abajo_R: ", CollisionException
-				
-	@QtCore.Slot()
-	def topPosition(self):
-		print "TOP POSITION"
-		mapa = [['rightWrist2',0.0], ['rightWrist1',0.0], ['rightForeArm',0.1], ['rightElbow',0.10], ['rightShoulder3',0.50], ['rightShoulder2',-0.20], ['rightShoulder1',-3.0]]
-		#print OrderedDict(mapa)
-		#, 'leftWrist2':0.0, 'leftWrist1':0.0 , 'leftForeArm':0.0 , 'leftElbow':-0.1 , 'leftShoulder3':-0.1 , 'leftShoulder2':0.1, 'leftShoulder1':0.1, 'head_yaw_joint':0.0, 'head_pitch_joint':0.85
-		print mapa
-		for motor in mapa:
-			goal = MotorGoalPosition()
-			goal.name = str(motor[0])
-			goal.position = float(motor[1])
-			goal.maxSpeed = float(0.5)
-			time.sleep(3)
-			try:
-				print str(goal.name) + '  ' + str(goal.position) + '  ' + str(goal.maxSpeed)
-				self.jointmotor_proxy.setPosition(goal)
-			except CollisionException:
-				print "Error en abajo_R: ", CollisionException
-	
-	@QtCore.Slot()
-	def goIK(self):
-		print "AUN NO ESTA PREPARADO: METER IK PROXY"
-		#import RoboCompInverseKinematics
-		#pose6D = RoboCompInverseKinematics.Pose6D() #target al que se movera
-		#pose6D.x  = float(self.ui.txbox.value())
-		#pose6D.y  = float(self.ui.tybox.value())
-		#pose6D.z  = float(self.ui.tzbox.value())
-		#pose6D.rx = float(self.ui.rxbox.value())
-		#pose6D.ry = float(self.ui.rybox.value())
-		#pose6D.rz = float(self.ui.rzbox.value())
-		#print '---> ',pose6D
-		#weights = RoboCompInverseKinematics.WeightVector() #vector de pesos
-		#weights.x = 1
-		#weights.y = 1
-		#weights.z = 1
-		#weights.rx = 0.1
-		#weights.ry = 0.1
-		#weights.rz = 0.1
 
-		#part = "RIGHTARM"
-		#try:
-			#identificador = self.inversekinematics_proxy.setTargetPose6D(part,pose6D, weights)
-		#except RoboCompInverseKinematics.IKException, e:
-			#print "Expection in tester (sendPose): ", e
-	
-	@QtCore.Slot()
-	def goVIK(self):
-		print "AUN NO ESTA PREPARADO: METER VIK PROXY"
-		#import RoboCompInverseKinematics
-		#pose6D = RoboCompInverseKinematics.Pose6D() #target al que se movera
-		#pose6D.x  = float(self.ui.txbox.value())
-		#pose6D.y  = float(self.ui.tybox.value())
-		#pose6D.z  = float(self.ui.tzbox.value())
-		#pose6D.rx = float(self.ui.rxbox.value())
-		#pose6D.ry = float(self.ui.rybox.value())
-		#pose6D.rz = float(self.ui.rzbox.value())
-		#print '---> ',pose6D
-		#weights = RoboCompInverseKinematics.WeightVector() #vector de pesos
-		#weights.x = 1
-		#weights.y = 1
-		#weights.z = 1
-		#weights.rx = 0.1
-		#weights.ry = 0.1
-		#weights.rz = 0.1
-		
-		#try:
-			##PRIMERO MOVEMOS CABEZA:
-			#axis = RoboCompInverseKinematics.Axis() #vector de pesos
-			#axis.x = 0
-			#axis.y = 0
-			#axis.z = 1
-			#part = "HEAD"
-			#self.inversekinematics_proxy.setTargetAlignaxis(part, pose6D, axis)
-			## DESPUES MOVEMOS BRAZO YEAH!
-			#part = "RIGHTARM"
-			#identificador = self.inversekinematics_proxy.setTargetPose6D(part,pose6D, weights)
-		#except RoboCompInverseKinematics.IKException, e:
-			#print "Expection in tester (sendPose): ", e
+
+
+
+
+
+
+

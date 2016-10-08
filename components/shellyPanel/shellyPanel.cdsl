@@ -2,6 +2,8 @@ import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
 import "/robocomp/interfaces/IDSLs/TrajectoryRobot2D.idsl";
 import "/robocomp/interfaces/IDSLs/OmniRobot.idsl";
 import "/robocomp/interfaces/IDSLs/Speech.idsl";
+import "/robocomp/interfaces/IDSLs/Laser.idsl";
+import "/robocomp/interfaces/IDSLs/RGBD.idsl";
 import "/robocomp/interfaces/IDSLs/ASRPublish.idsl";
 import "/robocomp/interfaces/IDSLs/CommonBehavior.idsl";
 
@@ -9,10 +11,9 @@ Component shellyPanel
 {
 	Communications
 	{
-		requires JointMotor, TrajectoryRobot2D, OmniRobot;
-//, Speech;
-//		subscribesTo ASRPublish;
+		requires JointMotor, TrajectoryRobot2D, OmniRobot, Speech, RGBD, Laser;
 		implements CommonBehavior;
+		subscribesTo ASRPublish;
 	};
 	language python;
 	gui Qt(QWidget);

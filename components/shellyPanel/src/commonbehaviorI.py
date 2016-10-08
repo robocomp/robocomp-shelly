@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -30,9 +30,9 @@ if len(ROBOCOMP)<1:
 	sys.exit()
 	
 
-preStr = "-I"+ROBOCOMP+"/interfaces/ --all "+ROBOCOMP+"/interfaces/"
+preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
 
-Ice.loadSlice(preStr+"CommonBehavior.ice")
+Ice.loadSlice(preStr+"JointMotor.ice")
 from RoboCompCommonBehavior import *
 
 class CommonBehaviorI(CommonBehavior):

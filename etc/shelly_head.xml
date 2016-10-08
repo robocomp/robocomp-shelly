@@ -22,6 +22,6 @@
 				</joint>
 			</transform>
 		</joint>
-	</joint>
+	</transform>
 </innerModel>
 

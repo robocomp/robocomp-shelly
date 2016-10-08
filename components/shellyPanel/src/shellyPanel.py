@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Copyright (C) 2015 by YOUR NAME HERE
+# Copyright (C) 2016 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -55,42 +55,14 @@
 #
 #
 
-import sys, traceback, Ice, IceStorm, subprocess, threading, time, Queue, os, copy
+import sys, traceback, IceStorm, subprocess, threading, time, Queue, os, copy
 
 # Ctrl+c handling
 import signal
-signal.signal(signal.SIGINT, signal.SIG_DFL)
 
 from PySide import *
 
 from specificworker import *
-
-ROBOCOMP = ''
-try:
-	ROBOCOMP = os.environ['ROBOCOMP']
-except:
-	print '$ROBOCOMP environment variable not set, using the default value /opt/robocomp'
-	ROBOCOMP = '/opt/robocomp'
-if len(ROBOCOMP)<1:
-	print 'ROBOCOMP environment variable not set! Exiting.'
-	sys.exit()
-
-
-preStr = "-I"+ROBOCOMP+"/interfaces/ --all "+ROBOCOMP+"/interfaces/"
-Ice.loadSlice(preStr+"CommonBehavior.ice")
-import RoboCompCommonBehavior
-Ice.loadSlice(preStr+"JointMotor.ice")
-import RoboCompJointMotor
-Ice.loadSlice(preStr+"TrajectoryRobot2D.ice")
-import RoboCompTrajectoryRobot2D
-Ice.loadSlice(preStr+"OmniRobot.ice")
-import RoboCompOmniRobot
-Ice.loadSlice(preStr+"Speech.ice")
-import RoboCompSpeech
-Ice.loadSlice(preStr+"ASRPublish.ice")
-import RoboCompASRPublish
-Ice.loadSlice(preStr+"CommonBehavior.ice")
-import RoboCompCommonBehavior
 
 
 class CommonBehaviorI(RoboCompCommonBehavior.CommonBehavior):
@@ -130,75 +102,168 @@ if __name__ == '__main__':
 	ic = Ice.initialize(params)
 	status = 0
 	mprx = {}
+	parameters = {}
+	for i in ic.getProperties():
+		parameters[str(i)] = str(ic.getProperties().getProperty(i))
+
+	# Topic Manager
+	proxy = ic.getProperties().getProperty("TopicManager.Proxy")
+	obj = ic.stringToProxy(proxy)
 	try:
+		topicManager = IceStorm.TopicManagerPrx.checkedCast(obj)
+	except Ice.ConnectionRefusedException, e:
+		print 'Cannot connect to IceStorm! ('+proxy+')'
+		sys.exit(-1)
 
-		# Remote object connection for JointMotor
+	# Remote object connection for JointMotor
+	try:
+		proxyString = ic.getProperties().getProperty('JointMotorProxy')
 		try:
-			proxyString = ic.getProperties().getProperty('JointMotorProxy')
-			try:
-				basePrx = ic.stringToProxy(proxyString)
-				jointmotor_proxy = RoboCompJointMotor.JointMotorPrx.checkedCast(basePrx)
-				mprx["JointMotorProxy"] = jointmotor_proxy
-			except Ice.Exception:
-				print 'Cannot connect to the remote object (JointMotor)', proxyString
-				#traceback.print_exc()
-				status = 1
-		except Ice.Exception, e:
-			print e
-			print 'Cannot get JointMotorProxy property.'
+			basePrx = ic.stringToProxy(proxyString)
+			jointmotor_proxy = JointMotorPrx.checkedCast(basePrx)
+			mprx["JointMotorProxy"] = jointmotor_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (JointMotor)', proxyString
+			mprx["JointMotorProxy"] = None
+			#traceback.print_exc()
 			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get JointMotorProxy property.'
+		status = 1
 
 
-		# Remote object connection for TrajectoryRobot2D
+	# Remote object connection for Laser
+	try:
+		proxyString = ic.getProperties().getProperty('LaserProxy')
 		try:
-			proxyString = ic.getProperties().getProperty('TrajectoryRobot2DProxy')
-			try:
-				basePrx = ic.stringToProxy(proxyString)
-				trajectoryrobot2d_proxy = RoboCompTrajectoryRobot2D.TrajectoryRobot2DPrx.checkedCast(basePrx)
-				mprx["TrajectoryRobot2DProxy"] = trajectoryrobot2d_proxy
-			except Ice.Exception:
-				print 'Cannot connect to the remote object (TrajectoryRobot2D)', proxyString
-				#traceback.print_exc()
-				status = 1
-		except Ice.Exception, e:
-			print e
-			print 'Cannot get TrajectoryRobot2DProxy property.'
+			basePrx = ic.stringToProxy(proxyString)
+			laser_proxy = LaserPrx.checkedCast(basePrx)
+			mprx["LaserProxy"] = laser_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (Laser)', proxyString
+			mprx["LaserProxy"] = None
+			#traceback.print_exc()
 			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get LaserProxy property.'
+		status = 1
 
 
-		# Remote object connection for OmniRobot
+	# Remote object connection for RGBD
+	try:
+		proxyString = ic.getProperties().getProperty('RGBDProxy')
 		try:
-			proxyString = ic.getProperties().getProperty('OmniRobotProxy')
-			try:
-				basePrx = ic.stringToProxy(proxyString)
-				omnirobot_proxy = RoboCompOmniRobot.OmniRobotPrx.checkedCast(basePrx)
-				mprx["OmniRobotProxy"] = omnirobot_proxy
-			except Ice.Exception:
-				print 'Cannot connect to the remote object (OmniRobot)', proxyString
-				#traceback.print_exc()
-				status = 1
-		except Ice.Exception, e:
-			print e
-			print 'Cannot get OmniRobotProxy property.'
+			basePrx = ic.stringToProxy(proxyString)
+			rgbd_proxy = RGBDPrx.checkedCast(basePrx)
+			mprx["RGBDProxy"] = rgbd_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (RGBD)', proxyString
+			mprx["RGBDProxy"] = None
+			#traceback.print_exc()
 			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get RGBDProxy property.'
+		status = 1
 
+
+	# Remote object connection for OmniRobot
+	try:
+		proxyString = ic.getProperties().getProperty('OmniRobotProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			omnirobot_proxy = OmniRobotPrx.checkedCast(basePrx)
+			mprx["OmniRobotProxy"] = omnirobot_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (OmniRobot)', proxyString
+			mprx["OmniRobotProxy"] = None
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get OmniRobotProxy property.'
+		status = 1
+
+
+	# Remote object connection for Speech
+	try:
+		proxyString = ic.getProperties().getProperty('SpeechProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			speech_proxy = SpeechPrx.checkedCast(basePrx)
+			mprx["SpeechProxy"] = speech_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (Speech)', proxyString
+			mprx["SpeechProxy"] = None
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get SpeechProxy property.'
+		status = 1
+
+
+	# Remote object connection for TrajectoryRobot2D
+	try:
+		proxyString = ic.getProperties().getProperty('TrajectoryRobot2DProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			trajectoryrobot2d_proxy = TrajectoryRobot2DPrx.checkedCast(basePrx)
+			mprx["TrajectoryRobot2DProxy"] = trajectoryrobot2d_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (TrajectoryRobot2D)', proxyString
+			mprx["TrajectoryRobot2DProxy"] = None
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get TrajectoryRobot2DProxy property.'
+		status = 1
+
+	worker = SpecificWorker(mprx)
+	worker.setParams(parameters)
+	
+	if mprx["OmniRobotProxy"] == None:
+		worker.ui.tabWidget.setTabText(0, worker.ui.tabWidget.tabText(0)+" (OFF)")
+	if mprx["TrajectoryRobot2DProxy"] == None:
+		worker.ui.tabWidget.setTabText(1, worker.ui.tabWidget.tabText(1)+" (OFF)")
+	if mprx["SpeechProxy"] == None:
+		worker.ui.tabWidget.setTabText(2, worker.ui.tabWidget.tabText(2)+" (OFF)")
+	if mprx["JointMotorProxy"] == None:
+		worker.ui.tabWidget.setTabText(3, worker.ui.tabWidget.tabText(3)+" (OFF)")
+	if mprx["LaserProxy"] == None:
+		worker.ui.tabWidget.setTabText(4, worker.ui.tabWidget.tabText(4)+" (OFF)")
+	if mprx["RGBDProxy"] == None:
+		worker.ui.tabWidget.setTabText(5, worker.ui.tabWidget.tabText(5)+" (OFF)")
+
+	adapter = ic.createObjectAdapter('CommonBehavior')
+	adapter.add(CommonBehaviorI(worker, ic), ic.stringToIdentity('commonbehavior'))
+	adapter.activate()
+
+
+	ASRPublish_adapter = ic.createObjectAdapter("ASRPublishTopic")
+	asrpublishI_ = ASRPublishI(worker)
+	asrpublish_proxy = ASRPublish_adapter.addWithUUID(asrpublishI_).ice_oneway()
+
+	subscribeDone = False
+	try:
+		asrpublish_topic = topicManager.retrieve("ASRPublish")
+		subscribeDone = True
+	except Ice.Exception, e:
+		asrpublish_topic = None
+		print "Error. Topic does not exist (yet)"
+		status = 0
+	qos = {}
+	try:
+		asrpublish_topic.subscribeAndGetPublisher(qos, asrpublish_proxy)
+		ASRPublish_adapter.activate()
 	except:
-			traceback.print_exc()
-			status = 1
+		pass
 
-
-	if status == 0:
-		worker = SpecificWorker(mprx)
-
-
-		adapter = ic.createObjectAdapter('CommonBehavior')
-		adapter.add(CommonBehaviorI(worker, ic), ic.stringToIdentity('commonbehavior'))
-		adapter.activate()
-
-
-#		adapter.add(CommonBehaviorI(<LOWER>I, ic), ic.stringToIdentity('commonbehavior'))
-
-		app.exec_()
+	signal.signal(signal.SIGINT, signal.SIG_DFL)
+	app.exec_()
 
 	if ic:
 		try:
