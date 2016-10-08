@@ -220,10 +220,67 @@ class MyShellyThread(QtCore.QThread):
 		print 'TODO resetNUC4'
 
 
+class RGBDDraw(QtGui.QGraphicsScene):
+	def __init__(self, parent, main):
+		super(RGBDDraw, self).__init__(parent)
+		self.main = main
+
+	def work(self):
+		if (len(self.main.rgbd_color) == 3*640*480) and (len(self.main.rgbd_depth) == 640*480):
+			width = 640
+			height = 480
+		elif (len(self.main.rgbd_color) == 3*320*240) and (len(self.main.rgbd_depth) == 320*240):
+			width = 320
+			height = 240
+			#print "color", len(self.main.rgbd_color), "depth", len(self.main.rgbd_depth)
+		else:
+			print 'we shall not paint!'
+			return
+		
+		self.clear()
+		v = ''
+		m = 0
+		t = 0
+		for i in range(len(self.main.rgbd_depth)):
+			ascii = 0
+			try:
+				ascii = int(128. - (255./self.maxDepth)*self.main.rgbd_depth[i])
+				if ascii > 255: ascii = 255
+				if ascii < 0: ascii = 0
+				#print type(self.depth[i])
+				if fabs(self.main.rgbd_depth[i])>0.00001: print self.main.rgbd_depth[i]
+			except:
+				pass
+			if ascii > 255: ascii = 255
+			if ascii < 0: ascii = 0
+			v += chr(ascii)
+			t = t+1
+			m = m+float(self.main.rgbd_depth[i])
+		#print 'mean', float(m)/t
+		image = QtGui.QImage(self.main.rgbd_color, width, height, QtGui.QImage.Format_RGB888)
+		#image.save("images/image"+str(self.lalala)+'.png')
+		#imageGrey = QImage(v, width, height, QImage.Format_Indexed8)
+		#for i in range(256):
+			#imageGrey.setColor(i, QColor(i,i,i).rgb())
+
+		imageItem = self.addPixmap(QtGui.QPixmap.fromImage(image))
+		#self.main.ui.rgbd_graphicsView.fitInView(self.itemsBoundingRect(), Qt::KeepAspectRatio);
+		#ui->graphicsView->setScene(scene);
+
+		#painter.drawImage(QPointF(self.main.ui.frameRGB.x(), self.ui.frameRGB.y()), image)
+		#painter.drawImage(QPointF(self.main.ui.frame.x(), self.main.ui.frame.y()), imageGrey)
+
 class LaserDraw(QtGui.QGraphicsScene):
 	def __init__(self, parent, main):
 		super(LaserDraw, self).__init__(parent)
 		self.main = main
+
+	def measure2coord(self, measure):
+		const_mul = self.main.ui.laserSpinBox.value()
+		x = math.cos(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.main.ui.laser_graphicsView.width())
+		y = math.sin(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.main.ui.laser_graphicsView.height())
+		return x, y
+
 
 	def work(self):
 		if self.main.ui.tabWidget.currentIndex()==5:
@@ -246,15 +303,15 @@ class LaserDraw(QtGui.QGraphicsScene):
 			#painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
 
 			for point in self.main.laser_data:
-				newCoor = self.main.laser_measure2coord(point)
+				newCoor = self.measure2coord(point)
 				self.addRect(newCoor[0]-1, newCoor[1]-1, 2, 2)
 
-			#for wm in range(10):
-				#w = 1000. * (1.+wm) * self.main.ui.laserSpinBox.value()
-				#painter.drawEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
-			#for wm in range(5):
-				#w = 200. * (1.+wm) * self.main.ui.laserSpinBox.value()
-				#painter.drawEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
+			for wm in range(10):
+				w = 1000. * (1.+wm) * self.main.ui.laserSpinBox.value()
+				self.addEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
+			for wm in range(5):
+				w = 200. * (1.+wm) * self.main.ui.laserSpinBox.value()
+				self.addEllipse(QtCore.QRectF(0.5*ww-w/2., 0.5*wh-w/2., w, w))
 			#painter.end()
 			#painter = None
 
@@ -338,7 +395,7 @@ class SpecificWorker(GenericWorker):
 	def __init__(self, proxy_map):
 		super(SpecificWorker, self).__init__(proxy_map)
 		self.timer.timeout.connect(self.compute)
-		self.Period = 2000
+		self.Period = 1000
 		self.timer.start(self.Period)
 		
 		self.ui.navigationButton.clicked.connect(self.goNavigation)
@@ -352,7 +409,11 @@ class SpecificWorker(GenericWorker):
 		self.laserDrawer = LaserDraw(self.ui.laser_graphicsView, self)
 		self.ui.laser_graphicsView.setScene(self.laserDrawer)
 
-		self.vaca = self.ui.graphicsViewJoyStick.setScene(self.sceneJoyStick)
+
+		self.rgbdDrawer = RGBDDraw(self.ui.rgbd_graphicsView, self)
+		self.ui.rgbd_graphicsView.setScene(self.rgbdDrawer)
+
+		self.ui.graphicsViewJoyStick.setScene(self.sceneJoyStick)
 		self.sceneJoyStick.update()
 		
 		# variables for work with ssh
@@ -389,14 +450,18 @@ class SpecificWorker(GenericWorker):
 
 
 	def initializeMotors(self):
-		self.joint_motors = self.jointmotor_proxy.getAllMotorParams()
-		print 'Motors: ',
-		for item in self.joint_motors:
-			print item.name
-			self.ui.jointCombo.addItem(item.name)
-		if len(self.joint_motors) == 0:
-			print 'JointMotor: Error: No motors.'
-		self.states = self.jointmotor_proxy.getAllMotorState()
+		try:
+			self.joint_motors = self.jointmotor_proxy.getAllMotorParams()
+			print 'Motors: ',
+			for item in self.joint_motors:
+				print item.name
+				self.ui.jointCombo.addItem(item.name)
+			if len(self.joint_motors) == 0:
+				print 'JointMotor: Error: No motors.'
+			self.states = self.jointmotor_proxy.getAllMotorState()
+		except:
+			self.ui.tabWidget.setTabText(3, self.ui.tabWidget.tabText(3)+" (error)")
+
 
 
 
@@ -436,38 +501,47 @@ class SpecificWorker(GenericWorker):
 		if self.ui.tabWidget.currentIndex() != 5:
 			return;
 
-		#try:
-		self.laser_data, basura = self.laser_proxy.getLaserAndBStateData()
-		print '-----'
-		m = -1
-		M = -1
-		for d in self.laser_data:
-			if m == -1 or d.dist < m:
-				m = d.dist
-			if M == -1 or d.dist > M:
-				M = d.dist
-		print len(self.laser_data), ' from', m, 'to', M
-		
-		self.laserDrawer.update()
-		#except:
-			#print 'No laser connection.'
-		self.laserDrawer.work()
-
-	def laser_measure2coord(self, measure):
-		const_mul = self.ui.laserSpinBox.value()
-		x = math.cos(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.width())
-		y = math.sin(measure.angle-0.5*math.pi)*measure.dist*const_mul+(0.5*self.height())
-		return x, y
+		try:
+			self.laser_data, basura = self.laser_proxy.getLaserAndBStateData()
+			print '-----'
+			m = -1
+			M = -1
+			for d in self.laser_data:
+				if m == -1 or d.dist < m:
+					m = d.dist
+				if M == -1 or d.dist > M:
+					M = d.dist
+			print len(self.laser_data), ' from', m, 'to', M
+			self.laserDrawer.work()
+			self.laserDrawer.update()
+		except:
+			print 'No laser connection.'
 
 	
 	
 	def computeRGBD(self):
 		if self.ui.tabWidget.currentIndex() != 6:
 			return;
+	
+		err = False
+		#try:
+		self.rgbd_color, self.rgbd_depth, self.rgbd_headState, self.rgbd_baseState = self.rgbd_proxy.getData()
+		if (len(self.rgbd_color) == 0) or (len(self.rgbd_depth) == 0):
+			print 'a'
+			err = True
+		else:
+			self.rgbdDrawer.work()
+			self.rgbdDrawer.update()
+		#except:
+			#print 'b'
+			#err = True
 
+		if err:
+			print 'Error retrieving images!'
 
 	def paintEvent(self, event=None):
 		self.laserDrawer.update()
+		self.rgbdDrawer.update()
 
 
 	#

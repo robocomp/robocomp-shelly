@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>650</width>
-    <height>660</height>
+    <width>825</width>
+    <height>613</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -22,7 +22,7 @@
      <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
-        <number>0</number>
+        <number>6</number>
        </property>
        <widget class="QWidget" name="systemTab">
         <attribute name="title">
@@ -846,6 +846,18 @@ angle</string>
         <attribute name="title">
          <string>RGBD</string>
         </attribute>
+        <layout class="QVBoxLayout" name="verticalLayout_17">
+         <item>
+          <widget class="QGraphicsView" name="rgbd_graphicsView">
+           <property name="minimumSize">
+            <size>
+             <width>650</width>
+             <height>480</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </widget>
      </item>
