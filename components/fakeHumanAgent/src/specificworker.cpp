@@ -73,10 +73,31 @@ void SpecificWorker::includeInRCIS()
 void SpecificWorker::includeInAGM()
 {
 	printf("includeInAGM\n");
+
+	int idx=0;
+	while ((personSymbolId = worldModel->getIdentifierByType("person", idx++)) != -1)
+	{
+		printf("%d %d\n", idx, personSymbolId);
+		if (idx > 4) exit(0);
+		if (worldModel->getSymbolByIdentifier(personSymbolId)->getAttribute("imName") == "fakeperson")
+		{
+			printf("found %d!!\n", personSymbolId);
+			break;
+		}
+	}
+	if (personSymbolId != -1)
+	{
+		printf("Fake person already in the AGM model\n");
+		return;
+	}
+
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
 	// Symbolic part
 	AGMModelSymbol::SPtr person =   newModel->newSymbol("person");
+	personSymbolId = person->identifier;
+	person->setAttribute("imName", "fakeperson");
+	person->setAttribute("imType", "transform");
 	AGMModelSymbol::SPtr personSt = newModel->newSymbol("personSt");
 	printf("person %d status %d\n", person->identifier, personSt->identifier);
 
@@ -100,7 +121,7 @@ void SpecificWorker::includeInAGM()
 	AGMModelSymbol::SPtr personMesh = newModel->newSymbol("mesh");
 	printf("personMesh %d\n", personMesh->identifier);
 	personMesh->setAttribute("collidable", "false");
-	personMesh->setAttribute("imName", "fakeperson");
+	personMesh->setAttribute("imName", "fakepersonMesh");
 	personMesh->setAttribute("imType", "mesh");
 	personMesh->setAttribute("path", "/home/robocomp/robocomp/files/osgModels/Gualzru/Gualzru.osg");
 	personMesh->setAttribute("render", "NormalRendering");
@@ -144,6 +165,8 @@ void SpecificWorker::includeInAGM()
 
 void SpecificWorker::receivedJoyStickEvent(int value, int type, int number)
 {
+	printf("*\n");
+	fflush(stdout);
 	if (type != 2)
 		return;
 	
@@ -152,12 +175,13 @@ void SpecificWorker::receivedJoyStickEvent(int value, int type, int number)
 		humanRotVel = float(value)/32767.*1.;
 		lastJoystickEvent = QTime::currentTime();
 	}
-	
 	if (number == 1)
 	{
 		humanAdvVel = float(-value)/32767.*600.;
 		lastJoystickEvent = QTime::currentTime();
 	}
+	printf("*");
+	fflush(stdout);
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -189,7 +213,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	joystick->start();
 	printf("Connecting joystick...\n");
 	connect(joystick, SIGNAL(inputEvent(int, int, int)), this, SLOT(receivedJoyStickEvent(int, int, int)));
-
+ 
 
 	timer.start(Period);
 	return true;
@@ -200,6 +224,7 @@ void SpecificWorker::compute()
 	QMutexLocker locker(mutex);
 	static QTime lastCompute = QTime::currentTime();
 
+	
 	if (lastJoystickEvent.elapsed()  < 3000)
 	{
 		printf("vel: %f %f\n", humanAdvVel, humanRotVel);
@@ -220,22 +245,28 @@ void SpecificWorker::compute()
 		pose.ry = humanRot;
 		pose.rz = 0;
 		innermodelmanager_proxy->setPoseFromParent("fakeperson", pose);
-		lastCompute = QTime::currentTime();
 
 
-		AGMModelSymbol::SPtr personParent = newModel->getParentByLink(personSymbolId, "RT");
-		AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(personParent->identifier, personSymbolId, "RT");
-		std::map<std::string, std::string> edgeRTAtrs;
-		edgeRTAtrs["tx"] = coordInBase.x;
-		edgeRTAtrs["ty"] = coordInBase.y;
-		edgeRTAtrs["tz"] = coordInBase.z;
-		edgeRTAtrs["rx"] = coordInBase.rx;
-		edgeRTAtrs["ry"] = coordInBase.ry;
-		edgeRTAtrs["rz"] = coordInBase.rz;
+
+		AGMModelSymbol::SPtr personParent = worldModel->getParentByLink(personSymbolId, "RT");
+		AGMModelEdge &edgeRT  = worldModel->getEdgeByIdentifiers(personParent->identifier, personSymbolId, "RT");
+		edgeRT.attributes["tx"] = float2str(coordInBase.x);
+		edgeRT.attributes["ty"] = float2str(coordInBase.y);
+		edgeRT.attributes["tz"] = float2str(coordInBase.z);
+		edgeRT.attributes["rx"] = "0";
+		edgeRT.attributes["ry"] = float2str(humanRot);
+		edgeRT.attributes["rz"] = "0";
+		printf("%d----[%f]--->%d\n", personParent->identifier, coordInBase.z, personSymbolId);
 		AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
-
+	}
+	else
+	{
+		printf(".");
+		fflush(stdout);
 	}
 
+	
+	lastCompute = QTime::currentTime();
 }
 
 
@@ -312,40 +343,34 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
 	mutex->unlock();
 }
 
-void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification)
+void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
 {
-	QMutexLocker locker(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	QMutexLocker lockIM(mutex);
+	for (auto modification : modifications)
+	{
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
+		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
+	}
 }
 
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 }
 
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
 }
 
-void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
+void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
 {
-	QMutexLocker locker(mutex);
-	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel);
+	QMutexLocker l(mutex);
+	for (auto modification : modifications)
+		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 }
 
 
@@ -379,7 +404,7 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	}
 	catch (...)
 	{
-		printf("exception in setParametersAndPossibleActivation %d\n", __LINE__);
+		printf("exception in setParametersAndPossibleActivation\n");
 		return false;
 	}
 
