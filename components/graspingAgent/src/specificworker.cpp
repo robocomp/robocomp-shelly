@@ -518,7 +518,6 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modificati
 void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications)
 {
 	QMutexLocker l(mutex);
-
 	for (auto modification : modifications)
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 }
@@ -529,8 +528,6 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 	for (auto modification : modifications)
 	{
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
-// 		AGMModelEdge dst;
-// 		AGMModelConverter::fromIceToInternal(modification,dst);
 		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 	}
 }

@@ -218,8 +218,8 @@
 
  <node alias="laser" endpoint="laser:tcp -h 10.0.30.33 -p 10003">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.33 lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyoComp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/laser.conf" />
-  <downCommand command="rcremote 10.0.30.33 X / killall -9 hokuyoComp" />
+  <upCommand command="rcremote 10.0.30.33 lsr /home/robocomp/robocomp/components/robocomp-robolab/components/hokuyoComp/ ./bin/hokuyo --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/laser.conf" />
+  <downCommand command="rcremote 10.0.30.33 X / killall -9 hokuyo" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/laser.conf" />
   <xpos value="-36.5214448673" />
   <ypos value="226.660948838" />
