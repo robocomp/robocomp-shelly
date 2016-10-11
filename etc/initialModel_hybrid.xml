@@ -1727,7 +1727,7 @@
 <link src="52" dst="3" label="in"/>
 <link src="52" dst="53" label="noReach"/>
 <link src="52" dst="53" label="hasStatus"/>
-<link src="100" dst="1" label="RT">
+<link src="3" dst="1" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
@@ -2717,15 +2717,15 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="1388" />
-	<linkAttribute key="tz" value="55" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="205" dst="206" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="17" />
-	<linkAttribute key="tz" value="40" />
+	<linkAttribute key="ty" value="-98" />
+	<linkAttribute key="tz" value="65" />
 </link>
 <link src="206" dst="207" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -2749,7 +2749,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="134" />
+	<linkAttribute key="tz" value="120" />
 </link>
 <link src="209" dst="210" label="RT">
 	<linkAttribute key="rx" value="0" />

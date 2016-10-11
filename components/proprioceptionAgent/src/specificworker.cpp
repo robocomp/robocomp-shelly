@@ -182,7 +182,7 @@ bool SpecificWorker::isInRestPosition(const RoboCompJointMotor::MotorStateMap &m
 			printf("armY noRest %f\n", float(mMap.at("armY").pos));
 			return false;
 		}
-		if (fabs(mMap.at("armX1").pos-(-1.0))>0.08)
+		if (fabs(mMap.at("armX1").pos-(-1.34))>0.08)
 		{
 			printf("armX1 noRest %f\n", float(mMap.at("armX1").pos));
 			return false;
