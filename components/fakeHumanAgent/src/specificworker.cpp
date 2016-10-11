@@ -23,7 +23,6 @@
 */
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
-
 	active = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
@@ -43,6 +42,8 @@ SpecificWorker::~SpecificWorker()
 
 void SpecificWorker::includeInRCIS()
 {
+	printf("includeInRCIS begins\n");
+
 	try
 	{
 
@@ -68,11 +69,12 @@ void SpecificWorker::includeInRCIS()
 		printf("Can't create fake peson\n");
 	}
 
+	printf("includeInRCIS ends\n");
 }
 
 void SpecificWorker::includeInAGM()
 {
-	printf("includeInAGM\n");
+	printf("includeInAGM begins\n");
 
 	int idx=0;
 	while ((personSymbolId = worldModel->getIdentifierByType("person", idx++)) != -1)
@@ -96,12 +98,14 @@ void SpecificWorker::includeInAGM()
 	// Symbolic part
 	AGMModelSymbol::SPtr person =   newModel->newSymbol("person");
 	personSymbolId = person->identifier;
+	printf("Got personSymbolId: %d\n", personSymbolId);
 	person->setAttribute("imName", "fakeperson");
 	person->setAttribute("imType", "transform");
 	AGMModelSymbol::SPtr personSt = newModel->newSymbol("personSt");
 	printf("person %d status %d\n", person->identifier, personSt->identifier);
 
 	newModel->addEdge(person, personSt, "hasStatus");
+	newModel->addEdge(person, personSt, "noReach");
 	newModel->addEdge(person, personSt, "person");
 	
 	newModel->addEdgeByIdentifiers(person->identifier, 3, "in");
@@ -159,6 +163,8 @@ void SpecificWorker::includeInAGM()
 		}
 		sleep(1);
 	}
+
+	printf("includeInAGM ends\n");
 }
 
 
@@ -224,7 +230,6 @@ void SpecificWorker::compute()
 	QMutexLocker locker(mutex);
 	static QTime lastCompute = QTime::currentTime();
 
-	
 	if (lastJoystickEvent.elapsed()  < 3000)
 	{
 		printf("vel: %f %f\n", humanAdvVel, humanRotVel);
@@ -345,7 +350,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
 
 void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
 {
-	QMutexLocker lockIM(mutex);
+	QMutexLocker locker(mutex);
 	for (auto modification : modifications)
 	{
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
@@ -377,6 +382,7 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
 {
+	QMutexLocker l(mutex);
 	printf("<<< setParametersAndPossibleActivation\n");
 	// We didn't reactivate the component
 	reactivated = false;
@@ -419,6 +425,7 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 
 	return true;
 }
+
 void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
 {
 	try

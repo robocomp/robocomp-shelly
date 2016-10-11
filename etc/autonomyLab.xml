@@ -27,9 +27,11 @@
 		
 		<transform id="room_3">
 			<!-- PERSON -->
+<!--
 			<transform id="person" tx="3000" tz="150" ty="2000" >
 				<plane id="person_mesh" nx="1" size="300,300,300"  texture="#884444" />
 			</transform>
+-->
 
 			<!-- ROOM A -->
 			<transform id="pared0" tx="-91.899048" tz="2066.808899" ty="950" >

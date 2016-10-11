@@ -274,21 +274,6 @@
 	<link src="52" dst="53" label="hasStatus" />
 	
 	
-	<symbol id="55" type="person" >
-		<attribute key="imType" value="transform" />
-		<attribute key="imName" value="person" />
-	</symbol>
-	<link src="55" dst="3" label="in" />
-	
-	<symbol id="56" type="personSt" >
-	</symbol>
-	
-	<link src="55" dst="56" label="hasStatus" >
-	</link>
-	<link src="55" dst="56" label="noReach" >
-	</link>
-
-
 	<link src="100" dst="1" label="RT" >
 		<linkAttribute key="x" value="0" />
 		<linkAttribute key="y" value="0" />
