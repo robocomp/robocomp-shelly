@@ -212,18 +212,19 @@ void SpecificWorker::manageReachedObjects()
 // 			printf("%d distance %f\n", node->identifier, d2n);
 // // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
 // // // // // // 			innerModel->transformS("robot", "armX1").print("armX1 in r");
-// // // // // // 			innerModel->transformS("robot", "armX2").print("armX2 in r");
+// // // // // 			innerModel->transformS("robot", "armX2").print("armX2 in r");
 // // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
-// // // // // //                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
-// // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
-// 			innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
-// 			innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
-			/*QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 			if (node->identifier == 50)
 			{
+	                         innerModel->transformS("robot", "rgbd").print("RGBD in r");
+	                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
+// // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
+ 				innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
+ 				innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
+				QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 				oinp(1) = 0;
 				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
-			}*/
+			}
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
@@ -1265,20 +1266,20 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			// Get object's relative position from the robot's perspective
 			QVec poseRRobot = innerModel->transformS("robot", goalObject->getAttribute("imName"));
 			float angleRRobot = atan2(poseRRobot.x(), poseRRobot.z());
-			printf("angulo relativa robot %f\n", angleRRobot);
+//			printf("angulo relativa robot %f\n", angleRRobot);
 			// Get object's relative position from the yaw's perspective
 			QVec poseRYaw = innerModel->transformS("head_yaw_joint", goalObject->getAttribute("imName"));
 // 			poseRYaw.print("relativo al yaw");
 			float angleRYaw = atan2(poseRYaw.x(), poseRYaw.z());
-			printf("angulo relativa a la camara %f\n", angleRYaw);
+//			printf("angulo relativa a la camara %f\n", angleRYaw);
 			// Compute current head's yaw
 			float currentYaw = angleRRobot - angleRYaw;
-			printf("current yaw: %f\n", currentYaw);
+//			printf("current yaw: %f\n", currentYaw);
 			float angle = 0.5*angleRRobot + 0.5*currentYaw;
-			printf("%f -> ", angle);
+//			printf("%f -> ", angle);
 			if (fabs(angle-currentYaw) > 10.*M_PI/180.)
 			{
-				printf(" ** ");
+//				printf(" ** ");
 				if (angle>currentYaw)
 					angle = currentYaw + 10.*M_PI/180.;
 				else
@@ -1291,7 +1292,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 
 			// In the meantime we just move the head downwards:
 			inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
-			printf("Mandamos angulo %f\n", angle);
+//			printf("Mandamos angulo %f\n", angle);
 			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 1.5);
 // // // // // // // 			saccadic3D(QVec::vec3(x,y,z), QVec::vec3(0,0,1));
 		}

@@ -274,7 +274,7 @@
 	<link src="52" dst="53" label="hasStatus" />
 	
 	
-	<link src="100" dst="1" label="RT" >
+	<link src="3" dst="1" label="RT" >
 		<linkAttribute key="x" value="0" />
 		<linkAttribute key="y" value="0" />
 		<linkAttribute key="z" value="0" />

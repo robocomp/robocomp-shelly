@@ -22,7 +22,7 @@
 		<mesh id="barrahombro" file="/home/robocomp/robocomp/files/osgModels/robexarm/barrahombro.3ds"   tx="-150" ty="1180"  tz="30"          ry="-1.5707963267949" scale="1000" collide="1" />
 		<mesh id="barracolumna" file="/home/robocomp/robocomp/files/osgModels/basics/cube.3ds"           tx="0"    ty="700" tz="15"                          scale="40,500,30"  collide="1" />
 
-		<transform id="base_bodypost" ty="1388" tz="55" >
+		<transform id="base_bodypost" ty="1388" tz="0" >
 			<include path="/home/robocomp/robocomp/components/robocomp-shelly/etc/shelly_head.xml"/>
 		</transform>
 
