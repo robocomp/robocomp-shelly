@@ -253,7 +253,7 @@ if __name__ == '__main__':
 		subscribeDone = True
 	except Ice.Exception, e:
 		asrpublish_topic = None
-		print "Error. Topic does not exist (yet)"
+		print "Error. ASRPublish Topic does not exist (yet)"
 		status = 0
 	qos = {}
 	try:

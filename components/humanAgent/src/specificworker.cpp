@@ -1457,10 +1457,10 @@ void SpecificWorker::updateHumanInnerFull()
 		
 		int personID = newSymbolPerson->identifier;
 
-		newSymbolPerson->setAttribute("TrackingId",int2str(idSingle));
+		newSymbolPerson->setAttribute("TrackingId",int2str((*personList.begin()).second.TrackingId));
 		newSymbolPerson->setAttribute("imName", "person");
 		newSymbolPerson->setAttribute("imType", "transform");
-		std::cout<<" añado un nuevo symbolo persona "<<newSymbolPerson->toString()<<" TrackingID "<<idSingle<<"\n";
+		std::cout<<" añado un nuevo symbolo persona "<<newSymbolPerson->toString()<<" TrackingID "<<int2str((*personList.begin()).second.TrackingId)<<"\n";
 		
 		//state está en personList
 		try
@@ -1506,6 +1506,28 @@ void SpecificWorker::updateHumanInnerFull()
 		{
 			InnerModel* imTmp = innerModelMap.at(idSingle);		
 			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
+			AGMModelSymbol::SPtr newSymbolPerson = worldModel->getSymbol(symbolPersonID);
+			//state está en personList
+			try
+			{
+				newSymbolPerson->setAttribute("TrackingId",int2str((*personList.begin()).second.TrackingId));
+				int state = (*personList.begin()).second.trackedState;
+				newSymbolPerson->setAttribute("State",int2str(state));
+				try
+				{
+					AGMMisc::publishNodeUpdate(newSymbolPerson, agmexecutive_proxy);
+				}
+				catch (...)
+				{
+					printf("Exception: Executive not running?\n");
+				}
+			}
+
+			catch (const std::out_of_range& oor)
+			{
+				qDebug()<<"PersonList at exception";
+				std::cerr << "Out of Range error: " << oor.what() << '\n';
+			}
 		}
 		catch (const std::out_of_range& oor)
 		{	

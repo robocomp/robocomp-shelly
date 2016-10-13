@@ -62,7 +62,19 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/navigationAgent.conf" />
   <xpos value="-77.9789855056" />
   <ypos value="-73.5106363282" />
-  <radius value="13.0" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+
+ <node alias="humanFakeA" endpoint="agmcommonbehavior:tcp -h localhost -p 10210">
+  <dependence alias="executive" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost humanFakeA /home/robocomp/robocomp/components/robocomp-shelly/components/fakeHumanAgent ./bin/fakeHumanAgent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/humanFake.conf" />
+  <downCommand command="killall -9 fakeHumanAgent" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/humanFake.conf" />
+  <xpos value="-77.9789855056" />
+  <ypos value="-73.5106363282" />
+  <radius value="10.0" />
   <color value="#33FF33" />
  </node>
 

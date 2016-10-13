@@ -71,6 +71,7 @@ class MyShellyThread(QtCore.QThread):
 		# variables for work with ssh
 		self.ssh = None
 		self.transport = None
+		self.loadSignal = QtCore.SIGNAL('load(string, int)')
 
 	def run(self):
 		reloj = QtCore.QTime.currentTime()
@@ -95,7 +96,7 @@ class MyShellyThread(QtCore.QThread):
 			self.ssh_connect(hostname, "robolab", hosts[hostname])
 			output=self.runcmd('top -bn '+str(maxAttemp)+' -d 0.01 | grep \'%Cpu(s)\' | gawk \'{print $2+$4+$6}\'')
 			#if output:
-			if not "ERROR" in output:
+			if not "ERROR" in output and not "found" in output:
 				output = output.split('\n')
 				aux = 0
 				cont = 0
@@ -106,11 +107,12 @@ class MyShellyThread(QtCore.QThread):
 				aux = aux / maxAttemp
 				global loadN1, loadN2
 				if i == 1:
-					self.ui.load1.setText(aux)
+#					self.loadSignal.emit("nuc1", aux)
+					self.parent.ui.load1.setText(aux)
 				elif i == 2:
-					self.ui.load2.setText(aux)
+					self.parent.ui.load2.setText(aux)
 				elif i == 3:
-					self.ui.load3.setText(aux)
+					self.parent.ui.load3.setText(aux)
 			else:
 				print 'ERROR with: '+str(hostname)				
 				loadN1 = loadN2 = "ERROR"
@@ -421,7 +423,7 @@ class SpecificWorker(GenericWorker):
 		#self.transport = None
 		#self.hosts = dict()
 		
-		self.thread = MyShellyThread()
+		self.thread = MyShellyThread(self)
 		#workerThread = new WorkerThread(this);
 		self.thread.start();
 		try:
