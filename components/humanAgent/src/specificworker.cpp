@@ -236,7 +236,7 @@ void SpecificWorker::compute()
 	//single
 	TPerson p =(*personList.begin()).second;
 	float zTorso = p.joints[dictionaryEnum["Spine"]].Position.Z;
-	qDebug()<<"ZZZZZZZZZZ"<<zTorso;
+//	qDebug()<<"ZZZZZZZZZZ"<<zTorso;
 	
 	if (zTorso < 1.5 or zTorso > 5.0)
 	{
@@ -277,7 +277,7 @@ void SpecificWorker::compute()
 
 
 
-
+/*
 void SpecificWorker::updatePeopleInnerFullB()
 {
 	QMutexLocker m (mutex);
@@ -546,7 +546,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 			//qFatal("fary");
 	}
 }
-
+*/
 
 
 string SpecificWorker::getColorName(HsvColor hsv)
@@ -923,7 +923,7 @@ void SpecificWorker::initDictionary()
 	
 	v.print("v");
 	v(0)*=fScale;v(1)*=fScale;v(2)*=fScale;
-	QVec ff = innerModelAGM->transform6D("room_3",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
+	QVec ff = innerModelAGM->transform6D("world",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
 	
 	ff.print("ff");
 	innerModelMap[ idPerson ]->updateTransformValues( torsoName,ff(0),ff(1),ff(2),ff(3),ff(4),ff(5) );
@@ -1414,23 +1414,36 @@ void SpecificWorker::updateHumanInnerFull()
 	}
 	bool modification = false;
 
-	///Human hangs on room symbol
-	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room_3");
+	if (personList.empty() )
+		return;
+	
+
+	// get room symbol
+	QString torsoName= QString::fromStdString(int2str(idSingle)) +"XN_SKEL_TORSO";
+	QVec v = innerModelMap[ idSingle ]->getTransform(torsoName)->getTr();
+	QString roomString = "room_3";
+	if (v(2) < 0)
+	{
+		roomString = "room_5";
+	} 	
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,roomString);
 	if (roomID < 0)
 	{
-		printf("ROOOM symbol not found, \n");
+		printf("ROOM: %s symbol not found, \n", roomString.toStdString().c_str());
 		qFatal("abort");
 		return;
 	}
 	
-	if (personList.empty() )
-		return;
-	
-	const AGMModelSymbol::SPtr &symbol = worldModel->getSymbol(roomID);
-	
 	//encontrar a la persona
-	int symbolPersonID=worldModel->getIdentifierByType("person");
-	
+	int symbolPersonID = -1;
+	try
+	{
+		symbolPersonID = worldModel->getIdentifierByType("person");
+	}
+	catch (...)
+	{
+		qDebug()<<"Unable to get symbolPersonID";
+	}
 // 	//borrar
 // 	qDebug()<<__FUNCTION__<<__LINE__<<"symbolID"<<symbolID<<"personList.empty()"<<personList.empty();	
 // 	if (personList.empty() and symbolID!=-1)
@@ -1502,6 +1515,42 @@ void SpecificWorker::updateHumanInnerFull()
 		
 		//update
 		qDebug()<<"Update Human in AGM model";
+		// Change room if needed
+		int32_t prevRoomID = -1;
+		try
+		{
+			// check if human has changed room
+			for (auto edge = worldModel->getSymbol(symbolPersonID)->edgesBegin(worldModel); edge != worldModel->getSymbol(roomID)->edgesEnd(worldModel); edge++)
+			{
+				if (edge->getLabel() == "in")
+				{
+					prevRoomID = worldModel->getSymbol(edge->getSymbolPair().second)->identifier;
+					printf("Previous room: %i\n", prevRoomID);
+					break;
+				}
+			}
+		}
+		catch(...)
+		{
+			printf("Error getting previous roomID\n");
+		}
+
+		if(prevRoomID != -1 and prevRoomID != roomID)
+		{
+			qDebug()<<"Human change room, previous: "<<prevRoomID<<"actual room"<<roomID;
+			try
+			{
+				worldModel->removeEdgeByIdentifiers(prevRoomID,symbolPersonID,"RT");	
+				worldModel->removeEdgeByIdentifiers(symbolPersonID,prevRoomID,"in");	
+				worldModel->addEdgeByIdentifiers(roomID,symbolPersonID,"RT");
+				worldModel->addEdgeByIdentifiers(symbolPersonID,roomID,"in");
+				modification =true;
+			}
+			catch (AGMModelException ex)
+			{	
+				qDebug()<<__FILE__<<__LINE__<<"Exception: "<<ex.what();
+			}
+		}
 		try
 		{
 			InnerModel* imTmp = innerModelMap.at(idSingle);		
