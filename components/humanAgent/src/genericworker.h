@@ -34,7 +34,7 @@
 #include <AGMWorldModel.h>
 
 #include <agm.h>
-
+#include <agm_modelException.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
