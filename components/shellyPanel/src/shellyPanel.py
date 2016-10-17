@@ -222,6 +222,41 @@ if __name__ == '__main__':
 		print 'Cannot get TrajectoryRobot2DProxy property.'
 		status = 1
 
+	## CommonBehavior interfaces 
+	# Remote object connection for April
+	try:
+		proxyString = ic.getProperties().getProperty('AprilCommonProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			april_common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
+			mprx["AprilCommonProxy"] = april_common_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (AprilCommonProxy)', proxyString
+			mprx["AprilCommonProxy"] = None
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get AprilCommonProxy property.'
+		status = 1
+
+	# Remote object connection for ObjectAgent
+	try:
+		proxyString = ic.getProperties().getProperty('ObjectAgentCommonProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			object_agent_common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
+			mprx["ObjectAgentCommonProxy"] = object_agent_common_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (ObjectAgentCommonProxy)', proxyString
+			mprx["ObjectAgentCommonProxy"] = None
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get ObjectAgentCommonProxy property.'
+		status = 1
+
 	worker = SpecificWorker(mprx)
 	worker.setParams(parameters)
 	

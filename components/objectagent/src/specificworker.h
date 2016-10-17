@@ -38,7 +38,8 @@ public:
 	StateStruct getAgentState();
 	ParameterMap getAgentParameters();
 	bool setAgentParameters(const ParameterMap &prs);
-
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
+	
 	void structuralChange(const RoboCompAGMWorldModel::World &modification);
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
 	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
@@ -72,6 +73,8 @@ private:
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;
 };
 
 #endif
