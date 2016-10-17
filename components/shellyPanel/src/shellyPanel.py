@@ -223,39 +223,24 @@ if __name__ == '__main__':
 		status = 1
 
 	## CommonBehavior interfaces 
-	# Remote object connection for April
-	try:
-		proxyString = ic.getProperties().getProperty('AprilCommonProxy')
+	proxyList = ic.getProperties().getProperty('CommonProxyList').split(',')
+	print proxyList
+	for name in proxyList:
 		try:
-			basePrx = ic.stringToProxy(proxyString)
-			april_common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
-			mprx["AprilCommonProxy"] = april_common_proxy
-		except Ice.Exception:
-			print 'Cannot connect to the remote object (AprilCommonProxy)', proxyString
-			mprx["AprilCommonProxy"] = None
-			#traceback.print_exc()
+			proxyString = ic.getProperties().getProperty(name)
+			try:
+				basePrx = ic.stringToProxy(proxyString)
+				common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
+				mprx[name] = common_proxy
+			except Ice.Exception:
+				print 'Cannot connect to the remote object:',name,proxyString
+				mprx[name] = None
+				#traceback.print_exc()
+				status = 1
+		except Ice.Exception, e:
+			print e
+			print 'Cannot get ',name,' property.'
 			status = 1
-	except Ice.Exception, e:
-		print e
-		print 'Cannot get AprilCommonProxy property.'
-		status = 1
-
-	# Remote object connection for ObjectAgent
-	try:
-		proxyString = ic.getProperties().getProperty('ObjectAgentCommonProxy')
-		try:
-			basePrx = ic.stringToProxy(proxyString)
-			object_agent_common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
-			mprx["ObjectAgentCommonProxy"] = object_agent_common_proxy
-		except Ice.Exception:
-			print 'Cannot connect to the remote object (ObjectAgentCommonProxy)', proxyString
-			mprx["ObjectAgentCommonProxy"] = None
-			#traceback.print_exc()
-			status = 1
-	except Ice.Exception, e:
-		print e
-		print 'Cannot get ObjectAgentCommonProxy property.'
-		status = 1
 
 	worker = SpecificWorker(mprx)
 	worker.setParams(parameters)

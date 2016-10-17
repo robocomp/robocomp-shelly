@@ -452,7 +452,7 @@ class SpecificWorker(GenericWorker):
 		for name, proxy in proxy_map.iteritems():
 			if "Common" in name and proxy:
 				self.commonProxies[name] = proxy
-		print self.commonProxies
+
 		self.frameRateLabels = {}
 		self.initializeMotors()
 

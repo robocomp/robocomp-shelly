@@ -38,7 +38,8 @@ public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
+	
 	bool reloadConfigAgent();
 	bool activateAgent(const ParameterMap &prs);
 	bool setAgentParameters(const ParameterMap &prs);
@@ -78,6 +79,8 @@ private:
 	void includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot);
 	void setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState);
 	bool enoughDifference(const RoboCompOmniRobot::TBaseState &lastState, const RoboCompOmniRobot::TBaseState &newState);
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;	
 };
 
 #endif
