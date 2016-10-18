@@ -78,6 +78,12 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	//Timed slot to read TrajectoryRobot2D state
 	connect(&trajReader, SIGNAL(timeout()), this, SLOT(readTrajState()));
 	//trajReader.start(1000);
+	worker_params_mutex = new QMutex();
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
 }
 
 /**
@@ -96,6 +102,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute( )
 {
+	static QTime reloj = QTime::currentTime();	
 	static bool first=true;
 	if (first)
 	{
@@ -117,6 +124,10 @@ void SpecificWorker::compute( )
 		}
 	}
 	actionExecution();
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 /**
@@ -1287,6 +1298,12 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel
 	{
 		exit(1);
 	}
+}
+
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
 }
 
 

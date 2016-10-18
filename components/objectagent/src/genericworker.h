@@ -101,7 +101,7 @@ public:
 	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
 	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
 	virtual void newAprilTag(const tagsList &tags) = 0;
-
+	virtual RoboCompCommonBehavior::ParameterList getWorkerParams() = 0;
 
 protected:
 	QTimer timer;

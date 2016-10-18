@@ -74,6 +74,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	newApril = false;
 	useCGR = false;
 	useApril = false;
+	
+	worker_params_mutex = new QMutex();
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
 }
 
 /**
@@ -173,6 +180,7 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 
 void SpecificWorker::compute()
 {
+	static QTime reloj = QTime::currentTime();	
 	QMutexLocker l(mutex);
 
 	RoboCompOmniRobot::TBaseState newState;
@@ -240,6 +248,11 @@ void SpecificWorker::compute()
 	}
 
 	odometryAndLocationIssues();
+	
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 // compute difference between actual and last value to determine if it should be sent
@@ -658,4 +671,11 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
+}
+
+
 

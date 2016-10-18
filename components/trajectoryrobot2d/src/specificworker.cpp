@@ -24,6 +24,12 @@ SpecificWorker::SpecificWorker(MapPrx &mprx, QWidget *parent) : GenericWorker(mp
 	tState.setState("IDLE");
 	hide();
 	relojForInputRateControl.start();
+	worker_params_mutex = new QMutex();
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
 }
 
 SpecificWorker::~SpecificWorker()
@@ -168,10 +174,15 @@ void SpecificWorker::compute()
 			break;
 		case CurrentTarget::State::IDLE:
 			timer.setInterval(700);
-			qDebug() << __FUNCTION__ << "Computed period" << reloj.restart()  << "ms. State. Robot at:" << innerModel->transform6D("world", "robot");
+			qDebug() << __FUNCTION__ << "Computed period" << reloj.elapsed()  << "ms. State. Robot at:" << innerModel->transform6D("world", "robot");
 			//currentTarget.setState(CurrentTarget::State::LEARNING);
 			break;
 	}
+	
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////
@@ -889,6 +900,12 @@ bool SpecificWorker::insertObstacle()
 void SpecificWorker::tryingToConnect()
 {
 
+}
+
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
 }
 
 

@@ -222,6 +222,26 @@ if __name__ == '__main__':
 		print 'Cannot get TrajectoryRobot2DProxy property.'
 		status = 1
 
+	## CommonBehavior interfaces 
+	proxyList = ic.getProperties().getProperty('CommonProxyList').split(',')
+	print proxyList
+	for name in proxyList:
+		try:
+			proxyString = ic.getProperties().getProperty(name)
+			try:
+				basePrx = ic.stringToProxy(proxyString)
+				common_proxy = CommonBehaviorPrx.checkedCast(basePrx)
+				mprx[name] = common_proxy
+			except Ice.Exception:
+				print 'Cannot connect to the remote object:',name,proxyString
+				mprx[name] = None
+				#traceback.print_exc()
+				status = 1
+		except Ice.Exception, e:
+			print e
+			print 'Cannot get ',name,' property.'
+			status = 1
+
 	worker = SpecificWorker(mprx)
 	worker.setParams(parameters)
 	
