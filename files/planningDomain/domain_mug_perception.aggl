@@ -1,8 +1,8 @@
 spacePattern=3
 lineThickness=2
 fontName=Arial
-name=domain_basic
-vertexDiameter=40
+name=domain_mug_perception
+vertexDiameter=52
 shortPattern=1
 nodeThickness=2
 fontSize=12
@@ -12,24 +12,24 @@ longPattern=3
 imagineMostLikelyMugInPosition : active(2)
 {
 	{
-		status:status(-5,-305)
-		robot:robot(-5,-160)
-		table:object(-135,-160)
-		tableSt:objectSt(-300,-160)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
 		robot->status(usedOracle)*
 		table->room(in)
 		table->tableSt(table)
 	}
 	=>
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:protoObject(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
 		mug->table(in)
 		robot->status(usedOracle)
 		mug->mugSt(hasStatus)
@@ -46,13 +46,13 @@ imagineMostLikelyMugInPosition : active(2)
 imaginaryMugNotFound : passive(1)
 {
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:protoObject(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
 		mug->table(in)
 		robot->status(usedOracle)
 		mug->mugSt(hasStatus)
@@ -66,11 +66,11 @@ imaginaryMugNotFound : passive(1)
 	}
 	=>
 	{
-		status:status(-5,-305)
-		robot:robot(-5,-160)
-		table:object(-135,-160)
-		tableSt:objectSt(-300,-160)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
 		robot->status(usedOracle)*
 		table->room(in)
 		table->tableSt(table)
@@ -80,13 +80,13 @@ imaginaryMugNotFound : passive(1)
 verifyImaginaryMug : active(1)
 {
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:protoObject(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
 		robot->room(in)
 		table->room(in)
 		table->tableSt(reach)
@@ -99,13 +99,13 @@ verifyImaginaryMug : active(1)
 	}
 	=>
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:object(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:object(0,0)
+		mugSt:objectSt(-220,0)
 		robot->room(in)
 		table->room(in)
 		table->tableSt(reach)
@@ -120,13 +120,13 @@ verifyImaginaryMug : active(1)
 hierarchical hierarchical_verifyImaginaryMug : active(2) activates(verifyImaginaryMug)
 {
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:protoObject(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
 		mug->table(in)
 		robot->status(usedOracle)
 		mug->room(in)
@@ -137,13 +137,13 @@ hierarchical hierarchical_verifyImaginaryMug : active(2) activates(verifyImagina
 	}
 	=>
 	{
-		status:status(-90,-240)
-		robot:robot(-90,-115)
-		mug:object(-335,-225)
-		mugSt:objectSt(-335,-400)
-		table:object(-335,-115)
-		tableSt:objectSt(-460,-115)
-		room:room(-130,0)
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:object(0,0)
+		mugSt:objectSt(-220,0)
 		robot->room(in)
 		table->room(in)
 		table->tableSt(reach)

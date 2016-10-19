@@ -2,7 +2,7 @@ spacePattern=3
 lineThickness=2
 fontName=Arial
 name=domain_navigation
-vertexDiameter=40
+vertexDiameter=52
 shortPattern=1
 nodeThickness=2
 fontSize=12
@@ -48,11 +48,11 @@ unsetStop : passive(1)
 changeRoom : active(1)
 {
 	{
-		s2:roomSt(25,75)
-		s1:roomSt(-200,75)
-		r1:room(-200,-35)
-		r2:room(25,-35)
-		robot:robot(-95,-145)
+		s1:roomSt(-120,230)
+		s2:roomSt(120,230)
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
 		robot->r1(in)
 		r1->r2(transitable)
 		r1->s1(room)
@@ -60,11 +60,11 @@ changeRoom : active(1)
 	}
 	=>
 	{
-		s2:roomSt(25,75)
-		s1:roomSt(-200,75)
-		r1:room(-200,-35)
-		r2:room(25,-35)
-		robot:robot(-95,-145)
+		s1:roomSt(-120,230)
+		s2:roomSt(120,230)
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
 		robot->r2(in)
 		r1->r2(transitable)
 		r1->s1(room)
