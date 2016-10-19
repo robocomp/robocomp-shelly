@@ -13,8 +13,7 @@ SET ( SOURCES
   ${SOURCES}
   baseursuscomp.cpp
   omnirobotI.cpp
-differentialrobotI.cpp
-
+  differentialrobotI.cpp
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
@@ -22,19 +21,9 @@ differentialrobotI.cpp
   $ENV{ROBOCOMP}/classes/qlog/qlog.cpp
 )
 
-# Headers set
-SET ( HEADERS
-  ${HEADERS}
-  omnirobotI.h
-differentialrobotI.h
-
-  genericmonitor.h
-  commonbehaviorI.h
-  genericworker.h
-)
 #ROBOCOMP
 ROBOCOMP_INITIALIZE( $ENV{ROBOCOMP}/ )
-ROBOCOMP_WRAP_ICE( CommonBehavior  OmniRobot DifferentialRobot  JointMotor)
+ROBOCOMP_WRAP_ICE( CommonBehavior  OmniRobot DifferentialRobot  JointMotor GenericBase)
 SET (EXECUTABLE_OUTPUT_PATH ../bin)
 
 # Qt4
@@ -46,7 +35,7 @@ SET( QT_USE_QTXML TRUE )
 SET( QT_USE_QTSTATE TRUE )
 SET( QT_USE_QTSTATEMACHINE TRUE )
 INCLUDE( ${QT_USE_FILE} )
-QT4_WRAP_CPP( MOC_SOURCES ${HEADERS} )
+SET( CMAKE_AUTOMOC TRUE )
 
 # Specify construction and link process
 ADD_EXECUTABLE( baseursuscomp ${SOURCES} ${MOC_SOURCES} ${RC_SOURCES} ${UI_HEADERS} )

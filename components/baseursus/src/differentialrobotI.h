@@ -30,6 +30,7 @@
 #include "genericworker.h"
 
 using namespace RoboCompDifferentialRobot;
+using namespace RoboCompGenericBase;
 
 class DifferentialRobotI : public QObject , public virtual RoboCompDifferentialRobot::DifferentialRobot
 {
@@ -37,12 +38,12 @@ Q_OBJECT
 public:
 	DifferentialRobotI( GenericWorker *_worker, QObject *parent = 0 );
 	~DifferentialRobotI();
-	void getBaseState(RoboCompDifferentialRobot::TBaseState& state, const Ice::Current& = Ice::Current());
+	void getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current& = Ice::Current());
 	void getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current& = Ice::Current());
 	void setSpeedBase(Ice::Float adv, Ice::Float rot, const Ice::Current& = Ice::Current());
 	void stopBase(const Ice::Current& = Ice::Current());
 	void resetOdometer(const Ice::Current& = Ice::Current());
-	void setOdometer(const RoboCompDifferentialRobot::TBaseState& state, const Ice::Current& = Ice::Current());
+	void setOdometer(const RoboCompGenericBase::TBaseState& state, const Ice::Current& = Ice::Current());
 	void setOdometerPose(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current& = Ice::Current());
 	void correctOdometer(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current& = Ice::Current());
 

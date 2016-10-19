@@ -197,7 +197,7 @@ void SpecificWorker::computeOdometry(bool forced)
 ///  SERVANTS FOR OMNIROBOT
 //////////////////////////////////////////
 
-void SpecificWorker::getBaseState(::RoboCompOmniRobot::TBaseState &state)
+void SpecificWorker::getBaseState(::RoboCompGenericBase::TBaseState &state)
 {
 // 	printf("--------------------\n");
 	QMutexLocker locker(dataMutex);
@@ -243,7 +243,7 @@ void SpecificWorker::resetOdometer()
 	innermodel->updateTransformValues("backPose",0, 0,0,0,0,0);
 }
 
-void SpecificWorker::setOdometer(const ::RoboCompOmniRobot::TBaseState &state)
+void SpecificWorker::setOdometer(const ::RoboCompGenericBase::TBaseState &state)
 {
 	QMutexLocker locker(dataMutex);
 	setOdometerPose(state.x,          state.z,          state.alpha);

@@ -32,7 +32,7 @@ OmniRobotI::~OmniRobotI()
 }
 
 // Component functions, implementation
-void OmniRobotI::getBaseState(RoboCompOmniRobot::TBaseState& state, const Ice::Current&)
+void OmniRobotI::getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current&)
 {
 	worker->getBaseState(state);
 }
@@ -57,7 +57,7 @@ void OmniRobotI::resetOdometer(const Ice::Current&)
 	worker->resetOdometer();
 }
 
-void OmniRobotI::setOdometer(const RoboCompOmniRobot::TBaseState& state, const Ice::Current&)
+void OmniRobotI::setOdometer(const RoboCompGenericBase::TBaseState& state, const Ice::Current&)
 {
 	worker->setOdometer(state);
 }
