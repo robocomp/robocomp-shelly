@@ -28,6 +28,7 @@
 #include <JointMotor.h>
 #include <DifferentialRobot.h>
 #include <OmniRobot.h>
+#include <GenericBase.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -43,6 +44,7 @@ using namespace std;
 using namespace RoboCompJointMotor;
 using namespace RoboCompDifferentialRobot;
 using namespace RoboCompOmniRobot;
+using namespace RoboCompGenericBase;
 
 class GenericWorker : public QObject
 {
@@ -57,12 +59,12 @@ public:
 	QMutex *mutex;                //Shared mutex with servant
 
 	JointMotorPrx jointmotor_proxy;
-	virtual void  getBaseState(RoboCompOmniRobot::TBaseState& state) = 0;
+	virtual void  getBaseState(RoboCompGenericBase::TBaseState& state) = 0;
 	virtual void  getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha) = 0;
 	virtual void  setSpeedBase(float advx, float advz, float rot) = 0;
 	virtual void  stopBase() = 0;
 	virtual void  resetOdometer() = 0;
-	virtual void  setOdometer(const RoboCompOmniRobot::TBaseState& state) = 0;
+	virtual void  setOdometer(const RoboCompGenericBase::TBaseState& state) = 0;
 	virtual void  setOdometerPose(int x, int z, float alpha) = 0;
 	virtual void  correctOdometer(int x, int z, float alpha) = 0;
 protected:
