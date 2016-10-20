@@ -14,6 +14,7 @@ SET ( SOURCES
   baseursuscomp.cpp
   omnirobotI.cpp
   differentialrobotI.cpp
+  genericbaseI.cpp
   genericmonitor.cpp
   commonbehaviorI.cpp
   genericworker.cpp
