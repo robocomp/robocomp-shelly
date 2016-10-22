@@ -76,6 +76,7 @@
 #include "specificworker.h"
 #include "specificmonitor.h"
 #include "commonbehaviorI.h"
+#include <genericbaseI.h>
 #include <omnirobotI.h>
 #include <differentialrobotI.h>
 
@@ -92,6 +93,7 @@ using namespace RoboCompCommonBehavior;
 using namespace RoboCompDifferentialRobot;
 using namespace RoboCompOmniRobot;
 using namespace RoboCompJointMotor;
+using namespace RoboCompGenericBase;
 
 
 class BaseUrsusComp : public RoboComp::Application
@@ -181,19 +183,27 @@ int BaseUrsusComp::run(int argc, char* argv[])
 		CommonBehaviorI *commonbehaviorI = new CommonBehaviorI(monitor );
 		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
 		adapterCommonBehavior->activate();
+
 		// Server adapter creation and publication
 		Ice::ObjectAdapterPtr adapterOmniRobot = communicator()->createObjectAdapter("OmniRobotComp");
 		OmniRobotI *omnirobot = new OmniRobotI(worker);
 		adapterOmniRobot->add(omnirobot, communicator()->stringToIdentity("omnirobot"));
-
 		adapterOmniRobot->activate();
+
 		Ice::ObjectAdapterPtr adapterDifferentialRobot = communicator()->createObjectAdapter("DifferentialRobotComp");
 		DifferentialRobotI *differentialrobot = new DifferentialRobotI(worker);
 		adapterDifferentialRobot->add(differentialrobot, communicator()->stringToIdentity("differentialrobot"));
-
 		adapterDifferentialRobot->activate();
+
+		Ice::ObjectAdapterPtr adapterGenericBase = communicator()->createObjectAdapter("GenericBase");
+		GenericBaseI *genericbase = new GenericBaseI(worker);
+		adapterGenericBase->add(genericbase, communicator()->stringToIdentity("genericbase"));
+		adapterGenericBase->activate();
+
+
 		cout << SERVER_FULL_NAME " started" << endl;
 
+		
 		// User defined QtGui elements ( main window, dialogs, etc )
 
 #ifdef USE_QTGUI
