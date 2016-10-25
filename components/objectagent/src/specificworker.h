@@ -59,8 +59,10 @@ private:
 
 	void getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID);
 
+	void updateTag(const tagsList &list);
 	void newAprilTag(const tagsList &list);
-
+	void newAprilTagAndPose(const tagsList &list,const RoboCompGenericBase::TBaseState &bState,const RoboCompJointMotor::MotorStateMap &hState);
+	
 	bool updateTable (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMug   (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
