@@ -1,0 +1,8 @@
+{
+	57:pose(1,1)
+	58:poseSt(1,1)
+	57->58(reach)
+}
+precondition
+{
+}

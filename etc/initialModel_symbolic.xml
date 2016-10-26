@@ -127,7 +127,7 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="room_3" />
 		<attribute key="x" value="3300" />
-		<attribute key="z" value="1000" />
+		<attribute key="z" value="500" />
 	</symbol>
 	<link src="50" dst="3" label="in" />
 
@@ -137,7 +137,7 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="room_5" />
 		<attribute key="x" value="3300" />
-		<attribute key="z" value="-1000" />
+		<attribute key="z" value="-500" />
 	</symbol>
 	<symbol id="6" type="roomSt">
 	</symbol>
@@ -272,7 +272,15 @@
 	<link src="52" dst="3" label="in" />
 	<link src="52" dst="53" label="noReach" />
 	<link src="52" dst="53" label="hasStatus" />
-	
+
+	<symbol id="57" type="pose">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="Pose2" />
+	</symbol>
+	<symbol id="58" type="poseSt" />
+	<link src="57" dst="5" label="in" />
+	<link src="57" dst="58" label="noReach" />
+	<link src="57" dst="58" label="hasStatus" />	
 	
 	<link src="3" dst="1" label="RT" >
 		<linkAttribute key="x" value="0" />
