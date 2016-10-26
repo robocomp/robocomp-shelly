@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
  *
  *    This file is part of RoboComp
  *
@@ -16,34 +16,34 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef AGMEXECUTIVETOPIC_H
-#define AGMEXECUTIVETOPIC_H
+#ifndef GENERICBASEI_H
+#define GENERICBASEI_H
+
+// QT includes
+#include <QtCore/QObject>
 
 // Ice includes
 #include <Ice/Ice.h>
-#include <AGMExecutive.h>
+#include <GenericBase.h>
 
 #include <config.h>
 #include "genericworker.h"
 
-using namespace RoboCompAGMExecutive;
+using namespace RoboCompGenericBase;
 
-class AGMExecutiveTopicI : public virtual RoboCompAGMExecutive::AGMExecutiveTopic
+class GenericBaseI : public QObject , public virtual RoboCompGenericBase::GenericBase
 {
+Q_OBJECT
 public:
-	AGMExecutiveTopicI(GenericWorker *_worker);
-	~AGMExecutiveTopicI();
-	
-	void structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&);
-	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modifications, const Ice::Current&);
-	void edgeUpdated(const RoboCompAGMWorldModel::Edge  &modification, const Ice::Current&);
-	void symbolUpdated(const RoboCompAGMWorldModel::Node  &modification, const Ice::Current&);
-	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modifications, const Ice::Current&);
+	GenericBaseI( GenericWorker *_worker, QObject *parent = 0 );
+	~GenericBaseI();
+	void getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current& = Ice::Current());
+	void getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current& = Ice::Current());
 
+	QMutex *mutex;
 private:
 
 	GenericWorker *worker;
-
 };
 
 #endif

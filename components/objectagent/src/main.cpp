@@ -59,6 +59,8 @@
  * ...
  *
  */
+#include <signal.h>
+
 // QT includes
 #include <QtCore>
 #include <QtGui>
@@ -82,11 +84,10 @@
 #include <agmexecutivetopicI.h>
 #include <apriltagsI.h>
 
-#include <AGMExecutive.h>
-#include <AGMCommonBehavior.h>
-#include <AGMWorldModel.h>
 #include <objectDetection.h>
 #include <AprilTags.h>
+#include <GenericBase.h>
+#include <JointMotor.h>
 #include <Logger.h>
 
 
@@ -95,15 +96,6 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
-
-using namespace RoboCompAGMExecutive;
-using namespace RoboCompAGMCommonBehavior;
-using namespace RoboCompAGMWorldModel;
-using namespace RoboCompobjectDetection;
-using namespace RoboCompAprilTags;
-using namespace RoboCompLogger;
-
-
 
 class objectagent : public RoboComp::Application
 {
@@ -132,6 +124,17 @@ int ::objectagent::run(int argc, char* argv[])
 #else
 	QCoreApplication a(argc, argv);  // NON-GUI application
 #endif
+
+
+	sigset_t sigs;
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGHUP);
+	sigaddset(&sigs, SIGINT);
+	sigaddset(&sigs, SIGTERM);
+	sigprocmask(SIG_UNBLOCK, &sigs, 0);
+
+
+
 	int status=EXIT_SUCCESS;
 
 	LoggerPrx logger_proxy;

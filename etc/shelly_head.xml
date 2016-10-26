@@ -15,7 +15,7 @@
 					<transform id="rgbd_transform0" ty="50">
 						<transform id="rgbd_transform" tz="10">
 	<!-- 						<axes id="rgbd_axes" length="150" width="6" /> -->
-							<rgbd id="rgbd" focal="540" width="640" height="480" port="10096" ifconfig="10068,10004" />
+							<rgbd id="rgbd" focal="540" width="640" height="480" port="10096" ifconfig="10068,12238" />
 						</transform>
 						<mesh id="sensorRGBD" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="100,21,30" collide="1" />
 					</transform>

@@ -80,7 +80,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		nodeParent->addChild(node);
 	}
 	rightHand = new VisualHand(innerModel, "grabPositionHandR");	
-	timer.start(Period);		
+	timer.start(Period);
 	QMutexLocker ml(mutex);
 	INITIALIZED = true;
 	

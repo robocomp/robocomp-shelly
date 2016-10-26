@@ -61,7 +61,7 @@ class TrajectoryState
 		long getEstimatedtime(){ QMutexLocker l(&m); return estimatedTime;};
 		long getPlanningTime(){ QMutexLocker l(&m); return planningTime;};
 		std::string getState(){ QMutexLocker l(&m); return state;};
-		RoboCompTrajectoryRobot2D::NavState toMiddleware( const RoboCompOmniRobot::TBaseState &bState, const WayPoints &road)
+		RoboCompTrajectoryRobot2D::NavState toMiddleware( const RoboCompGenericBase::TBaseState &bState, const WayPoints &road)
 		{
 			QMutexLocker l(&m);
 			RoboCompTrajectoryRobot2D::NavState n;
@@ -123,7 +123,7 @@ class SpecificWorker : public GenericWorker
 		void	compute(); 	
 		
 	private:
-		RoboCompOmniRobot::TBaseState bState;
+		RoboCompGenericBase::TBaseState bState;
 		TrajectoryState tState;	// object coding changing state for external interface
 		RoboCompCommonBehavior::ParameterList params;
 		RoboCompLaser::TLaserData laserData;

@@ -18,15 +18,19 @@
  */
 #include "apriltagsI.h"
 
-AprilTagsI::AprilTagsI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+AprilTagsI::AprilTagsI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 
 AprilTagsI::~AprilTagsI()
 {
+}
+
+void AprilTagsI::newAprilTagAndPose(const tagsList  &tags,const  RoboCompGenericBase::TBaseState  &bState, const RoboCompJointMotor::MotorStateMap  &hState, const Ice::Current&)
+{
+	worker->newAprilTagAndPose(tags, bState, hState);
 }
 
 void AprilTagsI::newAprilTag(const tagsList  &tags, const Ice::Current&)

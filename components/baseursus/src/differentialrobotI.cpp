@@ -33,16 +33,9 @@ DifferentialRobotI::~DifferentialRobotI()
 }
 
 // Component functions, implementation
-void DifferentialRobotI::getBaseState(RoboCompDifferentialRobot::TBaseState& state, const Ice::Current&)
+void DifferentialRobotI::getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current&)
 {
-	RoboCompOmniRobot::TBaseState ostate;
-	worker->getBaseState(ostate);
-	state.x     = ostate.x;
-	state.z     = ostate.z;
-	state.alpha = ostate.alpha;
-	state.correctedX = ostate.correctedX;
-	state.correctedZ = ostate.correctedZ;
-	state.correctedAlpha = ostate.correctedAlpha;
+	worker->getBaseState(state);
 }
 
 void DifferentialRobotI::getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current&)
@@ -65,13 +58,9 @@ void DifferentialRobotI::resetOdometer(const Ice::Current&)
 	worker->resetOdometer();
 }
 
-void DifferentialRobotI::setOdometer(const RoboCompDifferentialRobot::TBaseState& state, const Ice::Current&)
+void DifferentialRobotI::setOdometer(const RoboCompGenericBase::TBaseState& state, const Ice::Current&)
 {
-	RoboCompOmniRobot::TBaseState ostate;
-	ostate.x     = state.x;
-	ostate.z     = state.z;
-	ostate.alpha = state.alpha;
-	worker->setOdometer(ostate);
+	worker->setOdometer(state);
 }
 
 void DifferentialRobotI::setOdometerPose(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current&)
