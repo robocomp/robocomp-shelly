@@ -15,7 +15,12 @@
 <!-- 			<plane id="waitPose_plane" ny="1" size="1z00,100,100" texture="#222222" /> -->
 		</transform>
 
-
+		<!-- POSE 2 -->
+ 		<transform id="Pose2" tx="2206" tz="-2518" ry="-0.76">
+<!-- 			<plane id="waitPose_plane" ny="1" size="1z00,100,100" texture="#222222" /> -->
+		</transform>
+		
+		
 		<!-- ROOMS DOOR LATERALS -->
 		<transform id="pared6" tx="4418.209473" tz="245" ty="950" >
 			<plane id="muro6" nx="221.809814" nz="40.510742" size="240,1900,9"  texture="#000088" />

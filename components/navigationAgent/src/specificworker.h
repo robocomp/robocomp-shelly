@@ -39,7 +39,7 @@ public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-	
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
 	//////////////
 	/// SERVANTS
 	//////////////
@@ -87,7 +87,8 @@ private:
 	bool haveTarget;
 	QTimer trajReader;
 	
-		
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;	
 
 	RoboCompTrajectoryRobot2D::NavState planningState;
 

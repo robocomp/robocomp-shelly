@@ -2,7 +2,7 @@ spacePattern=3
 lineThickness=2
 fontName=Arial
 name=domain_basic_perception
-vertexDiameter=40
+vertexDiameter=52
 shortPattern=1
 nodeThickness=2
 fontSize=12
@@ -42,10 +42,10 @@ setRoomNotExplored : passive(1)
 setObjectReach : active(1)
 {
 	{
-		status:objectSt(250,0)
-		object:object(65,0)
-		robot:robot(-205,0)
-		room:room(-70,0)
+		robot:robot(0,0)
+		room:room(0,130)
+		object:object(160,130)
+		status:objectSt(390,130)
 		object->status(hasStatus)
 		object->status(noReach)
 		object->status(reachable)
@@ -54,10 +54,10 @@ setObjectReach : active(1)
 	}
 	=>
 	{
-		status:objectSt(250,0)
-		object:object(65,0)
-		robot:robot(-205,0)
-		room:room(-70,0)
+		robot:robot(0,0)
+		room:room(0,130)
+		object:object(160,130)
+		status:objectSt(390,130)
 		object->status(hasStatus)
 		object->status(reach)
 		object->status(reachable)

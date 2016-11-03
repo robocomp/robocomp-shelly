@@ -105,7 +105,7 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	//	- Also, is the target is very close, <500mm, avoid turning to allow for small correcting displacements
 	
 	float vrot = 0;
-	if( road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM )						// No rotation if target is close so small translational movements are allowed
+	if( road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM *4)						// No rotation if target is close so small translational movements are allowed
 	{
 		vrot = 0.7 * road.getAngleWithTangentAtClosestPoint();
  		if(vrot > MAX_ROT_SPEED) vrot = MAX_ROT_SPEED;

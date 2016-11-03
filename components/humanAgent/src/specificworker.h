@@ -59,7 +59,7 @@ public:
 	SpecificWorker(MapPrx& mprx);	
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
 	bool reloadConfigAgent();
 	bool activateAgent(const ParameterMap &prs);
 	bool setAgentParameters(const ParameterMap &prs);
@@ -93,6 +93,8 @@ private:
 	OsgView *osgView;	
 	InnerModelViewer *innerViewer; 
 	
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;
 	
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);	

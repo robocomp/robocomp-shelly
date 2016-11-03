@@ -16,9 +16,9 @@
  *    You should have received a copy of the GNU General Public License
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include "omnirobotI.h"
+#include "genericbaseI.h"
 
-OmniRobotI::OmniRobotI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+GenericBaseI::GenericBaseI(GenericWorker *_worker, QObject *parent) : QObject(parent)
 {
 	worker = _worker;
 	mutex = worker->mutex;       // Shared worker mutex
@@ -26,50 +26,18 @@ OmniRobotI::OmniRobotI(GenericWorker *_worker, QObject *parent) : QObject(parent
 }
 
 
-OmniRobotI::~OmniRobotI()
+GenericBaseI::~GenericBaseI()
 {
 	// Free component resources here
 }
 
 // Component functions, implementation
-void OmniRobotI::getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current&)
+void GenericBaseI::getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current&)
 {
 	worker->getBaseState(state);
 }
 
-void OmniRobotI::getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current&)
+void GenericBaseI::getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current&)
 {
 	worker->getBasePose(x,z,alpha);
 }
-
-void OmniRobotI::setSpeedBase(Ice::Float advx, Ice::Float advz, Ice::Float rot, const Ice::Current&)
-{
-	worker->setSpeedBase(advx,advz,rot);
-}
-
-void OmniRobotI::stopBase(const Ice::Current&)
-{
-	worker->stopBase();
-}
-
-void OmniRobotI::resetOdometer(const Ice::Current&)
-{
-	worker->resetOdometer();
-}
-
-void OmniRobotI::setOdometer(const RoboCompGenericBase::TBaseState& state, const Ice::Current&)
-{
-	worker->setOdometer(state);
-}
-
-void OmniRobotI::setOdometerPose(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current&)
-{
-	worker->setOdometerPose(x,z,alpha);
-}
-
-void OmniRobotI::correctOdometer(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current&)
-{
-	worker->correctOdometer(x,z,alpha);
-}
-
-

@@ -38,7 +38,8 @@ public:
 	StateStruct getAgentState();
 	ParameterMap getAgentParameters();
 	bool setAgentParameters(const ParameterMap &prs);
-
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
+	
 	void structuralChange(const RoboCompAGMWorldModel::World &modification);
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
 	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
@@ -58,8 +59,10 @@ private:
 
 	void getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID);
 
+	void updateTag(const tagsList &list);
 	void newAprilTag(const tagsList &list);
-
+	void newAprilTagAndPose(const tagsList &list,const RoboCompGenericBase::TBaseState &bState,const RoboCompJointMotor::MotorStateMap &hState);
+	
 	bool updateTable (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMug   (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
@@ -72,6 +75,8 @@ private:
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;
 };
 
 #endif

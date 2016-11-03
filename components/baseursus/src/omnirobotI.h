@@ -30,6 +30,7 @@
 #include "genericworker.h"
 
 using namespace RoboCompOmniRobot;
+using namespace RoboCompGenericBase;
 
 class OmniRobotI : public QObject , public virtual RoboCompOmniRobot::OmniRobot
 {
@@ -37,12 +38,12 @@ Q_OBJECT
 public:
 	OmniRobotI( GenericWorker *_worker, QObject *parent = 0 );
 	~OmniRobotI();
-	void getBaseState(RoboCompOmniRobot::TBaseState& state, const Ice::Current& = Ice::Current());
+	void getBaseState(RoboCompGenericBase::TBaseState& state, const Ice::Current& = Ice::Current());
 	void getBasePose(Ice::Int& x, Ice::Int& z, Ice::Float& alpha, const Ice::Current& = Ice::Current());
 	void setSpeedBase(Ice::Float advx, Ice::Float advz, Ice::Float rot, const Ice::Current& = Ice::Current());
 	void stopBase(const Ice::Current& = Ice::Current());
 	void resetOdometer(const Ice::Current& = Ice::Current());
-	void setOdometer(const RoboCompOmniRobot::TBaseState& state, const Ice::Current& = Ice::Current());
+	void setOdometer(const RoboCompGenericBase::TBaseState& state, const Ice::Current& = Ice::Current());
 	void setOdometerPose(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current& = Ice::Current());
 	void correctOdometer(Ice::Int x, Ice::Int z, Ice::Float alpha, const Ice::Current& = Ice::Current());
 

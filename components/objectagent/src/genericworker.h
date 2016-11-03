@@ -27,16 +27,13 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <AGMWorldModel.h>
-#include <AGMExecutive.h>
-#include <AGMCommonBehavior.h>
-#include <Planning.h>
-#include <Logger.h>
+
 #include <objectDetection.h>
 #include <AprilTags.h>
-
+#include <GenericBase.h>
+#include <JointMotor.h>
+#include <Logger.h>
 #include <agm.h>
-
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -46,9 +43,11 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 using namespace std;
 
 using namespace RoboCompAGMWorldModel;
+using namespace RoboCompGenericBase;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompPlanning;
+using namespace RoboCompJointMotor;
 using namespace RoboCompLogger;
 using namespace RoboCompobjectDetection;
 using namespace RoboCompAprilTags;
@@ -96,12 +95,12 @@ public:
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;
 	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
-	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification) = 0;
+	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications) = 0;
 	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
 	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
-	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
+	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications) = 0;
+	virtual void newAprilTagAndPose(const tagsList &tags,const  RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState) = 0;
 	virtual void newAprilTag(const tagsList &tags) = 0;
-
 
 protected:
 	QTimer timer;
@@ -113,6 +112,9 @@ protected:
 	int iter;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	RoboCompPlanning::Action createAction(std::string s);
+
+private:
+
 
 public slots:
 	virtual void compute() = 0;

@@ -95,7 +95,7 @@ public:
 	virtual void newAprilBasedPose(const float x, const float z, const float alpha) = 0;
 	virtual void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha) = 0;
 	virtual void newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2) = 0;
-
+	virtual RoboCompCommonBehavior::ParameterList getWorkerParams() = 0;
 protected:
 	QTimer timer;
 	int Period;

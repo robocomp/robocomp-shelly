@@ -57,12 +57,12 @@ private:
 	InnerModelTransform *backPose, *newPose;
 	InnerModelTransform *corrBackPose, *corrNewPose;
 	
-	void getBaseState(::RoboCompOmniRobot::TBaseState &state);
+	void getBaseState(::RoboCompGenericBase::TBaseState &state);
 	void getBasePose(::Ice::Int &x, ::Ice::Int &z, ::Ice::Float &alpha);
 	void setSpeedBase(::Ice::Float advx, ::Ice::Float advz, ::Ice::Float rotv);
 	void stopBase();
 	void resetOdometer();
-	void setOdometer(const ::RoboCompOmniRobot::TBaseState &state);
+	void setOdometer(const ::RoboCompGenericBase::TBaseState &state);
 	void setOdometerPose(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	void correctOdometer(::Ice::Int x, ::Ice::Int z, ::Ice::Float alpha);
 	

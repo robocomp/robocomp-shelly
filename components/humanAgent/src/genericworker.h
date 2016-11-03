@@ -34,7 +34,7 @@
 #include <AGMWorldModel.h>
 
 #include <agm.h>
-
+#include <agm_modelException.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -73,6 +73,8 @@ public:
 	virtual void setPeriod(int p);
 	
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
+	virtual RoboCompCommonBehavior::ParameterList getWorkerParams() = 0;
+	
 	QMutex *mutex;
 	bool activate(const BehaviorParameters& parameters);
 	bool deactivate();

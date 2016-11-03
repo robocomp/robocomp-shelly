@@ -61,7 +61,7 @@ class TrajectoryState
 		long getEstimatedtime(){ QMutexLocker l(&m); return estimatedTime;};
 		long getPlanningTime(){ QMutexLocker l(&m); return planningTime;};
 		std::string getState(){ QMutexLocker l(&m); return state;};
-		RoboCompTrajectoryRobot2D::NavState toMiddleware( const RoboCompOmniRobot::TBaseState &bState, const WayPoints &road)
+		RoboCompTrajectoryRobot2D::NavState toMiddleware( const RoboCompGenericBase::TBaseState &bState, const WayPoints &road)
 		{
 			QMutexLocker l(&m);
 			RoboCompTrajectoryRobot2D::NavState n;
@@ -99,7 +99,7 @@ class SpecificWorker : public GenericWorker
 		SpecificWorker(MapPrx& mprx, QWidget *parent = 0);
 		~SpecificWorker();
 		bool setParams(RoboCompCommonBehavior::ParameterList params);
-		
+		RoboCompCommonBehavior::ParameterList getWorkerParams();
 		////////////////////////////////////////
 		//SERVANTS ATTENDING EXTERNAL INTERFACE
 		////////////////////////////////////////
@@ -123,14 +123,15 @@ class SpecificWorker : public GenericWorker
 		void	compute(); 	
 		
 	private:
-		RoboCompOmniRobot::TBaseState bState;
+		RoboCompGenericBase::TBaseState bState;
 		TrajectoryState tState;	// object coding changing state for external interface
 		RoboCompCommonBehavior::ParameterList params;
 		RoboCompLaser::TLaserData laserData;
 		CurrentTarget currentTarget;
 		CurrentTarget currentTargetAnt, currentTargetBack;
 		InnerModel *innerModel;
-		
+		RoboCompCommonBehavior::ParameterList worker_params;
+		QMutex *worker_params_mutex;
 		/**
 		 * @brief Instance of the Sampler of free space. Needs to be initialized. Robot's workspace is defined as a rectangle in outerRegion.
 		 * Internal regions not to be visited by the robot are defined as a list of rectangles in innerRegions

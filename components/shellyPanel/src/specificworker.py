@@ -114,7 +114,7 @@ class MyShellyThread(QtCore.QThread):
 				elif i == 3:
 					self.parent.ui.load3.setText(aux)
 			else:
-				print 'ERROR with: '+str(hostname)				
+				print 'ERROR with: '+str(hostname)
 				loadN1 = loadN2 = "ERROR"
 
 
@@ -448,6 +448,12 @@ class SpecificWorker(GenericWorker):
 		self.ui.reset3Button.clicked.connect(self.thread.resetNUC3)
 		self.ui.reset4Button.clicked.connect(self.thread.resetNUC4)
 
+		self.commonProxies = {}
+		for name, proxy in proxy_map.iteritems():
+			if "Common" in name and proxy:
+				self.commonProxies[name] = proxy
+
+		self.frameRateLabels = {}
 		self.initializeMotors()
 
 
@@ -491,6 +497,7 @@ class SpecificWorker(GenericWorker):
 		self.computeJointMotor()
 		self.computeLaser()
 		self.computeRGBD()
+		self.computeFrameRate()
 
 	def computeJointMotor(self):
 		if self.ui.tabWidget.currentIndex() != 4:
@@ -545,6 +552,22 @@ class SpecificWorker(GenericWorker):
 		self.laserDrawer.update()
 		self.rgbdDrawer.update()
 
+	def computeFrameRate(self):
+		if self.ui.tabWidget.currentIndex() != 7:
+			return;
+
+		for name, proxy in self.commonProxies.iteritems():
+			try:
+				params = proxy.getParameterList()
+			except: 
+				print 'Exception reading:', name, 'parameters'
+			if name in self.frameRateLabels.keys():
+				self.frameRateLabels[name].setText(params['frameRate'].value)
+			else:
+				label = QtGui.QLabel(params['frameRate'].value)
+				self.frameRateLabels[name] = label
+				self.ui.frameLayout.addRow(name, label)
+				
 
 	#
 	# newText

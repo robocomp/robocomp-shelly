@@ -27,6 +27,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
+	worker_params_mutex = new QMutex(QMutex::Recursive);
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
+	
 }
 
 /**
@@ -58,6 +65,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute()
 {
+	static QTime reloj = QTime::currentTime();
 	static bool first=true;
 	if (first)
 	{
@@ -104,6 +112,11 @@ void SpecificWorker::compute()
 	}
 
 	previousAction = action;
+	
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool first)
@@ -485,9 +498,7 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 	}
 }
 
-
-// Get new apriltags!
-void SpecificWorker::newAprilTag(const tagsList &list)
+void SpecificWorker::updateTag(const tagsList &list)
 {
 	QMutexLocker l(mutex);
 
@@ -497,7 +508,6 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
-	bool publishModel = false;
 	for (auto ap : list)
 	{
 		auto ap2 = ap;
@@ -506,7 +516,6 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 			case 30:
 				if (updateTable(ap2, newModel))
 				{
-					publishModel = true;
 					printf("New table was detected!\n");
 					rDebug2(("objectAgent new table detected"));
 				}
@@ -515,7 +524,6 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 			case 31:
 				if (updateMug(ap2, newModel))
 				{
-					publishModel = true;
 					rDebug2(("objectAgent new mug detected"));
 					printf("New mug was detected!\n");
 				}
@@ -523,12 +531,41 @@ void SpecificWorker::newAprilTag(const tagsList &list)
 				break;
 		}
 	}
-
-	if (publishModel)
-	{
-		sendModificationProposal(worldModel, newModel);
-	}
 }
+	
+// Get new apriltags!
+void SpecificWorker::newAprilTag(const tagsList &list)
+{
+	//qDebug()<<"**************************\nUsing newAprilTagAndpose instead\n********************************";
+}
+
+// Get new apriltags!
+void SpecificWorker::newAprilTagAndPose(const tagsList &list,const RoboCompGenericBase::TBaseState &bState,const RoboCompJointMotor::MotorStateMap &hState)
+{
+
+	QMutexLocker l(mutex);
+	MotorStateMap backPoses = hState; //save motors name
+	for (auto motor: hState)
+	{
+		backPoses[motor.first].pos = innerModel->getJoint(motor.first)->getAngle();
+		innerModel->getJoint(motor.first)->setAngle(motor.second.pos);
+	}
+	QVec basePose = innerModel->getTransform("robot")->getTr();
+	float baseAlpha = innerModel->getTransform("robot")->extractAnglesR_min().y();
+
+	innerModel->updateTransformValues("robot",bState.correctedX,0,bState.correctedZ,0,bState.correctedAlpha,0);
+	
+	updateTag(list);
+	
+	for (auto motor: hState)
+	{
+		innerModel->getJoint(motor.first)->setAngle(backPoses[motor.first].pos);
+	}
+	innerModel->updateTransformValues("robot",basePose(0),0,basePose(2),0,baseAlpha,0);
+	
+}
+
+
 
 /**
  * \brief Metodo UPDATE TABLE: 
@@ -744,7 +781,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 				QVec poseFromParent = QVec::zeros(6);
 				poseFromParent.inject(positionFromParent, 0);
 				poseFromParent.inject(rotation, 3);
-// 				poseFromParent.print("pose from parent");
+ 				poseFromParent.print("pose from parent");
 				
 				//BUSCAR EL ENLACE RT: NECESITAMOS EL SIMBOLO PADRE EN AGM
 				bool parentFound = false;
@@ -951,6 +988,11 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 	}
 }
 
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
+}
 
 
 

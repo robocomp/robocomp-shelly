@@ -75,7 +75,12 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	
 #endif
 	
-	
+	worker_params_mutex = new QMutex();
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
 }
 
 /**
@@ -194,6 +199,7 @@ void SpecificWorker::insertNodeInnerModel(InnerModel* im, InnerModelNode* node, 
 
 void SpecificWorker::compute()
 {
+	static QTime reloj = QTime::currentTime();	
 	QMutexLocker m (mutex);
 	if (worldModel->numberOfSymbols()==0)
 	{
@@ -236,7 +242,7 @@ void SpecificWorker::compute()
 	//single
 	TPerson p =(*personList.begin()).second;
 	float zTorso = p.joints[dictionaryEnum["Spine"]].Position.Z;
-	qDebug()<<"ZZZZZZZZZZ"<<zTorso;
+//	qDebug()<<"ZZZZZZZZZZ"<<zTorso;
 	
 	if (zTorso < 1.5 or zTorso > 5.0)
 	{
@@ -272,12 +278,15 @@ void SpecificWorker::compute()
 	osgView->autoResize();
 	osgView->frame();
 #endif	
-	
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 
 
-
+/*
 void SpecificWorker::updatePeopleInnerFullB()
 {
 	QMutexLocker m (mutex);
@@ -546,7 +555,7 @@ void SpecificWorker::updatePeopleInnerFullB()
 			//qFatal("fary");
 	}
 }
-
+*/
 
 
 string SpecificWorker::getColorName(HsvColor hsv)
@@ -923,7 +932,7 @@ void SpecificWorker::initDictionary()
 	
 	v.print("v");
 	v(0)*=fScale;v(1)*=fScale;v(2)*=fScale;
-	QVec ff = innerModelAGM->transform6D("room_3",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
+	QVec ff = innerModelAGM->transform6D("world",QVec::vec6 ( v.x(),v.y(),v.z(), rxValue,ryValue,rzValue),"rgbdHumanPose");
 	
 	ff.print("ff");
 	innerModelMap[ idPerson ]->updateTransformValues( torsoName,ff(0),ff(1),ff(2),ff(3),ff(4),ff(5) );
@@ -1414,23 +1423,36 @@ void SpecificWorker::updateHumanInnerFull()
 	}
 	bool modification = false;
 
-	///Human hangs on room symbol
-	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,"room_3");
+	if (personList.empty() )
+		return;
+	
+
+	// get room symbol
+	QString torsoName = QString::fromStdString(int2str(idSingle)) +"XN_SKEL_TORSO";
+	QVec v = innerModelMap[ idSingle ]->getTransform(torsoName)->getTr();
+	QString roomString = "room_3";
+	if (v(2) < 0)
+	{
+		roomString = "room_5";
+	} 	
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,roomString);
 	if (roomID < 0)
 	{
-		printf("ROOOM symbol not found, \n");
+		printf("ROOM: %s symbol not found, \n", roomString.toStdString().c_str());
 		qFatal("abort");
 		return;
 	}
 	
-	if (personList.empty() )
-		return;
-	
-	const AGMModelSymbol::SPtr &symbol = worldModel->getSymbol(roomID);
-	
 	//encontrar a la persona
-	int symbolPersonID=worldModel->getIdentifierByType("person");
-	
+	int symbolPersonID = -1;
+	try
+	{
+		symbolPersonID = worldModel->getIdentifierByType("person");
+	}
+	catch (...)
+	{
+		qDebug()<<"Unable to get symbolPersonID";
+	}
 // 	//borrar
 // 	qDebug()<<__FUNCTION__<<__LINE__<<"symbolID"<<symbolID<<"personList.empty()"<<personList.empty();	
 // 	if (personList.empty() and symbolID!=-1)
@@ -1454,7 +1476,7 @@ void SpecificWorker::updateHumanInnerFull()
 	if ( symbolPersonID == -1 )
 	{
 		AGMModelSymbol::SPtr newSymbolPerson = worldModel->newSymbol("person");
-		
+		AGMModelSymbol::SPtr newSymbolPersonSt = worldModel->newSymbol("personSt");
 		int personID = newSymbolPerson->identifier;
 
 		newSymbolPerson->setAttribute("TrackingId",int2str((*personList.begin()).second.TrackingId));
@@ -1479,8 +1501,24 @@ void SpecificWorker::updateHumanInnerFull()
 		{
 			try
 			{
-				worldModel->addEdgeByIdentifiers(roomID,personID,"RT");
+				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "hasStatus");
+				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "noReach");
+				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "person");
 				worldModel->addEdgeByIdentifiers(personID,roomID,"in");
+				// Geometric part				
+				QVec v = innerModelMap[ idSingle ]->getTransform(torsoName)->getTr();
+				float rxValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().x();
+				float ryValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().y();
+				float rzValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().z();
+				innerModelMap[ idSingle ]->updateTransformValues( torsoName,0,0,0,0,0,0);
+				std::map<std::string, std::string> edgeRTAtrs;
+				edgeRTAtrs["tx"] = float2str(v(0));
+				edgeRTAtrs["ty"] = float2str(v(1));
+				edgeRTAtrs["tz"] = float2str(v(2));
+				edgeRTAtrs["rx"] = float2str(rxValue);
+				edgeRTAtrs["ry"] = float2str(ryValue);
+				edgeRTAtrs["rz"] = float2str(rzValue);
+				worldModel->addEdgeByIdentifiers(roomID, personID, "RT", edgeRTAtrs);
 				AGMInner::includeInnerModel(worldModel,personID,innerModelMap.at(idSingle));
 				modification =true;
 			}
@@ -1502,6 +1540,75 @@ void SpecificWorker::updateHumanInnerFull()
 		
 		//update
 		qDebug()<<"Update Human in AGM model";
+		// Change room if needed
+		int32_t prevRoomID = -1;
+		try
+		{
+			// check if human has changed room
+			for (auto edge = worldModel->getSymbol(symbolPersonID)->edgesBegin(worldModel); edge != worldModel->getSymbol(roomID)->edgesEnd(worldModel); edge++)
+			{
+				if (edge->getLabel() == "in")
+				{
+					prevRoomID = worldModel->getSymbol(edge->getSymbolPair().second)->identifier;
+					break;
+				}
+			}
+		}
+		catch(...)
+		{
+			printf("Error getting previous roomID\n");
+		}
+		// Geometric part				
+		QVec v = innerModelMap[ idSingle ]->getTransform(torsoName)->getTr();
+		float rxValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().x();
+		float ryValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().y();
+		float rzValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().z();
+		innerModelMap[ idSingle ]->updateTransformValues( torsoName,0,0,0,0,0,0);
+		std::map<std::string, std::string> edgeRTAtrs;
+		edgeRTAtrs["tx"] = float2str(v(0));
+		edgeRTAtrs["ty"] = float2str(v(1));
+		edgeRTAtrs["tz"] = float2str(v(2));
+		edgeRTAtrs["rx"] = float2str(rxValue);
+		edgeRTAtrs["ry"] = float2str(ryValue);
+		edgeRTAtrs["rz"] = float2str(rzValue);
+		if(prevRoomID != -1 and prevRoomID != roomID)
+		{
+			qDebug()<<"Human change room, previous: "<<prevRoomID<<"actual room"<<roomID;
+			try
+			{
+				worldModel->removeEdgeByIdentifiers(prevRoomID,symbolPersonID,"RT");	
+				worldModel->removeEdgeByIdentifiers(symbolPersonID,prevRoomID,"in");	
+				worldModel->addEdgeByIdentifiers(roomID,symbolPersonID,"RT", edgeRTAtrs);
+				worldModel->addEdgeByIdentifiers(symbolPersonID,roomID,"in");
+				modification =true;
+			}
+			catch (AGMModelException ex)
+			{	
+				qDebug()<<__FILE__<<__LINE__<<"Exception: "<<ex.what();
+			}
+		}
+		else
+		{
+			AGMModelEdge &edgeRT  = worldModel->getEdgeByIdentifiers(roomID, symbolPersonID, "RT");
+			edgeRT->setAttribute("tx", edgeRTAtrs["tx"]);
+			edgeRT->setAttribute("ty", edgeRTAtrs["ty"]);
+			edgeRT->setAttribute("tz", edgeRTAtrs["tz"]);
+			edgeRT->setAttribute("rx", edgeRTAtrs["rx"]);
+			edgeRT->setAttribute("ry", edgeRTAtrs["ry"]);
+			edgeRT->setAttribute("rz", edgeRTAtrs["rz"]);
+			try
+			{			
+				AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+			}
+			catch (AGMModelException ex)
+			{	
+				qDebug()<<__FILE__<<__LINE__<<"Exception: "<<ex.what();
+			}
+			catch(...)
+			{
+				qDebug()<<__FILE__<<__LINE__<<"Exception: ";
+			}
+		}
 		try
 		{
 			InnerModel* imTmp = innerModelMap.at(idSingle);		
@@ -1561,3 +1668,9 @@ void SpecificWorker::updateHumanInnerFull()
 // 			qFatal("fary");
 	}
 }
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
+}
+

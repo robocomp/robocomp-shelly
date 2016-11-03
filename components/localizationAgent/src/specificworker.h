@@ -38,7 +38,8 @@ public:
 	SpecificWorker(MapPrx& mprx);
 	~SpecificWorker();
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
-
+	RoboCompCommonBehavior::ParameterList getWorkerParams();
+	
 	bool reloadConfigAgent();
 	bool activateAgent(const ParameterMap &prs);
 	bool setAgentParameters(const ParameterMap &prs);
@@ -60,7 +61,7 @@ public slots:
 	void compute(); 
 
 private:
-	RoboCompOmniRobot::TBaseState lastState, cgrState, aprilState, omniState;
+	RoboCompGenericBase::TBaseState lastState, cgrState, aprilState, omniState;
 	bool newCGR, newApril;
 	bool useCGR, useApril;
 	float CGRWeight, aprilWeight;
@@ -76,8 +77,10 @@ private:
 	
 	bool odometryAndLocationIssues(bool force=false);
 	void includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot);
-	void setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState);
-	bool enoughDifference(const RoboCompOmniRobot::TBaseState &lastState, const RoboCompOmniRobot::TBaseState &newState);
+	void setCorrectedPosition(const RoboCompGenericBase::TBaseState &bState);
+	bool enoughDifference(const RoboCompGenericBase::TBaseState &lastState, const RoboCompGenericBase::TBaseState &newState);
+	RoboCompCommonBehavior::ParameterList worker_params;
+	QMutex *worker_params_mutex;	
 };
 
 #endif

@@ -74,6 +74,13 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	newApril = false;
 	useCGR = false;
 	useApril = false;
+	
+	worker_params_mutex = new QMutex();
+	RoboCompCommonBehavior::Parameter aux;
+	aux.editable = false;
+	aux.type = "float";
+	aux.value = "0";
+	worker_params["frameRate"] = aux;
 }
 
 /**
@@ -157,7 +164,7 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 	
 	inc.print("Correction: ");
 	
-	RoboCompOmniRobot::TBaseState bState;
+	RoboCompGenericBase::TBaseState bState;
 	try { omnirobot_proxy->getBaseState(bState); }
 	catch(Ice::Exception &ex) { std::cout<<ex.what()<<std::endl; }
 	innermodel->updateTransformValues("corrREALBack", bState.correctedX,0.,bState.correctedZ,   0,bState.correctedAlpha,0);
@@ -173,9 +180,10 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 
 void SpecificWorker::compute()
 {
+	static QTime reloj = QTime::currentTime();	
 	QMutexLocker l(mutex);
 
-	RoboCompOmniRobot::TBaseState newState;
+	RoboCompGenericBase::TBaseState newState;
 	static bool first=true;
 	if (first)
 	{
@@ -240,10 +248,15 @@ void SpecificWorker::compute()
 	}
 
 	odometryAndLocationIssues();
+	
+	worker_params_mutex->lock();
+		//save framerate in params
+		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	worker_params_mutex->unlock();
 }
 
 // compute difference between actual and last value to determine if it should be sent
-bool SpecificWorker::enoughDifference(const RoboCompOmniRobot::TBaseState &lastState, const RoboCompOmniRobot::TBaseState &newState)
+bool SpecificWorker::enoughDifference(const RoboCompGenericBase::TBaseState &lastState, const RoboCompGenericBase::TBaseState &newState)
 {
 	if (fabs(newState.correctedX - lastState.correctedX) > 5 or fabs(newState.correctedZ - lastState.correctedZ) > 5 or fabs(newState.correctedAlpha - lastState.correctedAlpha) > 0.02)
 	{
@@ -253,7 +266,7 @@ bool SpecificWorker::enoughDifference(const RoboCompOmniRobot::TBaseState &lastS
 }
 
 // send corrected position
-void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &bState)
+void SpecificWorker::setCorrectedPosition(const RoboCompGenericBase::TBaseState &bState)
 {
 	std::cout<<"correct odometer position"<<std::endl;
 	try
@@ -271,7 +284,7 @@ void SpecificWorker::setCorrectedPosition(const RoboCompOmniRobot::TBaseState &b
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
 	// Get robot's odometry
-	RoboCompOmniRobot::TBaseState bState;
+	RoboCompGenericBase::TBaseState bState;
 	try
 	{
 		omnirobot_proxy->getBaseState(bState);
@@ -427,7 +440,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 {
 	static TimedList list(3000);
-	static RoboCompOmniRobot::TBaseState lastBaseState = lastState;
+	static RoboCompGenericBase::TBaseState lastBaseState = lastState;
 	
 	const float movX = lastState.x - lastBaseState.x;
 	const float movZ = lastState.z - lastBaseState.z;
@@ -658,4 +671,11 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
+RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
+{
+	QMutexLocker locker(worker_params_mutex);
+	return worker_params;
+}
+
+
 
