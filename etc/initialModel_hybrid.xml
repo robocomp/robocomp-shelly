@@ -94,14 +94,14 @@
 	<attribute key="imName" value="room_3" />
 	<attribute key="imType" value="transform" />
 	<attribute key="x" value="3300" />
-	<attribute key="z" value="1000" />
+	<attribute key="z" value="500" />
 </symbol>
 <symbol id="4" type="roomSt"/>
 <symbol id="5" type="room">
 	<attribute key="imName" value="room_5" />
 	<attribute key="imType" value="transform" />
 	<attribute key="x" value="3300" />
-	<attribute key="z" value="-1000" />
+	<attribute key="z" value="-500" />
 </symbol>
 <symbol id="6" type="roomSt"/>
 <symbol id="100" type="world">
@@ -113,6 +113,11 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="53" type="poseSt"/>
+<symbol id="57" type="pose">
+	<attribute key="imName" value="Pose2" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="58" type="poseSt"/>
 <symbol id="101" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="floor" />
@@ -1290,7 +1295,7 @@
 <symbol id="217" type="rgbd">
 	<attribute key="focal" value="540" />
 	<attribute key="height" value="480" />
-	<attribute key="ifconfig" value="10068,10004" />
+	<attribute key="ifconfig" value="10068,12238" />
 	<attribute key="imName" value="rgbd" />
 	<attribute key="imType" value="rgbd" />
 	<attribute key="noise" value="0" />
@@ -1727,6 +1732,9 @@
 <link src="52" dst="3" label="in"/>
 <link src="52" dst="53" label="noReach"/>
 <link src="52" dst="53" label="hasStatus"/>
+<link src="57" dst="5" label="in"/>
+<link src="57" dst="58" label="noReach"/>
+<link src="57" dst="58" label="hasStatus"/>
 <link src="3" dst="1" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />
@@ -1758,6 +1766,14 @@
 	<linkAttribute key="tx" value="3000" />
 	<linkAttribute key="ty" value="0" />
 	<linkAttribute key="tz" value="1000" />
+</link>
+<link src="100" dst="57" label="RT">
+	<linkAttribute key="rx" value="0" />
+	<linkAttribute key="ry" value="-0.76" />
+	<linkAttribute key="rz" value="0" />
+	<linkAttribute key="tx" value="2206" />
+	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="tz" value="-2518" />
 </link>
 <link src="100" dst="103" label="RT">
 	<linkAttribute key="rx" value="0" />

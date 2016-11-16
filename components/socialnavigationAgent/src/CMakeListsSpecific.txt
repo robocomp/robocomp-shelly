@@ -1,0 +1,10 @@
+
+SET(LIBS ${LIBS} -lagm)
+# Sources set
+SET ( SOURCES
+  specificworker.cpp
+  specificmonitor.cpp
+)
+
+ADD_DEFINITIONS( -std=c++11 )
+INCLUDE_DIRECTORIES( /usr/include/libxml2 )

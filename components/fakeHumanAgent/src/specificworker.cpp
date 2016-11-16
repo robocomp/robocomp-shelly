@@ -17,6 +17,9 @@
  *    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
  */
 #include "specificworker.h"
+#include <qt4/QtGui/qdial.h>
+
+
 
 /**
 * \brief Default constructor
@@ -28,8 +31,10 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
 
-	humanAdvVel = humanRotVel = humanRot = 0.;
-	lastJoystickEvent = QTime::currentTime();
+	humanAdvVel = 25;
+	humanRot = 0;
+	
+//	lastJoystickEvent = QTime::currentTime();
 }
 
 /**
@@ -45,10 +50,8 @@ void SpecificWorker::includeInRCIS()
 	printf("includeInRCIS begins\n");
 
 	try
-	{
-
-		RoboCompInnerModelManager::Pose3D pose;
-		pose.x = 3000;
+	{	
+		pose.x = 3500;
 		pose.y = 0;
 		pose.z = 1500;
 		pose.rx = pose.ry = pose.rz = 0;
@@ -56,12 +59,13 @@ void SpecificWorker::includeInRCIS()
 
 		RoboCompInnerModelManager::meshType mesh;
 		mesh.pose.x  = mesh.pose.y  = mesh.pose.z  = 0;
-		mesh.pose.rx = 1.570796326794;
+		mesh.pose.rx = 1.57079632679;
 		mesh.pose.ry = 0;
-		mesh.pose.rz = -1.570796326794;
-		mesh.scaleX = mesh.scaleY = mesh.scaleZ = 20;
+		mesh.pose.rz = 3.1415926535;
+		mesh.scaleX = mesh.scaleY = mesh.scaleZ = 12;
 		mesh.render = 0;
-		mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/Gualzru/Gualzru.osg";
+		//mesh.meshPath = "/home/robocomp/robocomp/files/osgModels/Gualzru/Gualzru.osg";
+		mesh.meshPath = "/home/araceli/tfg/models/human01.3ds";
 		innermodelmanager_proxy->addMesh("fakeperson_mesh", "fakeperson", mesh);
 	}
 	catch (...)
@@ -113,7 +117,7 @@ void SpecificWorker::includeInAGM()
 
 	// Geometric part
 	std::map<std::string, std::string> edgeRTAtrs;
-	edgeRTAtrs["tx"] = "3000";
+	edgeRTAtrs["tx"] = "3500";
 	edgeRTAtrs["ty"] = "0";
 	edgeRTAtrs["tz"] = "1500";
 	edgeRTAtrs["rx"] = "0";
@@ -127,18 +131,18 @@ void SpecificWorker::includeInAGM()
 	personMesh->setAttribute("collidable", "false");
 	personMesh->setAttribute("imName", "fakepersonMesh");
 	personMesh->setAttribute("imType", "mesh");
-	personMesh->setAttribute("path", "/home/robocomp/robocomp/files/osgModels/Gualzru/Gualzru.osg");
+	personMesh->setAttribute("path", "/home/araceli/tfg/models/human01.3ds");
 	personMesh->setAttribute("render", "NormalRendering");
-	personMesh->setAttribute("scalex", "20");
-	personMesh->setAttribute("scaley", "20");
-	personMesh->setAttribute("scalez", "20");
+	personMesh->setAttribute("scalex", "12");
+	personMesh->setAttribute("scaley", "12");
+	personMesh->setAttribute("scalez", "12");
 
 	edgeRTAtrs["tx"] = "0";
 	edgeRTAtrs["ty"] = "0";
 	edgeRTAtrs["tz"] = "0";
 	edgeRTAtrs["rx"] = "1.570796326794";
 	edgeRTAtrs["ry"] = "0";
-	edgeRTAtrs["rz"] = "-1.570796326794";
+	edgeRTAtrs["rz"] = "3.1415926535";
 	newModel->addEdge(person, personMesh, "RT", edgeRTAtrs);
 
 
@@ -147,6 +151,7 @@ void SpecificWorker::includeInAGM()
 		try
 		{
 			sendModificationProposal(worldModel, newModel);
+		
 			break;
 		}
 		catch(const RoboCompAGMExecutive::Locked &e)
@@ -158,7 +163,7 @@ void SpecificWorker::includeInAGM()
 			return;
 		}
 		catch(const RoboCompAGMExecutive::InvalidChange &e)
-		{
+		{ 
 			exit(1);
 		}
 		sleep(1);
@@ -169,7 +174,7 @@ void SpecificWorker::includeInAGM()
 
 
 
-void SpecificWorker::receivedJoyStickEvent(int value, int type, int number)
+/*void SpecificWorker::receivedJoyStickEvent(int value, int type, int number)
 {
 	printf("*\n");
 	fflush(stdout);
@@ -188,7 +193,7 @@ void SpecificWorker::receivedJoyStickEvent(int value, int type, int number)
 	}
 	printf("*");
 	fflush(stdout);
-}
+}*/
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
@@ -209,7 +214,7 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	includeInAGM();
 
 	// Joystick
-	printf("Creating joystick...\n");
+	/*printf("Creating joystick...\n");
 	joystick = new QJoyStick("/dev/input/js0");
 	if (!joystick->openQJoy())
 	{
@@ -219,18 +224,171 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	joystick->start();
 	printf("Connecting joystick...\n");
 	connect(joystick, SIGNAL(inputEvent(int, int, int)), this, SLOT(receivedJoyStickEvent(int, int, int)));
- 
+	
+*/
 
 	timer.start(Period);
+	
+	 
+	//Teclado
+	    //UP
+	connect(up,SIGNAL(pressed()),this,SLOT(upP()));
+	connect(up,SIGNAL(released()),this,SLOT(upR()));
+	
+	    //DOWN
+	connect(down,SIGNAL(pressed()),this,SLOT(downP()));
+	connect(down,SIGNAL(released()),this,SLOT(downR()));
+	
+	    //RIGHT
+	connect (right,SIGNAL(pressed()),this,SLOT(rightP()));
+	connect (right,SIGNAL(released()),this,SLOT(rightR()));
+	
+	    //LEFT
+	connect(left,SIGNAL(pressed()),this,SLOT(leftP()));
+	connect(left,SIGNAL(released()),this,SLOT(leftR()));
+	
+	//GIRO
+	connect (giro,SIGNAL(valueChanged(int)),this,SLOT(rotar(int)));
+	connect (giro,SIGNAL(sliderPressed()),this,SLOT(giroP()));
+	connect (giro,SIGNAL(sliderReleased()),this,SLOT(giroR()));
+	
+	//giro->setNotchesVisible(true);
+	giro->QAbstractSlider::setMinimum (0);
+	giro->QAbstractSlider::setMaximum (360);	
 	return true;
 }
 
+//UP
+void SpecificWorker::upP(){
+  tbutton.up =true;
+}
+void SpecificWorker::upR(){
+  tbutton.up =false;
+}
+//DOWN
+void SpecificWorker::downP(){
+  tbutton.down =true;
+    
+}
+void SpecificWorker::downR(){
+ tbutton.down =false;
+}
+
+//RIGHT
+void SpecificWorker::rightP(){
+  tbutton.right =true;
+}
+void SpecificWorker::rightR(){
+  tbutton.right =false;
+}
+//LEFT
+void SpecificWorker::leftP(){
+  tbutton.left =true;
+}
+void SpecificWorker::leftR(){
+  tbutton.left =false;
+}
+
+//ROT
+void SpecificWorker::rotar(int value){
+   valorgiro=value;
+
+}
+void SpecificWorker::giroP(){
+  tbutton.rotacion=true;
+}
+void SpecificWorker::giroR(){ 
+  tbutton.rotacion=false;
+}
+
+//MOVE
+
+void SpecificWorker::move (){
+  
+  RoboCompInnerModelManager::coord3D coordInItem;
+  RoboCompInnerModelManager::coord3D coordInBase;
+  
+        if (tbutton.up==true){ 
+		coordInItem.x = 0;
+		coordInItem.y = 0;
+		coordInItem.z =humanAdvVel;
+		innermodelmanager_proxy->transform("root", "fakeperson", coordInItem, coordInBase);
+	
+	 }
+	 else if (tbutton.down==true){
+		coordInItem.x = 0;
+		coordInItem.y = 0;
+		coordInItem.z =-humanAdvVel;
+		innermodelmanager_proxy->transform("root", "fakeperson", coordInItem, coordInBase);
+	 }
+	 
+	 else if (tbutton.right==true){
+		coordInItem.z = 0;
+		coordInItem.y = 0;
+		coordInItem.x =humanAdvVel;
+		innermodelmanager_proxy->transform("root", "fakeperson", coordInItem, coordInBase);
+	 }
+	 
+	 else if (tbutton.left==true){
+		coordInItem.z = 0;
+		coordInItem.y = 0;
+		coordInItem.x =-humanAdvVel;
+		innermodelmanager_proxy->transform("root", "fakeperson", coordInItem, coordInBase);
+	 }
+	 
+	else if (tbutton.rotacion==true){
+	   
+		humanRot =valorgiro*0.0175;
+		coordInItem.x=0;
+		coordInItem.y=0;
+		coordInItem.z=0;
+		innermodelmanager_proxy->transform("root", "fakeperson", coordInItem, coordInBase);
+		
+	} 
+		
+		pose.x = coordInBase.x;
+		pose.y = coordInBase.y;
+		pose.z = coordInBase.z;
+		pose.rx = 0;
+		pose.ry =humanRot;
+		pose.rz = 0;
+		
+	
+		qDebug()<<"Pose x: "<<pose.x <<"Pose z:"<<pose.z<<"Rotacion:"<<pose.ry;
+		
+		innermodelmanager_proxy->setPoseFromParent("fakeperson", pose);
+		
+
+		AGMModelSymbol::SPtr personParent = worldModel->getParentByLink(personSymbolId, "RT");
+		AGMModelEdge &edgeRT  = worldModel->getEdgeByIdentifiers(personParent->identifier, personSymbolId, "RT");
+		edgeRT.attributes["tx"] = float2str(coordInBase.x);
+		edgeRT.attributes["ty"] = float2str(coordInBase.y);
+		edgeRT.attributes["tz"] = float2str(coordInBase.z);
+		edgeRT.attributes["rx"] = "0";
+		edgeRT.attributes["ry"] = float2str(humanRot);
+		edgeRT.attributes["rz"] = "0";
+	
+		
+		AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+	 	
+}
+
+
 void SpecificWorker::compute()
+
 {
 	QMutexLocker locker(mutex);
-	static QTime lastCompute = QTime::currentTime();
+	//static QTime lastCompute = QTime::currentTime();
+	
+	
+	if ((tbutton.up==true)||(tbutton.down==true)||(tbutton.right==true)||(tbutton.left==true)||(tbutton.rotacion==true)){
+	  move();
+	}
+	
+	
+	
 
-	if (lastJoystickEvent.elapsed()  < 3000)
+	/*if (lastJoystickEvent.elapsed()  < 3000)
 	{
 		printf("vel: %f %f\n", humanAdvVel, humanRotVel);
 		RoboCompInnerModelManager::coord3D coordInItem;
@@ -251,8 +409,6 @@ void SpecificWorker::compute()
 		pose.rz = 0;
 		innermodelmanager_proxy->setPoseFromParent("fakeperson", pose);
 
-
-
 		AGMModelSymbol::SPtr personParent = worldModel->getParentByLink(personSymbolId, "RT");
 		AGMModelEdge &edgeRT  = worldModel->getEdgeByIdentifiers(personParent->identifier, personSymbolId, "RT");
 		edgeRT.attributes["tx"] = float2str(coordInBase.x);
@@ -270,11 +426,12 @@ void SpecificWorker::compute()
 		fflush(stdout);
 	}
 
-	
+
+
 	lastCompute = QTime::currentTime();
+
+*/
 }
-
-
 bool SpecificWorker::reloadConfigAgent()
 {
 	return true;
@@ -429,14 +586,15 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
 {
 	try
-	{
+	{	qDebug()<<"Intentando sendModificationProposal";
 		AGMMisc::publishModification(newModel, agmexecutive_proxy, "fakeHumanAgentAgent");
+		qDebug()<<"sendModificationProposal";
 	}
 /*	catch(const RoboCompAGMExecutive::Locked &e)
 	{
 	}
 	catch(const RoboCompAGMExecutive::OldModel &e)
-	{
+	
 	}
 	catch(const RoboCompAGMExecutive::InvalidChange &e)
 	{
@@ -447,7 +605,3 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
-
-
-
-
