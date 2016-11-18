@@ -544,6 +544,7 @@ void SpecificWorker::newAprilTagAndPose(const tagsList &list,const RoboCompGener
 {
 
 	QMutexLocker l(mutex);
+	//save previous values
 	MotorStateMap backPoses = hState; //save motors name
 	for (auto motor: hState)
 	{
@@ -554,9 +555,11 @@ void SpecificWorker::newAprilTagAndPose(const tagsList &list,const RoboCompGener
 	float baseAlpha = innerModel->getTransform("robot")->extractAnglesR_min().y();
 
 	innerModel->updateTransformValues("robot",bState.correctedX,0,bState.correctedZ,0,bState.correctedAlpha,0);
-	
+
+	//update object position
 	updateTag(list);
 	
+	//restore values
 	for (auto motor: hState)
 	{
 		innerModel->getJoint(motor.first)->setAngle(backPoses[motor.first].pos);
