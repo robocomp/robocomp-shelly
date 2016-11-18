@@ -106,13 +106,13 @@ class MyShellyThread(QtCore.QThread):
 						cont += 1
 				aux = aux / maxAttemp
 				global loadN1, loadN2
-				if i == 1:
+#				if i == 1:
 #					self.loadSignal.emit("nuc1", aux)
-					self.parent.ui.load1.setText(aux)
-				elif i == 2:
-					self.parent.ui.load2.setText(aux)
-				elif i == 3:
-					self.parent.ui.load3.setText(aux)
+#					self.parent.ui.load1.setText(aux)
+#				elif i == 2:
+#					self.parent.ui.load2.setText(aux)
+#				elif i == 3:
+#					self.parent.ui.load3.setText(aux)
 			else:
 				print 'ERROR with: '+str(hostname)
 				loadN1 = loadN2 = "ERROR"
@@ -559,15 +559,14 @@ class SpecificWorker(GenericWorker):
 		for name, proxy in self.commonProxies.iteritems():
 			try:
 				params = proxy.getParameterList()
+				if name in self.frameRateLabels.keys():
+					self.frameRateLabels[name].setText(params['frameRate'].value)
+				else:
+					label = QtGui.QLabel(params['frameRate'].value)
+					self.frameRateLabels[name] = label
+					self.ui.frameLayout.addRow(name, label)
 			except: 
 				print 'Exception reading:', name, 'parameters'
-			if name in self.frameRateLabels.keys():
-				self.frameRateLabels[name].setText(params['frameRate'].value)
-			else:
-				label = QtGui.QLabel(params['frameRate'].value)
-				self.frameRateLabels[name] = label
-				self.ui.frameLayout.addRow(name, label)
-				
 
 	#
 	# newText
