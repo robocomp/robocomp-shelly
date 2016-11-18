@@ -20,7 +20,7 @@
   <dependence alias="base" />
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-shelly/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etcSim/panel.conf" />
+  <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-shelly/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/panel.conf" />
   <downCommand command="pkill -9 -f shellyPanel.py" />
   <configFile path="xxx" />
   <xpos value="-18.0317740924" />
