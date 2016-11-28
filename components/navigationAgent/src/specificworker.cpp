@@ -620,7 +620,8 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		tgt.y = 0;
 		tgt.z = poseInRoom.z();
 		tgt.rx = 0;
-		tgt.ry = poseInRoom.ry();
+		tgt.ry = 0; 
+		//tgt.ry = poseInRoom.ry(); //needed to reach tables
 		tgt.rz = 0;
 		tgt.doRotation = true;
 	}

@@ -80,6 +80,7 @@ private:
 	void action_SetObjectReach(bool first=false);
 	void action_GraspObject(bool first=false);
 	void action_handObject_leave(bool first=false);
+	void action_leaveObject(bool first=false);
 
 	void directGazeTowards(AGMModelSymbol::SPtr symbol);
 	void saccadic3D(QVec point, QVec axis);
