@@ -808,10 +808,19 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
 						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
-						edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
-						edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
-						edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
-						
+						// Do not update rotation if id=31 ==> tag
+						if(t.id == 31)
+						{
+							edgeRT->setAttribute("rx", "0.0");
+							edgeRT->setAttribute("ry", "0.0");
+							edgeRT->setAttribute("rz", "0.0");
+						}
+						else
+						{						
+							edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
+							edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
+							edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
+						}
 // 						qDebug() << "Updating edge!";
 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
 						rDebug2(("objectAgent edgeupdate for mug"));

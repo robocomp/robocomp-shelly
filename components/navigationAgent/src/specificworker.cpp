@@ -614,14 +614,22 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	{
 		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))    return;
 		QVec poseInRoom = innerModel->transform6D(roomIMID, objectIMID); // FROM OBJECT TO ROOM
+QVec roomInworld = innerModel->transform6D("world",roomIMID);
+QVec tableInworld = innerModel->transform6D(roomIMID,"tableB");
+QVec mugIntable = innerModel->transform6D("tableB","bluemug");
+QVec reachmugpose = innerModel->transform6D("bluemug",objectIMID);
+qDebug()<<"roomInworld"<<roomInworld;
+qDebug()<<"tableInworld"<<tableInworld;
+qDebug()<<"mugIntable"<<mugIntable;
+qDebug()<<"reachMugpose"<<reachmugpose;
 		qDebug() << __FUNCTION__ <<" Target pose: "<< poseInRoom;
 
 		tgt.x = poseInRoom.x();
 		tgt.y = 0;
 		tgt.z = poseInRoom.z();
 		tgt.rx = 0;
-		tgt.ry = 0; 
-		//tgt.ry = poseInRoom.ry(); //needed to reach tables
+		//tgt.ry = 0; 
+		tgt.ry = poseInRoom.ry(); //needed to reach tables
 		tgt.rz = 0;
 		tgt.doRotation = true;
 	}
@@ -715,10 +723,10 @@ void SpecificWorker::manageReachedPose()
 			{
 				QVec arm = innerModel->transformS("world", "robot");
 				QVec obj = innerModel->transformS("world", node->getAttribute("imName"));
-				(arm-obj).print("error");
+				(arm-obj);//.print("error");
 
 				d2n = distanceToNode("robot", newModel, node);
-qDebug()<<"distance "<<d2n;
+//qDebug()<<"distance "<<d2n;
 			}
 			catch(...)
 			{

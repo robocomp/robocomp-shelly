@@ -654,6 +654,10 @@ void SpecificWorker::actionExecution()
 	{
 		action_SetRestArmPosition();
 	}
+	else if (action == "setrestarmposition")
+	{
+		action_SetRestArmPosition(true);
+	}
 	else if (action == "handobject_leave")
 	{
 		action_handObject_leave();
@@ -1012,8 +1016,6 @@ void SpecificWorker::action_GraspObject(bool first)
 			offset(0) = 0 ;
 			offset(1) = yGoal - (numSteps-actualSteps)*(yGoal-yInit)/numSteps;
 			offset(2) = zGoal - (numSteps-actualSteps)*(zGoal-zInit)/numSteps;
-qDebug()<<"**********\n*****\nstep " <<actualSteps;
-qDebug()<<"goal"<<yGoal<<zGoal<<" --- "<<offset(1)<<offset(2);
 			if(actualSteps < numSteps)
 				actualSteps++;
 			if (manualMode)
@@ -1093,7 +1095,7 @@ qDebug()<<"goal"<<yGoal<<zGoal<<" --- "<<offset(1)<<offset(2);
 	usleep(200000);
 }
 
-void SpecificWorker::action_SetRestArmPosition(bool first)
+void SpecificWorker::action_SetRestArmPosition(bool hasObject, bool first)
 {
 	static QTime time;
 
@@ -1139,27 +1141,36 @@ void SpecificWorker::action_SetRestArmPosition(bool first)
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
 	goal.name = "wristX";
-	goal.position = 0;
+	if(hasObject)
+	{
+		goal.position = -1.2;
+	}
+	else{
+		goal.position = 0;
+	}	
 	try{
 		jointmotor_proxy->setPosition(goal);
 	}catch(...){
 		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
 	}
-	goal.name = "gripperFinger1";
-	goal.position = 0.0;
-	try{
-	//	jointmotor_proxy->setPosition(goal);
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+	// open gripper if not holding an object
+	if(!hasObject)
+	{
+		goal.name = "gripperFinger1";
+		goal.position = 0.0;
+		try{
+		//	jointmotor_proxy->setPosition(goal);
+		}catch(...){
+			qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+		}
+		goal.name = "gripperFinger2";
+		goal.position = 0.0;
+		try{
+		//	jointmotor_proxy->setPosition(goal);	
+		}catch(...){
+			qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
+		}
 	}
-	goal.name = "gripperFinger2";
-	goal.position = 0.0;
-	try{
-	//	jointmotor_proxy->setPosition(goal);	
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-	}
-	
 	usleep(200000);
 }
 
@@ -1310,12 +1321,37 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 2.0);
 		backAction = action;
-		setRightArmUp_Reflex();
+
+		//If robot is holding and object avoid arm movement
+		bool holdingObject = false;		
+		AGMModel::SPtr newModel(new AGMModel(worldModel));
+		int robotID = newModel->getIdentifierByType("robot");
+		for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
+		{
+			AGMModelSymbol::SPtr node = *symbol_itr;
+			if ((node->symboltype() == "object"))
+			{
+				// Avoid working with rooms
+				if (isObjectType(newModel, node, "room")) continue;
+				// Avoid working with tables
+	 			if (isObjectType(newModel, node, "table")) continue;
+				//if the object is in robot continue
+				try
+				{
+					AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
+					holdingObject = true;
+					break;
+				}
+				catch (...)
+				{
+				}
+			}
+		}
+		if(!holdingObject)
+		{
+			setRightArmUp_Reflex();
+		}
 	}
-
-
-
-
 
 	///
 	/// Track the target
