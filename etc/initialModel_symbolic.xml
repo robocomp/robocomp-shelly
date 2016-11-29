@@ -24,6 +24,11 @@
 	<link src="50" dst="51" label="classified" />
 	<link src="50" dst="20" label="in" />
 
+	<symbol id="52" type="objectSt">
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="bluemug_reachPos" />
+	</symbol>
+	<link src="50" dst="52" label="reachPosition" />
 	
 	<symbol id="22" type="objectSt">
 		<attribute key="imType" value="transform" />
