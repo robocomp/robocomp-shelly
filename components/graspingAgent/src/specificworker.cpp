@@ -216,14 +216,14 @@ void SpecificWorker::manageReachedObjects()
 // // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
 			if (node->identifier == 50)
 			{
-	                         innerModel->transformS("robot", "rgbd").print("RGBD in r");
-	                         innerModel->transformS("robot", "shellyArm_grasp_pose").print("p in r");
-// // // // // //                         innerModel->transformS("robot", "grabPositionHandR").print("G in r");
- 				innerModel->transformS("robot", node->getAttribute("imName")).print("o in r");
- 				innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName")).print("o in p");
+	                         innerModel->transformS("robot", "rgbd");//.print("RGBD in r");
+	                         innerModel->transformS("robot", "shellyArm_grasp_pose");//.print("p in r");
+// // // // // //                         innerModel->transformS("robot", "grabPositionHandR");//.print("G in r");
+ 				innerModel->transformS("robot", node->getAttribute("imName"));//.print("o in r");
+ 				innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));//.print("o in p");
 				QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 				oinp(1) = 0;
-				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
+//				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
 			}
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
@@ -658,7 +658,10 @@ void SpecificWorker::actionExecution()
 	{
 		action_handObject_leave();
 	}
-
+	else if (action == "leaveobject")
+	{
+		action_leaveObject();
+	}
 	if (newAction)
 	{
 		previousAction = action;
@@ -666,6 +669,68 @@ void SpecificWorker::actionExecution()
 	}
 }
 
+// leave object on table	
+void SpecificWorker::action_leaveObject(bool first)
+{
+	// Lock mutex and get a model's copy
+	QMutexLocker locker(mutex);
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	// Get action parameters
+	try
+	{
+		symbols = newModel->getSymbolsMap(params, "object", "table", "robot");
+	}
+	catch(...)
+	{
+		printf("graspingAgent: Couldn't retrieve action's parameters\n");
+	}
+
+	// Attempt to get the (object)--[in]--->(table) edge, in which case we're done
+	try
+	{
+		newModel->getEdge(symbols["object"], symbols["table"], "in");
+		return;
+	}
+	catch(...)
+	{
+	}
+
+	// Proceed
+	try
+	{
+		//move arm down		
+		//inversekinematics_proxy->setJoint("armX1", 0.0, 15);		
+		// open hand
+		inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
+		inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);
+		// World grammar rule implementation.
+		try
+		{
+			newModel->addEdge(   symbols["object"], symbols["table"], "in");
+			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			try
+			{
+				// Publish the modification
+				sendModificationProposal(newModel, worldModel);
+			}
+			catch (...)
+			{
+				printf("Error publishing the model in Object_leave\n");
+			}
+		}
+		catch (...)
+		{
+			printf("Error in the implementation of the rule Object_leave\n");
+		}
+	}
+	catch(...)
+	{
+		// Edge not present yet or some error raised. Try again in a few milliseconds.
+	}
+
+}
+
+// give object to person
 void SpecificWorker::action_handObject_leave(bool first)
 {
 	// Lock mutex and get a model's copy
@@ -856,11 +921,10 @@ void SpecificWorker::action_GraspObject(bool first)
 	const float yGoal = -20;
 	const float zInit = -180;
 	const float zGoal = -130;
-
-
+	const float numSteps = 3;
+	static float actualSteps=1;
 	static QVec offset = QVec::vec3(0,0,0);
 	static QVec offsetR = QVec::vec3(0,0,0);
-	offset.print("offset");
 	bool visible = false;
 	switch (state)
 	{
@@ -868,6 +932,8 @@ void SpecificWorker::action_GraspObject(bool first)
 		// APPROACH 1 AND OPEN FINGERS
 		//
 		case 0:
+			//reset intermediate steps
+			actualSteps = 1;
 			printf("%d\n", __LINE__);
 			//check if object is visible
 			try
@@ -942,9 +1008,14 @@ void SpecificWorker::action_GraspObject(bool first)
 		// APPROACH Middle
 		//
 		case 2:
-			offset(0) = 0;
-			offset(1) = yGoal;
-			offset(2) = zGoal;
+			//change offset to make intermediate movements
+			offset(0) = 0 ;
+			offset(1) = yGoal - (numSteps-actualSteps)*(yGoal-yInit)/numSteps;
+			offset(2) = zGoal - (numSteps-actualSteps)*(zGoal-zInit)/numSteps;
+qDebug()<<"**********\n*****\nstep " <<actualSteps;
+qDebug()<<"goal"<<yGoal<<zGoal<<" --- "<<offset(1)<<offset(2);
+			if(actualSteps < numSteps)
+				actualSteps++;
 			if (manualMode)
 			{
 				for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
