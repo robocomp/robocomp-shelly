@@ -134,7 +134,11 @@ static QTime reloj = QTime::currentTime();
 		//print();
 		if( getRobotDistanceToLastVisible() < 150  and   			//PARAMS
 			  getIterToLastVisiblePoint() < this->end())
+{
+		qDebug()<<"BLOCKED";
+			qDebug()<<"distanceToLastVisible"<<getRobotDistanceToLastVisible();
 			setBlocked(true);
+}
 		else
 			setBlocked(false);
 	}

@@ -114,6 +114,7 @@ void SpecificWorker::compute()
 		controller->stopTheRobot(omnirobot_proxy);
 		stopCommand(currentTarget, road, tState);
 		tState.setState("DISCONNECTED");
+		tState.setDescription("Disconnected");
 		currentTarget.state = CurrentTarget::State::DISCONNECTED;
 	}
 		
@@ -174,6 +175,7 @@ void SpecificWorker::compute()
 			break;
 		case CurrentTarget::State::IDLE:
 			timer.setInterval(700);
+			tState.setDescription("Waiting new target");
 			qDebug() << __FUNCTION__ << "Computed period" << reloj.elapsed()  << "ms. State. Robot at:" << innerModel->transform6D("world", "robot");
 			//currentTarget.setState(CurrentTarget::State::LEARNING);
 			break;
@@ -592,7 +594,7 @@ float SpecificWorker::goReferenced(const TargetPose &target_, const float xRef, 
 	currentTarget.reset(targetT, targetRot, target_.doRotation);
 	currentTarget.setState(CurrentTarget::State::GOTO);
 	tState.setState("EXECUTING");	
-	
+	tState.setDescription("Executing plan");
 	taskReloj.restart();
 	return (robotT - targetT).norm2();
 }

@@ -105,7 +105,9 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	//	- Also, is the target is very close, <500mm, avoid turning to allow for small correcting displacements
 	
 	float vrot = 0;
-	if( road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM *4)						// No rotation if target is close so small translational movements are allowed
+	QVec robotRot = innerModel->transform6D("world", "robot").subVector(3, 5);
+	if( (road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM *3) or 
+	(road.getRobotDistanceToTarget() > ROBOT_RADIUS_MM and road.last().hasRotation and (angmMPI(road.last().rot(1) - robotRot.y()) > M_PI/2.0)))// No rotation if target is close so small translational movements are allowed
 	{
 		vrot = 0.7 * road.getAngleWithTangentAtClosestPoint();
  		if(vrot > MAX_ROT_SPEED) vrot = MAX_ROT_SPEED;
@@ -170,7 +172,6 @@ bool Controller::update(InnerModel *innerModel, RoboCompLaser::TLaserData &laser
 	try { omnirobot_proxy->setSpeedBase(vside, vadvance, vrot);}
 	catch (const Ice::Exception &e) { std::cout << e << "Omni robot not responding" << std::endl; }
 
-qDebug()<< "controller => time elapsed: "<<reloj.elapsed();
 	epoch = reloj.restart();  //epoch time in ms
 	return false;
 }
@@ -226,4 +227,10 @@ float Controller::exponentialFunction(float value, float xValue, float yValue, f
 		return min;
 	else
 		return res;
+}
+float Controller::angmMPI(float angle)
+{
+	while (angle > +M_PI) angle -= 2. * M_PI;
+	while (angle < -M_PI) angle += 2. * M_PI;
+	return angle;
 }

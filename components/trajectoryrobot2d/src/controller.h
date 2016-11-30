@@ -37,7 +37,7 @@ class Controller
 		~Controller();
 		bool update(InnerModel* innerModel, RoboCompLaser::TLaserData& laserData, RoboCompOmniRobot::OmniRobotPrx omnirobot_proxy, WayPoints& road, bool print = false);
 		void stopTheRobot(RoboCompOmniRobot::OmniRobotPrx differentialrobot_proxy);
-
+		float angmMPI(float angle);
 	private:
 		QTime time;
 		int delay;
