@@ -52,7 +52,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #endif
 	
 
-	setRightArmUp_Reflex();
+	//setRightArmUp_Reflex();
 	
 	
 	
@@ -149,7 +149,7 @@ void SpecificWorker::manageReachedObjects()
 {
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
-	float THRESHOLD_table = 400;
+	float THRESHOLD_table = 50;
 	float THRESHOLD_person = 400;
 	std::string m ="  ";
 
@@ -165,6 +165,7 @@ void SpecificWorker::manageReachedObjects()
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
+		AGMModelSymbol::SPtr nodeReach = *symbol_itr;
 		if ((node->symboltype() == "object") or (node->symboltype() == "person"))
 		{
 			// Avoid working with rooms
@@ -185,8 +186,6 @@ void SpecificWorker::manageReachedObjects()
 // 				qDebug()<<"MUG NOT IN ROBOT";
 			}
 
-
-
 			static auto mapt = QMap<int, QTime>();
 			bool force_send = false;
 			if (not mapt.contains(node->identifier))
@@ -195,11 +194,22 @@ void SpecificWorker::manageReachedObjects()
 				force_send = true;
 			}
 
+			//If object has reachPosition uses it instead of objectPosition
+			for (auto edge = node->edgesBegin(newModel); edge != node->edgesEnd(newModel); edge++)
+			{
+				if (edge->getLabel() == "reachPosition")
+				{
+					const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
+					nodeReach = newModel->getSymbolByIdentifier(symbolPair.second);
+//					qDebug()<<"Using reachPosition instead of object position"<<node->getAttribute("imName").c_str();
+				}
+			}
+
 			/// Compute distance and new state
 			float d2n;
 			try
 			{
-				d2n = distanceToNode("shellyArm_grasp_pose", newModel, node);
+				d2n = distanceToNode("shellyArm_grasp_pose", newModel, nodeReach);
 			}
 			catch(...)
 			{
@@ -662,7 +672,7 @@ void SpecificWorker::actionExecution()
 	{
 		action_handObject_leave();
 	}
-	else if (action == "leaveobject")
+	else if (action == "leaveobjectintable")
 	{
 		action_leaveObject();
 	}
@@ -703,7 +713,7 @@ void SpecificWorker::action_leaveObject(bool first)
 	try
 	{
 		//move arm down		
-		//inversekinematics_proxy->setJoint("armX1", 0.0, 15);		
+		inversekinematics_proxy->setJoint("armX1", -0.5, 15);		
 		// open hand
 		inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
 		inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);

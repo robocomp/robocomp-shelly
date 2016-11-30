@@ -125,6 +125,31 @@ dormant handObject_leave : active(1)
 	}
 }
 
+hierarchical leaveObjectInTable_hierarchical : active(1)
+{
+	{
+		table:object(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		table:object(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+	}
+}
+
 leaveObjectInTable : active(1)
 {
 	{
@@ -135,8 +160,8 @@ leaveObjectInTable : active(1)
 		room:room(-130,0)
 		robot->object(know)
 		object->robot(in)
-		object->ost(reach)
 		robot->room(in)
+		table->ost(reach)
 		table->room(in)
 	}
 	=>
@@ -148,8 +173,8 @@ leaveObjectInTable : active(1)
 		room:room(-130,0)
 		robot->object(know)
 		object->table(in)
-		object->ost(reach)
 		robot->room(in)
+		table->ost(reach)
 		table->room(in)
 	}
 }

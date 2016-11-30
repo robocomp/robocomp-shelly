@@ -1,11 +1,6 @@
 {
 	1:robot(1,1)
-	mug:object(1,1)
-	1->mug(know)
+	50:object(1,1)
 	35:object(1,1)
-	36:objectSt(1,1)
-	1->35(know)
-	35->36(table)
-	35->36(reach)
-	mug->35(in)
+	50->35(in)
 }

@@ -614,14 +614,6 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	{
 		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))    return;
 		QVec poseInRoom = innerModel->transform6D(roomIMID, objectIMID); // FROM OBJECT TO ROOM
-QVec roomInworld = innerModel->transform6D("world",roomIMID);
-QVec tableInworld = innerModel->transform6D(roomIMID,"tableB");
-QVec mugIntable = innerModel->transform6D("tableB","bluemug");
-QVec reachmugpose = innerModel->transform6D("bluemug",objectIMID);
-qDebug()<<"roomInworld"<<roomInworld;
-qDebug()<<"tableInworld"<<tableInworld;
-qDebug()<<"mugIntable"<<mugIntable;
-qDebug()<<"reachMugpose"<<reachmugpose;
 		qDebug() << __FUNCTION__ <<" Target pose: "<< poseInRoom;
 
 		tgt.x = poseInRoom.x();
