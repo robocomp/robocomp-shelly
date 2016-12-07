@@ -1,0 +1,14 @@
+{
+	1:robot(1,1)
+	50:object(1,1)
+	table:object(1,1)
+	52:pose(1,1)
+	53:poseSt(1,1)
+	52->53(reach)
+	50->table(in)
+	50->table(wasIn)*
+}
+precondition
+{
+}
+

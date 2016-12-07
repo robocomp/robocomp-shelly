@@ -1674,6 +1674,7 @@
 <link src="50" dst="51" label="position"/>
 <link src="50" dst="51" label="classified"/>
 <link src="50" dst="20" label="in"/>
+<link src="50" dst="23" label="wasIn"/>
 <link src="50" dst="54" label="reachPosition"/>
 <link src="20" dst="22" label="reachPosition"/>
 <link src="23" dst="25" label="reachPosition"/>

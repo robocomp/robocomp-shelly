@@ -23,6 +23,7 @@
 	<link src="50" dst="51" label="position" />
 	<link src="50" dst="51" label="classified" />
 	<link src="50" dst="20" label="in" />
+	<link src="50" dst="23" label="wasIn" />
 
 	<symbol id="54" type="objectSt">
 		<attribute key="imType" value="transform" />
