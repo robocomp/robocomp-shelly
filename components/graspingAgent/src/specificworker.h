@@ -75,7 +75,6 @@ private:
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 
 	void actionExecution();
-	void action_SetRestArmPosition(bool hasObject=false, bool first=false);
 	void action_FindObjectVisuallyInTable(bool first=false);
 	void action_SetObjectReach(bool first=false);
 	void action_GraspObject(bool first=false);
@@ -91,7 +90,7 @@ private:
 	float distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr symbol);
 // 	float distanceToPolygon(QVec reference, QVec position, std::string polygon_str);
 
-	void setRightArmUp_Reflex();
+	void checkRestArm(bool first=false);	
 
 	void updateViewer();
 	void changeInner ();
@@ -99,7 +98,7 @@ private:
 	bool robotIsMoving();
 	bool isSomeMotorMoving();
 private:
-	
+
 	std::string action, backAction;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
@@ -107,7 +106,7 @@ private:
 	osgGA::TrackballManipulator *manipulator;
 	OsgView *osgView;	
 	InnerModelViewer *innerViewer; 
-	
+	QTimer *armTimer;	
 	bool active;
 
 	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols, QVec offsetR);
@@ -115,6 +114,7 @@ private:
 	
 public slots:
 	void on_state1_clicked();
+	void setRightArmUp_Reflex(bool first=false);
 };
 
 #endif

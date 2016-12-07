@@ -51,11 +51,9 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 // 	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
 #endif
 	
+	armTimer = new QTimer();
+	connect(armTimer, SIGNAL(timeout()), this, SLOT(setRightArmUp_Reflex()));
 
-	//setRightArmUp_Reflex();
-	
-	
-	
 }
 
 /**
@@ -650,7 +648,7 @@ void SpecificWorker::actionExecution()
 	}
 	else if (action == "setobjectreach")
 	{
-		action_SetObjectReach(newAction);
+		checkRestArm(newAction);
 	}
 	else if (action == "graspobject")
 	{
@@ -662,11 +660,15 @@ void SpecificWorker::actionExecution()
 	}
 	else if (action == "setrestarmposition")
 	{
-		action_SetRestArmPosition();
+		checkRestArm(newAction);
 	}
-	else if (action == "setrestarmposition")
+	else if (action == "changeroom")
 	{
-		action_SetRestArmPosition(true);
+		checkRestArm(newAction);
+	}
+	else if (action == "reachpose")
+	{
+		checkRestArm(newAction);
 	}
 	else if (action == "handobject_leave")
 	{
@@ -720,8 +722,19 @@ void SpecificWorker::action_leaveObject(bool first)
 		// World grammar rule implementation.
 		try
 		{
+			// check if object has "wasIn" edge, it must be removed
+			for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
+			{
+				if (edge->getLabel() == "wasIn")
+				{
+					newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
+					break;
+				}
+			}
 			newModel->addEdge(   symbols["object"], symbols["table"], "in");
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");			
+
 			try
 			{
 				// Publish the modification
@@ -743,6 +756,7 @@ void SpecificWorker::action_leaveObject(bool first)
 	}
 
 }
+
 
 // give object to person
 void SpecificWorker::action_handObject_leave(bool first)
@@ -779,7 +793,17 @@ void SpecificWorker::action_handObject_leave(bool first)
 		// World grammar rule implementation.
 		try
 		{
+			// check if object has "wasIn" edge, it must be removed
+			for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
+			{
+				if (edge->getLabel() == "wasIn")
+				{
+					newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
+					break;
+				}
+			}
 			newModel->addEdge(   symbols["object"], symbols["person"], "in");
+			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
 			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 			try
@@ -1066,10 +1090,20 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 4:
 			try
 			{
+				// check if object has "wasIn" edge, it must be removed
+				for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
+				{
+					if (edge->getLabel() == "wasIn")
+					{
+						newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
+						break;
+					}
+				}
 				usleep(200000);
 				if (not manualMode)
 				{
 					newModel->removeEdge(symbols["object"], symbols["table"], "in");
+					newModel->addEdge(   symbols["object"], symbols["table"], "wasIn");
 					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
 					{
 						QMutexLocker locker(mutex);
@@ -1105,85 +1139,6 @@ void SpecificWorker::action_GraspObject(bool first)
 	usleep(200000);
 }
 
-void SpecificWorker::action_SetRestArmPosition(bool hasObject, bool first)
-{
-	static QTime time;
-
-	QMutexLocker locker(mutex);
-	AGMModel::SPtr newModel(new AGMModel(worldModel));
-
-
-	static QTime ttt = QTime::currentTime();
-	printf("elapsed: %f\n", (float)ttt.elapsed());
-
-	printf("action_SetObjectReach: first:%d\n", (int)first);
-
-	try
-	{
-		symbols = newModel->getSymbolsMap(params, "robot", "status");
-	}
-	catch(...)
-	{
-		printf("graspingAgent: Couldn't retrieve action's parameters\n");
-	}
-
-	RoboCompJointMotor::MotorGoalPosition goal;
-	goal.maxSpeed = 0.7;
-	goal.name = "armY";
-	goal.position = 0;
-	try{
-		jointmotor_proxy->setPosition(goal);
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-	}
-	goal.name = "armX1";
-	goal.position = -1.34;
-	try{
-		jointmotor_proxy->setPosition(goal);
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-	}
-	goal.name = "armX2";
-	goal.position = 2.5;
-	try{
-		jointmotor_proxy->setPosition(goal);
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-	}
-	goal.name = "wristX";
-	if(hasObject)
-	{
-		goal.position = -1.2;
-	}
-	else{
-		goal.position = 0;
-	}	
-	try{
-		jointmotor_proxy->setPosition(goal);
-	}catch(...){
-		qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-	}
-	// open gripper if not holding an object
-	if(!hasObject)
-	{
-		goal.name = "gripperFinger1";
-		goal.position = 0.0;
-		try{
-		//	jointmotor_proxy->setPosition(goal);
-		}catch(...){
-			qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-		}
-		goal.name = "gripperFinger2";
-		goal.position = 0.0;
-		try{
-		//	jointmotor_proxy->setPosition(goal);	
-		}catch(...){
-			qDebug()<<"Exception:: Setting "<<goal.name.c_str()<<" to rest position";
-		}
-	}
-	usleep(200000);
-}
-
 void SpecificWorker::leaveObjectSimulation()
 {
 	QMutexLocker locker(mutex);
@@ -1191,8 +1146,18 @@ void SpecificWorker::leaveObjectSimulation()
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
+		// check if object has "wasIn" edge, it must be removed
+		for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
+		{
+			if (edge->getLabel() == "wasIn")
+			{
+				newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
+				break;
+			}
+		}
 		newModel->addEdge(   symbols["object"], symbols["table"], "in");
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+		newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
 		{
 // 			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
 			sendModificationProposal(worldModel, newModel);
@@ -1323,44 +1288,14 @@ void SpecificWorker::action_SetObjectReach(bool first)
 	///
 	///  Lift the hand if it's down, to avoid collisions
 	///
-	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
-	printf("grasp_height %f\n", grasp_height);
-	float elbow_height = innerModel->transform("world", "armX2")(1);
-	printf("elbow_height %f\n", elbow_height);
+//	float grasp_height = innerModel->transform("world", "shellyArm_grasp_pose")(1);
+//	printf("grasp_height %f\n", grasp_height);
+//	float elbow_height = innerModel->transform("world", "armX2")(1);
+//	printf("elbow_height %f\n", elbow_height);
 	if (first)
 	{
 		inversekinematics_proxy->setJoint("head_yaw_joint", 0, 2.0);
 		backAction = action;
-
-		//If robot is holding and object avoid arm movement
-		bool holdingObject = false;		
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
-		int robotID = newModel->getIdentifierByType("robot");
-		for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
-		{
-			AGMModelSymbol::SPtr node = *symbol_itr;
-			if ((node->symboltype() == "object"))
-			{
-				// Avoid working with rooms
-				if (isObjectType(newModel, node, "room")) continue;
-				// Avoid working with tables
-	 			if (isObjectType(newModel, node, "table")) continue;
-				//if the object is in robot continue
-				try
-				{
-					AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
-					holdingObject = true;
-					break;
-				}
-				catch (...)
-				{
-				}
-			}
-		}
-		if(!holdingObject)
-		{
-			setRightArmUp_Reflex();
-		}
 	}
 
 	///
@@ -1402,7 +1337,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 				else
 					angle = currentYaw - 10.*M_PI/180.;
 			}
-			printf(" -> %f\n", angle);
+//			printf(" -> %f\n", angle);
 
 			if (angle > +.4) angle = +.4;
 			if (angle < -.4) angle = -.4;
@@ -1482,99 +1417,129 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 
 }
 
-
-
-
-void SpecificWorker::setRightArmUp_Reflex()
+// Check if arm should be set in rest position
+void SpecificWorker::checkRestArm(bool first)
 {
-//     printf("not reflex\n");
-//     return;
-	printf("setRightArmUp_Reflex\n");
+	if(!first)
+		return;
+	//If robot is holding and object avoid arm movement
+	bool holdingObject = false;		
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	int robotID = newModel->getIdentifierByType("robot");
+	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
+	{
+		AGMModelSymbol::SPtr node = *symbol_itr;
+		if ((node->symboltype() == "object"))
+		{
+			// Avoid working with rooms
+			if (isObjectType(newModel, node, "room")) continue;
+			// Avoid working with tables
+			if (isObjectType(newModel, node, "table")) continue;
+			//if the object is in robot continue
+			try
+			{
+				AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
+				holdingObject = true;
+				break;
+			}
+			catch (...)
+			{
+			}
+		}
+	}
+	if(!holdingObject)
+	{
+		setRightArmUp_Reflex(true);
+	}
+}
+
+// Set arm in rest position
+void SpecificWorker::setRightArmUp_Reflex(bool first)
+{
+	qDebug()<<"setRightArmUp_Reflex, first time:"<<first;
         
-	MotorGoalPositionList gpList;
+	MotorGoalPositionList gpList,gpFinal;
 	MotorGoalPosition gp;
 	gp.maxSpeed = 2.5;
-	
-        
-        float desired_value;
-        MotorStateMap mstateMap;
-        jointmotor_proxy->getAllMotorState(mstateMap);
-        
-        
-	gp.name = "armY";
-        desired_value = 0;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-	gp.name = "armX1";
-	desired_value = -1.34;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-        gp.name ="head_yaw_joint";
-        desired_value = 0;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-        gp.name ="head_pitch_joint";
-        desired_value = 0.8;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-	gp.name = "armX2";
-	desired_value = 2.5;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-	gp.name = "wristX";
-	desired_value = 0;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-	gp.name = "gripperFinger1";
-	desired_value = 0.0;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
-	
-	gp.name = "gripperFinger2";
-	desired_value = 0.0;
-        if (fabs(mstateMap[gp.name].p-desired_value)>=0.05)
-        {
-            printf("%s   %f   %f\n, ", gp.name.c_str(), (float)mstateMap[gp.name].p, desired_value);
-            gp.position = desired_value;
-            gpList.push_back(gp);
-        }
+    
 
-        if (gpList.size()>0)
-            jointmotor_proxy->setSyncPosition(gpList);
+        MotorStateMap mstateMap;
+	try{
+        	jointmotor_proxy->getAllMotorState(mstateMap);
+	}catch(...){
+		qDebug()<<"Error reading arm position";
+		return;
+	}
+        
+	static int armState;
+	if(first)
+	{
+		armTimer->start(300);
+		armState = 1;	
+	}
+	//check if arms is moving
+	for (auto state : mstateMap)
+	{
+		if (state.second.isMoving)
+			return;
+	}	
+	switch(armState)
+	{
+		case 1: 
+			gp.name = "armX1";
+			gp.position = -1.34;
+			gpList.push_back(gp);
+			gp.name = "gripperFinger1";
+			gp.position = 0.0;
+			gpList.push_back(gp);
+			gp.name = "gripperFinger2";
+			gp.position = 0.0;
+			gpList.push_back(gp);
+			break;
+
+		case 2: gp.name = "armY";
+			gp.position = 0.0;
+			gpList.push_back(gp);
+			gp.name = "armX2";
+			gp.position = 2.5;
+			gpList.push_back(gp);
+			gp.name = "wristX";
+			gp.position = 0.0;
+			gpList.push_back(gp);
+		        gp.name ="head_yaw_joint";
+			gp.position = 0.0;
+			gpList.push_back(gp);
+			gp.name ="head_pitch_joint";
+			gp.position = 0.8;
+			gpList.push_back(gp);
+			break;
+	}
+
+	//check if any movement is already achieved
+	for (auto goal : gpList)
+	{
+		if (fabs(mstateMap[goal.name].pos - goal.position)>=0.05)
+			gpFinal.push_back(goal);
+	}
+        if (gpFinal.size()>0 )	
+	{
+		try{
+	            jointmotor_proxy->setSyncPosition(gpFinal);
+		}catch(...){
+			qDebug()<<"Error sending arm position";
+		}
+	}
+	else{
+
+		if( armState == 2 )
+		{
+			qDebug()<<"setRightArmUp_Reflex: stop arm movement";
+			armTimer->stop();
+		}else{
+			armState = 2;
+
+		}
+	}
 }
 
 
