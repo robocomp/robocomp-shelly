@@ -359,6 +359,20 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			newModel->removeEdgeByIdentifiers(robotId, roomId, "in");
 			newModel->addEdgeByIdentifiers(robotId, robotIsActuallyInRoom, "in");
 
+			// Move "in" edges for every object IN the robot
+			AGMModelSymbol::SPtr newRobot = newModel->getSymbol(robotId);
+			for (auto edgeIn = robot->edgesBegin(newModel); edgeIn != robot->edgesEnd(newModel); edgeIn++)
+			{
+				const std::pair<int32_t, int32_t> symbolPair = edgeIn->getSymbolPair();
+				if ( edgeIn->linking=="in" and symbolPair.second==robot->identifier )
+				{
+					AGMModelSymbol::SPtr objectToMove = newModel->getSymbol(symbolPair.first);
+					newModel->removeEdgeByIdentifiers(objectToMove->identifier, roomId, "in");
+					newModel->addEdgeByIdentifiers(objectToMove->identifier, robotIsActuallyInRoom, "in");
+				}
+			}
+
+
 			// Modify RT edge
 			AGMModelEdge edgeRT = newModel->getEdgeByIdentifiers(roomId, robotId, "RT");
 			newModel->removeEdgeByIdentifiers(roomId, robotId, "RT");
