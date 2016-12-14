@@ -1,17 +1,15 @@
 {
 	1:robot(1,1)
-	mug:object(1,1)
-	mugSt:objectSt(1,1)
-	tableA:object(1,1)
-	tableB:object(1,1)
-	mug->mugSt(mug)
-	52:pose(1,1)
-	53:poseSt(1,1)
-	52->53(reach)
-	mug->tableA(in)
-	mug->tableB(wasIn)
+	23:object(1,1)
 }
 precondition
 {
+		(forall
+			something:object
+			(and
+				(not (in something 1))
+				(not (in something 23))
+			)
+		)
 }
 
