@@ -179,6 +179,45 @@ leaveObjectInTable : active(1)
 	}
 }
 
+hierarchical moveObjectTables : active(1)
+{
+	{
+		tableA:object(0,110)
+		tableB:object(0,110)
+		object:object(130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->tableA(in)
+	}
+	=>
+	{
+		tableA:object(0,110)
+		tableB:object(0,110)
+		object:object(130,0)
+		ost:objectSt(290,0)
+		robot:robot(0,-110)
+		robot->object(know)
+		object->tableB(in)
+	}
+	effect
+	{
+		(forall
+			something:pose
+			(forall
+				somethingSt:poseSt
+				(when
+					(hasStatus something somethingSt)
+					(and
+						(not (reach something somethingSt))
+						(noReach something somethingSt)
+					)
+				)
+			)
+		)
+	}
+}
+
 setRestArmPosition : active(1)
 {
 	{

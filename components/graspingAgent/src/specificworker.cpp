@@ -723,17 +723,17 @@ void SpecificWorker::action_leaveObject(bool first)
 		try
 		{
 			// check if object has "wasIn" edge, it must be removed
-			for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
+/*			for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
 			{
 				if (edge->getLabel() == "wasIn")
 				{
 					newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
 					break;
 				}
-			}
+			}*/
 			newModel->addEdge(   symbols["object"], symbols["table"], "in");
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
-			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");			
+//			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");			
 
 			try
 			{
@@ -793,7 +793,7 @@ void SpecificWorker::action_handObject_leave(bool first)
 		// World grammar rule implementation.
 		try
 		{
-			// check if object has "wasIn" edge, it must be removed
+/*			// check if object has "wasIn" edge, it must be removed
 			for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
 			{
 				if (edge->getLabel() == "wasIn")
@@ -801,9 +801,9 @@ void SpecificWorker::action_handObject_leave(bool first)
 					newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
 					break;
 				}
-			}
+			}*/
 			newModel->addEdge(   symbols["object"], symbols["person"], "in");
-			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
+//			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
 			newModel->removeEdge(symbols["object"], symbols["person"], "offered");
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 			try
@@ -1090,7 +1090,7 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 4:
 			try
 			{
-				// check if object has "wasIn" edge, it must be removed
+/*				// check if object has "wasIn" edge, it must be removed
 				for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
 				{
 					if (edge->getLabel() == "wasIn")
@@ -1098,12 +1098,12 @@ void SpecificWorker::action_GraspObject(bool first)
 						newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
 						break;
 					}
-				}
+				}*/
 				usleep(200000);
 				if (not manualMode)
 				{
 					newModel->removeEdge(symbols["object"], symbols["table"], "in");
-					newModel->addEdge(   symbols["object"], symbols["table"], "wasIn");
+//					newModel->addEdge(   symbols["object"], symbols["table"], "wasIn");
 					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
 					{
 						QMutexLocker locker(mutex);
@@ -1146,7 +1146,7 @@ void SpecificWorker::leaveObjectSimulation()
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	try
 	{
-		// check if object has "wasIn" edge, it must be removed
+/*		// check if object has "wasIn" edge, it must be removed
 		for (auto edge = symbols["object"]->edgesBegin(newModel); edge != symbols["object"]->edgesEnd(newModel); edge++)
 		{
 			if (edge->getLabel() == "wasIn")
@@ -1154,10 +1154,10 @@ void SpecificWorker::leaveObjectSimulation()
 				newModel->removeEdgeByIdentifiers(symbols["object"]->identifier, edge->getSymbolPair().second, "wasIn");
 				break;
 			}
-		}
+		}*/
 		newModel->addEdge(   symbols["object"], symbols["table"], "in");
 		newModel->removeEdge(symbols["object"], symbols["robot"], "in");
-		newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
+//		newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
 		{
 // 			rDebug2(("graspingAgent object %d left") % symbols["object"]->identifier);
 			sendModificationProposal(worldModel, newModel);

@@ -731,6 +731,51 @@ void SpecificWorker::manageReachedPose()
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
+
+
+//*********** FIX
+				if (edge->getLabel() == "reach")
+				{ 
+					//TODO: FIX ==> Update wasIn mug status
+						AGMModelSymbol::SPtr mug = newModel->getSymbolByIdentifier(50); //50 ==> bluemug
+						int32_t inTableID = -1;
+						int32_t wasInTableID = -1;
+						for (auto edgeMug = mug->edgesBegin(newModel); edgeMug != mug->edgesEnd(newModel); edgeMug++)
+						{
+							if(newModel->getSymbolByIdentifier(edgeMug->getSymbolPair().second)->symboltype() == "object")
+							{
+								printf("symbol: %d\n", edgeMug->getSymbolPair().second);
+								bool doChange = false;
+								AGMModelSymbol::SPtr container = newModel->getSymbolByIdentifier(edgeMug->getSymbolPair().second);
+								for (auto edgeMug2 = container->edgesBegin(newModel); edgeMug2 != container->edgesEnd(newModel); edgeMug2++)
+								{
+									if (edgeMug2->getLabel() == "table")
+										doChange = true;
+								}
+								if (doChange)
+								{
+									printf("doChange\n");
+									if (edgeMug->getLabel() == "wasIn")
+									{
+										wasInTableID = edgeMug->getSymbolPair().second;								
+									}
+									else if (edgeMug->getLabel() == "in")
+									{
+										inTableID = edgeMug->getSymbolPair().second;
+									}
+								}
+							}
+						}
+qDebug()<<"inTable"<<inTableID<<"was"<<wasInTableID;
+						if(inTableID != -1 and wasInTableID != -1 and inTableID != wasInTableID)
+						{
+							changed = true;
+							newModel->removeEdgeByIdentifiers(mug->identifier, wasInTableID, "wasIn");
+							newModel->addEdgeByIdentifiers( mug->identifier, inTableID, "wasIn");
+						}
+				}
+//***************
+
 				if (edge->getLabel() == "reach" and d2n > THRESHOLD_POSE+schmittTriggerThreshold )
 				{
 					edge->setLabel("noReach");
