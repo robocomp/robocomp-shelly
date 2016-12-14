@@ -85,7 +85,67 @@ changeRoom : active(1)
 	}
 }
 
-reachPose : active(1)
+setObjectReach : active(1)
+{
+	{
+		robot:robot(0,0)
+		room:room(0,130)
+		object:object(160,130)
+		status:objectSt(390,130)
+		object->status(hasStatus)
+		object->status(noReach)
+		object->status(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		robot:robot(0,0)
+		room:room(0,130)
+		object:object(160,130)
+		status:objectSt(390,130)
+		object->status(hasStatus)
+		object->status(reach)
+		object->status(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(forall
+			something:pose
+			(forall
+				somethingSt:poseSt
+				(when
+					(hasStatus something somethingSt)
+					(and
+						(not (reach something somethingSt))
+						(noReach something somethingSt)
+					)
+				)
+			)
+		)
+	}
+}
+
+setObjectNotReach : passive(1)
+{
+	{
+		status:objectSt(250,-40)
+		object:object(50,-40)
+		object->status(hasStatus)
+		object->status(reach)
+	}
+	=>
+	{
+		status:objectSt(250,-40)
+		object:object(50,-40)
+		object->status(hasStatus)
+		object->status(noReach)
+	}
+}
+
+reachPose : active(3)
 {
 	{
 		pose:pose(65,0)
