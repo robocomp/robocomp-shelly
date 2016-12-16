@@ -8,7 +8,7 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
-hierarchical moveObjectTables : active(2)
+hierarchical moveObjectTables : active(1)
 {
 	{
 		tableA:object(0,110)
@@ -48,7 +48,7 @@ hierarchical moveObjectTables : active(2)
 }
 
 
-reachPose : active(3)
+reachPose : active(1)
 {
 	{
 		pose:pose(65,0)
