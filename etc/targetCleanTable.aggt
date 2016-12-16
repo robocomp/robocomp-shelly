@@ -1,6 +1,8 @@
 {
 	1:robot(1,1)
 	23:object(1,1)
+	24:objectSt(1,1)
+	23->24(reach)
 }
 precondition
 {
