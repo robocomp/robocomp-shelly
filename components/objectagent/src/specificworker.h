@@ -68,7 +68,7 @@ private:
 	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
-
+	AGMModelSymbol::SPtr getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table);
 private:
 	std::string action;
 	ParameterMap params;

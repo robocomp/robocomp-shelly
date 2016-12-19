@@ -696,7 +696,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 {
 	printf("===========================\n===   updateMug   =========\n===========================\n");
 	bool existing = false;
-	float THRESHOLD_mugInTable = 500;
+	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug,symbolMugSt;
 	
 	
@@ -717,27 +717,79 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			catch (...){ printf("   ERROR %s: %d\n", __FILE__, __LINE__);}
 		}
 	}
-	//create new simbol
+	//create new symbol
 	if (not existing)
 	{
 		try
 		{
-			int32_t objectSymbolID;
-			int32_t objectStSymbolID;
-			getIDsFor("mug", objectSymbolID, objectStSymbolID);
+			AGMModelSymbol::SPtr robot = newModel->getSymbolByIdentifier(newModel->getIdentifierByType("robot"));
+			symbolMug = newModel->newSymbol("object");
+			symbolMug->setAttribute("imName","newmug");
+			symbolMug->setAttribute("imType","transform");
+			const std::string tagIdStr = int2str(t.id);
+			symbolMug->setAttribute("tag", tagIdStr);
 
-			symbolMug = newModel->newSymbol("object", objectSymbolID);
-			symbolMugSt = newModel->newSymbol("objectSt", objectStSymbolID);
+			symbolMugSt = newModel->newSymbol("objectSt");
+
 			newModel->addEdge(symbolMug, symbolMugSt, "hasStatus");
+			newModel->addEdge(symbolMug, symbolMugSt, "mug");
 			newModel->addEdge(symbolMug, symbolMugSt, "see");
 			newModel->addEdge(symbolMug, symbolMugSt, "position");
+			newModel->addEdge(symbolMug, symbolMugSt, "classified");
 			newModel->addEdge(symbolMug, symbolMugSt, "reachable");
 			newModel->addEdge(symbolMug, symbolMugSt, "noReach");
-			const std::string tagIdStr = int2str(t.id);
-			symbolMug->attributes["tag"] = tagIdStr;
-			
+			newModel->addEdge(robot, symbolMug, "know");
+
+			// mug reach position
+			AGMModelSymbol::SPtr reachMugSt = newModel->newSymbol("objectSt");
+			reachMugSt->setAttribute("imName","newmug_reachPos");
+			reachMugSt->setAttribute("imType","transform");
+			newModel->addEdge(symbolMug, reachMugSt, "RT");
+			AGMModelEdge &edgeRT  = newModel->getEdge(symbolMug, reachMugSt, "RT");
+			edgeRT->setAttribute("tx", "0");
+			edgeRT->setAttribute("ty", "0");
+			edgeRT->setAttribute("tz", "0");
+			edgeRT->setAttribute("rx", "0");
+			edgeRT->setAttribute("ry", "0");
+			edgeRT->setAttribute("rz", "0");
+
+			//mug mesh			
+			AGMModelSymbol::SPtr symbolMugMesh = newModel->newSymbol("mesh");
+			symbolMugMesh->setAttribute("collidable", "true");
+			symbolMugMesh->setAttribute("imName", "newMugR");
+			symbolMugMesh->setAttribute("imType", "mesh");
+			symbolMugMesh->setAttribute("path", "/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds");
+			symbolMugMesh->setAttribute("render", "NormalRendering");
+			symbolMugMesh->setAttribute("scalex", "120");
+			symbolMugMesh->setAttribute("scaley", "120");
+			symbolMugMesh->setAttribute("scalez", "120");
+
+			AGMModelSymbol::SPtr symbolMugMeshTransform = newModel->newSymbol("transform");
+			symbolMugMeshTransform->setAttribute("engine", "static");
+			symbolMugMeshTransform->setAttribute("imName", "newMugRPr");
+			symbolMugMeshTransform->setAttribute("imType", "transform");
+			symbolMugMeshTransform->setAttribute("mass", "0");
+			newModel->addEdge(symbolMugMeshTransform, symbolMugMesh, "RT");
+			AGMModelEdge &edgeRT2  = newModel->getEdge(symbolMugMeshTransform, symbolMugMesh, "RT");
+			edgeRT2->setAttribute("tx", "0");
+			edgeRT2->setAttribute("ty", "0");
+			edgeRT2->setAttribute("tz", "0");
+			edgeRT2->setAttribute("rx", "1.5707");
+			edgeRT2->setAttribute("ry", "0");
+			edgeRT2->setAttribute("rz", "-1.5707");
+
+			newModel->addEdge(symbolMug, symbolMugMeshTransform, "RT");
+			AGMModelEdge &edgeRT3  = newModel->getEdge(symbolMug, symbolMugMeshTransform, "RT");
+			edgeRT3->setAttribute("tx", "-10");
+			edgeRT3->setAttribute("ty", "50");
+			edgeRT3->setAttribute("tz", "0");
+			edgeRT3->setAttribute("rx", "0");
+			edgeRT3->setAttribute("ry", "0");
+			edgeRT3->setAttribute("rz", "0");
+
 			try
 			{
+				qDebug()<<"new mug inserted in model ";
 				sendModificationProposal(worldModel, newModel);
 			}
 			catch(...)
@@ -748,7 +800,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 		}
 		catch(...)
 		{
-			printf("(insert new Mug) objectAgent: Couldn't retrieve action's parameters\n");
+			printf("ERROR: creating new mug");
 		}
 	}
 	// If the mug already exists: update its position
@@ -759,7 +811,6 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 		try
 		{
 			QTime timeRead = QTime::fromString(QString::fromStdString(symbolMug->getAttribute("LastSeenTimeStamp")),"hhmmss");
-			qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
 			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
 			{
 				symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
@@ -769,7 +820,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 				}
 				catch (...)
 				{
-					printf("Exception: Executive not running?\n");
+					printf("LastSeenTimeStamp Exception: Executive not running?\n");
 				}
 			}
 		}
@@ -783,74 +834,101 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			}
 			catch (...)
 			{
-				printf("Exception: Executive not running?\n");
+				printf("LastSeenTimeStamp Exception: Executive not running?\n");
 			}
 			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
 		}
 	
 	//check mug table in
-			//Update innermodel pose
-			QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
-			QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
-			QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
-			QVec tagInWorld  = innerModel->transform("world", positionTag, "rgbd");
-			
-			//check if mug is in robot
-			bool mugInrobot=false;
-			try
+		//Update innermodel pose
+		QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
+		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
+		QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
+		QVec tagInWorld  = innerModel->transform("world", positionTag, "rgbd");
+		
+		//check if mug is in robot
+		bool mugInrobot=false;
+		try
+		{
+			int robotID = newModel->getIdentifierByType("robot");
+			AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, robotID, "in");
+			mugInrobot = true;
+		}
+		catch (...)
+		{
+			printf("Mug not in robot\n");
+		}
+		//else
+		if (!mugInrobot)
+		{
+			float min_distance = 9999999;
+			AGMModelSymbol::SPtr symbolNewTable, symbolWasInTable;
+			for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 			{
-				int robotID = newModel->getIdentifierByType("robot");
-				AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, robotID, "in");
-				mugInrobot = true;
-			}
-			catch (...)
-			{
-				printf("Exception: Executive not running?\n");
-			}
-			//else
-			if (!mugInrobot)
-			{
-				float min_distance = 9999999;
-				AGMModelSymbol::SPtr symbolNewTable, symbolWasInTable;
-				for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+				if (symbol_it->symbolType == "object")
 				{
-					if (symbol_it->symbolType == "object")
+					if (isObjectType(newModel, *symbol_it, "table"))
 					{
-						if (isObjectType(newModel, *symbol_it, "table"))
+						std::string tableIMName = symbol_it->getAttribute("imName");
+						QMat tableInWorld = innerModel->transformS("world", tableIMName);
+						float distance = (tagInWorld - tableInWorld).norm2();
+						//qDebug()<<"checking distance: "<<tableIMName.c_str()<<"distence"<<distance;
+						if (distance < THRESHOLD_mugInTable and distance < min_distance)
 						{
-							std::string tableIMName = symbol_it->getAttribute("imName");
-							QMat tableInWorld = innerModel->transformS("world", tableIMName);
-							float distance = (tagInWorld - tableInWorld).norm2();
-							if (distance < THRESHOLD_mugInTable and distance < min_distance)
-							{
-								min_distance = distance;
-								symbolNewTable = *symbol_it;
-							}
-						}
-						try{
-							AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
-							symbolWasInTable = *symbol_it;
-						}catch (...)
-						{
+							min_distance = distance;
+							symbolNewTable = *symbol_it;
 						}
 					}
+					try{
+						AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
+						symbolWasInTable = *symbol_it;
+					}catch (...)
+					{
+					}
 				}
-				//wich table is mug on¿?
-				if (symbolNewTable and symbolNewTable != symbolWasInTable)
+			}
+			if (symbolNewTable and symbolNewTable != symbolWasInTable)
+			{
+				AGMModelSymbol::SPtr roomWas, roomIn;
+				qDebug()<<"Change tableMug:";
+				if(symbolWasInTable)
 				{
+					qDebug()<<"--> wasIn: "<<symbolWasInTable->getAttribute("imName").c_str();	
 					newModel->removeEdge(symbolMug, symbolWasInTable, "in");
-					newModel->addEdge(symbolMug, symbolNewTable, "in");
-					try
-					{
-						sendModificationProposal(worldModel, newModel);
-					}
-					catch(...)
-					{
-						printf("(sendModificationProposal) objectAgent: Couldn't publish new mug in model\n");
-					}
-					return existing;
+					newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
+					newModel->removeEdge(symbolWasInTable, symbolMug, "RT");
+					//check table room to update mug_>room link
+					roomWas = getRoomFromTable(newModel, symbolWasInTable);
+
 				}
+				roomIn = getRoomFromTable(newModel, symbolNewTable);
+				if(roomIn and roomIn != roomWas)
+				{
+					qDebug()<<"Change roomMug:";
+					if(roomWas)
+					{
+						qDebug()<<"--> wasIn: "<<roomWas->getAttribute("imName").c_str();	
+						newModel->removeEdge(symbolMug, roomWas, "in");
+					}
+					qDebug()<<"--> now In: "<<roomIn->getAttribute("imName").c_str();	
+					newModel->addEdge(symbolMug, roomIn, "in");
+				}
+				newModel->addEdge(symbolMug, symbolNewTable, "in");
+				newModel->addEdge(symbolNewTable, symbolMug, "RT");
+				newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
+
+				try
+				{
+					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();
+					sendModificationProposal(worldModel, newModel);
+				}
+				catch(...)
+				{
+					printf("(sendModificationProposal) objectAgent: Couldn't publish new mug in model\n");
+				}
+				return existing;
 			}
+		}
 
 		QString symbolIMName       = QString::fromStdString(symbolMug->getAttribute("imName"));
 		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
@@ -912,7 +990,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
 						rDebug2(("objectAgent edgeupdate for mug"));
 					}
-					catch(...){ qFatal("Impossible to update the RT edge"); }
+					catch(...){ qDebug()<<"Impossible to update the RT edge"; }
 				}
 				else
 					qDebug() << "Parent node doesnt exist in AGM";
@@ -928,6 +1006,23 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 		}
 	}
 	return not existing;
+}
+
+AGMModelSymbol::SPtr SpecificWorker::getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table)
+{
+	try{
+		AGMModelSymbol::SPtr symbolRoom;
+		for (auto edgeRoom = table->edgesBegin(model); edgeRoom != table->edgesEnd(model); edgeRoom++)
+		{
+			if (model->getSymbolByIdentifier(edgeRoom->getSymbolPair().second)->symboltype() == "room" and  edgeRoom->getLabel() == "in" )
+			{
+				symbolRoom = model->getSymbolByIdentifier(edgeRoom->getSymbolPair().second);
+				return symbolRoom;
+			}
+		}
+	}catch(...)
+	{}
+	return NULL;
 }
 
 bool SpecificWorker::isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t)
