@@ -522,6 +522,7 @@ void SpecificWorker::updateTag(const tagsList &list)
 				qDebug()<<ap2.id<<"POSE: "<<innerModel->transform("robot", QVec::vec3(ap2.tx, ap2.ty, ap2.tz), "rgbd");
 				break;
 			case 31:
+			case 32:
 				if (updateMug(ap2, newModel))
 				{
 					rDebug2(("objectAgent new mug detected"));
@@ -894,11 +895,18 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 				if(symbolWasInTable)
 				{
 					qDebug()<<"--> wasIn: "<<symbolWasInTable->getAttribute("imName").c_str();	
-					newModel->removeEdge(symbolMug, symbolWasInTable, "in");
-					newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
-					newModel->removeEdge(symbolWasInTable, symbolMug, "RT");
 					//check table room to update mug_>room link
 					roomWas = getRoomFromTable(newModel, symbolWasInTable);
+					try{
+						newModel->removeEdge(symbolWasInTable, symbolMug, "RT");						
+						newModel->removeEdge(symbolMug, symbolWasInTable, "in");
+//						newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
+						
+					}catch(...)
+					{
+						qDebug()<<"Error removing wasIn table links";
+					}
+					
 
 				}
 				roomIn = getRoomFromTable(newModel, symbolNewTable);
@@ -913,13 +921,17 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 					qDebug()<<"--> now In: "<<roomIn->getAttribute("imName").c_str();	
 					newModel->addEdge(symbolMug, roomIn, "in");
 				}
-				newModel->addEdge(symbolMug, symbolNewTable, "in");
-				newModel->addEdge(symbolNewTable, symbolMug, "RT");
-				newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
-
-				try
+				try{				
+					newModel->addEdge(symbolMug, symbolNewTable, "in");
+//					newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
+					newModel->addEdge(symbolNewTable, symbolMug, "RT");
+					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();	
+				}catch(...)
 				{
-					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();
+					qDebug()<<"Error inserting new In links";
+				}
+				try{
+
 					sendModificationProposal(worldModel, newModel);
 				}
 				catch(...)
