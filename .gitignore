@@ -91,4 +91,5 @@ moc_*
 *.cmake
 CXX.*
 telegrammission.conf
+*.new
 
