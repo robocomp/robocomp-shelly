@@ -101,6 +101,7 @@ private:
 
 	std::string action, backAction;
 	ParameterMap params;
+	ParameterMap previousParams;
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 	osgGA::TrackballManipulator *manipulator;

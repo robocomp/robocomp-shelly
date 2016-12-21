@@ -512,9 +512,40 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	AGMModelConverter::fromIceToInternal(modification, worldModel);
 	
 	if (innerModel) delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world");
+	innerModel = AGMInner::extractInnerModel(worldModel, "world","true");
 	changeInner();
 	printf("structuralChange %d\n", cc.elapsed());
+bool holdingObject=false;
+	int robotID=1;
+	for (AGMModel::iterator symbol_itr=worldModel->begin(); symbol_itr!=worldModel->end(); symbol_itr++)
+	{
+		AGMModelSymbol::SPtr node = *symbol_itr;
+		if ((node->symboltype() == "object"))
+		{
+			// Avoid working with rooms
+			if (isObjectType(worldModel, node, "room")) continue;
+			// Avoid working with tables
+			if (isObjectType(worldModel, node, "table")) continue;
+			//if the object is in robot continue
+			try
+			{
+				AGMModelEdge e = worldModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
+				holdingObject = true;
+				break;
+			}
+			catch (...)
+			{
+			}
+		}
+	}
+qDebug()<<"****\n****\n****\nSTRCTURALCHANGETIME, holding ==> "<<holdingObject<<"****\n****\n****\n";
+qDebug()<<"version "<<worldModel->version;
+	if(previousParams.size() > 0 ) 
+	{
+		qDebug()<<"previousParamsversion "<<previousParams["modelversion"].value.c_str();
+		bool reactivated;
+		setParametersAndPossibleActivation(previousParams,reactivated);
+	}
 }
 
 	
@@ -554,10 +585,24 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 {
 	QMutexLocker locker(mutex);
 
+	if (prs.find("modelversion") != prs.end() and stoi(prs.find("modelversion")->second.value) != worldModel->version)
+	{
+		previousParams.clear();
+		for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
+		{
+			previousParams[it->first] = it->second;
+		}
+		reactivated = false;
+qDebug()<<"******Plan is more updated than model, we have to wait newModel";
+		return true;
+	}
+
+
 	// We didn't reactivate the component
 	reactivated = false;
 
 	// Update parameters
+	previousParams.clear();
 	params.clear();
 	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
 	{
@@ -633,6 +678,7 @@ void SpecificWorker::actionExecution()
 
 	if (newAction)
 	{
+qDebug()<<"****\n****\n****\nNewACTION ==> "<<action.c_str();
 		actionTime = QTime::currentTime();
 		printf("prev:%s  new:%s\n", previousAction.c_str(), action.c_str());
 		ui_actionName->setText(QString::fromStdString(action));
@@ -733,6 +779,8 @@ void SpecificWorker::action_leaveObject(bool first)
 			}*/
 			newModel->addEdge(   symbols["object"], symbols["table"], "in");
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
+			newModel->addEdge(   symbols["table"], symbols["object"], "RT");
+			newModel->removeEdge(symbols["robot"], symbols["object"], "RT");
 //			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");			
 
 			try
@@ -1103,11 +1151,13 @@ void SpecificWorker::action_GraspObject(bool first)
 				if (not manualMode)
 				{
 					newModel->removeEdge(symbols["object"], symbols["table"], "in");
+					newModel->removeEdge(symbols["table"], symbols["object"], "RT");
 //					newModel->addEdge(   symbols["object"], symbols["table"], "wasIn");
 					newModel->addEdge(   symbols["object"], symbols["robot"], "in");
+					newModel->addEdge(   symbols["robot"], symbols["object"], "RT");
 					{
 						QMutexLocker locker(mutex);
-// 						rDebug2(("graspingAgent object %d grasped!") % symbols["object"]->identifier);
+ 						rDebug2(("graspingAgent object %d grasped!") % symbols["object"]->identifier);
 						sendModificationProposal(newModel, worldModel);
 					}
 				}
@@ -1420,6 +1470,7 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 // Check if arm should be set in rest position
 void SpecificWorker::checkRestArm(bool first)
 {
+static int num=0;
 	if(!first)
 		return;
 	//If robot is holding and object avoid arm movement
@@ -1447,6 +1498,10 @@ void SpecificWorker::checkRestArm(bool first)
 			}
 		}
 	}
+num++;
+std::string path = "/home/robocomp/"+std::to_string(num)+".xml";
+std::cout<<"**********\n**********\n**********\nsave file"<<path<<"**********\n**********\n**********\n";
+newModel->save(path);
 	if(!holdingObject)
 	{
 		setRightArmUp_Reflex(true);
