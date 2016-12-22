@@ -987,7 +987,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 						// Do not update rotation if id=31 ==> tag
-						if(t.id == 31)
+						if(t.id == 31 or t.id == 32)
 						{
 							edgeRT->setAttribute("rx", "0.0");
 							edgeRT->setAttribute("ry", "0.0");
