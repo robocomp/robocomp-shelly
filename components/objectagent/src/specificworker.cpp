@@ -745,6 +745,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			AGMModelSymbol::SPtr reachMugSt = newModel->newSymbol("objectSt");
 			reachMugSt->setAttribute("imName","newmug_reachPos");
 			reachMugSt->setAttribute("imType","transform");
+			newModel->addEdge(symbolMug, reachMugSt, "reachPosition");
 			newModel->addEdge(symbolMug, reachMugSt, "RT");
 			AGMModelEdge &edgeRT  = newModel->getEdge(symbolMug, reachMugSt, "RT");
 			edgeRT->setAttribute("tx", "0");
