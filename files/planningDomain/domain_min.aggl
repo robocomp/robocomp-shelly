@@ -13,33 +13,65 @@ hierarchical moveObjectTables : active(1)
 	{
 		tableA:object(0,110)
 		tableB:object(0,110)
+		tableAst:objectSt(0,110)
+		tableBst:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
 		robot->object(know)
 		object->tableA(in)
+		tableA->tableAst(table)
+		tableB->tableBst(table)
 	}
 	=>
 	{
 		tableA:object(0,110)
 		tableB:object(0,110)
+		tableAst:objectSt(0,110)
+		tableBst:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
 		robot->object(know)
 		object->tableB(in)
+		tableA->tableAst(table)
+		tableB->tableBst(table)
+	}
+	precondition
+	{
+		(forall
+			someobject:object
+			(not
+				(in someobject robot)
+			)
+		)
 	}
 	effect
 	{
-		(forall
-			something:pose
+		(and
 			(forall
-				somethingSt:poseSt
-				(when
-					(hasStatus something somethingSt)
-					(and
-						(not (reach something somethingSt))
-						(noReach something somethingSt)
+				someobject:object
+				(forall
+					someobjectSt:objectSt
+					(when
+						(hasStatus someobject someobjectSt)
+						(and
+							(not (reach someobject someobjectSt))
+							(noReach someobject someobjectSt)
+						)
+					)
+				)
+			)
+			(forall
+				somepose:pose
+				(forall
+					someposeSt:poseSt
+					(when
+						(hasStatus somepose someposeSt)
+						(and
+							(not (reach somepose someposeSt))
+							(noReach somepose someposeSt)
+						)
 					)
 				)
 			)
@@ -174,6 +206,7 @@ graspObject : active(1)
 {
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		rSt:status(0, -250)
 		object:object(130,0)
 		room:room(-130,0)
@@ -185,10 +218,12 @@ graspObject : active(1)
 		table->room(in)
 		object->ost(reach)
 		robot->rSt(hasStatus)
+		table->tableSt(table)
 	}
 	=>
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		rSt:status(0, -250)
 		object:object(130,0)
 		room:room(-130,0)
@@ -199,8 +234,18 @@ graspObject : active(1)
 		robot->room(in)
 		table->room(in)
 		object->ost(reach)
+		table->tableSt(table)
 		robot->rSt(hasStatus)
 		robot->rSt(restArm)*
+	}
+	precondition
+	{
+		(forall
+			someobject:object
+			(not
+				(in someobject robot)
+			)
+		)
 	}
 }
 
@@ -209,6 +254,7 @@ hierarchical leaveObjectInTable_hierarchical : active(1)
 {
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		robot:robot(0,-110)
 		room:room(-130,0)
@@ -216,10 +262,12 @@ hierarchical leaveObjectInTable_hierarchical : active(1)
 		object->robot(in)
 		robot->room(in)
 		table->room(in)
+		table->tableSt(table)
 	}
 	=>
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		robot:robot(0,-110)
 		room:room(-130,0)
@@ -227,6 +275,7 @@ hierarchical leaveObjectInTable_hierarchical : active(1)
 		object->table(in)
 		robot->room(in)
 		table->room(in)
+		table->tableSt(table)
 	}
 }
 
@@ -234,6 +283,7 @@ leaveObjectInTable : active(1)
 {
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
@@ -243,10 +293,12 @@ leaveObjectInTable : active(1)
 		robot->room(in)
 		table->ost(reach)
 		table->room(in)
+		table->tableSt(table)
 	}
 	=>
 	{
 		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
@@ -256,6 +308,7 @@ leaveObjectInTable : active(1)
 		robot->room(in)
 		table->ost(reach)
 		table->room(in)
+		table->tableSt(table)
 	}
 }
 
