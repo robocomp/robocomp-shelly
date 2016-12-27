@@ -227,9 +227,9 @@ if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/"
 fi
 # human
-# if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-# 	compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
-# fi
+if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
+	compile "human agent" "/home/robocomp/robocomp/components/robocomp-shelly/components/humanAgent/"
+fi
 
 
 # NUC 3
@@ -252,6 +252,6 @@ if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 fi
 
 # trajectory
-if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
+if [ $1 -eq 3 ] || [ $1 -eq 0  || [ $1 -eq -1 ]; then
 	compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
 fi
