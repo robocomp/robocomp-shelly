@@ -211,9 +211,11 @@ void SpecificWorker::manageReachedObjects()
 			}
 			catch(...)
 			{
+				newModel->save("worldError.xml");
+				innerModel->save("innerError.xml");
 				printf("Ref: shellyArm_grasp_pose: %p\n", (void *)innerModel->getNode("shellyArm_grasp_pose"));
 				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
-				exit(1);
+				return;
 			}
 			
 			
@@ -222,7 +224,7 @@ void SpecificWorker::manageReachedObjects()
 // // // // // // 			innerModel->transformS("robot", "armX1").print("armX1 in r");
 // // // // // 			innerModel->transformS("robot", "armX2").print("armX2 in r");
 // // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
-			if (node->identifier == 50)
+/*			if (node->identifier == 50)
 			{
 	                         innerModel->transformS("robot", "rgbd");//.print("RGBD in r");
 	                         innerModel->transformS("robot", "shellyArm_grasp_pose");//.print("p in r");
@@ -232,7 +234,7 @@ void SpecificWorker::manageReachedObjects()
 				QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
 				oinp(1) = 0;
 //				fprintf(stderr, "(%f, %f) - %f\n", oinp(0), oinp(2), oinp.norm2());
-			}
+			}*/
 			if ((force_send or mapt[node->identifier].elapsed() > 500) and (node->identifier == 11))
 			{
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
@@ -515,30 +517,6 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	innerModel = AGMInner::extractInnerModel(worldModel, "world","true");
 	changeInner();
 	printf("structuralChange %d\n", cc.elapsed());
-bool holdingObject=false;
-	int robotID=1;
-	for (AGMModel::iterator symbol_itr=worldModel->begin(); symbol_itr!=worldModel->end(); symbol_itr++)
-	{
-		AGMModelSymbol::SPtr node = *symbol_itr;
-		if ((node->symboltype() == "object"))
-		{
-			// Avoid working with rooms
-			if (isObjectType(worldModel, node, "room")) continue;
-			// Avoid working with tables
-			if (isObjectType(worldModel, node, "table")) continue;
-			//if the object is in robot continue
-			try
-			{
-				AGMModelEdge e = worldModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
-				holdingObject = true;
-				break;
-			}
-			catch (...)
-			{
-			}
-		}
-	}
-qDebug()<<"****\n****\n****\nSTRCTURALCHANGETIME, holding ==> "<<holdingObject<<"****\n****\n****\n";
 qDebug()<<"version "<<worldModel->version;
 	if(previousParams.size() > 0 ) 
 	{

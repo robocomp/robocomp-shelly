@@ -83,14 +83,14 @@
 		<!-- 				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
 				</transform>
 				<mesh id="tableB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1200,20,800" collide="1" />
-				<transform id="bluemug" tz="-400">
+<!--				<transform id="bluemug" tz="-400">
 					<transform id="bluemug_reachPos" ry="0"/>
 					<transform id="mugRPr" tx="-10" ty="50">
 						<mesh id="mugR" file="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds" scale="120,120,120" rx="1.5707" rz="-1.5707" collide="1" />
 					</transform>
 					<plane id="mugTag" ny="1" py="100" size="70,-70,5.0" texture="/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/31.png" />
 					<plane id="mugTagb" ny="1" py="100" size="80,-80,3.5" texture="#ffffff" />
-				</transform>
+				</transform> -->
 			</transform>
 			<transform id="pared26" tx="2733.1207275" tz="3457.872803" ty="370" >
 				<mesh id="tableB_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
