@@ -723,9 +723,10 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 	{
 		try
 		{
+			std::string mug_name = "mug"+std::to_string(t.id);
 			AGMModelSymbol::SPtr robot = newModel->getSymbolByIdentifier(newModel->getIdentifierByType("robot"));
 			symbolMug = newModel->newSymbol("object");
-			symbolMug->setAttribute("imName","newmug");
+			symbolMug->setAttribute("imName",mug_name);
 			symbolMug->setAttribute("imType","transform");
 			const std::string tagIdStr = int2str(t.id);
 			symbolMug->setAttribute("tag", tagIdStr);
@@ -743,7 +744,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 
 			// mug reach position
 			AGMModelSymbol::SPtr reachMugSt = newModel->newSymbol("objectSt");
-			reachMugSt->setAttribute("imName","newmug_reachPos");
+			reachMugSt->setAttribute("imName",mug_name+"_reachPos");
 			reachMugSt->setAttribute("imType","transform");
 			newModel->addEdge(symbolMug, reachMugSt, "reachPosition");
 			newModel->addEdge(symbolMug, reachMugSt, "RT");
@@ -758,7 +759,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			//mug mesh			
 			AGMModelSymbol::SPtr symbolMugMesh = newModel->newSymbol("mesh");
 			symbolMugMesh->setAttribute("collidable", "true");
-			symbolMugMesh->setAttribute("imName", "newMugR");
+			symbolMugMesh->setAttribute("imName", mug_name+"_MugR");
 			symbolMugMesh->setAttribute("imType", "mesh");
 			symbolMugMesh->setAttribute("path", "/home/robocomp/robocomp/components/robocomp-ursus-rockin/files/autonomyLab/mug_blue.3ds");
 			symbolMugMesh->setAttribute("render", "NormalRendering");
@@ -768,7 +769,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 
 			AGMModelSymbol::SPtr symbolMugMeshTransform = newModel->newSymbol("transform");
 			symbolMugMeshTransform->setAttribute("engine", "static");
-			symbolMugMeshTransform->setAttribute("imName", "newMugRPr");
+			symbolMugMeshTransform->setAttribute("imName", mug_name+"_RPr");
 			symbolMugMeshTransform->setAttribute("imType", "transform");
 			symbolMugMeshTransform->setAttribute("mass", "0");
 			newModel->addEdge(symbolMugMeshTransform, symbolMugMesh, "RT");
