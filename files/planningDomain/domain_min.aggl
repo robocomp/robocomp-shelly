@@ -8,47 +8,45 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
-hierarchical moveObjectTables : active(1)
+hierarchical moveObjectToTable : active(1)
 {
 	{
-		tableA:object(0,110)
-		tableB:object(0,110)
-		tableAst:objectSt(0,110)
-		tableBst:objectSt(0,110)
+		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
 		robot->object(know)
-		object->tableA(in)
-		tableA->tableAst(table)
-		tableB->tableBst(table)
+		table->tableSt(table)
 	}
 	=>
 	{
-		tableA:object(0,110)
-		tableB:object(0,110)
-		tableAst:objectSt(0,110)
-		tableBst:objectSt(0,110)
+		table:object(0,110)
+		tableSt:objectSt(0,110)
 		object:object(130,0)
 		ost:objectSt(290,0)
 		robot:robot(0,-110)
 		robot->object(know)
-		object->tableB(in)
-		tableA->tableAst(table)
-		tableB->tableBst(table)
-	}
-	precondition
-	{
-		(forall
-			someobject:object
-			(not
-				(in someobject robot)
-			)
-		)
+		table->tableSt(table)
+		object->table(in)
 	}
 	effect
 	{
 		(and
+			(not (in object robot))
+			(forall
+				sometable:object
+				(forall
+					sometableSt:objectSt
+					(when
+						(and
+							(table sometable sometableSt)
+							(not (hasStatus table sometableSt))
+						)
+						(not (in object sometable))
+					)
+				)
+			)
 			(forall
 				someobject:object
 				(forall
@@ -346,8 +344,8 @@ changeRoom : active(1)
 				(when
 					(in something robot)
 					(and
-						(not (in something s1))
-						(in something s2)
+						(not (in something r1))
+						(in something r2)
 					)
 				)
 			)
