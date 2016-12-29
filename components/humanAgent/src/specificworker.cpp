@@ -679,7 +679,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modifi
 	if (innerModelAGM) 
 		delete innerModelAGM;
 	innerModelAGM = AGMInner::extractInnerModel(worldModel, "world");
-	innerModelAGM->save("innerModelAGM.xml");
+	//innerModelAGM->save("innerModelAGM.xml");
 	///TEST to check extractAGM
 	//AGMModel::SPtr worldClean = AGMInner::extractSymbolicGraph(worldModel);
 	//worldClean->save("worldClean.xml");
@@ -1414,8 +1414,10 @@ void SpecificWorker::updateViewerLocalInnerModelSingle()
 
 void SpecificWorker::updateHumanInnerFull()
 {
+	float HUMAN_THRESHOLD = 2000;
 	QMutexLocker m (mutex);
-	int32_t robotID = worldModel->getIdentifierByType("robot");
+	AGMModel::SPtr newModel(new AGMModel(worldModel));
+	int32_t robotID = newModel->getIdentifierByType("robot");
 	if (robotID < 0)
 	{
 		printf("Robot symbol not found, Waiting for the executive...\n");
@@ -1435,7 +1437,7 @@ void SpecificWorker::updateHumanInnerFull()
 	{
 		roomString = "room_5";
 	} 	
-	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(worldModel,roomString);
+	int32_t roomID = AGMInner::findSymbolIDWithInnerModelName(newModel,roomString);
 	if (roomID < 0)
 	{
 		printf("ROOM: %s symbol not found, \n", roomString.toStdString().c_str());
@@ -1447,7 +1449,7 @@ void SpecificWorker::updateHumanInnerFull()
 	int symbolPersonID = -1;
 	try
 	{
-		symbolPersonID = worldModel->getIdentifierByType("person");
+		symbolPersonID = newModel->getIdentifierByType("person");
 	}
 	catch (...)
 	{
@@ -1475,8 +1477,8 @@ void SpecificWorker::updateHumanInnerFull()
 	//añadir
 	if ( symbolPersonID == -1 )
 	{
-		AGMModelSymbol::SPtr newSymbolPerson = worldModel->newSymbol("person");
-		AGMModelSymbol::SPtr newSymbolPersonSt = worldModel->newSymbol("personSt");
+		AGMModelSymbol::SPtr newSymbolPerson = newModel->newSymbol("person");
+		AGMModelSymbol::SPtr newSymbolPersonSt = newModel->newSymbol("personSt");
 		int personID = newSymbolPerson->identifier;
 
 		newSymbolPerson->setAttribute("TrackingId",int2str((*personList.begin()).second.TrackingId));
@@ -1501,10 +1503,10 @@ void SpecificWorker::updateHumanInnerFull()
 		{
 			try
 			{
-				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "hasStatus");
-				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "noReach");
-				worldModel->addEdge(newSymbolPerson, newSymbolPersonSt, "person");
-				worldModel->addEdgeByIdentifiers(personID,roomID,"in");
+				newModel->addEdge(newSymbolPerson, newSymbolPersonSt, "hasStatus");
+				newModel->addEdge(newSymbolPerson, newSymbolPersonSt, "noReach");
+				newModel->addEdge(newSymbolPerson, newSymbolPersonSt, "person");
+				newModel->addEdgeByIdentifiers(personID,roomID,"in");
 				// Geometric part				
 				QVec v = innerModelMap[ idSingle ]->getTransform(torsoName)->getTr();
 				float rxValue= innerModelMap[ idSingle ]->getTransform(torsoName)->extractAnglesR_min().x();
@@ -1518,8 +1520,8 @@ void SpecificWorker::updateHumanInnerFull()
 				edgeRTAtrs["rx"] = float2str(rxValue);
 				edgeRTAtrs["ry"] = float2str(ryValue);
 				edgeRTAtrs["rz"] = float2str(rzValue);
-				worldModel->addEdgeByIdentifiers(roomID, personID, "RT", edgeRTAtrs);
-				AGMInner::includeInnerModel(worldModel,personID,innerModelMap.at(idSingle));
+				newModel->addEdgeByIdentifiers(roomID, personID, "RT", edgeRTAtrs);
+				AGMInner::includeInnerModel(newModel,personID,innerModelMap.at(idSingle));
 				modification =true;
 			}
 			catch (const std::out_of_range& oor)
@@ -1545,11 +1547,11 @@ void SpecificWorker::updateHumanInnerFull()
 		try
 		{
 			// check if human has changed room
-			for (auto edge = worldModel->getSymbol(symbolPersonID)->edgesBegin(worldModel); edge != worldModel->getSymbol(roomID)->edgesEnd(worldModel); edge++)
+			for (auto edge = newModel->getSymbol(symbolPersonID)->edgesBegin(newModel); edge != newModel->getSymbol(roomID)->edgesEnd(newModel); edge++)
 			{
 				if (edge->getLabel() == "in")
 				{
-					prevRoomID = worldModel->getSymbol(edge->getSymbolPair().second)->identifier;
+					prevRoomID = newModel->getSymbol(edge->getSymbolPair().second)->identifier;
 					break;
 				}
 			}
@@ -1571,16 +1573,60 @@ void SpecificWorker::updateHumanInnerFull()
 		edgeRTAtrs["rx"] = float2str(rxValue);
 		edgeRTAtrs["ry"] = float2str(ryValue);
 		edgeRTAtrs["rz"] = float2str(rzValue);
+		//check human near robot LINK 
+		//get edge if it exists
+		AGMModelSymbol::SPtr robot = newModel->getSymbolByIdentifier(newModel->getIdentifierByType("robot"));
+		AGMModelSymbol::SPtr person = newModel->getSymbolByIdentifier(newModel->getIdentifierByType("person"));
+		AGMModelEdge callHuman;
+		bool exist = false;
+		try
+		{
+			callHuman = newModel->getEdge(robot, person, "callHuman");
+			exist = true;
+		}catch(...){}
+		QVec humanFromRobot = innerModelAGM->transform("robot", QVec::vec6(0,0,0,0,0,0), torsoName);
+		QVec robotFromHuman = innerModelAGM->transform("person",QVec::vec6(0,0,0,0,0,0), "robot");
+		float distance = sqrt(pow(humanFromRobot(0),2) + pow(humanFromRobot(2),2));
+		//QVec viewRobot = innerModelAGM->
+		humanFromRobot.print("humanRobot");
+		robotFromHuman.print("robotHuman");
+		
+		if (humanFromRobot(2) > 0 and distance < HUMAN_THRESHOLD)
+		{
+			//add edge if it does not exists
+			try{
+				newModel->addEdge(robot, person, "callHuman");
+				modification = true;
+			}catch(...)
+			{
+				qDebug()<<"Exception: Error adding robot->person edge";
+			}
+		}
+		else //remove edge
+		{ 
+			if(exist)
+			{
+				try{
+					newModel->removeEdge(callHuman);
+					modification = true;
+				}catch(...)
+				{
+					qDebug()<<"Exception: Error removing robot->person edge";
+				}
+			}
+		}
+		
+		// Check room Change
 		if(prevRoomID != -1 and prevRoomID != roomID)
 		{
 			qDebug()<<"Human change room, previous: "<<prevRoomID<<"actual room"<<roomID;
 			try
 			{
-				worldModel->removeEdgeByIdentifiers(prevRoomID,symbolPersonID,"RT");	
-				worldModel->removeEdgeByIdentifiers(symbolPersonID,prevRoomID,"in");	
-				worldModel->addEdgeByIdentifiers(roomID,symbolPersonID,"RT", edgeRTAtrs);
-				worldModel->addEdgeByIdentifiers(symbolPersonID,roomID,"in");
-				modification =true;
+				newModel->removeEdgeByIdentifiers(prevRoomID,symbolPersonID,"RT");	
+				newModel->removeEdgeByIdentifiers(symbolPersonID,prevRoomID,"in");	
+				newModel->addEdgeByIdentifiers(roomID,symbolPersonID,"RT", edgeRTAtrs);
+				newModel->addEdgeByIdentifiers(symbolPersonID,roomID,"in");
+				modification = true;
 			}
 			catch (AGMModelException ex)
 			{	
@@ -1589,7 +1635,7 @@ void SpecificWorker::updateHumanInnerFull()
 		}
 		else
 		{
-			AGMModelEdge &edgeRT  = worldModel->getEdgeByIdentifiers(roomID, symbolPersonID, "RT");
+			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(roomID, symbolPersonID, "RT");
 			edgeRT->setAttribute("tx", edgeRTAtrs["tx"]);
 			edgeRT->setAttribute("ty", edgeRTAtrs["ty"]);
 			edgeRT->setAttribute("tz", edgeRTAtrs["tz"]);
@@ -1612,8 +1658,8 @@ void SpecificWorker::updateHumanInnerFull()
 		try
 		{
 			InnerModel* imTmp = innerModelMap.at(idSingle);		
-			AGMInner::updateAgmWithInnerModelAndPublish(worldModel, imTmp, agmexecutive_proxy);
-			AGMModelSymbol::SPtr newSymbolPerson = worldModel->getSymbol(symbolPersonID);
+			AGMInner::updateAgmWithInnerModelAndPublish(newModel, imTmp, agmexecutive_proxy);
+			AGMModelSymbol::SPtr newSymbolPerson = newModel->getSymbol(symbolPersonID);
 			//state está en personList
 			try
 			{
@@ -1647,7 +1693,6 @@ void SpecificWorker::updateHumanInnerFull()
 	if (modification)
 	{
 		qDebug()<<"----------- MODIFICATION -----------------------";
- 		AGMModel::SPtr newModel(new AGMModel(worldModel));	
 		try
 		{
 	 		sendModificationProposal(worldModel, newModel);
