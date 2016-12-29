@@ -217,7 +217,7 @@ void SpecificWorker::compute()
 		return;
 	}
 	
-/********************* TEST CODE***********************************************	
+//********************* TEST CODE***********************************************	
 	if (innerModelMap.empty())
 	{
 		printf("Created: %d\n", __LINE__);
@@ -227,7 +227,7 @@ void SpecificWorker::compute()
 		newInnerModel(imHumanGeneric, innerModelMap.at(0),"1");
 	}	
 	updateViewerLocalInnerModels();
-*******************************************************************/	
+//******************************************************************/	
 
 	if (newBodyEvent==false)
 	{
