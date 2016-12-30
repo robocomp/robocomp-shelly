@@ -217,7 +217,7 @@ void SpecificWorker::compute()
 		return;
 	}
 	
-//********************* TEST CODE***********************************************	
+/********************* TEST CODE***********************************************	
 	if (innerModelMap.empty())
 	{
 		printf("Created: %d\n", __LINE__);
@@ -228,7 +228,37 @@ void SpecificWorker::compute()
 	}	
 	updateViewerLocalInnerModels();
 //******************************************************************/	
+/********************* Internal test******************************
 
+	RoboCompMSKBody::TPerson person;
+	RoboCompMSKBody::Joint joint;
+	joint.state = JointTrackingState::Tracked;
+	joint.Position.X = 0;
+	joint.Position.Y = 0;
+	joint.Position.Z = 2.0;
+	person.joints.insert(std::pair<RoboCompMSKBody::JointType,RoboCompMSKBody::Joint>(JointType::SpineMid,joint));
+
+	joint.Position.X = 0;
+	joint.Position.Y = 0.5;
+	joint.Position.Z = 2.0;
+	person.joints.insert(std::pair<RoboCompMSKBody::JointType,RoboCompMSKBody::Joint>(JointType::Head,joint));
+
+	joint.Position.X = 0.5;
+	joint.Position.Y = 0.0;
+	joint.Position.Z = 2.0;
+	person.joints.insert(std::pair<RoboCompMSKBody::JointType,RoboCompMSKBody::Joint>(JointType::ShoulderLeft,joint));
+	
+	person.Position.X = 0;
+	person.Position.Y = 0;
+	person.Position.Z = 2.0;
+
+	person.trackedState = true;
+	person.TrackingId= 1;
+	personList.insert(std::pair<int,RoboCompMSKBody::TPerson>(0,person));
+
+	newBodyEvent = true;
+	
+//****************************************************************/
 	if (newBodyEvent==false)
 	{
 		//qDebug()<<"newBodyEvent"<<newBodyEvent;	
@@ -249,7 +279,9 @@ void SpecificWorker::compute()
 		qDebug()<<"distance wrong to update"<<zTorso<<"meters";
 		return;
 	}
+
 	updateViewerLocalInnerModelSingle();		
+
 	updateHumanInnerFull(); 
 
 	//multi
@@ -1414,7 +1446,8 @@ void SpecificWorker::updateViewerLocalInnerModelSingle()
 
 void SpecificWorker::updateHumanInnerFull()
 {
-	float HUMAN_THRESHOLD = 2000;
+qDebug()<<"update human inner";
+	float ROBOT_THRESHOLD = 2000;
 	QMutexLocker m (mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	int32_t robotID = newModel->getIdentifierByType("robot");
@@ -1584,22 +1617,23 @@ void SpecificWorker::updateHumanInnerFull()
 			callHuman = newModel->getEdge(robot, person, "callHuman");
 			exist = true;
 		}catch(...){}
-		QVec humanFromRobot = innerModelAGM->transform("robot", QVec::vec6(0,0,0,0,0,0), torsoName);
-		QVec robotFromHuman = innerModelAGM->transform("person",QVec::vec6(0,0,0,0,0,0), "robot");
-		float distance = sqrt(pow(humanFromRobot(0),2) + pow(humanFromRobot(2),2));
+		QVec robotFromHuman = innerModelAGM->transform("person", QVec::vec3(0,0,0), "robot");
+		float distance = sqrt(pow(robotFromHuman(0),2) + pow(robotFromHuman(2),2));
 		//QVec viewRobot = innerModelAGM->
-		humanFromRobot.print("humanRobot");
-		robotFromHuman.print("robotHuman");
-		
-		if (humanFromRobot(2) > 0 and distance < HUMAN_THRESHOLD)
+
+robotFromHuman.print("robotHuman");
+qDebug()<<"distance"<<distance;
+		if (robotFromHuman(2) < 0 and distance < ROBOT_THRESHOLD)
 		{
-			//add edge if it does not exists
-			try{
-				newModel->addEdge(robot, person, "callHuman");
-				modification = true;
-			}catch(...)
+			if( !exist ) //add edge if it does not exists
 			{
-				qDebug()<<"Exception: Error adding robot->person edge";
+				try{
+					newModel->addEdge(robot, person, "callHuman");
+					modification = true;
+				}catch(...)
+				{
+					qDebug()<<"Exception: Error adding robot->person edge";
+				}
 			}
 		}
 		else //remove edge
