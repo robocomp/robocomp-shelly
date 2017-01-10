@@ -137,6 +137,58 @@ reachPose : active(1)
 
 
 
+hierarchical setObjectReach_hierarchical : active(1)
+{
+	{
+		robot:robot(0,0)
+		object:object(160,130)
+		status:objectSt(390,130)
+		object->status(hasStatus)
+		object->status(noReach)
+		object->status(reachable)
+	}
+	=>
+	{
+		robot:robot(0,0)
+		object:object(160,130)
+		status:objectSt(390,130)
+		object->status(hasStatus)
+		object->status(reach)
+		object->status(reachable)
+	}
+	effect
+	{
+		(and
+			(forall somepose:pose
+				(forall someposeSt:poseSt
+					(when
+						(hasStatus somepose someposeSt)
+						(and
+							(not (reach somepose someposeSt))
+							(noReach somepose someposeSt)
+						)
+					)
+				)
+			)
+			(forall someobject:object
+				(forall someobjectSt:objectSt
+					(when
+						(and
+							(hasStatus someobject someobjectSt)
+							(not (hasStatus object someobjectSt) )
+						)
+						(and
+							(not (reach someobject someobjectSt))
+							(noReach someobject someobjectSt)
+						)
+					)
+				)
+			)
+		)
+	}
+}
+
+
 setObjectReach : active(1)
 {
 	{
@@ -165,10 +217,8 @@ setObjectReach : active(1)
 	effect
 	{
 		(and
-			(forall
-				somepose:pose
-				(forall
-					someposeSt:poseSt
+			(forall somepose:pose
+				(forall someposeSt:poseSt
 					(when
 						(hasStatus somepose someposeSt)
 						(and
@@ -178,10 +228,8 @@ setObjectReach : active(1)
 					)
 				)
 			)
-			(forall
-				someobject:object
-				(forall
-					someobjectSt:objectSt
+			(forall someobject:object
+				(forall someobjectSt:objectSt
 					(when
 						(and
 							(hasStatus someobject someobjectSt)
