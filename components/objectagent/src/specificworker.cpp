@@ -34,6 +34,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	aux.value = "0";
 	worker_params["frameRate"] = aux;
 	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/components/prp/objects/");
+	connect(buscar, SIGNAL(clicked()), this, SLOT(getObject()));
 }
 
 /**
@@ -1162,7 +1163,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 		{
 			if ((*edge_itr)->getLabel() == "noExplored")
 			{
-				getObject();
+// 				getObject();
 				(*edge_itr)->setLabel("explored");
 				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
 				sendModificationProposal(worldModel, newModel);
