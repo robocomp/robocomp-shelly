@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -84,7 +84,7 @@
 #include <agmexecutivetopicI.h>
 #include <apriltagsI.h>
 
-#include <objectDetection.h>
+#include <ObjectDetection.h>
 #include <AprilTags.h>
 #include <GenericBase.h>
 #include <JointMotor.h>
@@ -138,7 +138,7 @@ int ::objectagent::run(int argc, char* argv[])
 	int status=EXIT_SUCCESS;
 
 	LoggerPrx logger_proxy;
-	objectDetectionPrx objectdetection_proxy;
+	ObjectDetectionPrx objectdetection_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	string proxy, tmp;
@@ -147,19 +147,19 @@ int ::objectagent::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "objectDetectionProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "ObjectDetectionProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy objectDetectionProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy ObjectDetectionProxy\n";
 		}
-		objectdetection_proxy = objectDetectionPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		objectdetection_proxy = ObjectDetectionPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("objectDetectionProxy initialized Ok!");
-	mprx["objectDetectionProxy"] = (::IceProxy::Ice::Object*)(&objectdetection_proxy);//Remote server proxy creation example
+	rInfo("ObjectDetectionProxy initialized Ok!");
+	mprx["ObjectDetectionProxy"] = (::IceProxy::Ice::Object*)(&objectdetection_proxy);//Remote server proxy creation example
 
 
 	try

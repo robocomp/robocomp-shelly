@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,7 +28,7 @@ QObject()
 #endif
 
 {
-	objectdetection_proxy = (*(objectDetectionPrx*)mprx["objectDetectionProxy"]);
+	objectdetection_proxy = (*(ObjectDetectionPrx*)mprx["ObjectDetectionProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 

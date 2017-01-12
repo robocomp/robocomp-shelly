@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,7 +28,7 @@ AprilTagsI::~AprilTagsI()
 {
 }
 
-void AprilTagsI::newAprilTagAndPose(const tagsList  &tags,const  RoboCompGenericBase::TBaseState  &bState, const RoboCompJointMotor::MotorStateMap  &hState, const Ice::Current&)
+void AprilTagsI::newAprilTagAndPose(const tagsList  &tags, const RoboCompGenericBase::TBaseState  &bState, const RoboCompJointMotor::MotorStateMap  &hState, const Ice::Current&)
 {
 	worker->newAprilTagAndPose(tags, bState, hState);
 }

@@ -33,7 +33,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	aux.type = "float";
 	aux.value = "0";
 	worker_params["frameRate"] = aux;
-	
+	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/components/prp/objects/");
 }
 
 /**
@@ -1162,6 +1162,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 		{
 			if ((*edge_itr)->getLabel() == "noExplored")
 			{
+				getObject();
 				(*edge_itr)->setLabel("explored");
 				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
 				sendModificationProposal(worldModel, newModel);
@@ -1177,6 +1178,47 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 	QMutexLocker locker(worker_params_mutex);
 	return worker_params;
 }
+
+void SpecificWorker::getObject()
+{
+	int numOfClusters = 0;
+	float rx, ry, rz, x, y, z;
+	objectdetection_proxy->grabThePointCloud("image.png", "rgbd.pcd");
+	objectdetection_proxy->ransac("plane");
+	objectdetection_proxy->projectInliers("plane");
+	objectdetection_proxy->convexHull("plane");
+	objectdetection_proxy->extractPolygon("plane");
+	objectdetection_proxy->euclideanClustering(numOfClusters);
+	if(objectdetection_proxy->findTheObject("pringles"))
+	{
+		AGMModel::SPtr newModel(new AGMModel(worldModel));
+		RoboCompAprilTags::tag t;
+		objectdetection_proxy->getPose(x, y, z);
+		objectdetection_proxy->getRotation(rx, ry, rz);
+		t.id=32;
+		t.tx=x;
+		t.ty=y;
+		t.tz=z;
+		t.rx=rx;
+		t.ry=ry;
+		t.rz=rz;
+		updateMug(t,newModel);
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

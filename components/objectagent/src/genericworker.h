@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,7 +28,7 @@
 
 #include <CommonBehavior.h>
 
-#include <objectDetection.h>
+#include <ObjectDetection.h>
 #include <AprilTags.h>
 #include <GenericBase.h>
 #include <JointMotor.h>
@@ -49,7 +49,7 @@ using namespace RoboCompAGMCommonBehavior;
 using namespace RoboCompPlanning;
 using namespace RoboCompJointMotor;
 using namespace RoboCompLogger;
-using namespace RoboCompobjectDetection;
+using namespace RoboCompObjectDetection;
 using namespace RoboCompAprilTags;
 
 
@@ -82,7 +82,7 @@ public:
 	bool isActive() { return active; }
 	
 
-	objectDetectionPrx objectdetection_proxy;
+	ObjectDetectionPrx objectdetection_proxy;
 	LoggerPrx logger_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
@@ -99,7 +99,7 @@ public:
 	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
 	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
 	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications) = 0;
-	virtual void newAprilTagAndPose(const tagsList &tags,const  RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState) = 0;
+	virtual void newAprilTagAndPose(const tagsList &tags, const RoboCompGenericBase::TBaseState &bState, const RoboCompJointMotor::MotorStateMap &hState) = 0;
 	virtual void newAprilTag(const tagsList &tags) = 0;
 
 protected:
