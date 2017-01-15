@@ -70,6 +70,7 @@ private:
 	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
 	AGMModelSymbol::SPtr getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table);
 	void getObject();
+	void getObjects();
 private:
 	std::string action;
 	ParameterMap params;

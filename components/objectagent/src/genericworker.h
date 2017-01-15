@@ -82,8 +82,8 @@ public:
 	bool isActive() { return active; }
 	
 
-	ObjectDetectionPrx objectdetection_proxy;
 	LoggerPrx logger_proxy;
+	ObjectDetectionPrx objectdetection_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;

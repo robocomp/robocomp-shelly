@@ -1206,6 +1206,29 @@ void SpecificWorker::getObject()
 	}
 }
 
+void SpecificWorker::getObjects()
+{
+	listObject lObjects;
+	if(objectdetection_proxy->findTheObject(lObjects))
+	{
+		for(auto object:lObjects)
+		{
+			if(object.label=="pringles")
+			{
+				AGMModel::SPtr newModel(new AGMModel(worldModel));
+				RoboCompAprilTags::tag t;
+				t.id=32;
+				t.tx=object.tx;
+				t.ty=object.ty;
+				t.tz=object.tz;
+				t.rx=object.rx;
+				t.ry=object.ry;
+				t.rz=object.rz;
+				updateMug(t,newModel);
+			}
+		}
+	}
+}
 
 
 
