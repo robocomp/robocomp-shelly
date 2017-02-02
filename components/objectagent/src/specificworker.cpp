@@ -680,7 +680,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug,symbolMugSt;
 	
-	
+	// Verify that the mug is not already in the model (using the tag attribute)
 	for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 	{
 		if (symbol_it->symbolType == "object" and symbol_it->attributes.find("tag") != symbol_it->attributes.end())
@@ -698,7 +698,8 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			catch (...){ printf("   ERROR %s: %d\n", __FILE__, __LINE__);}
 		}
 	}
-	//create new symbol
+	
+	// If the mug doesn't already exist: create new symbols for it
 	if (not existing)
 	{
 		try
@@ -736,7 +737,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			edgeRT->setAttribute("ry", "0");
 			edgeRT->setAttribute("rz", "0");
 
-			//mug mesh			
+			//mug mesh
 			AGMModelSymbol::SPtr symbolMugMesh = newModel->newSymbol("mesh");
 			symbolMugMesh->setAttribute("collidable", "true");
 			symbolMugMesh->setAttribute("imName", mug_name+"_MugR");
@@ -770,10 +771,20 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			edgeRT3->setAttribute("ry", "0");
 			edgeRT3->setAttribute("rz", "0");
 
+			newModel->addEdge(symbolMug, symbolMugMeshTransform, "RT");
+			AGMModelEdge &edgeRT4  = newModel->getEdge(symbolMug, symbolMugMeshTransform, "RT");
+			edgeRT4->setAttribute("tx", "-10");
+			edgeRT4->setAttribute("ty", "50");
+			edgeRT4->setAttribute("tz", "0");
+			edgeRT4->setAttribute("rx", "0");
+			edgeRT4->setAttribute("ry", "0");
+			edgeRT4->setAttribute("rz", "0");
+
 			try
 			{
-				qDebug()<<"new mug inserted in model ";
+				qDebug()<<"trying to insert a new mug in the model";
 				sendModificationProposal(worldModel, newModel);
+				qDebug()<<"new mug inserted in model ";
 			}
 			catch(...)
 			{
@@ -822,7 +833,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
 		}
 	
-	//check mug table in
+		//check mug table in
 		//Update innermodel pose
 		QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
 		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
@@ -844,7 +855,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 		//else
 		if (!mugInrobot)
 		{
-			float min_distance = 9999999;
+			float min_distance = -1;
 			AGMModelSymbol::SPtr symbolNewTable, symbolWasInTable;
 			for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 			{
@@ -856,16 +867,18 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 						QMat tableInWorld = innerModel->transformS("world", tableIMName);
 						float distance = (tagInWorld - tableInWorld).norm2();
 						//qDebug()<<"checking distance: "<<tableIMName.c_str()<<"distence"<<distance;
-						if (distance < THRESHOLD_mugInTable and distance < min_distance)
+						if (distance < THRESHOLD_mugInTable and (distance < min_distance or min_distance<0) )
 						{
 							min_distance = distance;
 							symbolNewTable = *symbol_it;
 						}
 					}
-					try{
-						AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
+					try
+					{
+ 						AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
 						symbolWasInTable = *symbol_it;
-					}catch (...)
+					}
+					catch (...)
 					{
 					}
 				}
@@ -880,7 +893,7 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 					//check table room to update mug_>room link
 					roomWas = getRoomFromTable(newModel, symbolWasInTable);
 					try{
-						newModel->removeEdge(symbolWasInTable, symbolMug, "RT");						
+						newModel->removeEdge(symbolWasInTable, symbolMug, "RT");
 						newModel->removeEdge(symbolMug, symbolWasInTable, "in");
 //						newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
 						
@@ -1168,7 +1181,7 @@ void SpecificWorker::getObject()
 		RoboCompAprilTags::tag t;
 		QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz).print("Pose recibida: ");
 		QVec posobj = innerModel->transform6D("rgbd",QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz),"robot");
-		t.id=32;
+		t.id=31;
 		t.tx=posobj.x();
 		t.ty=posobj.y();
 		t.tz=posobj.z();
