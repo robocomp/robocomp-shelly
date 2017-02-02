@@ -1004,7 +1004,7 @@ void SpecificWorker::action_GraspObject(bool first)
 			{
 				QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
 				qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
-				if (timeRead.secsTo(QTime::currentTime()) < 5 ) //Seen in last three seconds, 
+				if (timeRead.secsTo(QTime::currentTime()) < 500) //Seen in last three seconds, 
 				{
 					visible = true;
 				}

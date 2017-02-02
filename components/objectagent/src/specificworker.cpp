@@ -1166,13 +1166,16 @@ void SpecificWorker::getObject()
 	{
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		RoboCompAprilTags::tag t;
+		QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz).print("Pose recibida: ");
+		QVec posobj = innerModel->transform6D("rgbd",QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz),"robot");
 		t.id=32;
-		t.tx=poseobj.tx;
-		t.ty=poseobj.ty;
-		t.tz=poseobj.tz;
-		t.rx=poseobj.rx;
-		t.ry=poseobj.ry;
-		t.rz=poseobj.rz;
+		t.tx=posobj.x();
+		t.ty=posobj.y();
+		t.tz=posobj.z();
+		t.rx=posobj.rx();
+		t.ry=posobj.ry();
+		t.rz=posobj.rz();
+		posobj.print("from rgbd");
 		updateMug(t,newModel);
 	}
 }
