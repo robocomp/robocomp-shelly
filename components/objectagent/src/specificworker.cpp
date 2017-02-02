@@ -33,7 +33,6 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	aux.type = "float";
 	aux.value = "0";
 	worker_params["frameRate"] = aux;
-	objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/components/prp/objects/");
 	connect(buscar, SIGNAL(clicked()), this, SLOT(getObject()));
 }
 
@@ -130,6 +129,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		waitTime = QTime::currentTime();
 	bool object_found = false;
 	bool publishModel = false;
+	pose6D poseobj;
 	
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
@@ -148,16 +148,8 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		//Pipelining!!
 		try
 		{
-			objectdetection_proxy->grabThePointCloud("mug.pcd", "mug.png");
-			objectdetection_proxy->ransac("plane");
-			objectdetection_proxy->projectInliers("plane");
-			objectdetection_proxy->convexHull("plane");
-			objectdetection_proxy->extractPolygon("plane");
-			int numclusters = 0;
-			objectdetection_proxy->euclideanClustering(numclusters);
-			objectdetection_proxy->reloadVFH("/home/robocomp/robocomp/prp/experimentFiles/vfhSignatures/");
 			
-			object_found = objectdetection_proxy->findTheObject(objectToDetect);
+			object_found = objectdetection_proxy->findTheObject(objectToDetect,poseobj);
 		}catch(...)
 		{
 			printf("Imposible to connect to objectdetection \n");
@@ -165,23 +157,10 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		}
 		if (object_found)
 		{
-			float tx=0,ty=0,tz=0,rx=0,ry=0,rz=0;
-			try
-			{
-				objectdetection_proxy->getPose(tx, ty, tz);
-				objectdetection_proxy->getRotation(rx, ry, rz);
-				
-			}
-			catch(...)
-			{
-				printf("Imposible to connect to objectdetection \n");
-				return false;
-			}
-
 			AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbols[objectToDetect]->identifier , "RT");
 			QString tableIMName = QString::fromStdString(symbolTable->getAttribute("imName"));
-			QVec positionObject = QVec::vec6(tx, ty, tz);
-			QMat rotationObject = Rot3D(rx, ry, rz);
+			QVec positionObject = QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz);
+			QMat rotationObject = Rot3D(poseobj.rx, poseobj.ry, poseobj.rz);
 			QVec positionFromParent  = innerModel->transform(tableIMName, positionObject, "rgbd");
 			QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(tableIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
 			QVec rotation;
@@ -1163,7 +1142,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 		{
 			if ((*edge_itr)->getLabel() == "noExplored")
 			{
-// 				getObject();
+				getObject();
 				(*edge_itr)->setLabel("explored");
 				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
 				sendModificationProposal(worldModel, newModel);
@@ -1182,27 +1161,18 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 
 void SpecificWorker::getObject()
 {
-	int numOfClusters = 0;
-	float rx, ry, rz, x, y, z;
-	objectdetection_proxy->grabThePointCloud("image.png", "rgbd.pcd");
-	objectdetection_proxy->ransac("plane");
-	objectdetection_proxy->projectInliers("plane");
-	objectdetection_proxy->convexHull("plane");
-	objectdetection_proxy->extractPolygon("plane");
-	objectdetection_proxy->euclideanClustering(numOfClusters);
-	if(objectdetection_proxy->findTheObject("pringles"))
+	pose6D poseobj;
+	if(objectdetection_proxy->findTheObject("yatekomo",poseobj))
 	{
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		RoboCompAprilTags::tag t;
-		objectdetection_proxy->getPose(x, y, z);
-		objectdetection_proxy->getRotation(rx, ry, rz);
 		t.id=32;
-		t.tx=x;
-		t.ty=y;
-		t.tz=z;
-		t.rx=rx;
-		t.ry=ry;
-		t.rz=rz;
+		t.tx=poseobj.tx;
+		t.ty=poseobj.ty;
+		t.tz=poseobj.tz;
+		t.rx=poseobj.rx;
+		t.ry=poseobj.ry;
+		t.rz=poseobj.rz;
 		updateMug(t,newModel);
 	}
 }
@@ -1210,7 +1180,7 @@ void SpecificWorker::getObject()
 void SpecificWorker::getObjects()
 {
 	listObject lObjects;
-	if(objectdetection_proxy->findTheObject(lObjects))
+	if(objectdetection_proxy->findObjects(lObjects))
 	{
 		for(auto object:lObjects)
 		{

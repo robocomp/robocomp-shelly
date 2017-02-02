@@ -50,6 +50,7 @@ public:
 public slots:
 	void compute();
 	void getObject();
+	void getObjects();
 private:
 	bool active;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
@@ -69,12 +70,8 @@ private:
 	bool updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
 	AGMModelSymbol::SPtr getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table);
-<<<<<<< HEAD
-	void getObject();
-	void getObjects();
-=======
-	
->>>>>>> 2566782173b10189b77613332b3710a5eeb08067
+
+
 private:
 	std::string action;
 	ParameterMap params;

@@ -1,0 +1,12 @@
+<innermodel>
+	<transform id="tag5">
+		<transform id="tag1" tx="-171" ty="171" />
+		<transform id="tag2" ty="171" />
+		<transform id="tag3" tx="171" ty="171" />
+		<transform id="tag4" tx="-171" />
+		<transform id="tag6" tx="171" />
+		<transform id="tag7" tx="-171" ty="-171" />
+		<transform id="tag8" ty="-171" />
+		<transform id="tag9" tx="171" ty="-171" />
+	</transform>
+</innermodel>
