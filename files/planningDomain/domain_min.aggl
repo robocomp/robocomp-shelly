@@ -8,8 +8,6 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
-include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_mug_perception.aggl)
-include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_noodles_perception.aggl)
 
 hierarchical moveObjectToTable : active(1)
 {
@@ -425,3 +423,227 @@ changeRoom : active(1)
 		)
 	}
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+setStop : active(1)
+{
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)*
+	}
+	=>
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)
+	}
+}
+
+unsetStop : passive(1)
+{
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)
+	}
+	=>
+	{
+		1:robot(0,0)
+		2:status(210,0)
+		1->2(hasStatus)
+		1->2(stop)*
+	}
+}
+
+
+
+
+imagineMostLikelyMugInPosition : active(2)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->mugSt(hasStatus)
+		mug->mugSt(noReach)
+		mug->mugSt(reachable)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+imaginaryMugNotFound : passive(1)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->mugSt(hasStatus)
+		mug->mugSt(noReach)
+		mug->mugSt(reachable)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+verifyImaginaryMug : active(1)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		robot->status(usedOracle)
+		mug->room(in)
+		mug->mugSt(mug)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:object(0,0)
+		mugSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		mug->mugSt(mug)
+		mug->room(in)
+		table->tableSt(table)
+	}
+}
+
+hierarchical hierarchical_verifyImaginaryMug : active(2)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:protoObject(0,0)
+		mugSt:objectSt(-220,0)
+		mug->table(in)
+		robot->status(usedOracle)
+		mug->room(in)
+		mug->mugSt(mug)
+		robot->mug(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		mug:object(0,0)
+		mugSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		mug->table(in)
+		robot->mug(know)
+		mug->mugSt(mug)
+		mug->room(in)
+		table->tableSt(table)
+	}
+}
+
+
+recognizeObjMug : active(1)
+{
+	{
+		status:objectSt(65,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(unclassified)
+	}
+	=>
+	{
+		status:objectSt(60,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(classified)
+		object->status(mug)
+	}
+}
+
