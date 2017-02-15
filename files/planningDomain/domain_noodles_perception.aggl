@@ -1,0 +1,184 @@
+spacePattern=3
+lineThickness=2
+fontName=Arial
+name=domain_noodles_perception
+vertexDiameter=52
+shortPattern=1
+nodeThickness=2
+fontSize=12
+longPattern=3
+===
+
+imagineMostLikelynoodlesInPosition : active(2)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:protoObject(0,0)
+		noodlesSt:objectSt(-220,0)
+		noodles->table(in)
+		robot->status(usedOracle)
+		noodles->noodlesSt(hasStatus)
+		noodles->noodlesSt(noReach)
+		noodles->noodlesSt(reachable)
+		noodles->room(in)
+		noodles->noodlesSt(noodles)
+		robot->noodles(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+imaginarynoodlesNotFound : passive(1)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:protoObject(0,0)
+		noodlesSt:objectSt(-220,0)
+		noodles->table(in)
+		robot->status(usedOracle)
+		noodles->noodlesSt(hasStatus)
+		noodles->noodlesSt(noReach)
+		noodles->noodlesSt(reachable)
+		noodles->room(in)
+		noodles->noodlesSt(noodles)
+		robot->noodles(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		robot->status(usedOracle)*
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+verifyImaginarynoodles : active(1)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:protoObject(0,0)
+		noodlesSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		noodles->table(in)
+		robot->noodles(know)
+		robot->status(usedOracle)
+		noodles->room(in)
+		noodles->noodlesSt(noodles)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:object(0,0)
+		noodlesSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		noodles->table(in)
+		robot->noodles(know)
+		noodles->noodlesSt(noodles)
+		noodles->room(in)
+		table->tableSt(table)
+	}
+}
+
+hierarchical hierarchical_verifyImaginarynoodles : active(2) activates(verifyImaginarynoodles)
+{
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:protoObject(0,0)
+		noodlesSt:objectSt(-220,0)
+		noodles->table(in)
+		robot->status(usedOracle)
+		noodles->room(in)
+		noodles->noodlesSt(noodles)
+		robot->noodles(know)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		status:status(190,-130)
+		robot:robot(190,0)
+		table:object(0,130)
+		tableSt:objectSt(-220,130)
+		room:room(190,130)
+		noodles:object(0,0)
+		noodlesSt:objectSt(-220,0)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(reach)
+		noodles->table(in)
+		robot->noodles(know)
+		noodles->noodlesSt(noodles)
+		noodles->room(in)
+		table->tableSt(table)
+	}
+}
+
+
+recognizeObjnoodles : active(1)
+{
+	{
+		status:objectSt(65,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(unclassified)
+	}
+	=>
+	{
+		status:objectSt(60,-75)
+		object:object(-130,-75)
+		robot:robot(-290,-75)
+		robot->object(know)
+		object->status(hasStatus)
+		object->status(see)
+		object->status(position)
+		object->status(classified)
+		object->status(noodles)
+	}
+}
+

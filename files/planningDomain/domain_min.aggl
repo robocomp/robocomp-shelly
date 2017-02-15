@@ -8,6 +8,9 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_mug_perception.aggl)
+include(/home/robocomp/robocomp/components/robocomp-shelly/files/planningDomain/domain_noodles_perception.aggl)
+
 hierarchical moveObjectToTable : active(1)
 {
 	{
