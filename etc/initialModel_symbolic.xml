@@ -65,7 +65,7 @@
 	<link src="23" dst="25" label="reachPosition" />
 
 
-
+<!--
 	<symbol id="200" type="object">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="mug" />
@@ -80,7 +80,7 @@
 	<link src="200" dst="23" label="in" />
 
 
-
+-->
 
 
 
