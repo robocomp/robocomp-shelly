@@ -1,5 +1,13 @@
 <AGMModel>
 
+<symbol id="20" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
+	<attribute key="imName" value="tableA" />
+	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1750" />
+</symbol>
+<symbol id="21" type="objectSt"/>
 <symbol id="23" type="object">
 	<attribute key="depth" value="700" />
 	<attribute key="height" value="800" />
@@ -8,9 +16,43 @@
 	<attribute key="tag" value="30" />
 	<attribute key="width" value="1200" />
 </symbol>
+<symbol id="22" type="objectSt">
+	<attribute key="imName" value="tableA_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
 <symbol id="24" type="objectSt"/>
 <symbol id="25" type="objectSt">
 	<attribute key="imName" value="tableB_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="26" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
+	<attribute key="imName" value="tableC" />
+	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1750" />
+</symbol>
+<symbol id="27" type="objectSt"/>
+<symbol id="28" type="objectSt">
+	<attribute key="imName" value="tableC_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="29" type="object">
+	<attribute key="imName" value="countertopA" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="30" type="objectSt"/>
+<symbol id="31" type="objectSt">
+	<attribute key="imName" value="countertopA_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="32" type="object">
+	<attribute key="imName" value="countertopB" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="33" type="objectSt"/>
+<symbol id="34" type="objectSt">
+	<attribute key="imName" value="countertopB_reachPos" />
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="35" type="object">
@@ -23,6 +65,18 @@
 <symbol id="36" type="objectSt"/>
 <symbol id="37" type="objectSt">
 	<attribute key="imName" value="tableD_reachPos" />
+	<attribute key="imType" value="transform" />
+</symbol>
+<symbol id="38" type="object">
+	<attribute key="depth" value="700" />
+	<attribute key="height" value="800" />
+	<attribute key="imName" value="tableE" />
+	<attribute key="imType" value="transform" />
+	<attribute key="width" value="1800" />
+</symbol>
+<symbol id="39" type="objectSt"/>
+<symbol id="40" type="objectSt">
+	<attribute key="imName" value="tableE_reachPos" />
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="1" type="robot">
@@ -1270,25 +1324,60 @@
 </symbol>
 
 
+<link src="20" dst="22" label="reachPosition"/>
 <link src="23" dst="25" label="reachPosition"/>
+<link src="26" dst="28" label="reachPosition"/>
+<link src="29" dst="31" label="reachPosition"/>
+<link src="32" dst="34" label="reachPosition"/>
 <link src="35" dst="37" label="reachPosition"/>
+<link src="38" dst="40" label="reachPosition"/>
 <link src="3" dst="4" label="room"/>
 <link src="1" dst="3" label="in"/>
 <link src="1" dst="3" label="know"/>
 <link src="5" dst="6" label="room"/>
 <link src="1" dst="5" label="know"/>
+<link src="20" dst="3" label="in"/>
+<link src="20" dst="21" label="hasStatus"/>
+<link src="20" dst="21" label="noReach"/>
+<link src="20" dst="21" label="reachable"/>
+<link src="20" dst="21" label="table"/>
+<link src="1" dst="20" label="know"/>
 <link src="23" dst="3" label="in"/>
 <link src="23" dst="24" label="hasStatus"/>
 <link src="23" dst="24" label="noReach"/>
 <link src="23" dst="24" label="reachable"/>
 <link src="23" dst="24" label="table"/>
 <link src="1" dst="23" label="know"/>
+<link src="26" dst="3" label="in"/>
+<link src="26" dst="27" label="hasStatus"/>
+<link src="26" dst="27" label="noReach"/>
+<link src="26" dst="27" label="reachable"/>
+<link src="26" dst="27" label="table"/>
+<link src="1" dst="26" label="know"/>
+<link src="29" dst="5" label="in"/>
+<link src="29" dst="30" label="hasStatus"/>
+<link src="29" dst="30" label="noReach"/>
+<link src="29" dst="30" label="reachable"/>
+<link src="29" dst="30" label="table"/>
+<link src="1" dst="29" label="know"/>
+<link src="32" dst="5" label="in"/>
+<link src="32" dst="33" label="hasStatus"/>
+<link src="32" dst="33" label="noReach"/>
+<link src="32" dst="33" label="reachable"/>
+<link src="32" dst="33" label="table"/>
+<link src="1" dst="32" label="know"/>
 <link src="35" dst="5" label="in"/>
 <link src="35" dst="36" label="hasStatus"/>
 <link src="35" dst="36" label="noReach"/>
 <link src="35" dst="36" label="reachable"/>
 <link src="35" dst="36" label="table"/>
 <link src="1" dst="35" label="know"/>
+<link src="38" dst="5" label="in"/>
+<link src="38" dst="39" label="hasStatus"/>
+<link src="38" dst="39" label="noReach"/>
+<link src="38" dst="39" label="reachable"/>
+<link src="38" dst="39" label="table"/>
+<link src="1" dst="38" label="know"/>
 <link src="3" dst="5" label="transitable"/>
 <link src="5" dst="3" label="transitable"/>
 <link src="1" dst="2" label="hasStatus"/>
