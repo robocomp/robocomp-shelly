@@ -252,6 +252,6 @@ if [ $1 -eq 3 ] || [ $1 -eq 0 ]; then
 fi
 
 # trajectory
-if [ $1 -eq 3 ] || [ $1 -eq 0  || [ $1 -eq -1 ]; then
+if [ $1 -eq 3 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 	compile "trajectory" "/home/robocomp/robocomp/components/robocomp-shelly/components/trajectoryrobot2d/"
 fi

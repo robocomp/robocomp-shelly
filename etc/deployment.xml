@@ -31,6 +31,8 @@
 
  <node alias="oracleA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10338">
   <dependence alias="IS" />
+  <dependence alias="rgbd" />
+  <dependence alias="semantics" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-shelly/etc/objectoracle.conf" />
   <downCommand command="rcremote 10.0.30.22 X /home/robocomp/robocomp/components/prp/components/objectOracle killall -9 objectoracle" />
@@ -41,6 +43,18 @@
   <color value="#33FF33" />
  </node>
 
+ <node alias="semantics" endpoint="semanticsimilarity:tcp -h 10.0.30.22 -p 10500">
+  <dependence alias="IS" /> 
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote 10.0.30.22 semanticSimilarity /home/robocomp/robocomp/components/prp/components/semanticSimilarity python src/semanticSimilarity.py /home/robocomp/robocomp/components/prp/components/semanticSimilarity/etc/config" />
+  <downCommand command="rcremote 10.0.30.22 pkill -9 -f semanticSimilarity.py" />
+  <configFile path="kate /home/robocomp/robocomp/components/prp/components/semanticSimilarity/etc/config" />
+  <xpos value="123.426313737" />
+  <ypos value="-32.9110234425" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+ 
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />

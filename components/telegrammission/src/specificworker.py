@@ -96,6 +96,7 @@ class SpecificWorker(GenericWorker):
 		return True
 
 	def handle(self, message):
+		print 'handle'
 		if 'text' in message.keys():
 			self.handle_text(message)
 		elif 'voice' in message.keys():
