@@ -185,24 +185,24 @@
 				</transform>
 		
 				<!-- TABLE E -->
-	<!--			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" > -->
-	<!--				<transform id="tableE_reachPos" tx="-500" ry="1.5707"> -->
+				<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
+					<transform id="tableE_reachPos" tx="-500" ry="1.5707">
 		<!-- 				<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
-	<!--				</transform> -->
-	<!--				<mesh id="tableE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" /> -->
-	<!--				<transform id="tableE_p1" tx="-375" tz="885" ty="-370" > -->
-	<!--					<mesh id="tableE_p1_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/> -->
-	<!--				</transform> -->
-	<!--				<transform id="tableE_p2" tx="-375" tz="-885" ty="-370" > -->
-	<!--					<mesh id="tableE_p2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/> -->
-	<!--				</transform> -->
-	<!--				<transform id="tableE_p3" tx="375" tz="885" ty="-370" > -->
-	<!--					<mesh id="tableE_p3_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/> -->
-	<!--				</transform> -->
-	<!--				<transform id="tableE_p4" tx="375" tz="-885" ty="-370" > -->
-	<!--					<mesh id="tableE_p4_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/> -->
-	<!--				</transform> -->
-	<!--			</transform> -->
+					</transform>
+					<mesh id="tableE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
+					<transform id="tableE_p1" tx="-375" tz="885" ty="-370" >
+						<mesh id="tableE_p1_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
+					</transform>
+					<transform id="tableE_p2" tx="-375" tz="-885" ty="-370" >
+						<mesh id="tableE_p2_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
+					</transform>
+					<transform id="tableE_p3" tx="375" tz="885" ty="-370" >
+						<mesh id="tableE_p3_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
+					</transform>
+					<transform id="tableE_p4" tx="375" tz="-885" ty="-370" >
+						<mesh id="tableE_p4_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="25,25,370" rx="1.570799947" collide="1"/>
+					</transform>
+				</transform>
 
 				<!-- TABLE F -->
 	<!--			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" > -->
