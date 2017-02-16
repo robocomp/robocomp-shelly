@@ -10,19 +10,8 @@ precondition
 	(forall something:object
 		(forall somethingSt:objectSt
 			(when (hasStatus something somethingSt)
-				(and
-					(when (mug something somethingSt)
-						(and
-							(in something 20)
-							(not (in something 23))
-						)
-					)
-					(when (noodles something somethingSt)
-						(and
-							(in something 26)
-							(not (in something 23))
-						)
-					)
+				(when (mug something somethingSt)
+						(in something 20)
 				)
 			)
 		)

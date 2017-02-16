@@ -445,6 +445,15 @@ changeRoom : active(1)
 
 
 
+
+
+
+
+
+
+
+
+
 setStop : active(1)
 {
 	{
@@ -637,5 +646,4 @@ hierarchical hierarchical_verifyImaginaryMug : active(2)
 		robot->status(hasStatus)
 	}
 }
-
 
