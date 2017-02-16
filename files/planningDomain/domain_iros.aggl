@@ -647,37 +647,3 @@ hierarchical hierarchical_verifyImaginaryMug : active(2)
 	}
 }
 
-
-setRestArmPosition : active(1)
-{
-	{
-		robot:robot(0,-110)
-		status:status(0,110)
-		robot->status(hasStatus)
-		robot->status(restArm)*
-	}
-	=>
-	{
-		robot:robot(0,-110)
-		status:status(0,110)
-		robot->status(hasStatus)
-		robot->status(restArm)
-	}
-}
-
-unsetRestArmPosition : passive(1)
-{
-	{
-		robot:robot(0,-110)
-		status:status(0,110)
-		robot->status(hasStatus)
-		robot->status(restArm)
-	}
-	=>
-	{
-		robot:robot(0,-110)
-		status:status(0,110)
-		robot->status(hasStatus)
-		robot->status(restArm)*
-	}
-}
