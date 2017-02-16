@@ -62,20 +62,20 @@
 			</transform>
 
 			<!-- TABLE A -->
-<!--			<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" > -->
-<!--				<transform id="tableA_reachPos" tx="100" tz="-1300"> -->
+			<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" >
+				<transform id="tableA_reachPos" tx="100" tz="-1300">
 		<!-- 				<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
-<!--				</transform> -->
-<!--				<mesh id="tableA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" /> -->
-<!--			</transform> -->
-			<!-- table A lateral -->
-<!--			<transform id="pared24" tx="1280" tz="2272.4858395" ty="377" ry="-0.03" > -->
-<!-- 				<plane id="muro24" nx="-15.019531" nz="1148.601075" size="900,754,9"  texture="#118899" /> -->
-<!--			</transform> -->
-			<!-- table A frontal -->
-<!--			<transform id="pared25" tx="1428.205383" tz="3206.9558105" ty="377" > -->
-<!--				<plane id="muro25" nx="-1833.086425" nz="-68.48938" size="1834.36545887,754,9"  texture="#118899" /> -->
-<!-- 			</transform> -->
+				</transform>
+				<mesh id="tableA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
+			</transform>
+<!-- 			table A lateral -->
+			<transform id="pared24" tx="1280" tz="2272.4858395" ty="377" ry="-0.03" >
+				<plane id="muro24" nx="-15.019531" nz="1148.601075" size="900,754,9"  texture="#118899" />
+			</transform>
+<!-- 			table A frontal -->
+			<transform id="pared25" tx="1428.205383" tz="3206.9558105" ty="377" >
+				<plane id="muro25" nx="-1833.086425" nz="-68.48938" size="1834.36545887,754,9"  texture="#118899" />
+			</transform>
 
 			<!-- TABLE B -->
 			<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
@@ -106,18 +106,18 @@
 			</transform>
 
 			<!-- TABLE C -->
-<!--		<transform id="tableC" tx="4880" tz="3320" ty="760" ry="-0.05" > -->
-<!-- 				<transform id="tableC_reachPos" tz="-1200"> -->
+		<transform id="tableC" tx="4880" tz="3320" ty="760" ry="-0.05" >
+				<transform id="tableC_reachPos" tz="-1200">
 		<!-- 				<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
-<!--				</transform> -->
-<!--				<mesh id="tableC_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" /> -->
-<!--			</transform> -->
-<!--			<transform id="pared28" tx="4640.7512205" tz="3314.0805665" ty="380" > -->
-<!--				<plane id="muro28" nx="1831.647461" nz="119.897949" size="1835.56747072,760,9"  texture="#998811" /> -->
-<!--			</transform> -->
-<!--			<transform id="pared29" tx="4922.7502445" tz="2430.1999515" ty="380" > -->
-<!--				<plane id="muro29" nx="-39.213379" nz="787.782715" size="788.758071366,760,9"  texture="#998811" /> -->
-<!--			</transform> -->
+				</transform>
+				<mesh id="tableC_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
+			</transform>
+			<transform id="pared28" tx="4640.7512205" tz="3314.0805665" ty="380" >
+				<plane id="muro28" nx="1831.647461" nz="119.897949" size="1835.56747072,760,9"  texture="#998811" />
+			</transform>
+			<transform id="pared29" tx="4922.7502445" tz="2430.1999515" ty="380" >
+				<plane id="muro29" nx="-39.213379" nz="787.782715" size="788.758071366,760,9"  texture="#998811" />
+			</transform>
 			
 		</transform>
 		
