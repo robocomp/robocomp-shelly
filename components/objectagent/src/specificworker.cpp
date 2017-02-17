@@ -1189,7 +1189,7 @@ void SpecificWorker::getObject()
 		t.ry=posobj.ry();
 		t.rz=posobj.rz();
 		posobj.print("from rgbd");
-		updateMug(t,newModel);
+		updateOracleMug(t,newModel);
 	}
 }
 
@@ -1217,8 +1217,302 @@ void SpecificWorker::getObjects()
 	}
 }
 
+void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
+{
+	
+	printf("===========================\n===   updateOracleTable   =========\n===========================\n");
+	bool foundMug = false;
+	float THRESHOLD_mugInTable = 750;
+	AGMModelSymbol::SPtr symbolMug;
+	
+	for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+	{
 
+		if (isObjectType(newModel, *symbol_it, "mug"))
+		{
+			std::cout<<"EXISTING"<<std::endl;
+			symbolMug = *symbol_it;
+			foundMug = true;
+			break;
+		}
+	}
+	
+	if(foundMug)
+	{
+		std::cout<<"Mug was found, updating biatch"<<std::endl;
+		
+		//Update last seen tag
+		QTime time = QTime::currentTime(); 
+		try
+		{
+			QTime timeRead = QTime::fromString(QString::fromStdString(symbolMug->getAttribute("LastSeenTimeStamp")),"hhmmss");
+			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
+			{
+				symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+				try
+				{
+					AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
+				}
+				catch (...)
+				{
+					printf("LastSeenTimeStamp Exception: Executive not running?\n");
+				}
+			}
+		}
+		catch(...)
+		{
+			//Create atributte first time
+			symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+			try
+			{
+				AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
+			}
+			catch (...)
+			{
+				printf("LastSeenTimeStamp Exception: Executive not running?\n");
+			}
+			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
+		}
+		
+		
+		//check mug table in
+		//Update innermodel pose
+		QVec positionTag    = QVec::vec6(t.tx, t.ty, t.tz); // tag position from parent
+		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
+		QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
+		QVec tagInWorld  = innerModel->transform("world", positionTag, "rgbd");
+		
+		//check if mug is in robot
+		bool mugInrobot=false;
+		try
+		{
+			int robotID = newModel->getIdentifierByType("robot");
+			AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, robotID, "in");
+			mugInrobot = true;
+		}
+		catch (...)
+		{
+			printf("Mug not in robot\n");
+		}
+		//else
+		if (!mugInrobot)
+		{
+			float min_distance = -1;
+			AGMModelSymbol::SPtr symbolNewTable, symbolWasInTable;
+			for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+			{
+				if (symbol_it->symbolType == "object")
+				{
+					if (isObjectType(newModel, *symbol_it, "table"))
+					{
+						std::string tableIMName = symbol_it->getAttribute("imName");
+						QMat tableInWorld = innerModel->transformS("world", tableIMName);
+						float distance = (tagInWorld - tableInWorld).norm2();
+						//qDebug()<<"checking distance: "<<tableIMName.c_str()<<"distence"<<distance;
+						if (distance < THRESHOLD_mugInTable and (distance < min_distance or min_distance<0) )
+						{
+							min_distance = distance;
+							symbolNewTable = *symbol_it;
+						}
+					}
+					try
+					{
+ 						AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
+						symbolWasInTable = *symbol_it;
+					}
+					catch (...)
+					{
+					}
+				}
+			}
+			if (symbolNewTable and symbolNewTable != symbolWasInTable)
+			{
+				AGMModelSymbol::SPtr roomWas, roomIn;
+				qDebug()<<"Change tableMug:";
+				if(symbolWasInTable)
+				{
+					qDebug()<<"--> wasIn: "<<symbolWasInTable->getAttribute("imName").c_str();	
+					//check table room to update mug_>room link
+					roomWas = getRoomFromTable(newModel, symbolWasInTable);
+					try{
+						newModel->removeEdge(symbolWasInTable, symbolMug, "RT");
+						newModel->removeEdge(symbolMug, symbolWasInTable, "in");
+//						newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
+						
+					}catch(...)
+					{
+						qDebug()<<"Error removing wasIn table links";
+					}
+					
 
+				}
+				roomIn = getRoomFromTable(newModel, symbolNewTable);
+				if(roomIn and roomIn != roomWas)
+				{
+					qDebug()<<"Change roomMug:";
+					if(roomWas)
+					{
+						qDebug()<<"--> wasIn: "<<roomWas->getAttribute("imName").c_str();	
+						newModel->removeEdge(symbolMug, roomWas, "in");
+					}
+					qDebug()<<"--> now In: "<<roomIn->getAttribute("imName").c_str();	
+					newModel->addEdge(symbolMug, roomIn, "in");
+				}
+				try{				
+					newModel->addEdge(symbolMug, symbolNewTable, "in");
+//					newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
+					newModel->addEdge(symbolNewTable, symbolMug, "RT");
+					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();	
+				}catch(...)
+				{
+					qDebug()<<"Error inserting new In links";
+				}
+				try{
+
+					sendModificationProposal(worldModel, newModel);
+				}
+				catch(...)
+				{
+					printf("(sendModificationProposal) objectAgent: Couldn't publish new mug in model\n");
+				}
+				return;
+			}
+		}
+
+		QString symbolIMName       = QString::fromStdString(symbolMug->getAttribute("imName"));
+		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
+
+		if (nodeSymbolIM)
+		{
+			InnerModelNode *parentNodeIM = nodeSymbolIM->parent;
+			if (parentNodeIM)
+			{
+				QString parentIMName    = parentNodeIM->id;
+// 				qDebug() << "Mug's parent: " << parentIMName;
+				QVec positionFromParent  = innerModel->transform(parentIMName, positionTag, "rgbd");
+				QMat rotationTag         = Rot3D(t.rx, t.ry, t.rz); //rotacion propia de la marca
+				QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(parentIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
+				QVec rotation;
+				rotation = (rotationRGBD2Parent * rotationTag * rotationOffset).invert().extractAnglesR_min(); 
+				// COMPONEMOS LA POSE ENTERA:
+				QVec poseFromParent = QVec::zeros(6);
+				poseFromParent.inject(positionFromParent, 0);
+				poseFromParent.inject(rotation, 3);
+ 				poseFromParent.print("pose from parent");
+				
+				//BUSCAR EL ENLACE RT: NECESITAMOS EL SIMBOLO PADRE EN AGM
+				bool parentFound = false;
+				AGMModelSymbol::SPtr symbolParent;
+				for(AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+				{
+					symbolParent = *symbol_it;
+					if (symbolParent->symbolType == "object" and symbolParent->attributes["imName"]==parentIMName.toStdString())
+					{
+// 						qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
+						parentFound = true;
+						break;
+					}
+				}
+				if (parentFound)
+				{
+					// Si el padre existe en AGM sacamos el enlace RT que va desde el padre hasta el hijo y actualizamos sus valores
+					try
+					{
+						AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, symbolMug->identifier, "RT");
+						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
+						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
+						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
+						// Do not update rotation if id=31 ==> tag
+						if(t.id == 31 or t.id == 32)
+						{
+							edgeRT->setAttribute("rx", "0.0");
+							edgeRT->setAttribute("ry", "0.0");
+							edgeRT->setAttribute("rz", "0.0");
+						}
+						else
+						{						
+							edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
+							edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
+							edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
+						}
+// 						qDebug() << "Updating edge!";
+						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+						rDebug2(("objectAgent edgeupdate for mug"));
+					}
+					catch(...){ qDebug()<<"Impossible to update the RT edge"; }
+				}
+				else
+					qDebug() << "Parent node doesnt exist in AGM";
+			}
+			else
+			{
+				qDebug() << "Parent node doesnt exist in InnerModel";
+			}
+		}
+		else
+		{
+			qDebug() << "Mug's node doesnt exist in InnerModel";
+		}
+	
+		//If mug was imagined remove image edge and add know
+		for (AGMModelSymbol::iterator edge_itr=symbolMug->edgesBegin(newModel); edge_itr!=symbolMug->edgesEnd(newModel); edge_itr++)
+		{
+			AGMModelEdge edge = *edge_itr;
+			if (edge->getLabel() == "imagine")
+			{
+				auto symbols = worldModel->getSymbolsMap(params, "mug", "robot", "status");
+				newModel->removeEdge(symbols["mug"], symbols["robot"], "imagine");
+				newModel->addEdge(symbols["mug"], symbols["robot"], "know");
+				try
+				{
+					newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+				}
+				catch(...)
+				{
+					printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				}
+			}
+		}
+		
+		//add the mesh
+		try
+		{
+			
+			//add mesh
+			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol("mugMesh");
+			mugMesh->setAttribute("collidable", "true");
+			mugMesh->setAttribute("imName", std::string("mesh_")+int2str(mugMesh->identifier));
+			mugMesh->setAttribute("imType", "mesh");
+			mugMesh->setAttribute("path", "/home/robocomp/robocomp/components/prp/experimentFiles/simulation/mug_blue.3ds");
+			mugMesh->setAttribute("render", "NormalRendering");
+			mugMesh->setAttribute("scalex", "100");
+			mugMesh->setAttribute("scaley", "100");
+			mugMesh->setAttribute("scalez", "100");
+			//model offset
+			std::map<std::string, std::string> edgeRTMeshAtrs;
+			edgeRTMeshAtrs["tx"] = "0";
+			edgeRTMeshAtrs["ty"] = "-48.5";
+			edgeRTMeshAtrs["tz"] = "0";
+			edgeRTMeshAtrs["rx"] = "1.57079";
+			edgeRTMeshAtrs["ry"] = "0";
+			edgeRTMeshAtrs["rz"] = "3.141592";
+			newModel->addEdge(symbolMug, mugMesh, "RT", edgeRTMeshAtrs);
+			rDebug2(("objectAgent edgeupdate for table"));
+		}
+		catch(...)
+		{
+			qFatal("Impossible to create the RT edge to the mug mesh"); 
+		}
+		
+	
+	}
+	//mug was not found
+	else
+	{
+		std::cout<<"ERROR: MUG WAS NOT FOUND, IT WAS PROBABLY NOT IMAGINED PROPERLY"<<std::endl;
+	}
+	
+}
 
 
 

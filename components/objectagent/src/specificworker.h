@@ -69,6 +69,7 @@ private:
 	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
+	void updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	AGMModelSymbol::SPtr getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table);
 
 

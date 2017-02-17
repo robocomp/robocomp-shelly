@@ -45,6 +45,7 @@
 		<attribute key="imName" value="tableA_reachPos" />
 	</symbol>
 	<link src="20" dst="22" label="reachPosition" > </link>
+	<link src="20" dst="22" label="table" > </link>
 	<link src="20" dst="21" label="explored" > </link>
 
 	
@@ -62,6 +63,7 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableB_reachPos" />
 	</symbol>
+	<link src="23" dst="25" label="table" > </link>
 	<link src="23" dst="25" label="reachPosition" > </link>
 
 <!--
@@ -94,6 +96,7 @@
 		<attribute key="imName" value="tableC_reachPos" />
 	</symbol>
 	<link src="26" dst="28" label="reachPosition" > </link>
+	<link src="26" dst="28" label="table" > </link>
 	<link src="26" dst="27" label="explored" > </link>
 
 	
@@ -141,6 +144,7 @@
 		<attribute key="imName" value="tableD_reachPos" />
 	</symbol>
 	<link src="35" dst="37" label="reachPosition" > </link>
+	<link src="35" dst="37" label="table" > </link>
 
 
 	
@@ -157,6 +161,7 @@
 		<attribute key="imName" value="tableE_reachPos" />
 	</symbol>
 	<link src="38" dst="40" label="reachPosition" > </link>
+	<link src="38" dst="40" label="table" > </link>
 	<link src="38" dst="39" label="explored" > </link>
 
 	
