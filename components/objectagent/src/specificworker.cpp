@@ -24,6 +24,7 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 	active = false;
+	object_found = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
@@ -58,7 +59,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("The executive is probably not running, waiting for first AGM model publication...");
 	}
 
-	timer.start(Period);
+// 	timer.start(Period);
+	timer.start(1000);
 	return true;
 }
 
@@ -74,36 +76,27 @@ void SpecificWorker::compute()
 		first = false;
 	}
 
-
 	QMutexLocker l(mutex);
-	//TEMPORAL
-// 	printf("Distance: %f\n", innerModel->transform("mugTag", "rgbd").norm2());
-	//
 	static std::string previousAction = "";
 
 	bool newAction = (previousAction != action);
 	if (newAction)
 		printf("New action: %s\n", action.c_str());
+	printf("action: %s\n", action.c_str());
 	if (action == "findobjectvisuallyintable")
 	{
 		action_FindObjectVisuallyInTable(newAction);
 	}
 	else if (action == "verifyimaginarymug")
 	{
+		printf("action verifyimaginarymug\n");
 		try
 		{
-			if (detectAndLocateObject("mug", newAction))
-				printf("Found it!\n");
-			else
-				printf("No object found!\n");
-		}
-		catch(RoboCompAGMExecutive::Locked )
-		{
-			printf("AGMMisc::locked \n");
-		}
-		catch(RoboCompAGMExecutive::OldModel )
-		{
-			printf("AGMMisc::OldModel \n");
+		printf("action verifyimaginarymug2 \n");
+			getObject();
+			//	printf("Found it!\n");
+			//else
+			//	printf("No object found!\n");
 		}
 		catch(RoboCompAGMExecutive::InvalidChange )
 		{
@@ -374,7 +367,13 @@ bool SpecificWorker::reloadConfigAgent()
 void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &modification)
 {
 	QMutexLocker l(mutex);
-
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
+	printf("lalalalalalala %d\n", modification.version);
  	AGMModelConverter::fromIceToInternal(modification, worldModel);
  
 	delete innerModel;
@@ -465,16 +464,39 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 	return true;
 }
 
-void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel)
+
+	
+void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel, string c)
 {
-	try
+	printf("versoin %d\n", newModel->version);
+	while (true)
 	{
-// 		AGMModelPrinter::printWorld(newModel);
-		AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent");
-	}
-	catch(...)
-	{
-		exit(1);
+		try
+		{
+	// 		AGMModelPrinter::printWorld(newModel);
+			AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent"+c);
+		}
+		catch(const RoboCompAGMExecutive::Locked &e)
+		{
+			printf("error when sending modification proposal (Locked)\n");
+		}
+		catch(const RoboCompAGMExecutive::OldModel &e)
+		{
+			throw e;
+		}
+		catch(const RoboCompAGMExecutive::InvalidChange &e)
+		{
+			throw e;
+		}
+		catch(const Ice::Exception& e)
+		{
+			printf("error when sending modification proposal\n");
+			exit(1);
+		}
+		catch(...)
+		{
+			exit(1);
+		}
 	}
 }
 
@@ -783,7 +805,8 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			try
 			{
 				qDebug()<<"trying to insert a new mug in the model";
-				sendModificationProposal(worldModel, newModel);
+				sendModificationProposal(worldModel, newModel, "update mug viejo");
+exit(1);
 				qDebug()<<"new mug inserted in model ";
 			}
 			catch(...)
@@ -926,8 +949,8 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 					qDebug()<<"Error inserting new In links";
 				}
 				try{
-
-					sendModificationProposal(worldModel, newModel);
+					sendModificationProposal(worldModel, newModel, "update mug viejo");
+exit(1);
 				}
 				catch(...)
 				{
@@ -1138,6 +1161,7 @@ void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t
 
 void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 {
+	printf("me cago en mi vida\n");
 	QMutexLocker l(mutex);
 
 	static QTime lastTime;
@@ -1145,9 +1169,9 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 	if (newAction)
 		lastTime = QTime::currentTime();
 
-// 	if (lastTime.elapsed() > 5000)
+	if (lastTime.elapsed() > 5000)
 	{
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
+ 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		auto symbols = newModel->getSymbolsMap(params, "container");
 		auto node = symbols["container"];
 
@@ -1158,6 +1182,7 @@ void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 				getObject();
 				(*edge_itr)->setLabel("explored");
 				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
+exit(1);
 				sendModificationProposal(worldModel, newModel);
 				return;
 			}
@@ -1172,13 +1197,12 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 	return worker_params;
 }
 
-void SpecificWorker::getObject()
+void SpecificWorker::findObject()
 {
 	pose6D poseobj;
 	if(objectdetection_proxy->findTheObject("yatekomo",poseobj))
 	{
-		AGMModel::SPtr newModel(new AGMModel(worldModel));
-		RoboCompAprilTags::tag t;
+		
 		QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz).print("Pose recibida: ");
 		QVec posobj = innerModel->transform6D("rgbd",QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz),"robot");
 		t.id=31;
@@ -1189,8 +1213,33 @@ void SpecificWorker::getObject()
 		t.ry=posobj.ry();
 		t.rz=posobj.rz();
 		posobj.print("from rgbd");
-		updateOracleMug(t,newModel);
+		object_found = true;
 	}
+}
+
+void SpecificWorker::getObject()
+{
+
+	if(!object_found)
+	{
+		findObject();
+	}
+		
+	if (object_found)
+	{
+		AGMModel::SPtr newModel(new AGMModel(worldModel));
+		updateOracleMug(t,newModel);
+		try
+		{
+			sendModificationProposal(worldModel, newModel, "esa es la buena");
+		}
+		catch(RoboCompAGMExecutive::OldModel)
+		{
+			printf("AGMMisc::OldModel \n");
+		}
+		qDebug()<<"ModificationProposalSent";
+	}
+		
 }
 
 void SpecificWorker::getObjects()
@@ -1220,7 +1269,7 @@ void SpecificWorker::getObjects()
 void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
 {
 	
-	printf("===========================\n===   updateOracleTable   =========\n===========================\n");
+	printf("===========================\n===   updateOracleMug   =========\n===========================\n");
 	bool foundMug = false;
 	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug;
@@ -1241,39 +1290,6 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 	{
 		std::cout<<"Mug was found, updating biatch"<<std::endl;
 		
-		//Update last seen tag
-		QTime time = QTime::currentTime(); 
-		try
-		{
-			QTime timeRead = QTime::fromString(QString::fromStdString(symbolMug->getAttribute("LastSeenTimeStamp")),"hhmmss");
-			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
-			{
-				symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
-				try
-				{
-					AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
-				}
-				catch (...)
-				{
-					printf("LastSeenTimeStamp Exception: Executive not running?\n");
-				}
-			}
-		}
-		catch(...)
-		{
-			//Create atributte first time
-			symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
-			try
-			{
-				AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
-			}
-			catch (...)
-			{
-				printf("LastSeenTimeStamp Exception: Executive not running?\n");
-			}
-			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
-		}
-		
 		
 		//check mug table in
 		//Update innermodel pose
@@ -1281,105 +1297,16 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		QMat rotationOffset = Rot3D(-M_PI_2, 0, 0); // apriltags' rotation offset
 		QMat rotationTag    = Rot3D(t.rx, t.ry, t.rz); // apriltags' rotation as seen
 		QVec tagInWorld  = innerModel->transform("world", positionTag, "rgbd");
+
 		
-		//check if mug is in robot
-		bool mugInrobot=false;
-		try
-		{
-			int robotID = newModel->getIdentifierByType("robot");
-			AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, robotID, "in");
-			mugInrobot = true;
+		QString symbolIMName;
+		try{
+			symbolIMName = QString::fromStdString(symbolMug->getAttribute("imName"));
 		}
-		catch (...)
+		catch(...)
 		{
-			printf("Mug not in robot\n");
+			symbolIMName = QString::fromStdString(symbolMug->symboltype()) + QString::number(symbolMug->identifier);
 		}
-		//else
-		if (!mugInrobot)
-		{
-			float min_distance = -1;
-			AGMModelSymbol::SPtr symbolNewTable, symbolWasInTable;
-			for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
-			{
-				if (symbol_it->symbolType == "object")
-				{
-					if (isObjectType(newModel, *symbol_it, "table"))
-					{
-						std::string tableIMName = symbol_it->getAttribute("imName");
-						QMat tableInWorld = innerModel->transformS("world", tableIMName);
-						float distance = (tagInWorld - tableInWorld).norm2();
-						//qDebug()<<"checking distance: "<<tableIMName.c_str()<<"distence"<<distance;
-						if (distance < THRESHOLD_mugInTable and (distance < min_distance or min_distance<0) )
-						{
-							min_distance = distance;
-							symbolNewTable = *symbol_it;
-						}
-					}
-					try
-					{
- 						AGMModelEdge e = newModel->getEdgeByIdentifiers(symbolMug->identifier, symbol_it->identifier, "in");
-						symbolWasInTable = *symbol_it;
-					}
-					catch (...)
-					{
-					}
-				}
-			}
-			if (symbolNewTable and symbolNewTable != symbolWasInTable)
-			{
-				AGMModelSymbol::SPtr roomWas, roomIn;
-				qDebug()<<"Change tableMug:";
-				if(symbolWasInTable)
-				{
-					qDebug()<<"--> wasIn: "<<symbolWasInTable->getAttribute("imName").c_str();	
-					//check table room to update mug_>room link
-					roomWas = getRoomFromTable(newModel, symbolWasInTable);
-					try{
-						newModel->removeEdge(symbolWasInTable, symbolMug, "RT");
-						newModel->removeEdge(symbolMug, symbolWasInTable, "in");
-//						newModel->removeEdge(symbolMug, symbolWasInTable, "wasIn");
-						
-					}catch(...)
-					{
-						qDebug()<<"Error removing wasIn table links";
-					}
-					
-
-				}
-				roomIn = getRoomFromTable(newModel, symbolNewTable);
-				if(roomIn and roomIn != roomWas)
-				{
-					qDebug()<<"Change roomMug:";
-					if(roomWas)
-					{
-						qDebug()<<"--> wasIn: "<<roomWas->getAttribute("imName").c_str();	
-						newModel->removeEdge(symbolMug, roomWas, "in");
-					}
-					qDebug()<<"--> now In: "<<roomIn->getAttribute("imName").c_str();	
-					newModel->addEdge(symbolMug, roomIn, "in");
-				}
-				try{				
-					newModel->addEdge(symbolMug, symbolNewTable, "in");
-//					newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
-					newModel->addEdge(symbolNewTable, symbolMug, "RT");
-					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();	
-				}catch(...)
-				{
-					qDebug()<<"Error inserting new In links";
-				}
-				try{
-
-					sendModificationProposal(worldModel, newModel);
-				}
-				catch(...)
-				{
-					printf("(sendModificationProposal) objectAgent: Couldn't publish new mug in model\n");
-				}
-				return;
-			}
-		}
-
-		QString symbolIMName       = QString::fromStdString(symbolMug->getAttribute("imName"));
 		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
 
 		if (nodeSymbolIM)
@@ -1408,7 +1335,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 					symbolParent = *symbol_it;
 					if (symbolParent->symbolType == "object" and symbolParent->attributes["imName"]==parentIMName.toStdString())
 					{
-// 						qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
+ 						qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
 						parentFound = true;
 						break;
 					}
@@ -1436,7 +1363,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 							edgeRT->setAttribute("rz", float2str(poseFromParent.rz()));
 						}
 // 						qDebug() << "Updating edge!";
-						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
+// 						AGMMisc::publishEdgeUpdate(edgeRT, agmexecutive_proxy);
 						rDebug2(("objectAgent edgeupdate for mug"));
 					}
 					catch(...){ qDebug()<<"Impossible to update the RT edge"; }
@@ -1461,8 +1388,22 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			if (edge->getLabel() == "imagine")
 			{
 				auto symbols = worldModel->getSymbolsMap(params, "mug", "robot", "status");
-				newModel->removeEdge(symbols["mug"], symbols["robot"], "imagine");
-				newModel->addEdge(symbols["mug"], symbols["robot"], "know");
+				try
+				{
+					newModel->removeEdge(symbols["mug"], symbols["robot"], "imagine");
+				}
+				catch(...)
+				{
+					printf("No imagine found, was object imagined by oracle?\n");
+				}
+				try
+				{
+					newModel->addEdge(symbols["mug"], symbols["robot"], "know");
+				}
+				catch(...)
+				{
+					printf("Robot knows about the mug. Know edg can't be added to model.\n");
+				}
 				try
 				{
 					newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
@@ -1497,7 +1438,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			edgeRTMeshAtrs["ry"] = "0";
 			edgeRTMeshAtrs["rz"] = "3.141592";
 			newModel->addEdge(symbolMug, mugMesh, "RT", edgeRTMeshAtrs);
-			rDebug2(("objectAgent edgeupdate for table"));
+			rDebug2(("objectAgent edgeupdate for mesh"));
 		}
 		catch(...)
 		{
@@ -1513,10 +1454,6 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 	}
 	
 }
-
-
-
-
 
 
 

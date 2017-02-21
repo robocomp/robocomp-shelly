@@ -1795,7 +1795,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="100" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-800" />
+	<linkAttribute key="tz" value="-500" />
 </link>
 <link src="23" dst="126" label="RT">
 	<linkAttribute key="rx" value="0" />

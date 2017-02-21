@@ -54,7 +54,7 @@ public slots:
 private:
 	bool active;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
-	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
+	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel, string c="");
 	
 	void action_FindObjectVisuallyInTable  (bool newAction);
 
@@ -70,6 +70,7 @@ private:
 	bool updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t);
 	void updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
+	void findObject();
 	AGMModelSymbol::SPtr getRoomFromTable(AGMModel::SPtr model, AGMModelSymbol::SPtr table);
 
 
@@ -78,6 +79,8 @@ private:
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
+	RoboCompAprilTags::tag t;
+	bool object_found;
 
 	RoboCompCommonBehavior::ParameterList worker_params;
 	QMutex *worker_params_mutex;

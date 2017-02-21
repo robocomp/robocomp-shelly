@@ -269,8 +269,8 @@ void SpecificWorker::manageReachedObjects()
 			
 
 			QString name = QString::fromStdString(node->toString());
-//			if (node->identifier == 11)
-//			qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
+			if (node->identifier == 23)
+				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
@@ -1013,11 +1013,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			{
 				printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
 			}
-			if(not visible)
-			{
-				printf("Object not visible, waiting!!\n");
-				break;
-			}
+			//not using timestamps anymore since no apriltags are used
+// 			if(not visible)
+// 			{
+// 				printf("Object not visible, waiting!!\n");
+// 				break;
+// 			}
 			
 			try
 			{
