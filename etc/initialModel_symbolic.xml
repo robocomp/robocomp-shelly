@@ -145,6 +145,7 @@
 	</symbol>
 	<link src="35" dst="37" label="reachPosition" > </link>
 	<link src="35" dst="37" label="table" > </link>
+	<link src="35" dst="5" label="in" > </link>
 
 
 	
@@ -160,6 +161,7 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableE_reachPos" />
 	</symbol>
+	<link src="38" dst="5" label="in" > </link>
 	<link src="38" dst="40" label="reachPosition" > </link>
 	<link src="38" dst="40" label="table" > </link>
 	<link src="38" dst="39" label="explored" > </link>
