@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -19,9 +19,6 @@
 #ifndef TRAJECTORYROBOT2D_H
 #define TRAJECTORYROBOT2D_H
 
-// QT includes
-#include <QtCore/QObject>
-
 // Ice includes
 #include <Ice/Ice.h>
 #include <TrajectoryRobot2D.h>
@@ -31,27 +28,24 @@
 
 using namespace RoboCompTrajectoryRobot2D;
 
-class TrajectoryRobot2DI : public QObject , public virtual RoboCompTrajectoryRobot2D::TrajectoryRobot2D
+class TrajectoryRobot2DI : public virtual RoboCompTrajectoryRobot2D::TrajectoryRobot2D
 {
-Q_OBJECT
 public:
-	TrajectoryRobot2DI( GenericWorker *_worker, QObject *parent = 0 );
+	TrajectoryRobot2DI(GenericWorker *_worker);
 	~TrajectoryRobot2DI();
 	
 	NavState getState(const Ice::Current&);
 	float goBackwards(const TargetPose  &target, const Ice::Current&);
 	void stop(const Ice::Current&);
+	void setHumanSpace(const PolyLineList  &polyList, const Ice::Current&);
 	float goReferenced(const TargetPose  &target, const float  xRef, const float  zRef, const float  threshold, const Ice::Current&);
 	float changeTarget(const TargetPose  &target, const Ice::Current&);
 	float go(const TargetPose  &target, const Ice::Current&);
 	void mapBasedTarget(const NavigationParameterMap  &parameters, const Ice::Current&);
 
-	QMutex *mutex;
 private:
 
 	GenericWorker *worker;
-public slots:
-
 
 };
 

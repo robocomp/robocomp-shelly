@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -18,11 +18,11 @@
  */
 
 
-/** \mainpage RoboComp::TrajectoryRobot2DComp
+/** \mainpage RoboComp::trajectoryrobot2d
  *
  * \section intro_sec Introduction
  *
- * The TrajectoryRobot2DComp component...
+ * The trajectoryrobot2d component...
  *
  * \section interface_sec Interface
  *
@@ -34,7 +34,7 @@
  * ...
  *
  * \subsection install2_ssec Compile and install
- * cd TrajectoryRobot2DComp
+ * cd trajectoryrobot2d
  * <br>
  * cmake . && make
  * <br>
@@ -52,7 +52,7 @@
  *
  * \subsection execution_ssec Execution
  *
- * Just: "${PATH_TO_BINARY}/TrajectoryRobot2DComp --Ice.Config=${PATH_TO_CONFIG_FILE}"
+ * Just: "${PATH_TO_BINARY}/trajectoryrobot2d --Ice.Config=${PATH_TO_CONFIG_FILE}"
  *
  * \subsection running_ssec Once running
  *
@@ -71,6 +71,7 @@
 #include <Ice/Application.h>
 
 #include <rapplication/rapplication.h>
+#include <sigwatch/sigwatch.h>
 #include <qlog/qlog.h>
 
 #include "config.h"
@@ -83,8 +84,10 @@
 #include <trajectoryrobot2dI.h>
 
 #include <OmniRobot.h>
+#include <GenericBase.h>
 #include <TrajectoryRobot2D.h>
 #include <Laser.h>
+#include <GenericBase.h>
 
 
 // User includes here
@@ -93,16 +96,10 @@
 using namespace std;
 using namespace RoboCompCommonBehavior;
 
-using namespace RoboCompOmniRobot;
-using namespace RoboCompTrajectoryRobot2D;
-using namespace RoboCompLaser;
-
-
-
-class TrajectoryRobot2DComp : public RoboComp::Application
+class trajectoryrobot2d : public RoboComp::Application
 {
 public:
-	TrajectoryRobot2DComp (QString prfx) { prefix = prfx.toStdString(); }
+	trajectoryrobot2d (QString prfx) { prefix = prfx.toStdString(); }
 private:
 	void initialize();
 	std::string prefix;
@@ -112,14 +109,14 @@ public:
 	virtual int run(int, char*[]);
 };
 
-void ::TrajectoryRobot2DComp::initialize()
+void ::trajectoryrobot2d::initialize()
 {
 	// Config file properties read example
 	// configGetString( PROPERTY_NAME_1, property1_holder, PROPERTY_1_DEFAULT_VALUE );
 	// configGetInt( PROPERTY_NAME_2, property1_holder, PROPERTY_2_DEFAULT_VALUE );
 }
 
-int ::TrajectoryRobot2DComp::run(int argc, char* argv[])
+int ::trajectoryrobot2d::run(int argc, char* argv[])
 {
 #ifdef USE_QTGUI
 	QApplication a(argc, argv);  // GUI application
@@ -135,32 +132,18 @@ int ::TrajectoryRobot2DComp::run(int argc, char* argv[])
 	sigaddset(&sigs, SIGTERM);
 	sigprocmask(SIG_UNBLOCK, &sigs, 0);
 
-
+	UnixSignalWatcher sigwatch;
+	sigwatch.watchForSignal(SIGINT);
+	sigwatch.watchForSignal(SIGTERM);
+	QObject::connect(&sigwatch, SIGNAL(unixSignal(int)), &a, SLOT(quit()));
 
 	int status=EXIT_SUCCESS;
 
-	LaserPrx laser_proxy;
 	OmniRobotPrx omnirobot_proxy;
+	LaserPrx laser_proxy;
 
 	string proxy, tmp;
 	initialize();
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "LaserProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy LaserProxy\n";
-		}
-		laser_proxy = LaserPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("LaserProxy initialized Ok!");
-	mprx["LaserProxy"] = (::IceProxy::Ice::Object*)(&laser_proxy);//Remote server proxy creation example
 
 
 	try
@@ -178,6 +161,23 @@ int ::TrajectoryRobot2DComp::run(int argc, char* argv[])
 	}
 	rInfo("OmniRobotProxy initialized Ok!");
 	mprx["OmniRobotProxy"] = (::IceProxy::Ice::Object*)(&omnirobot_proxy);//Remote server proxy creation example
+
+
+	try
+	{
+		if (not GenericMonitor::configGetString(communicator(), prefix, "LaserProxy", proxy, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy LaserProxy\n";
+		}
+		laser_proxy = LaserPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("LaserProxy initialized Ok!");
+	mprx["LaserProxy"] = (::IceProxy::Ice::Object*)(&laser_proxy);//Remote server proxy creation example
 
 
 
@@ -209,6 +209,8 @@ int ::TrajectoryRobot2DComp::run(int argc, char* argv[])
 		adapterCommonBehavior->activate();
 
 
+
+
 		// Server adapter creation and publication
 		if (not GenericMonitor::configGetString(communicator(), prefix, "TrajectoryRobot2D.Endpoints", tmp, ""))
 		{
@@ -235,6 +237,8 @@ int ::TrajectoryRobot2DComp::run(int argc, char* argv[])
 #endif
 		// Run QT Application Event Loop
 		a.exec();
+		
+		
 		status = EXIT_SUCCESS;
 	}
 	catch(const Ice::Exception& ex)
@@ -287,7 +291,7 @@ int main(int argc, char* argv[])
 			printf("Configuration prefix: <%s>\n", prefix.toStdString().c_str());
 		}
 	}
-	::TrajectoryRobot2DComp app(prefix);
+	::trajectoryrobot2d app(prefix);
 
 	return app.main(argc, argv, configFile.c_str());
 }

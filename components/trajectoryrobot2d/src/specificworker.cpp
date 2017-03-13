@@ -911,6 +911,11 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 }
 
 
+void SpecificWorker::setHumanSpace(const PolyLineList &pllist)
+{
+	
+}
+
 //CHECK PARAMETERS
 // 	QVec target = current.getTranslation();
 // 	if( target.size() < 3 or std::isnan(target.x()) or std::isnan(target.y()) or std::isnan(target.z()))
@@ -1177,3 +1182,4 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 // 	}
 // 	return true;
 // }
+

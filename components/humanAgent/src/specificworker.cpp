@@ -227,7 +227,7 @@ void SpecificWorker::compute()
 		newInnerModel(imHumanGeneric, innerModelMap.at(0),"1");
 	}	
 	updateViewerLocalInnerModels();
-//******************************************************************/	
+******************************************************************/	
 /********************* Internal test******************************
 
 	RoboCompMSKBody::TPerson person;
@@ -257,8 +257,8 @@ void SpecificWorker::compute()
 	personList.insert(std::pair<int,RoboCompMSKBody::TPerson>(0,person));
 
 	newBodyEvent = true;
-	
-//****************************************************************/
+****************************************************************/
+
 	if (newBodyEvent==false)
 	{
 		//qDebug()<<"newBodyEvent"<<newBodyEvent;	

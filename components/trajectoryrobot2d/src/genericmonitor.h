@@ -61,8 +61,8 @@ protected:
 	RoboCompCommonBehavior::ParameterList config_params;
 	RoboCompCommonBehavior::State state;
 
- 	virtual bool sendParamsToWorker(RoboCompCommonBehavior::ParameterList params) = 0;
- 	virtual bool checkParams(RoboCompCommonBehavior::ParameterList l) = 0;
+	virtual bool sendParamsToWorker(RoboCompCommonBehavior::ParameterList params) = 0;
+	virtual bool checkParams(RoboCompCommonBehavior::ParameterList l) = 0;
 
 	bool configGetString(const std::string prefix, const std::string name, std::string &value, const std::string default_value, QStringList *list = NULL);
 public:

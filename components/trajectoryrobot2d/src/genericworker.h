@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -27,12 +27,12 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
+
 #include <OmniRobot.h>
-#include <DifferentialRobot.h>
-#include <Laser.h>
+#include <GenericBase.h>
 #include <TrajectoryRobot2D.h>
-
-
+#include <Laser.h>
+#include <GenericBase.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -42,7 +42,7 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 using namespace std;
 
 using namespace RoboCompOmniRobot;
-using namespace RoboCompDifferentialRobot;
+using namespace RoboCompGenericBase;
 using namespace RoboCompLaser;
 using namespace RoboCompTrajectoryRobot2D;
 
@@ -64,25 +64,27 @@ public:
 	virtual void setPeriod(int p);
 	
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
-	virtual RoboCompCommonBehavior::ParameterList getWorkerParams() = 0;	
 	QMutex *mutex;
 	
 
-	LaserPrx laser_proxy;
 	OmniRobotPrx omnirobot_proxy;
+	LaserPrx laser_proxy;
 
 	virtual NavState getState() = 0;
 	virtual float goBackwards(const TargetPose &target) = 0;
 	virtual void stop() = 0;
+	virtual void setHumanSpace(const PolyLineList &polyList) = 0;
 	virtual float goReferenced(const TargetPose &target, const float xRef, const float zRef, const float threshold) = 0;
 	virtual float changeTarget(const TargetPose &target) = 0;
 	virtual float go(const TargetPose &target) = 0;
 	virtual void mapBasedTarget(const NavigationParameterMap &parameters) = 0;
 
-
 protected:
 	QTimer timer;
 	int Period;
+
+private:
+
 
 public slots:
 	virtual void compute() = 0;

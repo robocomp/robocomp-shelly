@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -18,10 +18,9 @@
  */
 #include "trajectoryrobot2dI.h"
 
-TrajectoryRobot2DI::TrajectoryRobot2DI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+TrajectoryRobot2DI::TrajectoryRobot2DI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 
@@ -42,6 +41,11 @@ float TrajectoryRobot2DI::goBackwards(const TargetPose  &target, const Ice::Curr
 void TrajectoryRobot2DI::stop(const Ice::Current&)
 {
 	worker->stop();
+}
+
+void TrajectoryRobot2DI::setHumanSpace(const PolyLineList  &polyList, const Ice::Current&)
+{
+	worker->setHumanSpace(polyList);
 }
 
 float TrajectoryRobot2DI::goReferenced(const TargetPose  &target, const float  xRef, const float  zRef, const float  threshold, const Ice::Current&)

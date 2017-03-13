@@ -5,7 +5,7 @@
 #define USE_QTGUI
 
 
-#define PROGRAM_NAME    "TrajectoryRobot2DComp"
-#define SERVER_FULL_NAME   "RoboComp TrajectoryRobot2DComp:: TrajectoryRobot2DComp"
+#define PROGRAM_NAME    "trajectoryrobot2d"
+#define SERVER_FULL_NAME   "RoboComp trajectoryrobot2d:: trajectoryrobot2d"
 
 #endif
