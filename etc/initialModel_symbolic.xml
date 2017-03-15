@@ -137,8 +137,11 @@
 		<attribute key="height" value="1200" />
 		<attribute key="depth" value="700" />
 	</symbol>
-	<symbol id="36" type="objectSt">
-	</symbol>
+	<symbol id="36" type="objectSt"> </symbol>
+	<link src="35" dst="36" label="table" > </link>
+	<link src="35" dst="36" label="hasStatus" > </link>
+	<link src="35" dst="36" label="reachable" > </link>
+	<link src="35" dst="36" label="noReach" > </link>
 	<symbol id="37" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableD_reachPos" />
@@ -146,8 +149,11 @@
 	<link src="35" dst="37" label="reachPosition" > </link>
 	<link src="35" dst="37" label="table" > </link>
 	<link src="35" dst="5" label="in" > </link>
+	<link src="1" dst="35" label="know" > </link>
 
-
+	
+	
+	
 	
 	<symbol id="38" type="object">
 		<attribute key="imType" value="transform" />

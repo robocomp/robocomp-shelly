@@ -267,9 +267,24 @@ void SpecificWorker::manageReachedObjects()
 				qFatal("dededcef or4j ");
 			}
 			
+			try
+			{
+				std::map<std::string, AGMModelSymbol::SPtr> symbols = worldModel->getSymbolsMap(params, "object");
+				if (node->identifier == symbols["object"]->identifier)
+					qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
+			}
+			catch(...)
+			{
+				printf("graspingAgent: No object parameter in action %s\n", action.c_str());
+				try { printf("PLAN: %s\n", params["plan"].value.c_str()); }
+				catch(...) { printf("can't get plan\n"); }
+			}
+
 
 			QString name = QString::fromStdString(node->toString());
 			if (node->identifier == 23)
+				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;			
+			if (node->identifier == 246)
 				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
@@ -990,6 +1005,7 @@ void SpecificWorker::action_GraspObject(bool first)
 	static QVec offset = QVec::vec3(0,0,0);
 	static QVec offsetR = QVec::vec3(0,0,0);
 	bool visible = false;
+	QTime current_time; 
 	switch (state)
 	{
 		//
@@ -1000,11 +1016,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			actualSteps = 1;
 			printf("%d\n", __LINE__);
 			//check if object is visible
+			current_time = QTime::currentTime(); 
 			try
 			{
 				QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
-				qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
-				if (timeRead.secsTo(QTime::currentTime()) < 500) //Seen in last three seconds, 
+				qDebug()<<"now: "<<current_time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(current_time);
+				//if (timeRead.secsTo(QTime::currentTime()) < 2025) //Seen in last three seconds, 
 				{
 					visible = true;
 				}
@@ -1014,11 +1031,11 @@ void SpecificWorker::action_GraspObject(bool first)
 				printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
 			}
 			//not using timestamps anymore since no apriltags are used
-// 			if(not visible)
-// 			{
-// 				printf("Object not visible, waiting!!\n");
-// 				break;
-// 			}
+			if(not visible)
+			{
+				printf("Object not visible, waiting!!\n");
+				break;
+			}
 			
 			try
 			{
@@ -1102,8 +1119,8 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 3:
 			try
 			{
-				inversekinematics_proxy->setJoint("gripperFinger1",  0.75, 3.5);
-				inversekinematics_proxy->setJoint("gripperFinger2", -0.75, 3.5);
+				inversekinematics_proxy->setJoint("gripperFinger1",  0.85, 3.5);
+				inversekinematics_proxy->setJoint("gripperFinger2", -0.85, 3.5);
 // 				inversekinematics_proxy->setJoint("wristX", jointmotor_proxy->getMotorState("wristX").pos-0.15, 1.5);
 				usleep(400000);
 			}

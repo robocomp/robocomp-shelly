@@ -83,11 +83,13 @@ void SpecificWorker::compute()
 	if (newAction)
 		printf("New action: %s\n", action.c_str());
 	printf("action: %s\n", action.c_str());
+
 	if (action == "findobjectvisuallyintable")
 	{
 		action_FindObjectVisuallyInTable(newAction);
 	}
-	else if (action == "verifyimaginarymug")
+	
+	if (action == "verifyimaginarymug")
 	{
 		printf("action verifyimaginarymug\n");
 		try
@@ -103,7 +105,47 @@ void SpecificWorker::compute()
 			printf("AGMMisc::InvalidChange \n");
  		}
 	}
+	
+	if (action == "graspobject" or action == "setobjectreach")
+	{
+		std::map<std::string, AGMModelSymbol::SPtr> symbols;
+		try
+		{
+			symbols = worldModel->getSymbolsMap(params, "robot", "object");
+		}
+		catch(...)
+		{
+			printf("objectAgent: Couldn't retrieve action's parameters\n");
+			return;
+		}
+		bool moving = abs(str2float(symbols["robot"]->getAttribute("movedInLastSecond"))) > 10;
+		bool taza_viejuna = false;
+		QTime time = QTime::currentTime();
+		try
+		{
+			QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
+			qDebug()<<"now: "<<time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(time);
+			if (timeRead.secsTo(QTime::currentTime()) > 25) //Long time no see
+			{
+				qDebug()<<"taza viejuna";
+				qDebug()<<abs(str2float(symbols["robot"]->getAttribute("movedInLastSecond")));
+				taza_viejuna = true;
+			}
+		}
+		catch(...)
+		{
+			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
+		}
+		
+		if (not moving and taza_viejuna )
+		{
+			getObject();
+		}
+	}
 
+	
+	
+	
 	previousAction = action;
 	
 	worker_params_mutex->lock();
@@ -1219,7 +1261,7 @@ void SpecificWorker::findObject()
 
 void SpecificWorker::getObject()
 {
-
+	printf("SpecificWorker::getObject()\n");
 	if(!object_found)
 	{
 		findObject();
@@ -1229,17 +1271,7 @@ void SpecificWorker::getObject()
 	{
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
 		updateOracleMug(t,newModel);
-		try
-		{
-			sendModificationProposal(worldModel, newModel, "esa es la buena");
-		}
-		catch(RoboCompAGMExecutive::OldModel)
-		{
-			printf("AGMMisc::OldModel \n");
-		}
-		qDebug()<<"ModificationProposalSent";
 	}
-		
 }
 
 void SpecificWorker::getObjects()
@@ -1268,23 +1300,30 @@ void SpecificWorker::getObjects()
 
 void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
 {
-	
 	printf("===========================\n===   updateOracleMug   =========\n===========================\n");
 	bool foundMug = false;
 	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug;
+	std::string mug_obj_name;
 	
-	for (AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
+	if(action == "verifyimaginarymug")
+		mug_obj_name = "mug";
+	else
+		mug_obj_name = "object";
+	
+	std::map<std::string, AGMModelSymbol::SPtr> symbolsss;
+	try
 	{
-
-		if (isObjectType(newModel, *symbol_it, "mug"))
-		{
-			std::cout<<"EXISTING"<<std::endl;
-			symbolMug = *symbol_it;
-			foundMug = true;
-			break;
-		}
+		symbolsss = newModel->getSymbolsMap(params, mug_obj_name);
+		symbolMug = symbolsss[mug_obj_name];
+		foundMug = true;
 	}
+	catch(...)
+	{
+		printf("objectAgent: Couldn't retrieve action's parameters\n");
+		exit(1);
+	}
+
 	
 	if(foundMug)
 	{
@@ -1300,18 +1339,27 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 
 		
 		QString symbolIMName;
-		try{
+		try
+		{
+			
 			symbolIMName = QString::fromStdString(symbolMug->getAttribute("imName"));
+			qDebug()<<"Found mug's imName";
 		}
 		catch(...)
 		{
+			qDebug()<<"No mug's im name found creating new one";
 			symbolIMName = QString::fromStdString(symbolMug->symboltype()) + QString::number(symbolMug->identifier);
+			qDebug()<<"o no";
 		}
+		
 		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
+		qDebug()<<"SI existe el im en el innermodel";
 
 		if (nodeSymbolIM)
 		{
+			qDebug()<<"El hiueputa no tiene padre";
 			InnerModelNode *parentNodeIM = nodeSymbolIM->parent;
+			qDebug()<<"SI existe el im en el innermodel";
 			if (parentNodeIM)
 			{
 				QString parentIMName    = parentNodeIM->id;
@@ -1376,45 +1424,38 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 				qDebug() << "Parent node doesnt exist in InnerModel";
 			}
 		}
-		else
-		{
-			qDebug() << "Mug's node doesnt exist in InnerModel";
-		}
 	
 		//If mug was imagined remove image edge and add know
-		for (AGMModelSymbol::iterator edge_itr=symbolMug->edgesBegin(newModel); edge_itr!=symbolMug->edgesEnd(newModel); edge_itr++)
+		auto symbols = worldModel->getSymbolsMap(params, mug_obj_name, "robot");
+		try
 		{
-			AGMModelEdge edge = *edge_itr;
-			if (edge->getLabel() == "imagine")
+			newModel->removeEdge(symbols["robot"], symbols[mug_obj_name], "imagine");
+		}
+		catch(...)
+		{
+			printf("No imagine found, was object imagined by oracle?\n");
+		}
+		try
+		{
+			newModel->addEdge(symbols["robot"], symbols[mug_obj_name], "know");
+		}
+		catch(...)
+		{
+			printf("Robot knows about the mug. Know edg can't be added to model.\n");
+		}
+		if(action == "verifyimaginarymug")
+		{
+			auto symbols_status = worldModel->getSymbolsMap(params, "robot", "status");
+			try
 			{
-				auto symbols = worldModel->getSymbolsMap(params, "mug", "robot", "status");
-				try
-				{
-					newModel->removeEdge(symbols["mug"], symbols["robot"], "imagine");
-				}
-				catch(...)
-				{
-					printf("No imagine found, was object imagined by oracle?\n");
-				}
-				try
-				{
-					newModel->addEdge(symbols["mug"], symbols["robot"], "know");
-				}
-				catch(...)
-				{
-					printf("Robot knows about the mug. Know edg can't be added to model.\n");
-				}
-				try
-				{
-					newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
-				}
-				catch(...)
-				{
-					printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
-				}
+				newModel->removeEdge(symbols_status["robot"], symbols_status["status"], "usedOracle");
+			}
+			catch(...)
+			{
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
 			}
 		}
-		
+
 		//add the mesh
 		try
 		{
@@ -1445,7 +1486,71 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			qFatal("Impossible to create the RT edge to the mug mesh"); 
 		}
 		
-	
+		static int mnameId=0;
+		string mname = QString::number(mnameId++).toStdString() + ".xml";
+		printf("saving to %s", mname.c_str());
+		newModel->save(mname);
+		
+		//Update last seen tag
+		QTime time = QTime::currentTime(); 
+		try
+		{
+			QTime timeRead = QTime::fromString(QString::fromStdString(symbolMug->getAttribute("LastSeenTimeStamp")),"hhmmss");
+			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
+			{
+				symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+				try
+				{
+					AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
+				}
+				catch (...)
+				{
+					printf("LastSeenTimeStamp Exception: Executive not running?\n");
+				}
+			}
+		}
+		catch(...)
+		{
+			//Create atributte first time
+			symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
+			try
+			{
+				AGMMisc::publishNodeUpdate(symbolMug, agmexecutive_proxy);
+			}
+			catch (...)
+			{
+				printf("LastSeenTimeStamp Exception: Executive not running?\n");
+			}
+			printf("Exception: Could not retrieve LastSeenTimeStamp attribute\n");
+		}
+		
+		//publish changes
+		try
+		{
+// 			sendModificationProposal(worldModel, newModel, "SpecificWorker::getObject()");
+			AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent SpecificWorker::getObject() 1");
+		}
+		catch(RoboCompAGMExecutive::OldModel)
+		{
+			printf("AGMMisc::OldModel 1\n");
+			structuralChange(agmexecutive_proxy->getModel());
+			newModel = AGMModel::SPtr(new AGMModel(worldModel));
+			updateOracleMug(t,newModel);
+			try
+			{
+// 				sendModificationProposal(worldModel, newModel, "SpecificWorker::getObject()");
+				AGMMisc::publishModification(newModel, agmexecutive_proxy, "objectAgent SpecificWorker::getObject() 2");
+			}
+			catch(RoboCompAGMExecutive::OldModel)
+			{
+				printf("AGMMisc::OldModel 2\n");
+				qDebug()<<"ModificationProposalSent      FAILS";
+			}
+			qDebug()<<"ModificationProposalSent2         DONE";
+		}
+		qDebug()<<"ModificationProposalSent1         DONE";
+		
+		
 	}
 	//mug was not found
 	else
