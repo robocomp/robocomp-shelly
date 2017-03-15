@@ -143,12 +143,12 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="objectD" endpoint="commonbehavior:tcp -p 17332 ">
+ <node alias="objectD" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 17332 ">
   <dependence alias="IS" />
   <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
-  <downCommand command="ssh robolab@localhost killall -9 objectDetectionComp" />
+  <upCommand command="rcremote 10.0.30.22 objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
+  <downCommand command="ssh robolab@10.0.30.22 killall -9 objectDetectionComp" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
   <xpos value="24.7350541632" />
   <ypos value="-36.3137879545" />
@@ -294,7 +294,7 @@
   <xpos value="-174.971249107" />
   <ypos value="-29.4245673622" />
   <radius value="10.0" />
-  <color value="#FF3333" />
+  <color value="#3333FF" />
  </node>
 
  <node alias="localizationA" endpoint="commonbehavior:tcp -h 10.0.30.22 -p 14351">
