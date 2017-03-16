@@ -50,7 +50,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
 // 	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
 #endif
-	
+
 	armTimer = new QTimer();
 	connect(armTimer, SIGNAL(timeout()), this, SLOT(setRightArmUp_Reflex()));
 
@@ -61,7 +61,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	
+
 }
 void SpecificWorker::updateViewer()
 {
@@ -91,7 +91,7 @@ void SpecificWorker::updateViewer()
 
 void SpecificWorker::compute( )
 {
-		
+
 	QTime ccc;
 	ccc = QTime::currentTime();
 
@@ -115,7 +115,7 @@ void SpecificWorker::compute( )
 			}
 		}
 	}
-	
+
 
 	QTime cc;
 
@@ -123,7 +123,7 @@ void SpecificWorker::compute( )
 	manageReachedObjects();
 // 	printf("manageReachedObjects - %d\n", cc.elapsed());
 
-	
+
 	cc = QTime::currentTime();
 	if (manualMode)
 	{
@@ -138,7 +138,7 @@ void SpecificWorker::compute( )
 
 #ifdef USE_QTGUI
 	updateViewer();
-#endif	
+#endif
 // 	printf("compute - %d\n", ccc.elapsed());
 }
 
@@ -152,9 +152,9 @@ void SpecificWorker::manageReachedObjects()
 	std::string m ="  ";
 
 	bool changed = false;
-	
+
 	QMutexLocker locker(mutex);
-	
+
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
 
@@ -217,8 +217,8 @@ void SpecificWorker::manageReachedObjects()
 				printf("Obj: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
 				return;
 			}
-			
-			
+
+
 // 			printf("%d distance %f\n", node->identifier, d2n);
 // // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
 // // // // // // 			innerModel->transformS("robot", "armX1").print("armX1 in r");
@@ -240,7 +240,7 @@ void SpecificWorker::manageReachedObjects()
 // 				rDebug2(("%d distance %f") % node->identifier % d2n);
 				mapt[node->identifier] = QTime::currentTime();
 			}
-/*			
+/*
 			QVec graspPosition = innerModel->transform("room", "shellyArm_grasp_pose");
 			graspPosition(1) = 0;
 			QVec obj = innerModel->transformS("room", node->getAttribute("imName"));
@@ -266,7 +266,7 @@ void SpecificWorker::manageReachedObjects()
 			{
 				qFatal("dededcef or4j ");
 			}
-			
+
 			try
 			{
 				std::map<std::string, AGMModelSymbol::SPtr> symbols = worldModel->getSymbolsMap(params, "object");
@@ -283,7 +283,7 @@ void SpecificWorker::manageReachedObjects()
 
 			QString name = QString::fromStdString(node->toString());
 			if (node->identifier == 23)
-				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;			
+				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 			if (node->identifier == 246)
 				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
@@ -339,7 +339,7 @@ bool SpecificWorker::isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr nod
 float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr node)
 {
 	QMutexLocker locker(mutex);
-	
+
 	// check if it's a polygon
 // 	bool isPolygon = false;
 // 	for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(model); edge_itr!=node->edgesEnd(model) and isPolygon == false; edge_itr++)
@@ -356,13 +356,13 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 // 	}
 // 	else
 // 	{
-	
+
 /*	bool debug = false;
 	if (node->identifier == 20)
 	{
 		debug = true;
 	}
-	
+
 	if (debug) printf("init %d\n", node->identifier);*/
 	AGMModelSymbol::SPtr object = node;
 	try
@@ -382,10 +382,10 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 		printf("ERROR IN GET THE INNERMODEL NAMES\n");
 		exit(2);
 	}
-	
+
 //	if (debug) printf("final %d\n", object->identifier);
 
-	
+
 		QVec arm = innerModel->transformS("world", reference_name);
 		arm(1) = 0;
 		QVec obj = innerModel->transformS("world", object->getAttribute("imName"));
@@ -398,7 +398,7 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 // {
 // 	boost::geometry::model::d2::point_xy<int> point(reference(0), reference(2));
 // 	boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<float> > poly;
-// 
+//
 // // 	printf("p %s\n", polygon_str.c_str());
 // 	std::vector<std::string> strs;
 // 	boost::split(strs, polygon_str, boost::is_any_of(";"));
@@ -418,8 +418,8 @@ float SpecificWorker::distanceToNode(std::string reference_name, AGMModel::SPtr 
 // 		boost::geometry::model::d2::point_xy<float> vertex(x, z);
 // 		boost::geometry::append(poly, vertex);
 // 	}
-// 
-// 
+//
+//
 // 	return boost::geometry::distance(poly, point);
 // }
 
@@ -514,7 +514,7 @@ void SpecificWorker::changeInner ()
 {
 	if (innerViewer)
 	{
-		osgView->getRootGroup()->removeChild(innerViewer);				
+		osgView->getRootGroup()->removeChild(innerViewer);
 	}
 
 	innerViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
@@ -527,13 +527,13 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World& modifi
 	QMutexLocker locker(mutex);
 
 	AGMModelConverter::fromIceToInternal(modification, worldModel);
-	
+
 	if (innerModel) delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world","true");
 	changeInner();
 	printf("structuralChange %d\n", cc.elapsed());
 qDebug()<<"version "<<worldModel->version;
-	if(previousParams.size() > 0 ) 
+	if(previousParams.size() > 0 )
 	{
 		qDebug()<<"previousParamsversion "<<previousParams["modelversion"].value.c_str();
 		bool reactivated;
@@ -541,7 +541,7 @@ qDebug()<<"version "<<worldModel->version;
 	}
 }
 
-	
+
 void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node& modification)
 {
 	QMutexLocker locker(mutex);
@@ -724,7 +724,7 @@ qDebug()<<"****\n****\n****\nNewACTION ==> "<<action.c_str();
 	}
 }
 
-// leave object on table	
+// leave object on table
 void SpecificWorker::action_leaveObject(bool first)
 {
 	// Lock mutex and get a model's copy
@@ -753,8 +753,8 @@ void SpecificWorker::action_leaveObject(bool first)
 	// Proceed
 	try
 	{
-		//move arm down		
-		inversekinematics_proxy->setJoint("armX1", -0.5, 15);		
+		//move arm down
+		inversekinematics_proxy->setJoint("armX1", -0.5, 15);
 		// open hand
 		inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
 		inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);
@@ -774,7 +774,7 @@ void SpecificWorker::action_leaveObject(bool first)
 			newModel->removeEdge(symbols["object"], symbols["robot"], "in");
 			newModel->addEdge(   symbols["table"], symbols["object"], "RT");
 			newModel->removeEdge(symbols["robot"], symbols["object"], "RT");
-//			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");			
+//			newModel->addEdge(   symbols["object"], symbols["robot"], "wasIn");
 
 			try
 			{
@@ -961,13 +961,13 @@ void SpecificWorker::action_GraspObject(bool first)
 	{
 		printf("Exception: Reading target state from inversekinematics\n");
 	}
-		
+
 	bool someMotorMoving = isSomeMotorMoving();
 	if (someMotorMoving)
 		ui_motorsMoving->setChecked(true);
 	else
 		ui_motorsMoving->setChecked(false);
-	
+
 	QVec pose = QVec::vec6();
 	if (not manualMode)
 	{
@@ -994,7 +994,7 @@ void SpecificWorker::action_GraspObject(bool first)
 #endif
 	}
 
-	
+
 // 	const float steps_to_grasp = 1;
 	const float yInit = 40;
 	const float yGoal = -20;
@@ -1005,7 +1005,7 @@ void SpecificWorker::action_GraspObject(bool first)
 	static QVec offset = QVec::vec3(0,0,0);
 	static QVec offsetR = QVec::vec3(0,0,0);
 	bool visible = false;
-	QTime current_time; 
+	QTime current_time;
 	switch (state)
 	{
 		//
@@ -1016,12 +1016,12 @@ void SpecificWorker::action_GraspObject(bool first)
 			actualSteps = 1;
 			printf("%d\n", __LINE__);
 			//check if object is visible
-			current_time = QTime::currentTime(); 
+			current_time = QTime::currentTime();
 			try
 			{
 				QTime timeRead = QTime::fromString(QString::fromStdString(symbols["object"]->getAttribute("LastSeenTimeStamp")),"hhmmss");
 				qDebug()<<"now: "<<current_time.toString("hhmmss") << "time readed:" << timeRead.toString("hhmmss")<<"time difference: "<<timeRead.secsTo(current_time);
-				//if (timeRead.secsTo(QTime::currentTime()) < 2025) //Seen in last three seconds, 
+				//if (timeRead.secsTo(QTime::currentTime()) < 2025) //Seen in last three seconds,
 				{
 					visible = true;
 				}
@@ -1036,12 +1036,12 @@ void SpecificWorker::action_GraspObject(bool first)
 				printf("Object not visible, waiting!!\n");
 				break;
 			}
-			
+
 			try
 			{
 				inversekinematics_proxy->setJoint("gripperFinger1", 0.0, 15);
 				inversekinematics_proxy->setJoint("gripperFinger2", 0.0, 15);
-				inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
+				inversekinematics_proxy->setJoint("head_pitch_joint", 0.7, 1.5);
 			}
 			catch(...) { qFatal("%s: %d\n", __FILE__, __LINE__); }
 			offset = QVec::vec3(0, yInit, zInit);
@@ -1389,7 +1389,7 @@ void SpecificWorker::action_SetObjectReach(bool first)
 			if (angle < -.4) angle = -.4;
 
 			// In the meantime we just move the head downwards:
-			inversekinematics_proxy->setJoint("head_pitch_joint", 0.8, 1.5);
+			inversekinematics_proxy->setJoint("head_pitch_joint", 0.7, 1.5);
 //			printf("Mandamos angulo %f\n", angle);
 			inversekinematics_proxy->setJoint("head_yaw_joint", angle, 1.5);
 // // // // // // // 			saccadic3D(QVec::vec3(x,y,z), QVec::vec3(0,0,1));
@@ -1470,7 +1470,7 @@ static int num=0;
 	if(!first)
 		return;
 	//If robot is holding and object avoid arm movement
-	bool holdingObject = false;		
+	bool holdingObject = false;
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	int robotID = newModel->getIdentifierByType("robot");
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
@@ -1508,11 +1508,11 @@ newModel->save(path);
 void SpecificWorker::setRightArmUp_Reflex(bool first)
 {
 	qDebug()<<"setRightArmUp_Reflex, first time:"<<first;
-        
+
 	MotorGoalPositionList gpList,gpFinal;
 	MotorGoalPosition gp;
 	gp.maxSpeed = 2.5;
-    
+
 
         MotorStateMap mstateMap;
 	try{
@@ -1521,22 +1521,22 @@ void SpecificWorker::setRightArmUp_Reflex(bool first)
 		qDebug()<<"Error reading arm position";
 		return;
 	}
-        
+
 	static int armState;
 	if(first)
 	{
 		armTimer->start(300);
-		armState = 1;	
+		armState = 1;
 	}
 	//check if arms is moving
 	for (auto state : mstateMap)
 	{
 		if (state.second.isMoving)
 			return;
-	}	
+	}
 	switch(armState)
 	{
-		case 1: 
+		case 1:
 			gp.name = "armX1";
 			gp.position = -1.34;
 			gpList.push_back(gp);
@@ -1561,7 +1561,7 @@ void SpecificWorker::setRightArmUp_Reflex(bool first)
 			gp.position = 0.0;
 			gpList.push_back(gp);
 			gp.name ="head_pitch_joint";
-			gp.position = 0.8;
+			gp.position = 0.7;
 			gpList.push_back(gp);
 			break;
 	}
@@ -1572,7 +1572,7 @@ void SpecificWorker::setRightArmUp_Reflex(bool first)
 		if (fabs(mstateMap[goal.name].pos - goal.position)>=0.05)
 			gpFinal.push_back(goal);
 	}
-        if (gpFinal.size()>0 )	
+        if (gpFinal.size()>0 )
 	{
 		try{
 	            jointmotor_proxy->setSyncPosition(gpFinal);
@@ -1625,5 +1625,5 @@ bool SpecificWorker::isSomeMotorMoving()
 		}
 	}
 
-	return false;	
+	return false;
 }
