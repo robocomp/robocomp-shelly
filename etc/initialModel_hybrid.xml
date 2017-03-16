@@ -2448,7 +2448,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="400" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="300" />
+	<linkAttribute key="tz" value="500" />
 </link>
 <link src="29" dst="180" label="RT">
 	<linkAttribute key="rx" value="0" />
