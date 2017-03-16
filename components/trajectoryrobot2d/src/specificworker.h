@@ -37,10 +37,10 @@
 #endif
 
 /**
-       \brief Component that plans and executes a trajectory for an omnidirectional robot. The trajectory es planned using a combination of PRM and RRT and 
-       projected onto the outside world through the laser field. The projection allows for real-time dynamic corrections. A controller drives the robot
-       along the trajectory.
-       @author Pablo Bustos
+\brief Component that plans and executes a trajectory for an omnidirectional robot. The trajectory es planned using a combination of PRM and RRT and 
+projected onto the outside world through the laser field. The projection allows for real-time dynamic corrections. A controller drives the robot
+along the trajectory.
+@author Pablo Bustos
 */
 
 /**
@@ -51,16 +51,16 @@ class TrajectoryState
 {
 public:
 	TrajectoryState() { state = "IDLE";}
-	~TrajectoryState() {};
-	void setElapsedTime(long t){ QMutexLocker l(&m); elapsedTime = t;};
-	void setEstimatedTime(long t){ QMutexLocker l(&m); estimatedTime = t;};
-	void setPlanningTime(long t){ QMutexLocker l(&m); planningTime = t;};
+	~TrajectoryState() {}
+	void setElapsedTime(long t){ QMutexLocker l(&m); elapsedTime = t;}
+	void setEstimatedTime(long t){ QMutexLocker l(&m); estimatedTime = t;}
+	void setPlanningTime(long t){ QMutexLocker l(&m); planningTime = t;}
 	void setState(const std::string &state_){ state = state_;}
 	void setDescription(const std::string &desc_){ description = desc_;}
-	long getElapsedTime(){ QMutexLocker l(&m); return elapsedTime;};
-	long getEstimatedtime(){ QMutexLocker l(&m); return estimatedTime;};
-	long getPlanningTime(){ QMutexLocker l(&m); return planningTime;};
-	std::string getState(){ QMutexLocker l(&m); return state;};
+	long getElapsedTime(){ QMutexLocker l(&m); return elapsedTime;}
+	long getEstimatedtime(){ QMutexLocker l(&m); return estimatedTime;}
+	long getPlanningTime(){ QMutexLocker l(&m); return planningTime;}
+	std::string getState(){ QMutexLocker l(&m); return state;}
 	RoboCompTrajectoryRobot2D::NavState toMiddleware( const RoboCompGenericBase::TBaseState &bState, const WayPoints &road)
 	{
 		QMutexLocker l(&m);
@@ -78,7 +78,7 @@ public:
 		n.rotV = bState.rotV;
 		n.distanceToTarget = road.getRobotDistanceToTarget();
 		return n;
-	};
+	}
 private:
 	QMutex m;
 	long elapsedTime = 0;
