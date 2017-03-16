@@ -1,15 +1,15 @@
 <innerModel>
 	<transform id="world">
-		
+
 		<!-- FLOOR -->
 		<transform id="floor" tx="2500" ty="-10">
 			<plane id="floor_plane" ny="1" size="10000,9500,10" texture="#eebb77" />
 		</transform>
-		
-		
-		
+
+
+
 <!-- 		<transform id="room_3" -->
-		
+
 		<!-- WAIT POSE -->
  		<transform id="waitPose" tx="3000" tz="1000" ry="3.1415926535">
 <!-- 			<plane id="waitPose_plane" ny="1" size="1z00,100,100" texture="#222222" /> -->
@@ -19,8 +19,8 @@
  		<transform id="Pose2" tx="2206" tz="-2518" ry="-0.76">
 <!-- 			<plane id="waitPose_plane" ny="1" size="1z00,100,100" texture="#222222" /> -->
 		</transform>
-		
-		
+
+
 		<!-- ROOMS DOOR LATERALS -->
 		<transform id="pared6" tx="4418.209473" tz="245" ty="950" >
 			<plane id="muro6" nx="221.809814" nz="40.510742" size="240,1900,9"  texture="#000088" />
@@ -28,8 +28,8 @@
 		<transform id="pared22" tx="2160.31897" tz="29.063904" ty="950" ry="0.1" >
 			<plane id="muro22" nx="-204.67395" nz="-40.031494" size="208.552023055,1900,9"  texture="#000088" />
 		</transform>
-		
-		
+
+
 		<transform id="room_3">
 			<!-- PERSON -->
 <!--
@@ -118,12 +118,12 @@
 			<transform id="pared29" tx="4922.7502445" tz="2430.1999515" ty="380" >
 				<plane id="muro29" nx="-39.213379" nz="787.782715" size="788.758071366,760,9"  texture="#998811" />
 			</transform>
-			
+
 		</transform>
-		
-		
-		
-		
+
+
+
+
 		<transform id="room_5">
 			<!-- ROOM B -->
 			<transform id="pared7" tx="4593.4101565" tz="105.78302" ty="950" >
@@ -158,7 +158,7 @@
 				<plane id="1muro1" nx="-165.011719" nz="3442.443847" size="3500,1900"  texture="#008800" />
 			</transform>
 			<!-- "frontal habitacion A entrada derecha" -->
-			<transform id="1pared0" tx="96.8421635" tz="-2989.551636" ty="950" ry="-0.05">  
+			<transform id="1pared0" tx="96.8421635" tz="-2989.551636" ty="950" ry="-0.05">
 				<plane id="1muro0" nx="2484.26001" nz="86.727295" size="2590,1900,9"  texture="#00FFFF" />
 			</transform>
 			<!-- recibidor lateral derecha -->
@@ -183,7 +183,7 @@
 					<mesh id="tableD_mesh2" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,360" rx="1.570799947" collide="1"/>
 				</transform>
 			</transform>
-		
+
 			<!-- TABLE E -->
 			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
 				<transform id="tableE_reachPos" tx="-500" ry="1.5707">
@@ -205,39 +205,45 @@
 			</transform>
 
 			<!-- TABLE F -->
-<!--			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" > -->
-<!--				<transform id="countertopA_reachPos" tx="600"> -->
-	<!-- 				<plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
-<!--				</transform> -->
-<!--				<mesh id="countertopA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="650,20,2500" collide="1" /> -->
-<!--			</transform> -->
+			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" >
+				<transform id="countertopA_reachPos" tx="600" tz="300" ry="-1.5707">
+					<!-- <plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede1" tz="100">
+						<plane id="countertopA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform> -->
+				</transform>
+				<mesh id="countertopA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="650,20,2500" collide="1" />
+			</transform>
 			<!-- lateral mesa F -->
-<!--			<transform id="1pared3" tx="314.52948" tz="-1690" ty="445" ry="0.025" > -->
-<!--				<plane id="1muro3" nx="35.853637" nz="-667.829468" size="690,890,9"  texture="#008888" /> -->
-<!--			</transform> -->
+			<transform id="1pared3" tx="314.52948" tz="-1690" ty="445" ry="0.025" >
+				<plane id="1muro3" nx="35.853637" nz="-667.829468" size="690,890,9"  texture="#008888" />
+			</transform>
 			<!-- frontal mesa F -->
-<!--			<transform id="pared18" tx="751.713318" tz="-2642.8479615" ty="445" > -->
-<!--				<plane id="muro18" nx="-1830.207397" nz="-171.306274" size="1930,890,9"  texture="#008888" /> -->
-<!--			</transform> -->
+			<transform id="pared18" tx="751.713318" tz="-2642.8479615" ty="445" >
+				<plane id="muro18" nx="-1830.207397" nz="-171.306274" size="1930,890,9"  texture="#008888" />
+			</transform>
 
 			<!-- TABLE G -->
-<!--			<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" > -->
-<!--				<transform id="countertopB_reachPos" tx="-300" ry="1.5707"> -->
-	<!-- 				<plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
-<!--				</transform> -->
-<!--				<mesh id="countertopB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="2110,20,650" collide="1" /> -->
-<!--			</transform> -->
-<!--			<transform id="pared17" tx="2155.889282" tz="-3486.724121" ty="445" > -->
-<!--				<plane id="muro17" nx="142.455078" nz="-2637.045654" size="2640.89061313,890,9"  texture="#888800" /> -->
-<!--			</transform> -->
+			<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" >
+				<transform id="countertopB_reachPos" tx="300" tz="600" ry="3.141592">
+					<!-- <plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede2" tz="100">
+						<plane id="countertopB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform> -->
+				</transform>
+				<mesh id="countertopB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="2110,20,650" collide="1" />
+			</transform>
+			<transform id="pared17" tx="2155.889282" tz="-3486.724121" ty="445" >
+			<plane id="muro17" nx="142.455078" nz="-2637.045654" size="2640.89061313,890,9"  texture="#888800" />
+			</transform>
 
 			<!-- FRIDGE -->
-<!--			<transform id="fridge" tx="3210" tz="-3720" ty="925" ry="-0.075" > -->
-<!--				<mesh id="fridge_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="600,1850,600" collide="1" /> -->
-<!--			</transform> -->
+			<transform id="fridge" tx="3210" tz="-3720" ty="925" ry="-0.075" > -->
+				<mesh id="fridge_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="600,1850,600" collide="1" />
+			</transform>
 
 
 		</transform>
-		
+
 	</transform>
 </innerModel>

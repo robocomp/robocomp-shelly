@@ -44,7 +44,7 @@
  </node>
 
  <node alias="semantics" endpoint="semanticsimilarity:tcp -h 10.0.30.22 -p 10500">
-  <dependence alias="IS" /> 
+  <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote 10.0.30.22 semanticSimilarity /home/robocomp/robocomp/components/prp/components/semanticSimilarity python src/semanticSimilarity.py /home/robocomp/robocomp/components/prp/components/semanticSimilarity/etc/config" />
   <downCommand command="rcremote 10.0.30.22 pkill -9 -f semanticSimilarity.py" />
@@ -54,7 +54,7 @@
   <radius value="10.0" />
   <color value="#33FF33" />
  </node>
- 
+
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
@@ -147,7 +147,7 @@
   <dependence alias="IS" />
   <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
+  <upCommand command="rcremote 10.0.30.22 objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/robocomp-shelly/etc/objectDetection.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 objectDetectionComp" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
   <xpos value="24.7350541632" />

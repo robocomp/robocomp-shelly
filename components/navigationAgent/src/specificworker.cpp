@@ -102,8 +102,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 void SpecificWorker::compute( )
 {
-	static QTime reloj = QTime::currentTime();	
+	static QTime reloj = QTime::currentTime();
 	static bool first=true;
+
 	if (first)
 	{
 		qLog::getInstance()->setProxy("both", logger_proxy);
@@ -132,7 +133,7 @@ void SpecificWorker::compute( )
 
 /**
  * \brief ESTE ES EL VERDADERO COMPUTE
- */ 
+ */
 void SpecificWorker::actionExecution()
 {
 	QMutexLocker locker(mutex);
@@ -178,7 +179,7 @@ void SpecificWorker::actionExecution()
 	}
 	else if (action == "noAction")
 	{
-		
+
 	}
 	else if (action == "handobject_offer")
 	{
@@ -193,14 +194,14 @@ void SpecificWorker::actionExecution()
 		previousAction = action;
 		printf("New action: %s\n", action.c_str());
 	}
-	manageReachedPose();
+	// manageReachedPose();
 // 	printf("actionExecution>>\n");
 }
 
 void SpecificWorker::action_HandObject_leave(bool newAction)
 {
 	try
-	{	
+	{
 		trajectoryrobot2d_proxy->stop();
 		omnirobot_proxy->setSpeedBase(0.,0.,0.0);
 	}
@@ -287,7 +288,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		printf("navigationAgent, action_HandObject ERROR: SYMBOL DOESN'T EXIST \n");
 		exit(2);
 	}
-	
+
 	// GET THE INNERMODEL NAMES OF TH SYMBOLS
 	QString robotIMID;
 	QString roomIMID;
@@ -306,13 +307,13 @@ void SpecificWorker::action_HandObject(bool newAction)
 		qDebug()<<"[robotIMID"<<robotIMID<<"roomIMID"<<roomIMID<<"personIMID"<<personIMID<<"]";
 		exit(2);
 	}
-	
-	// GET THE TARGET POSE: 
+
+	// GET THE TARGET POSE:
 	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
 		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(personIMID)))    return;
-		
+
 		QVec poseInRoom = innerModel->transform6D(roomIMID, personIMID); // FROM OBJECT TO ROOM
 		qDebug()<<"[robotIMID"<<robotIMID<<"roomIMID"<<roomIMID<<"personIMID"<<personIMID<<"]";
 		qDebug()<<" TARGET POSE: "<< poseInRoom;
@@ -324,10 +325,10 @@ void SpecificWorker::action_HandObject(bool newAction)
 		tgt.ry = 0;
 		tgt.rz = 0;
 		tgt.doRotation = false;
-		
+
 	}
-	catch (...) 
-	{ 
+	catch (...)
+	{
 		qDebug()<<"navigationAgent, action_HandObject: innerModel exception";
 	}
 
@@ -383,13 +384,13 @@ void SpecificWorker::action_HandObject(bool newAction)
 	{
 		std::cout << ex << std::endl;
 	}
-	
+
 
 }
 
 /**
 *  \brief Called when the robot is sent close to a person to offer the object
-*/ 
+*/
 void SpecificWorker::action_HandObject_Offer(bool newAction)
 {
 	// Get symbols' map
@@ -397,7 +398,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 	try
 	{
 		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
-		
+
 	}
 	catch(...)
 	{
@@ -407,7 +408,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		printf("WORLD>>\n");
 		if (worldModel->size() > 0) { exit(-1); }
 	}
-	
+
 	// Get target
 	int roomID, personID, robotID;
 	try
@@ -449,8 +450,8 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		printf("ERROR: SYMBOL DOESN'T EXIST \n");
 		exit(2);
 	}
-	
-	
+
+
 	// GET THE INNERMODEL NAMES OF TH SYMBOLS
 	QString robotIMID;
 	QString roomIMID;
@@ -466,8 +467,8 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		printf("ERROR IN GET THE INNERMODEL NAMES\n");
 		exit(2);
 	}
-	
-	// GET THE TARGET POSE: 
+
+	// GET THE TARGET POSE:
 	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
@@ -483,8 +484,8 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		tgt.rz = 0;
 		tgt.doRotation = true;
 	}
-	catch (...) 
-	{ 
+	catch (...)
+	{
 		qDebug()<< __FUNCTION__ << "InnerModel Exception. Element not found in tree";
 	}
 
@@ -514,13 +515,13 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		std::cout << ex << std::endl;
 	}
 
-	
+
 }
 
 
 /**
 *  \brief Called when the robot is sent close to an object's location
-*/ 
+*/
 void SpecificWorker::action_SetObjectReach(bool newAction)
 {	// Get symbols' map
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
@@ -578,7 +579,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		printf("ERROR: SYMBOL DOESN'T EXIST \n");
 		exit(2);
 	}
-	
+
 	// GET THE INNERMODEL NAMES OF TH SYMBOLS
 	QString robotIMID;
 	QString roomIMID;
@@ -588,7 +589,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		robotIMID = QString::fromStdString(worldModel->getSymbol(robotID)->getAttribute("imName"));
 		roomIMID = QString::fromStdString(worldModel->getSymbol(roomID)->getAttribute("imName"));
 		objectIMID = QString::fromStdString(worldModel->getSymbol(objectID)->getAttribute("imName"));
-		
+
 		// check if object has reachPosition
 		AGMModelSymbol::SPtr object = worldModel->getSymbol(objectID);
 		for (auto edge = object->edgesBegin(worldModel); edge != object->edgesEnd(worldModel); edge++)
@@ -607,8 +608,8 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		printf("ERROR IN GET THE INNERMODEL NAMES\n");
 		exit(2);
 	}
-	
-	// GET THE TARGET POSE: 
+
+	// GET THE TARGET POSE:
 	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
@@ -620,13 +621,13 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 		tgt.y = 0;
 		tgt.z = poseInRoom.z();
 		tgt.rx = 0;
-		//tgt.ry = 0; 
+		//tgt.ry = 0;
 		tgt.ry = poseInRoom.ry(); //needed to reach tables
 		tgt.rz = 0;
 		tgt.doRotation = true;
 	}
-	catch (...) 
-	{ 
+	catch (...)
+	{
 		qDebug()<< __FUNCTION__ << "InnerModel Exception. Element not found in tree";
 	}
 
@@ -699,9 +700,9 @@ void SpecificWorker::manageReachedPose()
 	std::string m ="  ";
 
 	bool changed = false;
-	
+
 	QMutexLocker locker(mutex);
-	
+
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
@@ -726,8 +727,8 @@ void SpecificWorker::manageReachedPose()
 				printf("Pose: %s: %p\n", node->getAttribute("imName").c_str(), (void *)innerModel->getNode(node->getAttribute("imName").c_str()));
 				exit(1);
 			}
-			
-		
+
+
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
@@ -735,7 +736,7 @@ void SpecificWorker::manageReachedPose()
 
 //*********** FIX
 				if (edge->getLabel() == "reach")
-				{ 
+				{
 					//TODO: FIX ==> Update wasIn mug status
 						AGMModelSymbol::SPtr mug = newModel->getSymbolByIdentifier(50); //50 ==> bluemug
 						int32_t inTableID = -1;
@@ -757,7 +758,7 @@ void SpecificWorker::manageReachedPose()
 									printf("doChange\n");
 									if (edgeMug->getLabel() == "wasIn")
 									{
-										wasInTableID = edgeMug->getSymbolPair().second;								
+										wasInTableID = edgeMug->getSymbolPair().second;
 									}
 									else if (edgeMug->getLabel() == "in")
 									{
@@ -899,7 +900,7 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 	catch(...)
 	{
 	}
-	
+
 	int32_t roomId = symbols["r2"]->identifier;
 	printf("room symbol: %d\n",  roomId);
 	std::string imName = symbols["r2"]->getAttribute("imName");
@@ -907,7 +908,7 @@ void SpecificWorker::action_ChangeRoom(bool newAction)
 
 	const float refX = str2float(symbols["r2"]->getAttribute("x"));
 	const float refZ = str2float(symbols["r2"]->getAttribute("z"));
-	
+
 	QVec roomPose = innerModel->transformS("world", QVec::vec3(refX, 0, refZ), imName);
 	roomPose.print("goal pose");
 	// 	AGMModelSymbol::SPtr goalRoom = worldModel->getSymbol(str2int(params["r2"].value));
@@ -956,7 +957,7 @@ void SpecificWorker::action_ReachPose(bool newAction)
 
 	auto symbols = worldModel->getSymbolsMap(params, "room", "pose");
 	printf("action_ReachPose,%d: %d\n", __LINE__, newAction);
-	
+
 	int32_t poseId = symbols["pose"]->identifier;
 	printf("pose symbol: %d\n",  poseId);
 	std::string imName = symbols["pose"]->getAttribute("imName");
@@ -1082,7 +1083,7 @@ void SpecificWorker::action_NoAction(bool newAction)
 void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, float zRef, float threshold)
 {
 	static bool first = true;
-	
+
 	RoboCompTrajectoryRobot2D::TargetPose lastTarget = currentTarget;
 
 	currentTarget.x = x;
@@ -1101,11 +1102,11 @@ void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, flo
 		currentTarget.ry = 0;
 		currentTarget.doRotation = false;
 	}
-	
-	
+
+
 	if ((not first) and (lastTarget == currentTarget))
 		return;
-	
+
 	try
 	{
 		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
@@ -1264,7 +1265,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 
 /**
  * \brief ACTUALIZACION DEL ENLACE EN INNERMODEL
- */ 
+ */
 void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification)
 {
 	QMutexLocker lockIM(mutex);
@@ -1355,7 +1356,7 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 
 
 
-/* NOT BEING USED NOW CHECK TO ELIMINATE IN FUTURE 
+/* NOT BEING USED NOW CHECK TO ELIMINATE IN FUTURE
 void SpecificWorker::updateRobotsCognitiveLocation()
 {
 	// If the polygons are not set yet, there's nothing to do...
