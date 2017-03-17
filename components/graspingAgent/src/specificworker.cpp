@@ -147,7 +147,7 @@ void SpecificWorker::manageReachedObjects()
 {
 	float schmittTriggerThreshold = 30;
 	float THRESHOLD_mug = 50;
-	float THRESHOLD_table = 50;
+	float THRESHOLD_table = 90;
 	float THRESHOLD_person = 400;
 	std::string m ="  ";
 
@@ -168,10 +168,7 @@ void SpecificWorker::manageReachedObjects()
 		{
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;
-			// Avoid working with tables
-// 			if (isObjectType(newModel, node, "table")) continue;
-
-// 			printf("OBJECT: %d\n", node->identifier);
+			//printf("OBJECT: %d\n", node->identifier);
 			//if the object is in robot continue
 			try
 			{
