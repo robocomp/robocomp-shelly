@@ -74,7 +74,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	newApril = false;
 	useCGR = false;
 	useApril = false;
-	
+
 	worker_params_mutex = new QMutex();
 	RoboCompCommonBehavior::Parameter aux;
 	aux.editable = false;
@@ -88,7 +88,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	
+
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -99,9 +99,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	useApril = QString::fromStdString(params["UseApril"].value).contains("false");
 	aprilWeight = QString::fromStdString(params["AprilWeight"].value).toFloat();
 
-	
+
 	timer.start(Period);
-	
+
 	try
 	{
 		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
@@ -161,15 +161,15 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 	innermodel->updateTransformValues("corrSLAMBack",   x1, 0, z1,      0, alpha1, 0  );
 	innermodel->updateTransformValues("corrSLAMNew",    x2, 0, z2,      0, alpha2, 0  );
 	QVec inc = innermodel->transform6D("corrSLAMBack", "corrSLAMNew");
-	
+
 	inc.print("Correction: ");
-	
+
 	RoboCompGenericBase::TBaseState bState;
 	try { omnirobot_proxy->getBaseState(bState); }
 	catch(Ice::Exception &ex) { std::cout<<ex.what()<<std::endl; }
 	innermodel->updateTransformValues("corrREALBack", bState.correctedX,0.,bState.correctedZ,   0,bState.correctedAlpha,0);
 	innermodel->updateTransformValues("corrREALNew",   inc(0),0,inc(2),    0,inc(4),0);
-	
+
 	QVec result = innermodel->transform6D("root", "corrREALNew");
 	newCGR = true;
 	cgrState.correctedX = result(0);
@@ -180,7 +180,7 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 
 void SpecificWorker::compute()
 {
-	static QTime reloj = QTime::currentTime();	
+	static QTime reloj = QTime::currentTime();
 	QMutexLocker l(mutex);
 
 	RoboCompGenericBase::TBaseState newState;
@@ -206,7 +206,7 @@ void SpecificWorker::compute()
 		}
 	}
 	// retrieve different position values
-	
+
 	// odometry
 	try
 	{
@@ -217,8 +217,8 @@ void SpecificWorker::compute()
 	{
 		printf("Can't connect to the robot!!\n");
 	}
-	
-	// cgr 
+
+	// cgr
 	if (newCGR)
 	{
 // 		printf("ODOM: %f %f %f\n", newState.correctedX, newState.correctedZ, newState.correctedAlpha);
@@ -235,11 +235,11 @@ void SpecificWorker::compute()
 	{
 		newApril = false;
 	}
-	
+
 	// join bState position
 
 
-	
+
 	// Check if base needs correction
 	if (enoughDifference(omniState, newState))
 	{
@@ -248,7 +248,7 @@ void SpecificWorker::compute()
 	}
 
 	odometryAndLocationIssues();
-	
+
 	worker_params_mutex->lock();
 		//save framerate in params
 		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
@@ -271,7 +271,7 @@ void SpecificWorker::setCorrectedPosition(const RoboCompGenericBase::TBaseState 
 	std::cout<<"correct odometer position"<<std::endl;
 	try
 	{
-		omnirobot_proxy->correctOdometer(bState.correctedX, bState.correctedZ, bState.correctedAlpha); 
+		omnirobot_proxy->correctOdometer(bState.correctedX, bState.correctedZ, bState.correctedAlpha);
 	}
 	catch(Ice::Exception &ex)
 	{
@@ -283,6 +283,11 @@ void SpecificWorker::setCorrectedPosition(const RoboCompGenericBase::TBaseState 
 
 bool SpecificWorker::odometryAndLocationIssues(bool force)
 {
+	static QTime lastSent = QTime::currentTime();
+	if (lastSent.elapsed() > 2000)
+	{
+		force = true;
+	}
 	// Get robot's odometry
 	RoboCompGenericBase::TBaseState bState;
 	try
@@ -348,7 +353,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 		robotIsActuallyInRoom = roomId;
 	}
 
-	
+
 	if (roomId != robotIsActuallyInRoom)
 	{
 		try
@@ -381,7 +386,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 				float bStatex = str2float(edgeRT->getAttribute("tx"));
 				float bStatez = str2float(edgeRT->getAttribute("tz"));
 				float bStatealpha = str2float(edgeRT->getAttribute("ry"));
-				
+
 				// to reduce the publication frequency
 				if (fabs(bStatex - bState.correctedX)>5 or fabs(bStatez - bState.correctedZ)>5 or fabs(bStatealpha - bState.correctedAlpha)>0.02 or force)
 				{
@@ -430,6 +435,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 					edge->setAttribute("tx", float2str(bState.correctedX));
 					edge->setAttribute("tz", float2str(bState.correctedZ));
 					edge->setAttribute("ry", float2str(bState.correctedAlpha));
+					lastSent = QTime::currentTime();
 					AGMMisc::publishEdgeUpdate(edge, agmexecutive_proxy);
 				}
 			}
@@ -445,7 +451,7 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 			return false;
 		}
 	}
-	
+
 	return true;
 
 }
@@ -455,7 +461,7 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 {
 	static TimedList list(3000);
 	static RoboCompGenericBase::TBaseState lastBaseState = lastState;
-	
+
 	const float movX = lastState.x - lastBaseState.x;
 	const float movZ = lastState.z - lastBaseState.z;
 	const float movA = abs(lastState.alpha - lastBaseState.alpha);
@@ -464,12 +470,12 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 	list.add(mov);
 	lastBaseState = lastState;
 
-	
+
 	const float currentValue = list.getSum();
 // 	printf("sum: %f\n", currentValue);
 	bool setValue = true;
-	
-	static QTime lastSent = QTime::currentTime(); 
+
+	static QTime lastSent = QTime::currentTime();
 	try
 	{
 		const float availableValue = str2float(robot->getAttribute("movedInLastSecond"));
@@ -501,7 +507,7 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 
 
 
-//AGENT RELATED 
+//AGENT RELATED
 bool SpecificWorker::reloadConfigAgent()
 {
 	return true;
@@ -571,7 +577,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
 {
 	mutex->lock();
  	AGMModelConverter::fromIceToInternal(w, worldModel);
- 
+
 	if (innerModel) delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 	mutex->unlock();
@@ -581,7 +587,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
+
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
@@ -590,7 +596,7 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
+
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
@@ -599,7 +605,7 @@ void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modificati
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
+
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
@@ -608,7 +614,7 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
- 
+
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
 }
@@ -690,6 +696,3 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 	QMutexLocker locker(worker_params_mutex);
 	return worker_params;
 }
-
-
-

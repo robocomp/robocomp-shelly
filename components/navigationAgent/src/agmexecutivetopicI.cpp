@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -18,10 +18,9 @@
  */
 #include "agmexecutivetopicI.h"
 
-AGMExecutiveTopicI::AGMExecutiveTopicI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+AGMExecutiveTopicI::AGMExecutiveTopicI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 
@@ -34,9 +33,9 @@ void AGMExecutiveTopicI::structuralChange(const RoboCompAGMWorldModel::World  &w
 	worker->structuralChange(w);
 }
 
-void AGMExecutiveTopicI::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modification, const Ice::Current&)
+void AGMExecutiveTopicI::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modifications, const Ice::Current&)
 {
-	worker->edgesUpdated(modification);
+	worker->edgesUpdated(modifications);
 }
 
 void AGMExecutiveTopicI::edgeUpdated(const RoboCompAGMWorldModel::Edge  &modification, const Ice::Current&)
@@ -49,9 +48,9 @@ void AGMExecutiveTopicI::symbolUpdated(const RoboCompAGMWorldModel::Node  &modif
 	worker->symbolUpdated(modification);
 }
 
-void AGMExecutiveTopicI::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modification, const Ice::Current&)
+void AGMExecutiveTopicI::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modifications, const Ice::Current&)
 {
-	worker->symbolsUpdated(modification);
+	worker->symbolsUpdated(modifications);
 }
 
 
