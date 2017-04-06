@@ -238,7 +238,7 @@ class RGBDDraw(QtGui.QGraphicsScene):
 		else:
 			print 'we shall not paint!'
 			return
-		
+
 		self.clear()
 		v = ''
 		m = 0
@@ -320,7 +320,7 @@ class LaserDraw(QtGui.QGraphicsScene):
 ####################################################################################################
 class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 	def __init__(self, parent):
-		super(myGraphicsSceneJoyStick,self).__init__() 
+		super(myGraphicsSceneJoyStick,self).__init__()
 		self.move = False
 		self.press = False
 		self.vaca = None
@@ -338,15 +338,15 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 
 		posX = 0
 		posY = 0
-		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+		self.vaca = self.addEllipse(posX-5,posY-5,10,10)
 		self.crosslineW = QtCore.QLineF(-self.width(),posY,self.width(),posY)
 		self.crosslineH = QtCore.QLineF(posX,-self.height(),posX,self.height())
 		self.vacaW = self.addLine(self.crosslineW)
 		self.vacaH = self.addLine(self.crosslineH)
 		self.update()
 		self.parent.setRobotSpeed(0,0)
- 
- 
+
+
 	def mousePressAndMoveEvent(self,event):
 		if self.press and self.move:
 			self.removeItem(self.vaca)
@@ -354,7 +354,7 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 			self.removeItem(self.vacaH)
 			posX = event.scenePos().x()
 			posY = event.scenePos().y()
-			self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+			self.vaca = self.addEllipse(posX-5,posY-5,10,10)
 			self.crosslineW = QtCore.QLineF(-self.width(),posY,self.width(),posY)
 			self.crosslineH = QtCore.QLineF(posX,-self.height(),posX,self.height())
 			self.vacaW = self.addLine(self.crosslineW)
@@ -366,7 +366,7 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 				print "Moving--> Advance: ", cmd_z, " <--> Rotation: ", cmd_r
 				self.parent.setRobotSpeed(cmd_z, cmd_r)
 				self.timerJoystick.restart()
-  
+
 	def mousePressEvent(self,event):
 		self.press = True
 		self.mousePressAndMoveEvent(event)
@@ -384,7 +384,7 @@ class myGraphicsSceneJoyStick(QtGui.QGraphicsScene):
 		self.removeItem(self.vacaH)
 		posX = 0
 		posY = 0
-		self.vaca = self.addEllipse(posX-5,posY-5,10,10)      
+		self.vaca = self.addEllipse(posX-5,posY-5,10,10)
 		self.crosslineW = QtCore.QLineF(-self.width(), posY,self.width(), posY)
 		self.crosslineH = QtCore.QLineF(posX, -self.height(), posX, self.height())
 		self.vacaW = self.addLine(self.crosslineW)
@@ -399,7 +399,7 @@ class SpecificWorker(GenericWorker):
 		self.timer.timeout.connect(self.compute)
 		self.Period = 1000
 		self.timer.start(self.Period)
-		
+
 		self.ui.navigationButton.clicked.connect(self.goNavigation)
 
 
@@ -411,18 +411,26 @@ class SpecificWorker(GenericWorker):
 		self.laserDrawer = LaserDraw(self.ui.laser_graphicsView, self)
 		self.ui.laser_graphicsView.setScene(self.laserDrawer)
 
+		# OmniRobot
+		self.ui.xOmniSB.valueChanged.connect(self.omniControl)
+		self.ui.zOmniSB.valueChanged.connect(self.omniControl)
+		self.ui.angleOmniSB.valueChanged.connect(self.omniControl)
+		self.ui.omniStop.clicked.connect(self.omniControlStop)
+
+
+
 
 		self.rgbdDrawer = RGBDDraw(self.ui.rgbd_graphicsView, self)
 		self.ui.rgbd_graphicsView.setScene(self.rgbdDrawer)
 
 		self.ui.graphicsViewJoyStick.setScene(self.sceneJoyStick)
 		self.sceneJoyStick.update()
-		
+
 		# variables for work with ssh
 		#self.ssh = None
 		#self.transport = None
 		#self.hosts = dict()
-		
+
 		self.thread = MyShellyThread(self)
 		#workerThread = new WorkerThread(this);
 		self.thread.start();
@@ -438,7 +446,7 @@ class SpecificWorker(GenericWorker):
 					print ("can't find password for "+str(s[0])+" in ~/.rcremote  (format 'host#password')")
 		except:
 			print ("can't open file ~/.rcmemote")
-			
+
 		self.ui.shutdown1Button.clicked.connect(self.thread.shutdownNUC1)
 		self.ui.shutdown2Button.clicked.connect(self.thread.shutdownNUC2)
 		self.ui.shutdown3Button.clicked.connect(self.thread.shutdownNUC3)
@@ -455,6 +463,17 @@ class SpecificWorker(GenericWorker):
 
 		self.frameRateLabels = {}
 		self.initializeMotors()
+
+	def omniControl(self):
+		x = self.ui.xOmniSB.value()
+		z = self.ui.zOmniSB.value()
+		angle = self.ui.angleOmniSB.value()
+		# print x, z, angle
+		self.omnirobot_proxy.setSpeedBase(x, z, angle)
+	def omniControlStop(self):
+		self.ui.xOmniSB.setValue(0)
+		self.ui.zOmniSB.setValue(0)
+		self.ui.angleOmniSB.setValue(0)
 
 
 	def initializeMotors(self):
@@ -476,10 +495,10 @@ class SpecificWorker(GenericWorker):
 	def setRobotSpeed(self,vAdvance,vRotation):
 		self.omnirobot_proxy.setSpeedBase(0, vAdvance, vRotation)
 		return True
-	
+
 	def sayText(self):
 		self.speech_proxy.say(self.ui.ttsEdit.text(), False)
-	
+
 	def jointCommand(self):
 		goal = MotorGoalPosition()
 		goal.position = self.ui.jointTarget.value()
@@ -526,12 +545,12 @@ class SpecificWorker(GenericWorker):
 		except:
 			print 'No laser connection.'
 
-	
-	
+
+
 	def computeRGBD(self):
 		if self.ui.tabWidget.currentIndex() != 6:
 			return;
-	
+
 		err = False
 		#try:
 		self.rgbd_color, self.rgbd_depth, self.rgbd_headState, self.rgbd_baseState = self.rgbd_proxy.getData()
@@ -565,7 +584,7 @@ class SpecificWorker(GenericWorker):
 					label = QtGui.QLabel(params['frameRate'].value)
 					self.frameRateLabels[name] = label
 					self.ui.frameLayout.addRow(name, label)
-			except: 
+			except:
 				print 'Exception reading:', name, 'parameters'
 
 	#
@@ -660,7 +679,7 @@ class SpecificWorker(GenericWorker):
 		#
 		return ret
 
-######################################################################	
+######################################################################
 #### NAVEGACION
 	@QtCore.Slot()
 	def goNavigation(self):
@@ -672,7 +691,7 @@ class SpecificWorker(GenericWorker):
 		tp.y = 0
 		tp.rx = tp.rz = tp.ry = 0
 		if self.ui.ignoreAngle.isChecked() is False:
-			tp.ry = self.ui.aBox.value()				
+			tp.ry = self.ui.aBox.value()
 		threshold = self.ui.thBox.value()
 
 		try:
@@ -681,11 +700,3 @@ class SpecificWorker(GenericWorker):
 		except:
 			print "Error: Sleeping 10 :-)"
 			time.sleep(10)
-
-
-
-
-
-
-
-
