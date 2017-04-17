@@ -679,3 +679,85 @@ unsetRestArmPosition : passive(1)
 		robot->status(restArm)*
 	}
 }
+
+
+hierarchical handObject : active(1) activates(handObject_offer, handObject_leave)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+dormant handObject_offer : active(1)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		status:personSt(0,220)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		person->room(in)
+		person->status(hasStatus)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		status:personSt(0,220)
+		object->person(offered)
+		object->robot(in)
+		robot->room(in)
+		robot->object(know)
+		person->room(in)
+		person->status(hasStatus)
+	}
+}
+
+dormant handObject_leave : active(1)
+{
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		object->person(offered)
+		robot->room(in)
+		person->room(in)
+	}
+	=>
+	{
+		person:person(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->person(in)
+		robot->room(in)
+		person->room(in)
+	}
+}

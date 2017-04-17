@@ -79,6 +79,7 @@
 	<link src="23" dst="3" label="in" > </link>
 	<link src="23" dst="24" label="hasStatus" > </link>
 	<link src="23" dst="24" label="noReach" > </link>
+	<link src="23" dst="24" label="explored" > </link>
 	<link src="23" dst="24" label="reachable" > </link>
 	<link src="23" dst="24" label="table" > </link>
 	<link src="1" dst="23" label="know" > </link>
@@ -136,7 +137,6 @@
 	</symbol>
 	<symbol id="30" type="objectSt"> </symbol>
 	<link src="29" dst="31" label="reachPosition" > </link>
-	<link src="29" dst="30" label="explored" > </link>
 	<link src="29" dst="30" label="hasStatus" > </link>
 	<link src="29" dst="30" label="noReach" > </link>
 	<link src="29" dst="30" label="reachable" > </link>
@@ -180,8 +180,8 @@
 	<link src="35" dst="37" label="table" > </link>
 	<symbol id="36" type="objectSt">
 	</symbol>
-	<link src="35" dst="36" label="explored" > </link>
 	<link src="35" dst="36" label="hasStatus" />
+	<link src="35" dst="36" label="explored" > </link>
 	<link src="35" dst="36" label="noReach" />
 	<link src="35" dst="36" label="reachable" />
 	<link src="35" dst="36" label="table" />
@@ -239,6 +239,21 @@
 		<linkAttribute key="rx" value="0" />
 		<linkAttribute key="ry" value="0" />
 		<linkAttribute key="rz" value="0" />
+	</link>
+
+
+	<symbol id="666" type="person" >
+			<attribute key="imType" value="transform" />
+			<attribute key="imName" value="person" />
+		</symbol>
+		<link src="666" dst="3" label="in" />
+
+		<symbol id="667" type="personSt" >
+		</symbol>
+
+		<link src="666" dst="667" label="hasStatus" >
+		</link>
+		<link src="666" dst="667" label="noReach" >
 	</link>
 
 

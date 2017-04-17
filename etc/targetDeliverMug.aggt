@@ -1,10 +1,12 @@
 {
 	1:robot
-	259:person
-	50:object
-	50->259(in)
+	666:person
+	o:object
+	os:objectSt
+	o->os(hasStatus)
+	o->os(mug)
+	o->666(in)
 }
 precondition
 {
 }
-
