@@ -1452,7 +1452,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 		catch(...)
 		{
-			printf("Robot knows about the mug. Know edg can't be added to model.\n");
+			printf("Robot knows about the mug. Know edge can't be added to model.\n");
 		}
 		if(action == "verifyimaginarymug")
 		{
@@ -1484,7 +1484,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			//model offset
 			std::map<std::string, std::string> edgeRTMeshAtrs;
 			edgeRTMeshAtrs["tx"] = "0";
-			edgeRTMeshAtrs["ty"] = "-48.5";
+			edgeRTMeshAtrs["ty"] = "48.5";
 			edgeRTMeshAtrs["tz"] = "0";
 			edgeRTMeshAtrs["rx"] = "1.57079";
 			edgeRTMeshAtrs["ry"] = "0";
