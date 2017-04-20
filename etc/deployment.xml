@@ -161,7 +161,7 @@
  <node alias="rgbd" endpoint="rgbd:tcp -h 10.0.30.33 -p 10096">
   <dependence alias="comJoint" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.33 rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2RGBD bin/openNI2Comp --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/primesense.conf" />
+  <upCommand command="rcremote 10.0.30.33 rgbd /home/robocomp/robocomp/components/robocomp-robolab/components/openni2PCL bin/openNI2pcl --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/primesense.conf" />
   <downCommand command="rcremote 10.0.30.33 X / killall -9 openNI2Comp" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/primesense.conf" />
   <xpos value="37.5501435586" />
@@ -313,14 +313,14 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 170">
+ <node alias="mission2" endpoint="commonbehavior:tcp -h localhost -p 11247">
   <dependence alias="executive" />
   <dependence alias="navigA" />
+  <dependence alias="localizationA" />
+  <dependence alias="dialogA" />
   <dependence alias="ppcptnA" />
   <dependence alias="objectA" />
   <dependence alias="graspingA" />
-  <dependence alias="humanA" />
-  <dependence alias="dialogA" />
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost mission /home/robocomp/AGM/tools/agmmission ./bin/agmmission /home/robocomp/robocomp/components/robocomp-shelly/etc/mission.conf" />
   <downCommand command="killall -9 agmmission" />
