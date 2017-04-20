@@ -42,10 +42,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 #ifdef USE_QTGUI
 	osgView = new OsgView(widget);
 	show();
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	manipulator = new osgGA::TrackballManipulator;
 	osgView->setCameraManipulator(manipulator, true);
-// 	printf("%s: %d\n", __FILE__, __LINE__);
 	show();
 	connect(manualButton, SIGNAL(clicked()), this, SLOT(startManualMode()));
 // 	connect(buttonLeave,  SIGNAL(clicked()), this, SLOT(leaveObjectSimulation()));
@@ -993,10 +991,10 @@ void SpecificWorker::action_GraspObject(bool first)
 
 
 // 	const float steps_to_grasp = 1;
-	const float yInit = 40;
-	const float yGoal = -20;
-	const float zInit = -180;
-	const float zGoal = -130;
+	const float yInit = 210;
+	const float yGoal = 90;
+	const float zInit = -220;
+	const float zGoal = -95;
 	const float numSteps = 3;
 	static float actualSteps=1;
 	static QVec offset = QVec::vec3(0,0,0);

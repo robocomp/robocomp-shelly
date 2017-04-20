@@ -642,7 +642,9 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 				//O.print("	O pose relativa");
 				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
+        graspRef.print("graspRef");
 				float th=20;
+        tgt.ry = -3.1415926535/2.;
 				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
 				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;
@@ -1109,7 +1111,7 @@ void SpecificWorker::go(float x, float z, float alpha, bool rot, float xRef, flo
 
 	try
 	{
-		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << xRef << ", " << zRef << threshold << " )" <<std::endl;
+		std::cout<< "ENVIANDO A trajectoryrobot2d->go(" << currentTarget.x << ", " << currentTarget.z << ", " << currentTarget.ry << ", " << xRef << ", " << zRef << ", " << threshold << " )" <<std::endl;
 		trajectoryrobot2d_proxy->goReferenced(currentTarget, xRef, zRef, threshold);
 	}
 	catch(const RoboCompTrajectoryRobot2D::RoboCompException &ex)
