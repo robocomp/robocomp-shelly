@@ -356,9 +356,9 @@
 
  <node alias="semanticSimilarity" endpoint="agmcommonbehavior:tcp -h localhost -p 10500">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle/src python semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
-  <downCommand command="killall -9 semanticsimilarity" />
-  <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
+  <upCommand command="rcremote localhost semantic /home/robocomp/robocomp/components/prp/components/semanticSimilarity/src python semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
+  <downCommand command="pkill -9 -f semanticSimilarity" />
+  <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etcSim/semanticSimilarity.conf" />
   <xpos value="111.319055642" />
   <ypos value="26.0001957535" />
   <radius value="13.0" />
