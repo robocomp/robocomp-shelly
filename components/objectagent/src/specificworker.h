@@ -39,7 +39,7 @@ public:
 	ParameterMap getAgentParameters();
 	bool setAgentParameters(const ParameterMap &prs);
 	RoboCompCommonBehavior::ParameterList getWorkerParams();
-	
+
 	void structuralChange(const RoboCompAGMWorldModel::World &modification);
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
 	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
@@ -50,12 +50,12 @@ public:
 public slots:
 	void compute();
 	void getObject();
-	void getObjects();
+	// void getObjects();
 private:
 	bool active;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel, string c="");
-	
+
 	void action_FindObjectVisuallyInTable  (bool newAction);
 
 	void getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID);
@@ -63,7 +63,7 @@ private:
 	void updateTag(const tagsList &list);
 	void newAprilTag(const tagsList &list);
 	void newAprilTagAndPose(const tagsList &list,const RoboCompGenericBase::TBaseState &bState,const RoboCompJointMotor::MotorStateMap &hState);
-	
+
 	bool updateTable (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMug   (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
 	bool updateMilk  (const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel);
@@ -87,4 +87,3 @@ private:
 };
 
 #endif
-

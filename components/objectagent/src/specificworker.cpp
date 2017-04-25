@@ -1310,7 +1310,7 @@ void SpecificWorker::getObject()
 	}
 }
 
-
+/*
 void SpecificWorker::getObjects()
 {
 	ObjectVector objects;
@@ -1335,7 +1335,7 @@ void SpecificWorker::getObjects()
 		}
 	}
 }
-
+*/
 void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
 {
 	printf("===========================\n===   updateOracleMug   =========\n===========================\n");
