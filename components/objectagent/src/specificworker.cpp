@@ -94,7 +94,7 @@ void SpecificWorker::compute()
 		printf("action verifyimaginarymug\n");
 		try
 		{
-		printf("action verifyimaginarymug2 \n");
+		printf("action verifyimaginarymug2 %d\n", __LINE__);
 			getObject();
 			//	printf("Found it!\n");
 			//else
@@ -164,7 +164,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		waitTime = QTime::currentTime();
 	bool object_found = false;
 	bool publishModel = false;
-	pose6D poseobj;
+	ObjectType poseobj;
 
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
@@ -180,18 +180,22 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 	if (!cb_simulation->isChecked() )
 	{
 		printf("checking with real pipeline\n");
+		ObjectVector objects;
+		StringVector objectsTofind;
 		//Pipelining!!
 		try
 		{
-
-			object_found = objectdetection_proxy->findTheObject(objectToDetect,poseobj);
-		}catch(...)
+			objectsTofind.push_back(objectToDetect);
+			object_found = objectdetection_proxy->findObjects(objectsTofind, objects);
+		}
+		catch(...)
 		{
 			printf("Imposible to connect to objectdetection \n");
 			return false;
 		}
 		if (object_found)
 		{
+			poseobj = objects[0];
 			AGMModelSymbol::SPtr symbolTable = newModel->getParentByLink(symbols[objectToDetect]->identifier , "RT");
 			QString tableIMName = QString::fromStdString(symbolTable->getAttribute("imName"));
 			QVec positionObject = QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz);
@@ -206,7 +210,8 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		}
 
 	}
-	else{
+	else
+	{
 		printf("fake detection\n");
 		object_found = cb_mug->isChecked();
 		poseFromParent = QVec::vec6(0,97,0,0,0,0);
@@ -1250,14 +1255,24 @@ RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 	return worker_params;
 }
 
+
+
+
 void SpecificWorker::findObject()
 {
-	pose6D poseobj;
-	if(objectdetection_proxy->findTheObject("yatekomo",poseobj))
+	printf("%d\n", __LINE__);
+	ObjectVector objects;
+	StringVector objectsTofind;
+	objectsTofind.push_back("yatekomo");
+	ObjectType poseobj;
+	if(objectdetection_proxy->findObjects(objectsTofind, objects))
 	{
-
+		printf("%d\n", __LINE__);
+		poseobj = objects[0];
 		QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz).print("Pose recibida: ");
+		printf("%d\n", __LINE__);
 		QVec posobj = innerModel->transform6D("rgbd",QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz),"robot");
+		printf("%d\n", __LINE__);
 		t.id=31;
 		t.tx=posobj.x();
 		t.ty=posobj.y();
@@ -1265,34 +1280,46 @@ void SpecificWorker::findObject()
 		t.rx=posobj.rx();
 		t.ry=posobj.ry();
 		t.rz=posobj.rz();
+		printf("%d\n", __LINE__);
 		posobj.print("from rgbd");
+		printf("%d\n", __LINE__);
 		object_found = true;
+		printf("%d\n", __LINE__);
 	}
+	printf("%d\n", __LINE__);
 }
 
 void SpecificWorker::getObject()
 {
+	printf("%d\n", __LINE__);
 	printf("SpecificWorker::getObject()\n");
 	if(!object_found)
 	{
+		printf("%d\n", __LINE__);
 		findObject();
+		printf("%d\n", __LINE__);
 	}
 
+	printf("%d\n", __LINE__);
 	if (object_found)
 	{
 		AGMModel::SPtr newModel(new AGMModel(worldModel));
+		printf("%d\n", __LINE__);
 		updateOracleMug(t,newModel);
+		printf("%d\n", __LINE__);
 	}
 }
 
+
 void SpecificWorker::getObjects()
 {
-	listObject lObjects;
-	if(objectdetection_proxy->findObjects(lObjects))
+	ObjectVector objects;
+	StringVector objectsTofind;
+	if (objectdetection_proxy->findObjects(objectsTofind, objects))
 	{
-		for(auto object:lObjects)
+		for (auto object:objects)
 		{
-			if(object.label=="pringles")
+			if (object.label=="pringles")
 			{
 				AGMModel::SPtr newModel(new AGMModel(worldModel));
 				RoboCompAprilTags::tag t;
@@ -1444,8 +1471,9 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 		catch(...)
 		{
-			printf("No imagine found, was object imagined by oracle?\n");
+			printf("No imagine %d -> %d found, was object imagined by oracle?\n", symbols["robot"]->identifier, symbols[mug_obj_name]->identifier);
 		}
+
 		try
 		{
 			newModel->addEdge(symbols["robot"], symbols[mug_obj_name], "know");
@@ -1454,22 +1482,29 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		{
 			printf("Robot knows about the mug. Know edge can't be added to model.\n");
 		}
+printf("%d\n", __LINE__);
 		if(action == "verifyimaginarymug")
 		{
+			printf("%d\n", __LINE__);
 			auto symbols_status = worldModel->getSymbolsMap(params, "robot", "status");
 			try
 			{
+				printf("%d\n", __LINE__);
 				newModel->removeEdge(symbols_status["robot"], symbols_status["status"], "usedOracle");
+				printf("%d\n", __LINE__);
 			}
 			catch(...)
 			{
+				printf("%d\n", __LINE__);
 				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				printf("%d\n", __LINE__);
 			}
 		}
 
 		//add the mesh
 		try
 		{
+			printf("%d\n", __LINE__);
 
 			//add mesh
 			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol("mugMesh");
@@ -1491,21 +1526,26 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			edgeRTMeshAtrs["rz"] = "3.141592";
 			newModel->addEdge(symbolMug, mugMesh, "RT", edgeRTMeshAtrs);
 			rDebug2(("objectAgent edgeupdate for mesh"));
+			printf("%d\n", __LINE__);
 		}
 		catch(...)
 		{
+			printf("%d\n", __LINE__);
 			qFatal("Impossible to create the RT edge to the mug mesh");
 		}
+		printf("%d\n", __LINE__);
 
 		static int mnameId=0;
-		string mname = QString::number(mnameId++).toStdString() + ".xml";
-		printf("saving to %s", mname.c_str());
-		newModel->save(mname);
+		// string mname = QString::number(mnameId++).toStdString() + ".xml";
+		// printf("saving to %s", mname.c_str());
+		// newModel->save(mname);
 
 		//Update last seen tag
+		printf("%d\n", __LINE__);
 		QTime time = QTime::currentTime();
 		try
 		{
+			printf("%d\n", __LINE__);
 			QTime timeRead = QTime::fromString(QString::fromStdString(symbolMug->getAttribute("LastSeenTimeStamp")),"hhmmss");
 			if (timeRead.secsTo(time) > 3 ) //update each 3 seconds
 			{
@@ -1524,6 +1564,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 		catch(...)
 		{
+			printf("%d\n", __LINE__);
 			//Create atributte first time
 			symbolMug->setAttribute("LastSeenTimeStamp", time.toString("hhmmss").toStdString());
 			try
@@ -1540,6 +1581,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 
 		//publish changes
+		printf("%d\n", __LINE__);
 		try
 		{
 // 			sendModificationProposal(worldModel, newModel, "SpecificWorker::getObject()");

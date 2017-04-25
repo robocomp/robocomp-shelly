@@ -991,10 +991,10 @@ void SpecificWorker::action_GraspObject(bool first)
 
 
 // 	const float steps_to_grasp = 1;
-	const float yInit = 210;
-	const float yGoal = 90;
+	const float yInit = 200;
+	const float yGoal = 80;
 	const float zInit = -220;
-	const float zGoal = -95;
+	const float zGoal = -85;
 	const float numSteps = 3;
 	static float actualSteps=1;
 	static QVec offset = QVec::vec3(0,0,0);
