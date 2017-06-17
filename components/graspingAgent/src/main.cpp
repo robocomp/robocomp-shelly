@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -59,6 +59,8 @@
  * ...
  *
  */
+#include <signal.h>
+
 // QT includes
 #include <QtCore>
 #include <QtGui>
@@ -69,6 +71,7 @@
 #include <Ice/Application.h>
 
 #include <rapplication/rapplication.h>
+#include <sigwatch/sigwatch.h>
 #include <qlog/qlog.h>
 
 #include "config.h"
@@ -81,9 +84,6 @@
 #include <agmcommonbehaviorI.h>
 #include <agmexecutivetopicI.h>
 
-#include <AGMExecutive.h>
-#include <AGMCommonBehavior.h>
-#include <AGMWorldModel.h>
 #include <JointMotor.h>
 #include <InverseKinematics.h>
 #include <Logger.h>
@@ -94,15 +94,6 @@
 // Namespaces
 using namespace std;
 using namespace RoboCompCommonBehavior;
-
-using namespace RoboCompAGMExecutive;
-using namespace RoboCompAGMCommonBehavior;
-using namespace RoboCompAGMWorldModel;
-using namespace RoboCompJointMotor;
-using namespace RoboCompInverseKinematics;
-using namespace RoboCompLogger;
-
-
 
 class graspingComp : public RoboComp::Application
 {
@@ -131,32 +122,29 @@ int ::graspingComp::run(int argc, char* argv[])
 #else
 	QCoreApplication a(argc, argv);  // NON-GUI application
 #endif
+
+
+	sigset_t sigs;
+	sigemptyset(&sigs);
+	sigaddset(&sigs, SIGHUP);
+	sigaddset(&sigs, SIGINT);
+	sigaddset(&sigs, SIGTERM);
+	sigprocmask(SIG_UNBLOCK, &sigs, 0);
+
+	UnixSignalWatcher sigwatch;
+	sigwatch.watchForSignal(SIGINT);
+	sigwatch.watchForSignal(SIGTERM);
+	QObject::connect(&sigwatch, SIGNAL(unixSignal(int)), &a, SLOT(quit()));
+
 	int status=EXIT_SUCCESS;
 
 	LoggerPrx logger_proxy;
-	InverseKinematicsPrx inversekinematics_proxy;
 	JointMotorPrx jointmotor_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	string proxy, tmp;
 	initialize();
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematicsProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematicsProxy\n";
-		}
-		inversekinematics_proxy = InverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("InverseKinematicsProxy initialized Ok!");
-	mprx["InverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&inversekinematics_proxy);//Remote server proxy creation example
 
 
 	try
@@ -178,6 +166,23 @@ int ::graspingComp::run(int argc, char* argv[])
 
 	try
 	{
+		if (not GenericMonitor::configGetString(communicator(), prefix, "InverseKinematicsProxy", proxy, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy InverseKinematicsProxy\n";
+		}
+		inversekinematics_proxy = InverseKinematicsPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("InverseKinematicsProxy initialized Ok!");
+	mprx["InverseKinematicsProxy"] = (::IceProxy::Ice::Object*)(&inversekinematics_proxy);//Remote server proxy creation example
+
+
+	try
+	{
 		if (not GenericMonitor::configGetString(communicator(), prefix, "AGMExecutiveProxy", proxy, ""))
 		{
 			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AGMExecutiveProxy\n";
@@ -192,7 +197,16 @@ int ::graspingComp::run(int argc, char* argv[])
 	rInfo("AGMExecutiveProxy initialized Ok!");
 	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);//Remote server proxy creation example
 
-	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	IceStorm::TopicManagerPrx topicManager;
+	try
+	{
+		topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: STORM not running: " << ex << endl;
+		return EXIT_FAILURE;
+	}
 
 	IceStorm::TopicPrx logger_topic;
 	while (!logger_topic)
@@ -227,12 +241,12 @@ int ::graspingComp::run(int argc, char* argv[])
 
 	if ( !monitor->isRunning() )
 		return status;
-	
+
 	while (!monitor->ready)
 	{
 		usleep(10000);
 	}
-	
+
 	try
 	{
 		// Server adapter creation and publication
@@ -302,6 +316,10 @@ int ::graspingComp::run(int argc, char* argv[])
 #endif
 		// Run QT Application Event Loop
 		a.exec();
+
+		std::cout << "Unsubscribing topic: agmexecutivetopic " <<std::endl;
+		agmexecutivetopic_topic->unsubscribe( agmexecutivetopic );
+
 		status = EXIT_SUCCESS;
 	}
 	catch(const Ice::Exception& ex)
@@ -358,4 +376,3 @@ int main(int argc, char* argv[])
 
 	return app.main(argc, argv, configFile.c_str());
 }
-

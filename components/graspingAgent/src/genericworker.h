@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -27,16 +27,11 @@
 #include <ui_mainUI.h>
 
 #include <CommonBehavior.h>
-#include <InverseKinematics.h>
-#include <AGMWorldModel.h>
-#include <AGMExecutive.h>
-#include <Planning.h>
+
 #include <JointMotor.h>
+#include <InverseKinematics.h>
 #include <Logger.h>
-#include <AGMCommonBehavior.h>
-
 #include <agm.h>
-
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
@@ -54,7 +49,7 @@ using namespace RoboCompLogger;
 using namespace RoboCompAGMCommonBehavior;
 
 
-struct BehaviorParameters 
+struct BehaviorParameters
 {
 	RoboCompPlanning::Action action;
 	std::vector< std::vector <std::string> > plan;
@@ -62,7 +57,7 @@ struct BehaviorParameters
 
 
 
-class GenericWorker : 
+class GenericWorker :
 #ifdef USE_QTGUI
 public QWidget, public Ui_guiDlg
 #else
@@ -75,17 +70,17 @@ public:
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);
-	
+
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;
 	bool activate(const BehaviorParameters& parameters);
 	bool deactivate();
 	bool isActive() { return active; }
-	
+
 
 	InverseKinematicsPrx inversekinematics_proxy;
-	LoggerPrx logger_proxy;
 	JointMotorPrx jointmotor_proxy;
+	LoggerPrx logger_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;
@@ -97,11 +92,10 @@ public:
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;
 	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
-	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification) = 0;
+	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications) = 0;
 	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
 	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
-	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
-
+	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications) = 0;
 
 protected:
 	QTimer timer;
@@ -113,6 +107,9 @@ protected:
 	int iter;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	RoboCompPlanning::Action createAction(std::string s);
+
+private:
+
 
 public slots:
 	virtual void compute() = 0;
