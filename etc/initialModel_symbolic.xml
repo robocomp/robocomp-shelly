@@ -242,7 +242,7 @@
 	</link>
 
 
-<!--	<symbol id="666" type="person" >
+	<symbol id="666" type="person" >
 		<attribute key="imType" value="transform" />
 			<attribute key="imName" value="person" />
 		</symbol>
@@ -255,6 +255,5 @@
 		</link>
 		<link src="666" dst="667" label="noReach" >
 	</link>
--->
 
 </AGMModel>
