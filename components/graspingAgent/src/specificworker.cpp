@@ -634,19 +634,29 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel
 
 	try
 	{
-		AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "graspingAgent")+m);
-	}
-	catch(const RoboCompAGMExecutive::Locked &e)
-	{
+		while (true)
+		{
+			try
+			{
+				AGMMisc::publishModification(newModel, agmexecutive_proxy, std::string( "graspingAgent")+m);
+				break;
+			}
+			catch(const RoboCompAGMExecutive::Locked &e)
+			{
+			}
+		}
 	}
 	catch(const RoboCompAGMExecutive::OldModel &e)
 	{
+		printf("old model!\n");
 	}
 	catch(const RoboCompAGMExecutive::InvalidChange &e)
 	{
+		qFatal("invalid change");
 	}
 	catch(const Ice::Exception& e)
 	{
+		qFatal("ice exception");
 		exit(1);
 	}
 }
@@ -694,7 +704,7 @@ qDebug()<<"****\n****\n****\nNewACTION ==> "<<action.c_str();
 	}
 	else if (action == "setrestarmposition")
 	{
-		checkRestArm(newAction);
+		setRightArmUp_Reflex(newAction);
 	}
 	else if (action == "changeroom")
 	{
@@ -1152,7 +1162,7 @@ void SpecificWorker::action_GraspObject(bool first)
 						sendModificationProposal(newModel, worldModel);
 					}
 				}
-				offset(1)+=80;
+				offset(1)+=120;
 				if (manualMode)
 				{
 					for (int cc=0; cc<3; cc++) pose(cc) += offset(cc);
@@ -1461,7 +1471,7 @@ void SpecificWorker::saccadic3D(float tx, float ty, float tz, float axx, float a
 // Check if arm should be set in rest position
 void SpecificWorker::checkRestArm(bool first)
 {
-static int num=0;
+	static int num=0;
 	if(!first)
 		return;
 	//If robot is holding and object avoid arm movement
@@ -1492,7 +1502,6 @@ static int num=0;
 num++;
 std::string path = "/home/robocomp/"+std::to_string(num)+".xml";
 std::cout<<"**********\n**********\n**********\nsave file"<<path<<"**********\n**********\n**********\n";
-newModel->save(path);
 	if(!holdingObject)
 	{
 		setRightArmUp_Reflex(true);
@@ -1508,11 +1517,13 @@ void SpecificWorker::setRightArmUp_Reflex(bool first)
 	MotorGoalPosition gp;
 	gp.maxSpeed = 2.5;
 
-
-        MotorStateMap mstateMap;
-	try{
-        	jointmotor_proxy->getAllMotorState(mstateMap);
-	}catch(...){
+	MotorStateMap mstateMap;
+	try
+	{
+    jointmotor_proxy->getAllMotorState(mstateMap);
+	}
+	catch(...)
+	{
 		qDebug()<<"Error reading arm position";
 		return;
 	}

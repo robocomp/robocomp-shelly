@@ -496,7 +496,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 		{
 			QVec O = innerModel->transform("shellyArm_grasp_pose", personIMID);
 			QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-			go(tgt.x, tgt.z, -3.141592, tgt.doRotation, graspRef.x(), graspRef.z(), 20);
+			go(tgt.x, tgt.z, 0, tgt.doRotation, graspRef.x(), graspRef.z(), 20);
 			qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 			haveTarget = true;
 		}
