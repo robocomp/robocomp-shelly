@@ -1,11 +1,11 @@
-import "/robocomp/interfaces/IDSLs/AGMAgent.idsl";
-import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
-import "/robocomp/interfaces/IDSLs/AGMCommonBehavior.idsl";
-import "/robocomp/interfaces/IDSLs/AGMWorldModel.idsl";
+import "AGMAgent.idsl";
+import "AGMExecutive.idsl";
+import "AGMCommonBehavior.idsl";
+import "AGMWorldModel.idsl";
 
-import "/robocomp/interfaces/IDSLs/AprilTags.idsl";
+import "AprilTags.idsl";
 
-import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
+import "JointMotor.idsl";
 
 Component apriltagsAgentComp
 {

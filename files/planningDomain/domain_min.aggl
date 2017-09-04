@@ -8,6 +8,155 @@ nodeThickness=2
 fontSize=12
 longPattern=3
 ===
+types
+{
+	(robot status)
+	(object objectSt)
+	(table)
+	(room roomSt)
+	(person)
+	(pose poseSt)
+}
+===
+hierarchical moveObjectToTable : active(1)
+{
+	{
+		robot:robot(0,0)
+		table:object(100,110)
+		tableSt:objectSt(100,220)
+		object:object(-100,110)
+		objectSt:objectSt(-100,110)
+		robot->object(know)
+		robot->table(know)
+		table->tableSt(table)
+		object->objectSt(hasStatus)
+	}
+	=>
+	{
+		robot:robot(0,0)
+		table:object(100,110)
+		tableSt:objectSt(100,220)
+		object:object(-100,110)
+		objectSt:objectSt(-100,110)
+		robot->object(know)
+		table->tableSt(table)
+		object->table(in)
+		robot->table(know)
+		object->objectSt(hasStatus)
+	}
+	precondition
+	{
+		(or
+			(mug object objectSt)
+			(noodles object objectSt)
+		)
+	}
+	effect
+	{
+		(and
+			(not (in object robot))
+			(forall
+				sometable:object
+				(forall
+					sometableSt:objectSt
+					(when
+						(and
+							(table sometable sometableSt)
+							(not (hasStatus table sometableSt))
+						)
+						(not (in object sometable))
+					)
+				)
+			)
+			(forall
+				someobject:object
+				(forall
+					someobjectSt:objectSt
+					(when
+						(hasStatus someobject someobjectSt)
+						(and
+							(not (reach someobject someobjectSt))
+							(noReach someobject someobjectSt)
+						)
+					)
+				)
+			)
+			(forall
+				somepose:pose
+				(forall
+					someposeSt:poseSt
+					(when
+						(hasStatus somepose someposeSt)
+						(and
+							(not (reach somepose someposeSt))
+							(noReach somepose someposeSt)
+						)
+					)
+				)
+			)
+		)
+	}
+}
+
+
+reachPose : active(1)
+{
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(noReach)
+	}
+	=>
+	{
+		pose:pose(65,0)
+		room:room(-130,0)
+		robot:robot(-130,-125)
+		ost:poseSt(290,0)
+		pose->room(in)
+		robot->room(in)
+		pose->ost(reach)
+	}
+	effect
+	{
+		(and
+			(forall
+				someobject:object
+				(forall
+					someobjectSt:objectSt
+					(when
+						(hasStatus someobject someobjectSt)
+						(and
+							(not (reach someobject someobjectSt))
+							(noReach someobject someobjectSt)
+						)
+					)
+				)
+			)
+			(forall
+				somepose:pose
+				(forall
+					someposeSt:poseSt
+					(when
+						(and
+							(hasStatus somepose someposeSt)
+							(not (hasStatus pose someposeSt) )
+						)
+						(and
+							(not (reach somepose someposeSt))
+							(noReach somepose someposeSt)
+						)
+					)
+				)
+			)
+		)
+	}
+}
+
+
 
 
 setObjectReach : active(1)
@@ -123,6 +272,64 @@ graspObject : active(1)
 }
 
 
+hierarchical leaveObjectInTable_hierarchical : active(1)
+{
+	{
+		table:object(0,110)
+		tableSt:objectSt(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		table:object(0,110)
+		tableSt:objectSt(0,110)
+		object:object(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		robot->object(know)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
+leaveObjectInTable : active(1)
+{
+	{
+		robot:robot(0,0)
+		room:room(0,110)
+		table:object(160,110)
+		tableSt:objectSt(320,110)
+		object:object(160,0)
+		object->robot(in)
+		robot->room(in)
+		table->tableSt(reach)
+		table->room(in)
+		table->tableSt(table)
+	}
+	=>
+	{
+		robot:robot(0,0)
+		room:room(0,110)
+		table:object(160,110)
+		tableSt:objectSt(320,110)
+		object:object(160,0)
+		object->table(in)
+		robot->room(in)
+		table->tableSt(reach)
+		table->room(in)
+		table->tableSt(table)
+	}
+}
+
 
 changeRoom : active(1)
 {
@@ -191,6 +398,16 @@ changeRoom : active(1)
 		)
 	}
 }
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -34,7 +34,7 @@
   <dependence alias="rgbd" />
   <dependence alias="semantics" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-shelly/etc/objectoracle.conf" />
+  <upCommand command="rcremote 10.0.30.22 oracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-shelly/etc/objectoracle.conf" />
   <downCommand command="rcremote 10.0.30.22 X /home/robocomp/robocomp/components/prp/components/objectOracle killall -9 objectoracle" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/etc/inneragent.conf" />
   <xpos value="-107.375073902" />
@@ -46,8 +46,8 @@
  <node alias="semantics" endpoint="semanticsimilarity:tcp -h 10.0.30.22 -p 10500">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 semanticSimilarity /home/robocomp/robocomp/components/prp/components/semanticSimilarity python src/semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
-  <downCommand command="rcremote 10.0.30.22 pkill -9 -f semanticSimilarity.py" />
+  <upCommand command="rcremote 10.0.30.22 semantic /home/robocomp/robocomp/components/prp/components/semanticSimilarity python src/semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
+  <downCommand command="rcremote 10.0.30.22 X pkill -9 -f semanticSimilarity.py" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/components/semanticSimilarity/etc/config" />
   <xpos value="-49.8058951575" />
   <ypos value="42.6745514225" />
@@ -58,7 +58,7 @@
  <node alias="executive" endpoint="agmexecutive:tcp -h 10.0.30.22 -p 10198">
   <dependence alias="IS" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 AGMExecutive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py /home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
+  <upCommand command="rcremote 10.0.30.22 executive /home/robocomp/AGM/tools/AGMExecutive_robocomp python AGMExecutive_robocomp.py /home/robocomp/robocomp/components/robocomp-shelly/etc/executiveAUTONOMY.conf" />
   <downCommand command="ssh robolab@10.0.30.22 pkill -9 -f AGMExecutive_robocomp.py" />
   <configFile path="xxx" />
   <xpos value="12.147260719" />
@@ -304,7 +304,7 @@
   <dependence alias="base" />
   <dependence alias="slam" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 localizationAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/localizationAgent ./bin/localizationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/localizationAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 localA /home/robocomp/robocomp/components/robocomp-shelly/components/localizationAgent ./bin/localizationAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/localizationAgent.conf" />
   <downCommand command="rcremote 10.0.30.22 X / killall -9 localizationAgent" />
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etc/localizationAgent.conf" />
   <xpos value="-82.3352289854" />
@@ -381,7 +381,7 @@
  <node alias="graspingA" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10332">
   <dependence alias="gik" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 graspingAgnt /home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent ./bin/graspingComp /home/robocomp/robocomp/components/robocomp-shelly/etc/graspingAgent.conf" />
+  <upCommand command="rcremote 10.0.30.22 graspingA /home/robocomp/robocomp/components/robocomp-shelly/components/graspingAgent ./bin/graspingComp /home/robocomp/robocomp/components/robocomp-shelly/etc/graspingAgent.conf" />
   <downCommand command="ssh robolab@10.0.30.22 killall -9 graspingComp" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etc/graspingAgent.conf" />
   <xpos value="48.347449566" />

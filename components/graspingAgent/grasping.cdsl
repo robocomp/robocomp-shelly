@@ -1,6 +1,6 @@
-import "/robocomp/interfaces/IDSLs/JointMotor.idsl";
-import "/robocomp/interfaces/IDSLs/InverseKinematics.idsl";
-import "/robocomp/interfaces/IDSLs/Logger.idsl";
+import "JointMotor.idsl";
+import "InverseKinematics.idsl";
+import "Logger.idsl";
 
 
 Component graspingComp

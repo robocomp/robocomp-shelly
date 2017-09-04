@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,10 +28,9 @@ QObject()
 #endif
 
 {
-	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
+	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
-
 	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
@@ -100,7 +99,7 @@ RoboCompPlanning::Action GenericWorker::createAction(std::string s)
 	} while (iss);
 
 	return ret;
-}	
+}
 
 
 bool GenericWorker::activate(const BehaviorParameters &prs)
@@ -114,7 +113,7 @@ bool GenericWorker::activate(const BehaviorParameters &prs)
 	return active;
 }
 
-bool GenericWorker::deactivate() 
+bool GenericWorker::deactivate()
 {
 	printf("Worker::deactivate\n");
 	mutex->lock();

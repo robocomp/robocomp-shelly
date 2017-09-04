@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -18,10 +18,9 @@
  */
 #include "agmcommonbehaviorI.h"
 
-AGMCommonBehaviorI::AGMCommonBehaviorI(GenericWorker *_worker, QObject *parent) : QObject(parent)
+AGMCommonBehaviorI::AGMCommonBehaviorI(GenericWorker *_worker)
 {
 	worker = _worker;
-	mutex = worker->mutex;       // Shared worker mutex
 }
 
 
@@ -68,9 +67,4 @@ StateStruct AGMCommonBehaviorI::getAgentState(const Ice::Current&)
 {
 	return worker->getAgentState();
 }
-
-
-
-
-
 
