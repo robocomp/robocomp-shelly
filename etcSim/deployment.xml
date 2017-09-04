@@ -13,7 +13,6 @@
 
  <node alias="shellyPanel" endpoint="commonbehavior:tcp -p 3333">
   <dependence alias="IS" />
-  <dependence alias="trajectory2d" />
   <dependence alias="laser" />
   <dependence alias="rgbd" />
   <dependence alias="speech" />
@@ -277,11 +276,11 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="objectD" endpoint="commonbehavior:tcp -p 17332 ">
+ <node alias="objectD" endpoint="commonbehavior:tcp -p 17332">
   <dependence alias="IS" />
   <dependence alias="rgbd" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
+  <upCommand command="rcremote localhost objectD /home/robocomp/robocomp/components/prp/components/objectDetection ./bin/objectDetectionComp /home/robocomp/robocomp/components/robocomp-shelly/etcSim/objectDetection.conf" />
   <downCommand command="ssh robolab@localhost killall -9 objectDetectionComp" />
   <configFile path="kate /home/robocomp/robocomp/components/prp/components/objectDetection/etc/config" />
   <xpos value="51.5814444156" />
@@ -354,9 +353,9 @@
   <color value="#33FF33" />
  </node>
 
- <node alias="semanticSimilarity" endpoint="agmcommonbehavior:tcp -h localhost -p 10500">
+ <node alias="semanticSimilarity" endpoint="semanticsimilarity:tcp -h localhost -p 10500">
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost semantic /home/robocomp/robocomp/components/prp/components/semanticSimilarity/src python semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etc/semanticSimilarity.conf" />
+  <upCommand command="rcremote localhost semantic /home/robocomp/robocomp/components/prp/components/semanticSimilarity/src python semanticSimilarity.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/semanticSimilarity.conf" />
   <downCommand command="pkill -9 -f semanticSimilarity" />
   <configFile path="kate /home/robocomp/robocomp/components/robocomp-shelly/etcSim/semanticSimilarity.conf" />
   <xpos value="111.319055642" />

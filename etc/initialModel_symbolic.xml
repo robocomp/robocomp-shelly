@@ -1,5 +1,4 @@
 <AGMModel>
-
 	<symbol id="100" type="world">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="world" />
@@ -8,9 +7,6 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="robot" />
 	</symbol>
-	<symbol id="2" type="status" > </symbol>
-	<link src="1" dst="2" label="hasStatus" > </link>
-
 
 	<symbol id="3" type="room">
 		<attribute key="imType" value="transform" />
@@ -18,8 +14,7 @@
 		<attribute key="x" value="3300" />
 		<attribute key="z" value="500" />
 	</symbol>
-	<symbol id="4" type="roomSt"> </symbol>
-	<link src="3" dst="4" label="room" > </link>
+	<link src="3" dst="3" label="room" > </link>
 	<link src="1" dst="3" label="know" > </link>
 	<link src="1" dst="3" label="in" > </link>
 
@@ -29,39 +24,33 @@
 		<attribute key="x" value="3300" />
 		<attribute key="z" value="-500" />
 	</symbol>
-	<symbol id="6" type="roomSt" > </symbol>
-	<link src="5" dst="6" label="room" > </link>
+	<link src="5" dst="5" label="room" > </link>
 	<link src="1" dst="5" label="know" > </link>
 
 
 	<link src="3" dst="5" label="transitable" > </link>
 	<link src="5" dst="3" label="transitable" > </link>
 
-	<symbol id="20" type="object">
+	<symbol id="20" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableA" />
 		<attribute key="width" value="1750" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
 	</symbol>
-	<symbol id="21" type="objectSt" > </symbol>
 	<symbol id="22" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableA_reachPos" />
 	</symbol>
 	<link src="20" dst="22" label="reachPosition" > </link>
-	<link src="20" dst="22" label="table" > </link>
-	<link src="20" dst="21" label="explored" > </link>
+	<link src="20" dst="20" label="explored" > </link>
 	<link src="20" dst="3" label="in"  > </link>
-	<link src="20" dst="21" label="hasStatus" > </link>
-	<link src="20" dst="21" label="noReach" > </link>
-	<link src="20" dst="21" label="reachable" > </link>
-	<link src="20" dst="21" label="table" > </link>
+	<link src="20" dst="20" label="reachable" > </link>
 	<link src="1" dst="20" label="know" > </link>
 
 
 
-	<symbol id="23" type="object">
+	<symbol id="23" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableB" />
 		<attribute key="width" value="1200" />
@@ -69,31 +58,23 @@
 		<attribute key="depth" value="700" />
 		<attribute key="tag" value="30" />
 	</symbol>
-	<symbol id="24" type="objectSt" > </symbol>
 	<symbol id="25" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableB_reachPos" />
 	</symbol>
-	<link src="23" dst="25" label="table" > </link>
 	<link src="23" dst="25" label="reachPosition" > </link>
 	<link src="23" dst="3" label="in" > </link>
-	<link src="23" dst="24" label="hasStatus" > </link>
-	<link src="23" dst="24" label="noReach" > </link>
-	<link src="23" dst="24" label="explored" > </link>
-	<link src="23" dst="24" label="reachable" > </link>
-	<link src="23" dst="24" label="table" > </link>
+	<link src="23" dst="23" label="explored" > </link>
+	<link src="23" dst="23" label="reachable" > </link>
 	<link src="1" dst="23" label="know" > </link>
 
 <!--
-	<symbol id="200" type="object">
+	<symbol id="200" type="mug">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="mug" />
 	</symbol>
 	<symbol id="201" type="objectSt" > </symbol>
-	<link src="200" dst="201" label="hasStatus" > </link>
-	<link src="200" dst="201" label="noReach" > </link>
 	<link src="200" dst="201" label="reachable" > </link>
-	<link src="200" dst="201" label="mug" > </link>
 	<link src="1" dst="200" label="know" > </link>
 	<link src="200" dst="3" label="in" > </link>
 	<link src="200" dst="23" label="in" > </link>
@@ -101,31 +82,27 @@
 
 
 
-	<symbol id="26" type="object">
+	<symbol id="26" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableC" />
 		<attribute key="width" value="1750" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
 	</symbol>
-	<symbol id="27" type="objectSt" > </symbol>
 	<symbol id="28" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableC_reachPos" />
 	</symbol>
 	<link src="26" dst="28" label="reachPosition" > </link>
 	<link src="26" dst="28" label="table" > </link>
-	<link src="26" dst="27" label="explored" > </link>
+	<link src="26" dst="26" label="explored" > </link>
 	<link src="26" dst="3" label="in" > </link>
-	<link src="26" dst="27" label="hasStatus" > </link>
-	<link src="26" dst="27" label="noReach" > </link>
-	<link src="26" dst="27" label="reachable" > </link>
-	<link src="26" dst="27" label="table" > </link>
+	<link src="26" dst="26" label="reachable" > </link>
 	<link src="1" dst="26" label="know" > </link>
 
 
 
-	<symbol id="29" type="object">
+	<symbol id="29" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="countertopA" />
 	</symbol>
@@ -135,42 +112,34 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="countertopA_reachPos" />
 	</symbol>
-	<symbol id="30" type="objectSt"> </symbol>
 	<link src="29" dst="31" label="reachPosition" > </link>
-	<link src="29" dst="30" label="hasStatus" > </link>
-	<link src="29" dst="30" label="noReach" > </link>
-	<link src="29" dst="30" label="reachable" > </link>
-	<link src="29" dst="30" label="table" > </link>
+	<link src="29" dst="29" label="reachable" > </link>
 
 
 
-	<symbol id="32" type="object">
+	<symbol id="32" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="countertopB" />
 	</symbol>
 	<link src="1" dst="32" label="know" > </link>
 	<link src="32" dst="5" label="in" > </link>
-	<symbol id="33" type="objectSt"> </symbol>
 	<symbol id="34" type="objectSt">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="countertopB_reachPos" />
 	</symbol>
 	<link src="32" dst="34" label="reachPosition" > </link>
-	<link src="32" dst="33" label="explored" > </link>
-	<link src="32" dst="33" label="hasStatus" > </link>
-	<link src="32" dst="33" label="noReach" > </link>
-	<link src="32" dst="33" label="reachable" > </link>
-	<link src="32" dst="33" label="table" > </link>
+	<link src="32" dst="32" label="explored" > </link>
+	<link src="32" dst="32" label="reachable" > </link>
 
 
-	<symbol id="35" type="object">
+	<symbol id="35" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableD" />
 		<attribute key="width" value="1200" />
 		<attribute key="height" value="1200" />
 		<attribute key="depth" value="700" />
 	</symbol>
-	<link src="1" dst="35" label="know" />
+	<link src="1" dst="35" label="know" > </link>
 	<link src="35" dst="5" label="in" > </link>
 	<symbol id="37" type="objectSt">
 		<attribute key="imType" value="transform" />
@@ -178,17 +147,12 @@
 	</symbol>
 	<link src="35" dst="37" label="reachPosition" > </link>
 	<link src="35" dst="37" label="table" > </link>
-	<symbol id="36" type="objectSt">
-	</symbol>
-	<link src="35" dst="36" label="hasStatus" />
-	<link src="35" dst="36" label="explored" > </link>
-	<link src="35" dst="36" label="noReach" />
-	<link src="35" dst="36" label="reachable" />
-	<link src="35" dst="36" label="table" />
+	<link src="35" dst="35" label="explored" > </link>
+	<link src="35" dst="35" label="reachable" > </link>
 
 
 
-	<symbol id="38" type="object">
+	<symbol id="38" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableE" />
 		<attribute key="width" value="1800" />
@@ -203,12 +167,8 @@
 	</symbol>
 	<link src="38" dst="40" label="reachPosition" > </link>
 	<link src="38" dst="40" label="table" > </link>
-	<symbol id="39" type="objectSt" > </symbol>
-	<link src="38" dst="39" label="explored" > </link>
-	<link src="38" dst="39" label="hasStatus" />
-	<link src="38" dst="39" label="noReach" />
-	<link src="38" dst="39" label="reachable" />
-	<link src="38" dst="39" label="table" />
+	<link src="38" dst="38" label="explored" > </link>
+	<link src="38" dst="38" label="reachable" />
 
 
 
@@ -218,19 +178,13 @@
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="waitPose" />
 	</symbol>
-	<symbol id="53" type="poseSt" />
 	<link src="52" dst="3" label="in" > </link>
-	<link src="52" dst="53" label="noReach" > </link>
-	<link src="52" dst="53" label="hasStatus" > </link>
 
 	<symbol id="57" type="pose">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="Pose2" />
 	</symbol>
-	<symbol id="58" type="poseSt" > </symbol>
 	<link src="57" dst="5" label="in" > </link>
-	<link src="57" dst="58" label="noReach" > </link>
-	<link src="57" dst="58" label="hasStatus" > </link>
 
 	<link src="3" dst="1" label="RT" >
 		<linkAttribute key="x" value="0" />
@@ -242,19 +196,19 @@
 	</link>
 
 
-<!--	<symbol id="666" type="person" >
+	<symbol id="666" type="person" >
 		<attribute key="imType" value="transform" />
-			<attribute key="imName" value="person" />
-		</symbol>
-		<link src="666" dst="3" label="in" />
-
-		<symbol id="667" type="personSt" >
-		</symbol>
-
-		<link src="666" dst="667" label="hasStatus" >
-		</link>
-		<link src="666" dst="667" label="noReach" >
-	</link>
+		<attribute key="imName" value="person" />
+	</symbol>
+	<link src="666" dst="3" label="in" />
+	<link src="666" dst="666" label="reachable" />
+<!--
+	<symbol id="999" type="object" > </symbol>
+	<link src="999" dst="999" label="mug"> </link>
+	<link src="999" dst="999" label="reachable"> </link>
+	<link src="999" dst="999" label="reach"> </link>
+	<link src="1" dst="999" label="know"> </link>
+	<link src="999" dst="1" label="in"> </link>
+	<link src="1" dst="3" label="in"> </link>
 -->
-
 </AGMModel>

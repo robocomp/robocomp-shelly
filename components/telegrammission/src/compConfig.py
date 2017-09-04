@@ -41,7 +41,6 @@ def getLanguageParams(desiredLanguage):
 				   u'copa': 'mug',
 				   u'noodles': 'mug',
 				   u'fideos': 'mug',
-				   u'yatekomo': 'mug',
 
 				   u'espera': 'waitPosition',
 				   u'descanso': 'waitPosition',

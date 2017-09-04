@@ -169,7 +169,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
-		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, objectToDetect+"St", "table");
+		symbols = newModel->getSymbolsMap(params, "robot", "room", objectToDetect, "table");
 	}
 	catch(...)
 	{
@@ -244,7 +244,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolTable->identifier, symbolProtoObject->identifier, "RT");
 			poseFromParent.print("poseFromParent");
 			edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
-			edgeRT->setAttribute("ty", "0");//float2str(poseFromParent.y()));
+			edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 			edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 			edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
@@ -720,7 +720,7 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 		{
 			AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, tableSymbol->identifier, "RT");
 			edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
-			edgeRT->setAttribute("ty", "0.0");//float2str(poseFromParent.y()));
+			edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 			edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 			edgeRT->setAttribute("rx", float2str(poseFromParent.rx()));
 			edgeRT->setAttribute("ry", float2str(poseFromParent.ry()));
@@ -1057,7 +1057,7 @@ exit(1);
 					{
 						AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, symbolMug->identifier, "RT");
 						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
-						edgeRT->setAttribute("ty", "0.0");//float2str(poseFromParent.y()));
+						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 						// Do not update rotation if id=31 ==> tag
 						if(t.id == 31 or t.id == 32)
@@ -1268,19 +1268,7 @@ void SpecificWorker::findObject()
 	if(objectdetection_proxy->findObjects(objectsTofind, objects))
 	{
 		printf("%d\n", __LINE__);
-		bool found = false;
-		for (auto o : objects)
-		{
-			if (o.label == "yatekomo")
-			{
-				found = true;
-				poseobj = o;
-			}
-		}
-		if (not found)
-		{
-			return;
-		}
+		poseobj = objects[0];
 		QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz).print("Pose recibida: ");
 		printf("%d\n", __LINE__);
 		QVec posobj = innerModel->transform6D("rgbd",QVec::vec6(poseobj.tx, poseobj.ty, poseobj.tz, poseobj.rx, poseobj.ry, poseobj.rz),"robot");
@@ -1445,7 +1433,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 					{
 						AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, symbolMug->identifier, "RT");
 						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
-						edgeRT->setAttribute("ty", "0.0");//float2str(poseFromParent.y()));
+						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
 						edgeRT->setAttribute("tz", float2str(poseFromParent.z()));
 						// Do not update rotation if id=31 ==> tag
 						if(t.id == 31 or t.id == 32)
@@ -1483,7 +1471,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 		catch(...)
 		{
-			printf("No imagine %d -> %d found, was object imagined by oracle?\n", º, symbols[mug_obj_name]->identifier);
+			printf("No imagine %d -> %d found, was object imagined by oracle?\n", symbols["robot"]->identifier, symbols[mug_obj_name]->identifier);
 		}
 
 		try
@@ -1498,16 +1486,17 @@ printf("%d\n", __LINE__);
 		if(action == "verifyimaginarymug")
 		{
 			printf("%d\n", __LINE__);
+			auto symbols_status = worldModel->getSymbolsMap(params, "robot", "status");
 			try
 			{
 				printf("%d\n", __LINE__);
-				newModel->removeEdgeByIdentifiers(1,2, "usedOracle");
+				newModel->removeEdge(symbols_status["robot"], symbols_status["status"], "usedOracle");
 				printf("%d\n", __LINE__);
 			}
 			catch(...)
 			{
 				printf("%d\n", __LINE__);
-				printf("Can't remove edge %d--[usedOracle]-->%d\n", 1, 2);
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
 				printf("%d\n", __LINE__);
 			}
 		}

@@ -22,7 +22,7 @@
 import sys, os, Ice, traceback
 import socket, paramiko, time
 
-from PySide import *
+from PySide import QtGui, QtCore
 from genericworker import *
 
 from collections import OrderedDict
