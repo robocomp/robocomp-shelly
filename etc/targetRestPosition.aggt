@@ -1,7 +1,6 @@
 {
 	1:robot(1,1)
-	2:status(1,1)
-	1->2(restArm)
+	1->1(restArm)
 }
 precondition
 {

@@ -224,7 +224,7 @@ if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
 fi
 # oracle
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then
-	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/"
+	compile "oracle agent" "/home/robocomp/robocomp/components/prp/components/objectOracle/build"
 fi
 # human
 if [ $1 -eq 2 ] || [ $1 -eq 0 ] || [ $1 -eq -1 ]; then

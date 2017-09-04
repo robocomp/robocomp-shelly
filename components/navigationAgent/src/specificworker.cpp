@@ -397,8 +397,7 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
-		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
-
+		symbols = worldModel->getSymbolsMap(params); //ALL THE SYMBOLS GIVEN IN THE RULE
 	}
 	catch(...)
 	{
@@ -413,15 +412,15 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 	int roomID, personID, robotID;
 	try
 	{
-		if (symbols["room"].get() and symbols["person"].get() and symbols["robot"].get() and symbols["status"].get())
+		if (symbols["room"].get() and symbols["person"].get() and symbols["robot"].get() )
 		{
 			roomID = symbols["room"]->identifier;
 			personID =symbols["person"]->identifier;
 			robotID = symbols["robot"]->identifier;
 
-			try // If we can access the 'reach' edge for the object status the action
+			try // If we can access the 'reach' edge for the object of the action
 			{   // is not really necessary. The planner is probably replanning.
-				worldModel->getEdgeByIdentifiers(personID, symbols["status"]->identifier, "reach");
+				worldModel->getEdgeByIdentifiers(personID, personID, "reach");
 				{
 					static QTime lastMsg = QTime::currentTime().addSecs(-1000);
 					if (lastMsg.elapsed() > 1000)
@@ -437,7 +436,6 @@ void SpecificWorker::action_HandObject_Offer(bool newAction)
 			catch(...)
 			{
 			}
-
 		}
 		else
 		{
@@ -527,7 +525,7 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
-		symbols = worldModel->getSymbolsMap(params/*,  "robot", "room", "object", "status"*/); //ALL THE SYMBOLS GIVEN IN THE RULE
+		symbols = worldModel->getSymbolsMap(params); //ALL THE SYMBOLS GIVEN IN THE RULE
 	}
 	catch(...)
 	{
@@ -542,15 +540,15 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	int roomID, objectID, robotID;
 	try
 	{
-		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() and symbols["status"].get())
+		if (symbols["room"].get() and symbols["object"].get() and symbols["robot"].get() )
 		{
 			roomID = symbols["room"]->identifier;
 			objectID =symbols["object"]->identifier;
 			robotID = symbols["robot"]->identifier;
 
-			try // If we can access the 'reach' edge for the object status the action
+			try // If we can access the 'reach' edge for the object of the action
 			{   // is not really necessary. The planner is probably replanning.
-				worldModel->getEdgeByIdentifiers(objectID, symbols["status"]->identifier, "reach");
+				worldModel->getEdgeByIdentifiers(objectID, objectID, "reach");
 				{
 					static QTime lastMsg = QTime::currentTime().addSecs(-1000);
 					if (lastMsg.elapsed() > 1000)

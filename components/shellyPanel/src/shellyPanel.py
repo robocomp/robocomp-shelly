@@ -60,7 +60,7 @@ import sys, traceback, IceStorm, subprocess, threading, time, Queue, os, copy
 # Ctrl+c handling
 import signal
 
-from PySide import *
+from PySide import QtGui, QtCore
 
 from specificworker import *
 

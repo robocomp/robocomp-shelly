@@ -169,7 +169,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 	std::map<std::string, AGMModelSymbol::SPtr> symbols;
 	try
 	{
-		symbols = newModel->getSymbolsMap(params, "robot", "status", "room", objectToDetect, objectToDetect+"St", "table");
+		symbols = newModel->getSymbolsMap(params, "robot", "room", objectToDetect, "table");
 	}
 	catch(...)
 	{
@@ -220,7 +220,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 
 	try
 	{
-		newModel->getEdge(symbols["robot"], symbols["status"], "usedOracle");
+		newModel->getEdge(symbols["robot"], symbols["robot"], "usedOracle");
 	}
 	catch(...)
 	{
@@ -261,11 +261,11 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 			// The oracle has been used, remove flagS
 			try
 			{
-				newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+				newModel->removeEdge(symbols["robot"], symbols["robot"], "usedOracle");
 			}
 			catch(...)
 			{
-				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 			}
 			//add mesh
 			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol("mugMesh");
@@ -322,11 +322,11 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		}
 		try
 		{
-			newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+			newModel->removeEdge(symbols["robot"], symbols["robot"], "usedOracle");
 		}
 		catch(...)
 		{
-			printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+			printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 		}
 		try
 		{
@@ -786,15 +786,12 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 			const std::string tagIdStr = int2str(t.id);
 			symbolMug->setAttribute("tag", tagIdStr);
 
-			symbolMugSt = newModel->newSymbol("objectSt");
-
-			newModel->addEdge(symbolMug, symbolMugSt, "hasStatus");
-			newModel->addEdge(symbolMug, symbolMugSt, "mug");
-			newModel->addEdge(symbolMug, symbolMugSt, "see");
-			newModel->addEdge(symbolMug, symbolMugSt, "position");
-			newModel->addEdge(symbolMug, symbolMugSt, "classified");
-			newModel->addEdge(symbolMug, symbolMugSt, "reachable");
-			newModel->addEdge(symbolMug, symbolMugSt, "noReach");
+			newModel->addEdge(symbolMug, symbolMug, "mug");
+			newModel->addEdge(symbolMug, symbolMug, "see");
+			newModel->addEdge(symbolMug, symbolMug, "position");
+			newModel->addEdge(symbolMug, symbolMug, "classified");
+			newModel->addEdge(symbolMug, symbolMug, "reachable");
+			newModel->addEdge(symbolMug, symbolMug, "noReach");
 			newModel->addEdge(robot, symbolMug, "know");
 
 			// mug reach position
@@ -1195,6 +1192,7 @@ bool SpecificWorker::updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPt
 	return false;
 }
 
+/*
 void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID)
 {
 	objectSymbolID = -1;
@@ -1216,6 +1214,7 @@ void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t
 	}
 	printf("------------------------------->%d %d\n", objectSymbolID, objectStSymbolID);
 }
+*/
 
 void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
 {
@@ -1486,17 +1485,17 @@ printf("%d\n", __LINE__);
 		if(action == "verifyimaginarymug")
 		{
 			printf("%d\n", __LINE__);
-			auto symbols_status = worldModel->getSymbolsMap(params, "robot", "status");
+			auto symbols_status = worldModel->getSymbolsMap(params, "robot");
 			try
 			{
 				printf("%d\n", __LINE__);
-				newModel->removeEdge(symbols_status["robot"], symbols_status["status"], "usedOracle");
+				newModel->removeEdge(symbols_status["robot"], symbols_status["robot"], "usedOracle");
 				printf("%d\n", __LINE__);
 			}
 			catch(...)
 			{
 				printf("%d\n", __LINE__);
-				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 				printf("%d\n", __LINE__);
 			}
 		}
