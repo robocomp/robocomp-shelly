@@ -1,10 +1,8 @@
 {
 	1:robot(1,1)
-	V:object(1,1)
-	VS:objectSt(1,1)
+	V:mug(1,1)
 	1->V(know)
-	V->VS(mug)
-	V->VS(reach)
+	V->V(reach)
 }
 precondition
 {

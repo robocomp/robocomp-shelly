@@ -1,7 +1,6 @@
 {
 	1:robot(1,1)
-	29:object(1,1)
+	29:table(1,1)
 	1->29(know)
-	29->29(table)
 	29->29(reach)
 }

@@ -162,7 +162,7 @@ void SpecificWorker::manageReachedObjects()
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
 		AGMModelSymbol::SPtr nodeReach = *symbol_itr;
-		if ((node->symboltype() == "object") or (node->symboltype() == "person"))
+		if ((node->symboltype() == "table") or (node->symboltype() == "person") or (node->symboltype() == "mug") or (node->symboltype() == "noodles"))
 		{
 			// Avoid working with rooms
 			if (isObjectType(newModel, node, "room")) continue;

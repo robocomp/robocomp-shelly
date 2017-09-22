@@ -31,7 +31,7 @@
 
 
 		<transform id="room_3">
-			<!-- PERSON 
+			<!-- PERSON
 			<transform id="person" tx="3000" tz="2150" ty="0" ry="3.1415926535" >
 				<transform id="person_m" tx="0" tz="0" ty="2000" ry="0" >
 					<plane id="person_mesh" nx="1" size="300,300,300"  texture="#884444" />
@@ -64,7 +64,10 @@
 			<!-- TABLE A -->
 			<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" >
 				<transform id="tableA_reachPos" tx="100" tz="-1300">
-		<!-- 				<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+					<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede0" tz="100">
+						<plane id="tableA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform>
 				</transform>
 				<mesh id="tableA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 			</transform>
@@ -80,7 +83,10 @@
 			<!-- TABLE B -->
 			<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
 				<transform id="tableB_reachPos" tx="100" tz="-500">
-		<!-- 				<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+					<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede3" tz="100">
+						<plane id="tableB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform>
 				</transform>
 				<mesh id="tableB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1200,20,800" collide="1" />
 <!--				<transform id="bluemug" tz="-400">
@@ -108,7 +114,10 @@
 			<!-- TABLE C -->
 		<transform id="tableC" tx="4880" tz="3320" ty="760" ry="-0.05" >
 				<transform id="tableC_reachPos" tz="-1200">
-		<!-- 				<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+					<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede4" tz="100">
+						<plane id="tableC_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform>
 				</transform>
 				<mesh id="tableC_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 			</transform>
@@ -176,7 +185,10 @@
 			<!-- TABLE D MESA REDONDA DEL COMEDOR-->
 			<transform id="tableD" tx="3574" tz="-1767" ty="730" >
 				<transform id="tableD_reachPos" tz="500" ry="3.1415">
-	<!-- 				<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+					<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede5" tz="100">
+						<plane id="tableD_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform>
 				</transform>
 				<mesh id="tableD_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cylinder.3ds" scale="600,600,20" rx="1.570799947" collide="1"/>
 				<transform id="rwreewreet" ty="-365" >
@@ -187,7 +199,10 @@
 			<!-- TABLE E -->
 			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.0" >
 				<transform id="tableE_reachPos" tx="-500" ry="1.5707">
-<!-- 					<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" /> -->
+					<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede6" tz="100">
+						<plane id="tableE_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
+					</transform>
 				</transform>
 				<mesh id="tableE_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="800,20,1820" collide="1" />
 				<transform id="tableE_p1" tx="-375" tz="885" ty="-370" >
@@ -207,10 +222,10 @@
 			<!-- TABLE F -->
 			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" >
 				<transform id="countertopA_reachPos" tx="400" tz="500" ry="-1.5707">
-					<!-- <plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede1" tz="100">
 						<plane id="countertopA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
-					</transform> -->
+					</transform>
 				</transform>
 				<mesh id="countertopA_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="650,20,2500" collide="1" />
 			</transform>
@@ -226,10 +241,10 @@
 			<!-- TABLE G -->
 			<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" >
 				<transform id="countertopB_reachPos" tx="300" tz="600" ry="3.141592">
-					<!-- <plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
+					<plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede2" tz="100">
 						<plane id="countertopB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
-					</transform> -->
+					</transform>
 				</transform>
 				<mesh id="countertopB_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="2110,20,650" collide="1" />
 			</transform>

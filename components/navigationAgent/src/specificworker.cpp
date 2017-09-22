@@ -19,6 +19,9 @@
 
  #include "specificworker.h"
 
+#include <boost/xpressive/xpressive.hpp>
+using namespace boost::xpressive;
+
 /**
 * \brief Default constructor
 */
@@ -1293,8 +1296,19 @@ bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs,
 
 	try
 	{
-		action = params["action"].value;
+		action = "";
+		for (uint i=0; i<params["action"].value.size(); i++)
+		{
+			action += params["action"].value[i];
+			if (i+2<params["action"].value.size())
+			{
+				if (params["action"].value[i+1] == '_' and params["action"].value[i+2] == '_')
+					break;
+			}
+		}
 		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
+		//
+		// action = params["action"].value;
 
 		if (action == "graspobject")
 		{

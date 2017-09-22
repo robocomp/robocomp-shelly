@@ -1,8 +1,6 @@
 {
 	1:robot(1,1)
-	32:object(1,1)
-	33:objectSt(1,1)
+	32:table(1,1)
 	1->32(know)
-	32->33(table)
-	32->33(reach)
+	32->32(reach)
 }
