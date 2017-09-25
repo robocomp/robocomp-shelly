@@ -99,7 +99,7 @@ RoboCompPlanning::Action GenericWorker::createAction(std::string s)
 	} while (iss);
 
 	return ret;
-}	
+}
 
 
 bool GenericWorker::activate(const BehaviorParameters &prs)
@@ -113,7 +113,7 @@ bool GenericWorker::activate(const BehaviorParameters &prs)
 	return active;
 }
 
-bool GenericWorker::deactivate() 
+bool GenericWorker::deactivate()
 {
 	printf("Worker::deactivate\n");
 	mutex->lock();
@@ -133,6 +133,23 @@ bool GenericWorker::setParametersAndPossibleActivation(const ParameterMap &prs, 
 	{
 		params[it->first] = it->second;
 	}
+
+	// std::map<std::string, std::vector<std::string> > agm_types;
+	agm_types.clear();
+	std::vector<std::string> types_split;
+ 	boost::split(types_split, params["types"], [](char c){return c == '#';});
+	for (auto sub : types_split)
+	{
+		std::vector<std::string> types_split_elements;
+	 	boost::split(sub, params["types"], [](char c){return c == '#';});
+		std::vector<std::string> aType;
+		for (auto sub : types_split)
+		{
+			aType.push_back(sub);
+		}
+		agm_types[types_split_elements[types_split_elements.size()-1]] = aType;
+	}
+
 
 	try
 	{

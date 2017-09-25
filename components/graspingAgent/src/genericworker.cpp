@@ -34,7 +34,7 @@ QObject()
 	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
-
+	worldModel = NULL;
 	#ifdef USE_QTGUI
 		setupUi(this);
 		show();
@@ -71,7 +71,7 @@ RoboCompPlanning::Action GenericWorker::createAction(std::string s)
 {
 	// Remove useless characters
 	char chars[]="()";
-		for (unsigned int i=0; i<strlen(chars); ++i)
+	for (unsigned int i=0; i<strlen(chars); ++i)
 	{
 		s.erase(std::remove(s.begin(), s.end(), chars[i]), s.end());
 	}
@@ -123,47 +123,103 @@ bool GenericWorker::deactivate()
 	return active;
 }
 
+
 bool GenericWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
 {
-	// We didn't reactivate the component
-	reactivated = false;
-
-	// Update parameters
+	params.clear();
 	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
 	{
 		params[it->first] = it->second;
 	}
 
+	// Types
+	agm_types.clear();
+	std::string ssss = params["types"].value;
+	std::vector<std::string> types_split;
+ 	boost::split(types_split, ssss, [](char c){return c == '#';});
+	for (auto sub : types_split)
+	{
+		std::vector<std::string> aType;
+		std::vector<std::string> types_split_elements;
+	 	boost::split(types_split_elements, sub, [](char c){return c == ' ';});
+		for (auto sub : types_split_elements)
+		{
+			aType.push_back(sub);
+		}
+
+		agm_types[types_split_elements[types_split_elements.size()-1]] = aType;
+	}
+
+
+	QMutexLocker locker(mutex);
+	if ( worldModel == NULL)
+	{
+		printf("******No model yet %p", worldModel.get());
+		return true;
+	}
+
+	// if (prs.find("modelversion") != prs.end() and stoi(prs.find("modelversion")->second.value) != worldModel->version)
+	// {
+	// 	previousParams.clear();
+	// 	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
+	// 	{
+	// 		previousParams[it->first] = it->second;
+	// 	}
+	// 	reactivated = false;
+	// 	qDebug()<<"******Plan is more updated than model, we have to wait newModel";
+	// 	return true;
+	// }
+
+	// We didn't reactivate the component
+	reactivated = false;
+	// Update parameters
+	previousParams.clear();
+
+
 	try
 	{
-		// Action
-		p.action = createAction(params["action"].value);
-
-		// Fill received plan
-		p.plan.clear();
-		QStringList actionList = QString::fromStdString(params["plan"].value).split(QRegExp("[()]+"), QString::SkipEmptyParts);
-		for (int32_t actionString=0; actionString<actionList.size(); actionString++)
+		backAction = action;
+		action = "";
+		for (uint i=0; i<params["action"].value.size(); i++)
 		{
-			std::vector<string> elementsVec;
-			QStringList elements = actionList[actionString].remove(QChar('\n')).split(QRegExp("\\s+"), QString::SkipEmptyParts);
-			for (int32_t elem=0; elem<elements.size(); elem++)
+			action += params["action"].value[i];
+			if (i+2<params["action"].value.size())
 			{
-				elementsVec.push_back(elements[elem].toStdString());
+				if (params["action"].value[i+1] == '_' and params["action"].value[i+2] == '_')
+					break;
 			}
-			p.plan.push_back(elementsVec);
 		}
+		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
+
+
+		if (action == "graspobject") { active = true; }
+		else { active = true; }
 	}
 	catch (...)
 	{
+		printf("exception in setParametersAndPossibleActivation %d\n", __LINE__);
 		return false;
 	}
 
-	// Check if we should reactivate the component
-	if (isActive())
+	// Fill received plan
+	p.plan.clear();
+	QStringList actionList = QString::fromStdString(params["plan"].value).split(QRegExp("[()]+"), QString::SkipEmptyParts);
+	for (int32_t actionString=0; actionString<actionList.size(); actionString++)
 	{
-		activate(p);
-		reactivated = true;
+		std::vector<string> elementsVec;
+		QStringList elements = actionList[actionString].remove(QChar('\n')).split(QRegExp("\\s+"), QString::SkipEmptyParts);
+		for (int32_t elem=0; elem<elements.size(); elem++)
+		{
+			elementsVec.push_back(elements[elem].toStdString());
+		}
+		p.plan.push_back(elementsVec);
 	}
 
+	// Check if we should reactivate the component
+	if (active)
+	{
+		active = true;
+		reactivated = true;
+	}
 	return true;
 }

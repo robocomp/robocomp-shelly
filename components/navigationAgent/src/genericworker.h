@@ -51,7 +51,7 @@ using namespace RoboCompLogger;
 using namespace RoboCompAGMCommonBehavior;
 
 
-struct BehaviorParameters 
+struct BehaviorParameters
 {
 	RoboCompPlanning::Action action;
 	std::vector< std::vector <std::string> > plan;
@@ -59,7 +59,7 @@ struct BehaviorParameters
 
 
 
-class GenericWorker : 
+class GenericWorker :
 #ifdef USE_QTGUI
 public QWidget, public Ui_guiDlg
 #else
@@ -72,13 +72,13 @@ public:
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);
-	
+
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;
 	bool activate(const BehaviorParameters& parameters);
 	bool deactivate();
 	bool isActive() { return active; }
-	
+
 
 	LoggerPrx logger_proxy;
 	TrajectoryRobot2DPrx trajectoryrobot2d_proxy;
@@ -111,7 +111,7 @@ protected:
 	RoboCompPlanning::Action createAction(std::string s);
 
 private:
-
+	std::map<std::string, std::vector<std::string> > agm_types;
 
 public slots:
 	virtual void compute() = 0;
@@ -119,4 +119,4 @@ signals:
 	void kill();
 };
 
-#endif
+#endifº

@@ -89,6 +89,26 @@ void SpecificWorker::updateViewer()
 
 void SpecificWorker::compute( )
 {
+	QMutexLocker locker(mutex);
+
+	printf ("compute\n");
+	bool doReturn = false;
+	if (agm_types.size() == 0)
+ 	{
+		printf("No types yet\n");
+		agmexecutive_proxy->broadcastPlan();
+		doReturn = true;
+	}
+	if (worldModel->symbols.size() == 0)
+	{
+		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+		structuralChange(w);
+		doReturn = true;
+	}
+	if (doReturn)
+		return;
+
+	printf("Compute: model and parameters ok\n");
 
 	QTime ccc;
 	ccc = QTime::currentTime();
@@ -101,16 +121,13 @@ void SpecificWorker::compute( )
 		first = false;
 	}
 
-	QMutexLocker locker(mutex);
+	if (not manualMode)
 	{
-		if (not manualMode)
-		{
 // 			printf("Not in manual mode\n");
-			if (not innerModel->getNode("shellyArm_grasp_pose"))
-			{
-				printf("waiting for AGM*\n");
-				return;
-			}
+		if (not innerModel->getNode("shellyArm_grasp_pose"))
+		{
+			printf("waiting for AGM*\n");
+			return;
 		}
 	}
 
@@ -121,19 +138,9 @@ void SpecificWorker::compute( )
 	manageReachedObjects();
 // 	printf("manageReachedObjects - %d\n", cc.elapsed());
 
-
 	cc = QTime::currentTime();
-	if (manualMode)
-	{
-		action_GraspObject();
-	}
-	else
-	{
-		// ACTION EXECUTION
-		actionExecution();
-	}
+	actionExecution();
 // 	printf("action - %d\n", cc.elapsed());
-
 #ifdef USE_QTGUI
 	updateViewer();
 #endif
@@ -157,27 +164,28 @@ void SpecificWorker::manageReachedObjects()
 
 
 	int robotID = newModel->getIdentifierByType("robot");
-
+	printf("manageReachedObjects\n");
+	printf("manageReachedObjects\n");
 	for (AGMModel::iterator symbol_itr=newModel->begin(); symbol_itr!=newModel->end(); symbol_itr++)
 	{
 		AGMModelSymbol::SPtr node = *symbol_itr;
 		AGMModelSymbol::SPtr nodeReach = *symbol_itr;
-		if ((node->symboltype() == "table") or (node->symboltype() == "person") or (node->symboltype() == "mug") or (node->symboltype() == "noodles"))
+		if (node->identifier == 29)
+ 		{
+			printf("%d\n", node->identifier);
+			printf("isNodeType obj %d\n", isNodeType(node, "obj"));
+		}
+				// printf("%s %d\n", __FILE__, __LINE__);
+		if ( isNodeType(node, "obj")  ) // or isNodeType(node, "person")
 		{
-			// Avoid working with rooms
-			if (isObjectType(newModel, node, "room")) continue;
-			//printf("OBJECT: %d\n", node->identifier);
+				printf("%s %d\n", __FILE__, __LINE__);
 			//if the object is in robot continue
 			try
 			{
 				AGMModelEdge e = newModel->getEdgeByIdentifiers(node->identifier, robotID, "in");
-// 				qDebug()<<"MUG IN ROBOT";
 				continue;
 			}
-			catch (...)
-			{
-// 				qDebug()<<"MUG NOT IN ROBOT";
-			}
+			catch (...) { }
 
 			static auto mapt = QMap<int, QTime>();
 			bool force_send = false;
@@ -197,6 +205,7 @@ void SpecificWorker::manageReachedObjects()
 //					qDebug()<<"Using reachPosition instead of object position"<<node->getAttribute("imName").c_str();
 				}
 			}
+			// if (node->identifier == 29) printf("%d %d \n", __LINE__, node->identifier);
 
 			/// Compute distance and new state
 			float d2n;
@@ -213,6 +222,7 @@ void SpecificWorker::manageReachedObjects()
 				return;
 			}
 
+				printf("%s %d\n", __FILE__, __LINE__);
 
 // 			printf("%d distance %f\n", node->identifier, d2n);
 // // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
@@ -221,9 +231,9 @@ void SpecificWorker::manageReachedObjects()
 // // // // // // 			innerModel->transformS("robot", "arm_wrist").print("arm_wrist in r");
 /*			if (node->identifier == 50)
 			{
-	                         innerModel->transformS("robot", "rgbd");//.print("RGBD in r");
-	                         innerModel->transformS("robot", "shellyArm_grasp_pose");//.print("p in r");
-// // // // // //                         innerModel->transformS("robot", "grabPositionHandR");//.print("G in r");
+				innerModel->transformS("robot", "rgbd");//.print("RGBD in r");
+				innerModel->transformS("robot", "shellyArm_grasp_pose");//.print("p in r");
+				// innerModel->transformS("robot", "grabPositionHandR");//.print("G in r");
  				innerModel->transformS("robot", node->getAttribute("imName"));//.print("o in r");
  				innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));//.print("o in p");
 				QVec oinp = innerModel->transformS("shellyArm_grasp_pose", node->getAttribute("imName"));
@@ -245,11 +255,11 @@ void SpecificWorker::manageReachedObjects()
 // 			printf("%s: %f  (th:%f)\n", node->getAttribute("imName").c_str(), (graspPosition-obj).norm2(), THRESHOLD);
 */
 			float THRESHOLD;
-			if (isObjectType(newModel, node, "mug"))
+			if (isNodeType(node, "mObj"))
 			{
 				THRESHOLD = THRESHOLD_mug;
 			}
-			else if (isObjectType(newModel, node, "table"))
+			else if (isNodeType(node, "sObj"))
 			{
 				THRESHOLD = THRESHOLD_table;
 			}
@@ -261,50 +271,80 @@ void SpecificWorker::manageReachedObjects()
 			{
 				qFatal("dededcef or4j ");
 			}
+				printf("%s %d\n", __FILE__, __LINE__);
 
 			try
 			{
-				std::map<std::string, AGMModelSymbol::SPtr> symbols = worldModel->getSymbolsMap(params, "object");
-				if (node->identifier == symbols["object"]->identifier)
-					qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
+				printf("%s %d\n", __FILE__, __LINE__);
+				// std::map<std::string, AGMModelSymbol::SPtr> symbols = newModel->getSymbolsMap(params, "object");
+				// if (node->identifier == symbols["object"]->identifier)
+					// qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
 			}
 			catch(...)
 			{
-				printf("graspingAgent: No object parameter in action %s\n", action.c_str());
-				try { printf("PLAN: %s\n", params["plan"].value.c_str()); }
-				catch(...) { printf("can't get plan\n"); }
+				if (boost::starts_with(action, "setobjectreach"))
+				{
+					printf("graspingAgent: No object parameter in action %s\n", action.c_str());
+					try { printf("PLAN: %s\n", params["plan"].value.c_str()); }
+					catch(...) { printf("can't get plan\n"); }
+				}
 			}
 
 
 			QString name = QString::fromStdString(node->toString());
-			if (node->identifier == 23)
-				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
-			if (node->identifier == 246)
-				qDebug()<<"Distance To Node (" << node->identifier << ") :"<<name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
+			if (node->identifier == 29)
+				qDebug()<<"Distance To Node (" << node->identifier << ") :"<< name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
+
+			bool removeE = false;
+			bool addE = true;
 			for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
 			{
 				AGMModelEdge &edge = *edge_itr;
 				if (edge->getLabel() == "reach" and d2n > THRESHOLD+schmittTriggerThreshold )
 				{
-					edge->setLabel("noReach");
-					printf("object %d STOPS REACH\n", node->identifier);
-					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
-					changed = true;
-					rDebug2(("object %d no-reach") % node->identifier);
-				}
-				else if (edge->getLabel() == "noReach" and d2n < THRESHOLD/*-schmittTriggerThreshold*/)
-				{
-					edge->setLabel("reach");
-					printf("___ %s ___\n", edge->getLabel().c_str());
-					printf("object %d STARTS REACH\n", node->identifier);
-					m += " action " + action + " edge->toString() "+ edge->toString(newModel);
-					changed = true;
-					rDebug2(("object %d reach") % node->identifier);
+					removeE = true;
+					addE = false;
+					break;
 				}
 			}
+			if (removeE)
+			{
+				printf("object %d STOPS REACH\n", node->identifier);
+				newModel->removeEdgeByIdentifiers(node->identifier, node->identifier, "reach");
+				changed = true;
+				rDebug2(("object %d no-reach") % node->identifier);
+			}
+			if (addE and d2n < THRESHOLD-schmittTriggerThreshold)
+			{
+				printf("object %d STARTS REACH\n", node->identifier);
+				try
+				{
+					newModel->addEdgeByIdentifiers(node->identifier, node->identifier, "reach");
+				}
+				catch(AGMModelException &e)
+				{
+					for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
+					{
+						AGMModelEdge &edge = *edge_itr;
+						if (edge->getLabel() == "reach")
+						{
+							printf ("Yes, reach is here WTF\n");
+						}
+					}
+					printf("EXCEPTION %s\n", e.what());
+					// exit(1);
+				}
+				changed = true;
+				rDebug2(("object %d reach") % node->identifier);
+			}
+
+
 		}
 	}
+
+	printf(">>>manageReachedObjects\n");
+	printf(">>>manageReachedObjects\n");
 
 	/// Publish new model if changed
 	if (changed)
@@ -314,20 +354,6 @@ void SpecificWorker::manageReachedObjects()
 	}
 }
 
-bool SpecificWorker::isObjectType(AGMModel::SPtr model, AGMModelSymbol::SPtr node, const std::string &t)
-{
-	QMutexLocker locker(mutex);
-
-	for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(model); edge_itr!=node->edgesEnd(model); edge_itr++)
-	{
-		AGMModelEdge edge = *edge_itr;
-		if (edge->getLabel() == t)
-		{
-			return true;
-		}
-	}
-	return false;
-}
 
 // std::vector<std::pair<float, float>> getCoordinates
 
@@ -569,65 +595,6 @@ void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge& modification
 
 
 
-bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)
-{
-	QMutexLocker locker(mutex);
-
-	if (prs.find("modelversion") != prs.end() and stoi(prs.find("modelversion")->second.value) != worldModel->version)
-	{
-		previousParams.clear();
-		for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
-		{
-			previousParams[it->first] = it->second;
-		}
-		reactivated = false;
-qDebug()<<"******Plan is more updated than model, we have to wait newModel";
-		return true;
-	}
-
-
-	// We didn't reactivate the component
-	reactivated = false;
-
-	// Update parameters
-	previousParams.clear();
-	params.clear();
-	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
-	{
-		params[it->first] = it->second;
-	}
-
-	try
-	{
-		backAction = action;
-		action = params["action"].value;
-		std::transform(action.begin(), action.end(), action.begin(), ::tolower);
-
-		if (action == "graspobject")
-		{
-			active = true;
-		}
-		else
-		{
-			active = true;
-		}
-	}
-	catch (...)
-	{
-		printf("exception in setParametersAndPossibleActivation %d\n", __LINE__);
-		return false;
-	}
-
-	// Check if we should reactivate the component
-	if (active)
-	{
-		active = true;
-		reactivated = true;
-	}
-
-	return true;
-}
-
 void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, string m)
 {
 	QMutexLocker locker(mutex);
@@ -807,6 +774,7 @@ void SpecificWorker::action_leaveObject(bool first)
 // give object to person
 void SpecificWorker::action_handObject_leave(bool first)
 {
+	return;
 	// Lock mutex and get a model's copy
 	QMutexLocker locker(mutex);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
@@ -1484,9 +1452,9 @@ void SpecificWorker::checkRestArm(bool first)
 		if ((node->symboltype() == "object"))
 		{
 			// Avoid working with rooms
-			if (isObjectType(newModel, node, "room")) continue;
+			if (isNodeType(node, "room")) continue;
 			// Avoid working with tables
-			if (isObjectType(newModel, node, "table")) continue;
+			if (isNodeType(node, "table")) continue;
 			//if the object is in robot continue
 			try
 			{

@@ -104,11 +104,38 @@ protected:
 	AGMModel::SPtr worldModel;
 	BehaviorParameters p;
 	ParameterMap params;
+	std::string action, backAction;
+	ParameterMap previousParams;
 	int iter;
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	RoboCompPlanning::Action createAction(std::string s);
 
-private:
+	bool isNodeType(const AGMModelSymbol::SPtr &node, const std::string &query) const
+	{
+		return isNodeType(node->symbolType, query);
+	}
+	bool isNodeType(const std::string &t, const std::string &query) const
+	{
+		if (t == query) return true;
+		try
+		{
+			for (auto &e : agm_types.at(query))
+			{
+				if (e == t)
+					return true;
+			}
+		}
+		catch (...)
+		{
+			printf("no %s in types\n", query.c_str());
+			exit(1);
+			return false;
+		}
+		return false;
+	}
+
+protected:
+	std::map<std::string, std::vector<std::string> > agm_types;
 
 
 public slots:

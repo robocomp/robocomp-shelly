@@ -55,13 +55,12 @@ public:
 
 public slots:
 	void compute();
-	
+
 	void startManualMode();
 
 private:
 	bool manualMode;
 
-	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &newModel, AGMModel::SPtr &worldModel, std::string m="");
 
 
@@ -90,7 +89,7 @@ private:
 	float distanceToNode(std::string reference_name, AGMModel::SPtr model, AGMModelSymbol::SPtr symbol);
 // 	float distanceToPolygon(QVec reference, QVec position, std::string polygon_str);
 
-	void checkRestArm(bool first=false);	
+	void checkRestArm(bool first=false);
 
 	void updateViewer();
 	void changeInner ();
@@ -99,24 +98,19 @@ private:
 	bool isSomeMotorMoving();
 private:
 
-	std::string action, backAction;
-	ParameterMap params;
-	ParameterMap previousParams;
-	AGMModel::SPtr worldModel;
 	InnerModel *innerModel;
 	osgGA::TrackballManipulator *manipulator;
-	OsgView *osgView;	
-	InnerModelViewer *innerViewer; 
-	QTimer *armTimer;	
+	OsgView *osgView;
+	InnerModelViewer *innerViewer;
+	QTimer *armTimer;
 	bool active;
 
 	int32_t sendHandToSymbol(AGMModelSymbol::SPtr symbol, QVec offset, std::map<std::string, AGMModelSymbol::SPtr> symbols, QVec offsetR);
-	
-	
+
+
 public slots:
 	void on_state1_clicked();
 	void setRightArmUp_Reflex(bool first=false);
 };
 
 #endif
-

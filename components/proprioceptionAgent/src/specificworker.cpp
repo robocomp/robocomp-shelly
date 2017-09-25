@@ -37,7 +37,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 */
 SpecificWorker::~SpecificWorker()
 {
-	
+
 }
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
@@ -71,7 +71,7 @@ void SpecificWorker::compute()
 	static bool first = true;
 	static std::map<std::string, QTime> backTimes;
 	static RoboCompJointMotor::MotorStateMap backMotors;
-	
+
 	if (first)
 	{
 		try
@@ -88,7 +88,7 @@ void SpecificWorker::compute()
 			std::cout << __FILE__ << ":" << __LINE__ << " --> Can't update InnerModel" << std::endl;
 		}
 	}
-	
+
 	RoboCompJointMotor::MotorStateMap mMap;
 	std::vector<AGMModelEdge> edge_sequence;
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
@@ -97,7 +97,7 @@ void SpecificWorker::compute()
 		jointmotor_proxy->getAllMotorState(mMap);
 		for (auto j : mMap)
 		{
-				printf("Updating: %s (%f)\n", j.first.c_str(), mMap[j.first].pos);
+			printf("Updating: %s (%f)\n", j.first.c_str(), mMap[j.first].pos);
  			if (backTimes[j.first].elapsed()>500 or abs(backMotors[j.first].pos-mMap[j.first].pos) > 0.25*M_PIl/180.) /* send if it changed more than half degree */
 			{
 				backTimes[j.first] = QTime::currentTime();
@@ -140,7 +140,7 @@ void SpecificWorker::compute()
 						printf(" couldn't retrieve node\n");
 					}
 				}
-				
+
 				if (not found)
 					printf(" couln't find joint: %s\n", j.first.c_str());
 			}
@@ -167,9 +167,9 @@ void SpecificWorker::compute()
 	{
 		std::cout<<"--> Exception updating InnerModel"<<std::endl;
 	}
-	
+
 	manageRestPositionEdge(mMap);
-	
+
 }
 
 
@@ -209,27 +209,29 @@ bool SpecificWorker::isInRestPosition(const RoboCompJointMotor::MotorStateMap &m
 void SpecificWorker::manageRestPositionEdge(const RoboCompJointMotor::MotorStateMap &mMap)
 {
 	QMutexLocker locker(mutex);
-	
+
 	if (isInRestPosition(mMap)) // We should make sure the link is there
 	{
+		printf("IN REST\n");
 		try
 		{
-			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 1, "restArm");
 		}
 		catch (...)
 		{
 			AGMModel::SPtr newModel(new AGMModel(worldModel));
-			newModel->addEdgeByIdentifiers(1, 2, "restArm");
+			newModel->addEdgeByIdentifiers(1, 1, "restArm");
 			sendModificationProposal(newModel, worldModel);
 		}
 	}
 	else // We should make sure the edge is removed
 	{
+		printf("NOT IN REST\n");
 		try
 		{
-			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 2, "restArm");
+			AGMModelEdge e = worldModel->getEdgeByIdentifiers(1, 1, "restArm");
 			AGMModel::SPtr newModel(new AGMModel(worldModel));
-			newModel->removeEdgeByIdentifiers(1, 2, "restArm");
+			newModel->removeEdgeByIdentifiers(1, 1, "restArm");
 			sendModificationProposal(newModel, worldModel);
 		}
 		catch (...)
@@ -417,5 +419,3 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &newModel, AGMModel
 		exit(1);
 	}
 }
-
-
