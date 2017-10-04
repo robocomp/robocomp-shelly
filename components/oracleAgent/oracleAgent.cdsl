@@ -1,0 +1,17 @@
+import "ObjectOracle.idsl";
+import "RGBD.idsl";
+import "SemanticSimilarity.idsl";
+
+Component oracleAgent
+{
+	Communications
+	{
+		implements ObjectOracle;
+		requires RGBD, SemanticSimilarity;
+	};
+	language Cpp;
+	gui Qt(QWidget);
+	options agmagent;
+	useQt qt4;
+};
+
