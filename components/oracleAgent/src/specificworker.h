@@ -30,6 +30,10 @@
 
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
+#ifdef USE_QTGUI
+	#include <osgviewer/osgview.h>
+	#include <innermodel/innermodelviewer.h>
+#endif
 
 class SpecificWorker : public GenericWorker
 {
@@ -60,10 +64,15 @@ public slots:
 
 private:
 	InnerModel *innerModel;
+#ifdef USE_QTGUI
+	OsgView *osgView;
+	InnerModelViewer *innerModelViewer;
+#endif
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	bool active;
+	void regenerateInnerModelViewer();
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
 

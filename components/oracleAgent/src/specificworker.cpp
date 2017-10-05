@@ -24,6 +24,17 @@
 SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 {
 
+#ifdef USE_QTGUI
+	innerModelViewer = NULL;
+	osgView = new OsgView(this);
+	osgGA::TrackballManipulator *tb = new osgGA::TrackballManipulator;
+	osg::Vec3d eye(osg::Vec3(4000.,4000.,-1000.));
+	osg::Vec3d center(osg::Vec3(0.,0.,-0.));
+	osg::Vec3d up(osg::Vec3(0.,1.,0.));
+	tb->setHomePosition(eye, center, up, true);
+	tb->setByMatrix(osg::Matrixf::lookAt(eye,center,up));
+	osgView->setCameraManipulator(tb);
+#endif
 	active = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
@@ -51,6 +62,9 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 //	catch(std::exception e) { qFatal("Error reading config params"); }
 
 
+#ifdef USE_QTGUI
+	innerModelViewer = new InnerModelViewer (innerModel, "root", osgView->getRootGroup(), true);
+#endif
 
 
 	timer.start(Period);
@@ -82,6 +96,10 @@ void SpecificWorker::compute()
 // 	{
 // 		std::cout << "Error reading from Camera" << e << std::endl;
 // 	}
+#ifdef USE_QTGUI
+	if (innerModelViewer) innerModelViewer->update();
+	osgView->frame();
+#endif
 }
 
 
@@ -176,6 +194,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
  
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel);
+	regenerateInnerModelViewer();
 }
 
 void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications)
@@ -184,6 +203,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 	QMutexLocker lockIM(mutex);
 	for (auto modification : modifications)
 	{
+		printf("%d--[%s]-->%d\n", modification.a, modification.edgeType.c_str(), modification.b);
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 	}
@@ -216,6 +236,17 @@ void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &m
 
 }
 
+
+
+void SpecificWorker::regenerateInnerModelViewer()
+{
+	if (innerModelViewer)
+	{
+		osgView->getRootGroup()->removeChild(innerModelViewer);
+	}
+
+	innerModelViewer = new InnerModelViewer(innerModel, "root", osgView->getRootGroup(), true);
+}
 
 
 bool SpecificWorker::setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated)

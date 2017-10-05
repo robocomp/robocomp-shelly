@@ -11,7 +11,7 @@ Component oracleAgent
 	};
 	language Cpp;
 	gui Qt(QWidget);
-	options agmagent;
+	options agmagent,innermodelViewer;
 	useQt qt4;
 };
 
