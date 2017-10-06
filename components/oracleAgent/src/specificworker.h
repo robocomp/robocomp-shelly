@@ -84,8 +84,8 @@ private:
 	RoboCompRGBD::ColorSeq oracleImage;
 	RoboCompGenericBase::TBaseState bState;
 	RoboCompJointMotor::MotorStateMap hState;
-	RoboCompRGBD::imgType rgbMatrix;
-	RoboCompRGBD::depthType distanceMatrix;
+	
+	cv::Mat image_color;
 	
 	
 	void regenerateInnerModelViewer();

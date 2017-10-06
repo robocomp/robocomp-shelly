@@ -39,10 +39,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
-	oracleImage.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
-	rgbImage.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
-	rgbMatrix.resize(IMAGE_WIDTH*IMAGE_HEIGHT*3);
-	distanceMatrix.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
+	image_color.create(IMAGE_HEIGHT,IMAGE_WIDTH,CV_8UC3);
 }
 
 /**
@@ -102,22 +99,21 @@ void SpecificWorker::compute()
 			printf("The executive is probably not running, waiting for first AGM model publication...");
 		}
 	}
-    try
-    {
-		rgbd_proxy->getData(rgbMatrix,distanceMatrix, hState, bState);
-		qDebug() << "read frame, rgbMatrixSize"<< rgbMatrix.size();		
-		Mat frame(480, 640, CV_8UC3,  &(rgbMatrix)[0]);
-		imshow("3D viewer",frame);
-        
-//         QImage img = QImage(&rgbMatrix[0], 640, 480, QImage::Format_RGB888);
-//         label->setPixmap(QPixmap::fromImage(img));
-//         label->resize(label->pixmap()->size());
-
-    }
-    catch(const Ice::Exception &ex)
-    {
-        std::cout << ex << std::endl;
-    }
+	try
+		{
+			RoboCompRGBD::ColorSeq colorseq;
+			RoboCompRGBD::DepthSeq depthseq;
+			rgbd_proxy->getRGB(colorseq, hState, bState);
+			memcpy(image_color.data , &colorseq[0], IMAGE_WIDTH*IMAGE_HEIGHT*3);
+// 			cv::cvtColor(image_color, image_gray, CV_RGB2GRAY);
+// 			searchTags(image_gray);	
+			imshow("FRAME", image_color);
+			//cv::waitKey(10);
+		}
+		catch(const Ice::Exception &e)
+		{
+			std::cout << "Error reading form RGBD " << e << std::endl;
+		}
 	
 	//computeCODE
 // 	try
