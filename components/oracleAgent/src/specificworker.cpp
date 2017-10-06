@@ -39,6 +39,10 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
+	oracleImage.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
+	rgbImage.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
+	rgbMatrix.resize(IMAGE_WIDTH*IMAGE_HEIGHT*3);
+	distanceMatrix.resize(IMAGE_WIDTH*IMAGE_HEIGHT);
 }
 
 /**
@@ -85,6 +89,36 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 void SpecificWorker::compute()
 {
 	QMutexLocker locker(mutex);
+	if (worldModel->numberOfSymbols()<1)
+	{
+		try
+		{
+			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
+			structuralChange(w);			
+			return;
+		}
+		catch(...)
+		{
+			printf("The executive is probably not running, waiting for first AGM model publication...");
+		}
+	}
+    try
+    {
+		rgbd_proxy->getData(rgbMatrix,distanceMatrix, hState, bState);
+		qDebug() << "read frame, rgbMatrixSize"<< rgbMatrix.size();		
+		Mat frame(480, 640, CV_8UC3,  &(rgbMatrix)[0]);
+		imshow("3D viewer",frame);
+        
+//         QImage img = QImage(&rgbMatrix[0], 640, 480, QImage::Format_RGB888);
+//         label->setPixmap(QPixmap::fromImage(img));
+//         label->resize(label->pixmap()->size());
+
+    }
+    catch(const Ice::Exception &ex)
+    {
+        std::cout << ex << std::endl;
+    }
+	
 	//computeCODE
 // 	try
 // 	{
@@ -96,6 +130,7 @@ void SpecificWorker::compute()
 // 	{
 // 		std::cout << "Error reading from Camera" << e << std::endl;
 // 	}
+
 #ifdef USE_QTGUI
 	if (innerModelViewer) innerModelViewer->update();
 	osgView->frame();
@@ -192,6 +227,7 @@ void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
 	QMutexLocker lockIM(mutex);
  	AGMModelConverter::fromIceToInternal(w, worldModel);
  
+	qDebug()<<"structuralChange";	
 	delete innerModel;
 	innerModel = AGMInner::extractInnerModel(worldModel);
 	regenerateInnerModelViewer();

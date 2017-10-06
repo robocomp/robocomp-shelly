@@ -35,6 +35,14 @@
 	#include <innermodel/innermodelviewer.h>
 #endif
 
+#define IMAGE_WIDTH 640
+#define IMAGE_HEIGHT 480
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+
+using namespace cv;
+
 class SpecificWorker : public GenericWorker
 {
 Q_OBJECT
@@ -72,6 +80,14 @@ private:
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	bool active;
+	RoboCompRGBD::ColorSeq rgbImage;	
+	RoboCompRGBD::ColorSeq oracleImage;
+	RoboCompGenericBase::TBaseState bState;
+	RoboCompJointMotor::MotorStateMap hState;
+	RoboCompRGBD::imgType rgbMatrix;
+	RoboCompRGBD::depthType distanceMatrix;
+	
+	
 	void regenerateInnerModelViewer();
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
