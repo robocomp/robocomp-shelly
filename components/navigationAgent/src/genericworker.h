@@ -119,4 +119,5 @@ signals:
 	void kill();
 };
 
-#endifº
+#endif
+

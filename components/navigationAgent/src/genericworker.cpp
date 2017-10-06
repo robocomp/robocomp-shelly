@@ -137,19 +137,18 @@ bool GenericWorker::setParametersAndPossibleActivation(const ParameterMap &prs, 
 	// std::map<std::string, std::vector<std::string> > agm_types;
 	agm_types.clear();
 	std::vector<std::string> types_split;
- 	boost::split(types_split, params["types"], [](char c){return c == '#';});
+	boost::split(types_split, params["types"].value, [](char c){return c == '#';});
 	for (auto sub : types_split)
 	{
 		std::vector<std::string> types_split_elements;
-	 	boost::split(sub, params["types"], [](char c){return c == '#';});
+		boost::split(types_split_elements, sub, [](char c){return c == ' ';});
 		std::vector<std::string> aType;
-		for (auto sub : types_split)
+		for (auto sub : types_split_elements)
 		{
 			aType.push_back(sub);
 		}
 		agm_types[types_split_elements[types_split_elements.size()-1]] = aType;
 	}
-
 
 	try
 	{
