@@ -28,8 +28,9 @@ QObject()
 #endif
 
 {
-	rgbd_proxy = (*(RGBDPrx*)mprx["RGBDProxy"]);
 	semanticsimilarity_proxy = (*(SemanticSimilarityPrx*)mprx["SemanticSimilarityProxy"]);
+	rgbdbus_proxy = (*(RGBDBusPrx*)mprx["RGBDBusProxy"]);
+	rgbd_proxy = (*(RGBDPrx*)mprx["RGBDProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 
 	mutex = new QMutex(QMutex::Recursive);

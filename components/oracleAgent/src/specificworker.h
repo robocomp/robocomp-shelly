@@ -35,8 +35,11 @@
 	#include <innermodel/innermodelviewer.h>
 #endif
 
-#define IMAGE_WIDTH 640
-#define IMAGE_HEIGHT 480
+#define RGBD_IMAGE_WIDTH 640
+#define RGBD_IMAGE_HEIGHT 480
+
+#define CAMERA_IMAGE_WIDTH 640 //1920
+#define CAMERA_IMAGE_HEIGTH 480 //1080
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -80,13 +83,16 @@ private:
 	ParameterMap params;
 	AGMModel::SPtr worldModel;
 	bool active;
-	RoboCompRGBD::ColorSeq rgbImage;	
-	RoboCompRGBD::ColorSeq oracleImage;
+	
+	
+	RoboCompRGBD::ColorSeq rgbdImage;		
+	RoboCompRGBDBus::Image cameraImage;
+	cv::Mat rgbdImageColor, cameraImageColor;
+	
 	RoboCompGenericBase::TBaseState bState;
 	RoboCompJointMotor::MotorStateMap hState;
-	
-	cv::Mat image_color;
-	
+	//RoboCompCommonHead::THeadState cState;
+	RoboCompRGBDBus::CameraParams camParams;
 	
 	void regenerateInnerModelViewer();
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);

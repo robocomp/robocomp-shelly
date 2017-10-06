@@ -39,7 +39,8 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
 	innerModel = new InnerModel();
-	image_color.create(IMAGE_HEIGHT,IMAGE_WIDTH,CV_8UC3);
+	rgbdImageColor.create(RGBD_IMAGE_HEIGHT,RGBD_IMAGE_WIDTH,CV_8UC3);
+	cameraImageColor.create(CAMERA_IMAGE_HEIGTH,CAMERA_IMAGE_WIDTH,CV_8UC3);
 }
 
 /**
@@ -100,20 +101,37 @@ void SpecificWorker::compute()
 		}
 	}
 	try
-		{
-			RoboCompRGBD::ColorSeq colorseq;
-			RoboCompRGBD::DepthSeq depthseq;
-			rgbd_proxy->getRGB(colorseq, hState, bState);
-			memcpy(image_color.data , &colorseq[0], IMAGE_WIDTH*IMAGE_HEIGHT*3);
-// 			cv::cvtColor(image_color, image_gray, CV_RGB2GRAY);
+	{
+		
+		rgbd_proxy->getRGB(rgbdImage, hState, bState);
+		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
+// 			cv::cvtColor(imageColor, image_gray, CV_RGB2GRAY);
 // 			searchTags(image_gray);	
-			imshow("FRAME", image_color);
-			//cv::waitKey(10);
+		imshow("RGB from ASUS", rgbdImageColor);
+		//cv::waitKey(10);
+	}
+	catch(const Ice::Exception &e)
+	{
+		std::cout << "Error reading form RGBD " << e << std::endl;
+	}
+	
+	//For cameras
+	try
+	{
+		RoboCompRGBDBus::ImageMap images;
+		CameraList cameraList;
+		cameraList.push_back(std::string("default"));
+		rgbdbus_proxy->getImages(cameraList, images);
+		for (auto i : images)
+		{		
+			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
+			imshow("RGB from CAMERA", cameraImageColor);
 		}
-		catch(const Ice::Exception &e)
-		{
-			std::cout << "Error reading form RGBD " << e << std::endl;
-		}
+	}
+	catch(const Ice::Exception &e)
+	{
+		std::cout << "Error reading from CAMERA" << e << std::endl;
+	}
 	
 	//computeCODE
 // 	try

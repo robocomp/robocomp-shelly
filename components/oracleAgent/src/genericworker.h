@@ -36,6 +36,7 @@
 #include <JointMotor.h>
 #include <GenericBase.h>
 #include <SemanticSimilarity.h>
+#include <RGBDBus.h>
 #include <agm.h>
 
 #define CHECK_PERIOD 5000
@@ -52,6 +53,7 @@ using namespace RoboCompSemanticSimilarity;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompPlanning;
 using namespace RoboCompRGBD;
+using namespace RoboCompRGBDBus;
 using namespace RoboCompJointMotor;
 using namespace RoboCompAGMCommonBehavior;
 
@@ -85,8 +87,9 @@ public:
 	bool isActive() { return active; }
 
 
-	SemanticSimilarityPrx semanticsimilarity_proxy;
 	RGBDPrx rgbd_proxy;
+	SemanticSimilarityPrx semanticsimilarity_proxy;
+	RGBDBusPrx rgbdbus_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;

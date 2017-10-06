@@ -93,6 +93,7 @@
 #include <JointMotor.h>
 #include <GenericBase.h>
 #include <SemanticSimilarity.h>
+#include <RGBDBus.h>
 
 
 // User includes here
@@ -145,6 +146,7 @@ int ::oracleAgent::run(int argc, char* argv[])
 	int status=EXIT_SUCCESS;
 
 	RGBDPrx rgbd_proxy;
+	RGBDBusPrx rgbdbus_proxy;
 	SemanticSimilarityPrx semanticsimilarity_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
@@ -167,6 +169,23 @@ int ::oracleAgent::run(int argc, char* argv[])
 	}
 	rInfo("RGBDProxy initialized Ok!");
 	mprx["RGBDProxy"] = (::IceProxy::Ice::Object*)(&rgbd_proxy);//Remote server proxy creation example
+
+
+	try
+	{
+		if (not GenericMonitor::configGetString(communicator(), prefix, "RGBDBusProxy", proxy, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy RGBDBusProxy\n";
+		}
+		rgbdbus_proxy = RGBDBusPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("RGBDBusProxy initialized Ok!");
+	mprx["RGBDBusProxy"] = (::IceProxy::Ice::Object*)(&rgbdbus_proxy);//Remote server proxy creation example
 
 
 	try
