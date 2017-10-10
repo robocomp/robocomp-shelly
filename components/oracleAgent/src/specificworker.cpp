@@ -102,13 +102,116 @@ void SpecificWorker::compute()
 	}
 	try
 	{
-		
 		rgbd_proxy->getRGB(rgbdImage, hState, bState);
 		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
-// 			cv::cvtColor(imageColor, image_gray, CV_RGB2GRAY);
-// 			searchTags(image_gray);	
+		
+		
+		auto tableCenterInWorld= innerModel->transform("world","tableD");
+		//project in screen coordinates
+		auto tableCenterInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableCenterInWorld);
+		cv::Point center;
+		center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
+		cv::circle(rgbdImageColor,center,6,Scalar(0,0,255),4);
+
+		///
+		auto worldCoordinates = tableCenterInWorld;
+		cv::Point coordinatesVector [8];
+		//read from model
+		int witdh=850, depth=850, height=80, offset=0;
+		
+		tableCenterInWorld.print("tableCenterInWorld");
+		for (int i=0; i<8; i++) 
+		{			
+			//p1 
+			if (i==0)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			
+			//p2 
+			if (i==1)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			//p3 
+			if (i==2)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p4 
+			if (i==3)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p5
+			if (i==4)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			
+			//p6 
+			if (i==5)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			//p7 
+			if (i==6)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p8 
+			if (i==7)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			worldCoordinates.print("worldCoordinates");
+			coordinatesVector[i].x=innerModel->getRGBD("rgbd")->project("world",worldCoordinates)[0];		
+			coordinatesVector[i].y=innerModel->getRGBD("rgbd")->project("world",worldCoordinates)[1];				
+		}
+				
+		for (int i=0; i<8; i++) 		
+		{
+			if (i<4)
+				cv::circle(rgbdImageColor,coordinatesVector[i],1,Scalar(255,0,0),8);
+			else 
+				cv::circle(rgbdImageColor,coordinatesVector[i],1,Scalar(0,255,0),8);
+		}
+		
+		/*
+		
+		
+		auto tableLeftCornerInWorld= innerModel->transform("world",QVec::vec3(1750/2,0,800/2) ,"tableB");
+		auto tableRightCornerInWorld= innerModel->transform("world",QVec::vec3(-(1750/2),0,-(800/2)) ,"tableB");
+		
+		
+		
+		
+		cv::Point p1,p2;
+		auto tableLeftCornerInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableLeftCornerInWorld);
+		p1.x=tableLeftCornerInScreenCoords[0];p1.y=tableLeftCornerInScreenCoords[1];
+		
+		auto tableRightCornerInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableRightCornerInWorld);
+		p2.x=tableRightCornerInScreenCoords[0];p2.y=tableRightCornerInScreenCoords[1];*/
+		
+// 		cv::line(rgbdImageColor,p1,p2,Scalar(255,0,0),4);
+		
+		
+		
 		imshow("RGB from ASUS", rgbdImageColor);
 		//cv::waitKey(10);
+		
 	}
 	catch(const Ice::Exception &e)
 	{
