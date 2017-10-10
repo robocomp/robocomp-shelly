@@ -228,10 +228,11 @@ class RGBDDraw(QtGui.QGraphicsScene):
 		self.main = main
 
 	def work(self):
-		if (len(self.main.rgbd_color) == 3*640*480) and (len(self.main.rgbd_depth) == 640*480):
+		#TODO CHECK DEPTH IMAGE
+		if (len(self.main.rgbd_color) == 3*640*480):# and (len(self.main.rgbd_depth) == 640*480):
 			width = 640
 			height = 480
-		elif (len(self.main.rgbd_color) == 3*320*240) and (len(self.main.rgbd_depth) == 320*240):
+		elif (len(self.main.rgbd_color) == 3*320*240):# and (len(self.main.rgbd_depth) == 320*240):
 			width = 320
 			height = 240
 			#print "color", len(self.main.rgbd_color), "depth", len(self.main.rgbd_depth)
@@ -239,25 +240,25 @@ class RGBDDraw(QtGui.QGraphicsScene):
 			print 'we shall not paint!'
 			return
 
-		self.clear()
-		v = ''
-		m = 0
-		t = 0
-		for i in range(len(self.main.rgbd_depth)):
-			ascii = 0
-			try:
-				ascii = int(128. - (255./self.maxDepth)*self.main.rgbd_depth[i])
-				if ascii > 255: ascii = 255
-				if ascii < 0: ascii = 0
-				#print type(self.depth[i])
-				if fabs(self.main.rgbd_depth[i])>0.00001: print self.main.rgbd_depth[i]
-			except:
-				pass
-			if ascii > 255: ascii = 255
-			if ascii < 0: ascii = 0
-			v += chr(ascii)
-			t = t+1
-			m = m+float(self.main.rgbd_depth[i])
+		#self.clear()
+		#v = ''
+		#m = 0
+		#t = 0
+		#for i in range(len(self.main.rgbd_depth)):
+			#ascii = 0
+			#try:
+				#ascii = int(128. - (255./self.maxDepth)*self.main.rgbd_depth[i])
+				#if ascii > 255: ascii = 255
+				#if ascii < 0: ascii = 0
+				##print type(self.depth[i])
+				#if fabs(self.main.rgbd_depth[i])>0.00001: print self.main.rgbd_depth[i]
+			#except:
+				#pass
+			#if ascii > 255: ascii = 255
+			#if ascii < 0: ascii = 0
+			#v += chr(ascii)
+			#t = t+1
+			#m = m+float(self.main.rgbd_depth[i])
 		#print 'mean', float(m)/t
 		image = QtGui.QImage(self.main.rgbd_color, width, height, QtGui.QImage.Format_RGB888)
 		#image.save("images/image"+str(self.lalala)+'.png')
@@ -417,9 +418,6 @@ class SpecificWorker(GenericWorker):
 		self.ui.angleOmniSB.valueChanged.connect(self.omniControl)
 		self.ui.omniStop.clicked.connect(self.omniControlStop)
 
-
-
-
 		self.rgbdDrawer = RGBDDraw(self.ui.rgbd_graphicsView, self)
 		self.ui.rgbd_graphicsView.setScene(self.rgbdDrawer)
 
@@ -550,12 +548,21 @@ class SpecificWorker(GenericWorker):
 	def computeRGBD(self):
 		if self.ui.tabWidget.currentIndex() != 6:
 			return;
-
+		#TODO CHECK getDepth in rgbd component
 		err = False
 		#try:
-		self.rgbd_color, self.rgbd_depth, self.rgbd_headState, self.rgbd_baseState = self.rgbd_proxy.getData()
-		if (len(self.rgbd_color) == 0) or (len(self.rgbd_depth) == 0):
-			print 'a'
+		self.rgbd_color, self.rgbd_headState, self.rgbd_baseState = self.rgbd_proxy.getRGB()
+		#self.rgbd_depth, self.rgbd_headState, self.rgbd_baseState = self.rgbd_proxy.getDepth()
+		
+		l = ''
+		for i in self.rgbd_color:
+			l += chr(i.red)
+			l += chr(i.green)
+			l += chr(i.blue)
+			#print i
+		self.rgbd_color = l		
+		if (len(self.rgbd_color) == 0): # or (len(self.rgbd_depth) == 0):
+			print 'Image color size', "rgbd_color", len(self.rgbd_color)
 			err = True
 		else:
 			self.rgbdDrawer.work()
