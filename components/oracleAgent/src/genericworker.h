@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2017 by YOUR NAME HERE
+ *    Copyright (C)2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,10 +28,15 @@
 
 #include <CommonBehavior.h>
 
-#include <TrajectoryRobot2D.h>
-#include <Logger.h>
-#include <OmniRobot.h>
+#include <ObjectOracle.h>
+#include <RGBD.h>
+#include <JointMotor.h>
 #include <GenericBase.h>
+#include <RGBD.h>
+#include <JointMotor.h>
+#include <GenericBase.h>
+#include <SemanticSimilarity.h>
+#include <RGBDBus.h>
 #include <agm.h>
 
 #define CHECK_PERIOD 5000
@@ -41,13 +46,15 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
 using namespace std;
 
-using namespace RoboCompTrajectoryRobot2D;
-using namespace RoboCompAGMWorldModel;
-using namespace RoboCompOmniRobot;
 using namespace RoboCompGenericBase;
+using namespace RoboCompAGMWorldModel;
+using namespace RoboCompObjectOracle;
+using namespace RoboCompSemanticSimilarity;
 using namespace RoboCompAGMExecutive;
 using namespace RoboCompPlanning;
-using namespace RoboCompLogger;
+using namespace RoboCompRGBD;
+using namespace RoboCompRGBDBus;
+using namespace RoboCompJointMotor;
 using namespace RoboCompAGMCommonBehavior;
 
 
@@ -80,9 +87,9 @@ public:
 	bool isActive() { return active; }
 
 
-	LoggerPrx logger_proxy;
-	TrajectoryRobot2DPrx trajectoryrobot2d_proxy;
-	OmniRobotPrx omnirobot_proxy;
+	RGBDPrx rgbd_proxy;
+	SemanticSimilarityPrx semanticsimilarity_proxy;
+	RGBDBusPrx rgbdbus_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;
@@ -93,6 +100,8 @@ public:
 	virtual int uptimeAgent() = 0;
 	virtual bool deactivateAgent() = 0;
 	virtual StateStruct getAgentState() = 0;
+	virtual void semanticDistance(const string &word1, const string &word2, float &result) = 0;
+	virtual void getLabelsFromImage(const RoboCompRGBD::ColorSeq &image, ResultList &result) = 0;
 	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
 	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications) = 0;
 	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
@@ -111,7 +120,7 @@ protected:
 	RoboCompPlanning::Action createAction(std::string s);
 
 private:
-	std::map<std::string, std::vector<std::string> > agm_types;
+
 
 public slots:
 	virtual void compute() = 0;
@@ -120,4 +129,3 @@ signals:
 };
 
 #endif
-

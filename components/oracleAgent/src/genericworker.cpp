@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2017 by YOUR NAME HERE
+ *    Copyright (C)2017 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,10 +28,10 @@ QObject()
 #endif
 
 {
-	trajectoryrobot2d_proxy = (*(TrajectoryRobot2DPrx*)mprx["TrajectoryRobot2DProxy"]);
-	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
+	semanticsimilarity_proxy = (*(SemanticSimilarityPrx*)mprx["SemanticSimilarityProxy"]);
+	rgbdbus_proxy = (*(RGBDBusPrx*)mprx["RGBDBusProxy"]);
+	rgbd_proxy = (*(RGBDPrx*)mprx["RGBDProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
-	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
 
@@ -132,22 +132,6 @@ bool GenericWorker::setParametersAndPossibleActivation(const ParameterMap &prs, 
 	for (ParameterMap::const_iterator it=prs.begin(); it!=prs.end(); it++)
 	{
 		params[it->first] = it->second;
-	}
-
-	// std::map<std::string, std::vector<std::string> > agm_types;
-	agm_types.clear();
-	std::vector<std::string> types_split;
-	boost::split(types_split, params["types"].value, [](char c){return c == '#';});
-	for (auto sub : types_split)
-	{
-		std::vector<std::string> types_split_elements;
-		boost::split(types_split_elements, sub, [](char c){return c == ' ';});
-		std::vector<std::string> aType;
-		for (auto sub : types_split_elements)
-		{
-			aType.push_back(sub);
-		}
-		agm_types[types_split_elements[types_split_elements.size()-1]] = aType;
 	}
 
 	try

@@ -18,7 +18,7 @@
   <dependence alias="rgbd" />
   <dependence alias="speech" />
   <dependence alias="base" />
-  <dependence alias="comJoint" />
+  <!-- <dependence alias="comJoint" /> -->
   <workingDir path="/home/robocomp/" />
   <upCommand command="rcremote localhost shellyPanel /home/robocomp/robocomp/components/robocomp-shelly/components/shellyPanel python src/shellyPanel.py --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/panel.conf" />
   <downCommand command="pkill -9 -f shellyPanel.py" />
