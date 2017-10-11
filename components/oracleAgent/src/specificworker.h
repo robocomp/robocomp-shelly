@@ -38,11 +38,12 @@
 #define RGBD_IMAGE_WIDTH 640
 #define RGBD_IMAGE_HEIGHT 480
 
-#define CAMERA_IMAGE_WIDTH 640 //1920
-#define CAMERA_IMAGE_HEIGTH 480 //1080
+#define CAMERA_IMAGE_WIDTH 1280
+#define CAMERA_IMAGE_HEIGTH 720
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace cv;
 
@@ -69,6 +70,9 @@ public:
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
 	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
+	
+	//Image, sensorName, InnerModel name of the object, width and depth: object parameters, height of ROI, offset=extra length in width and deepth
+	void extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 80, int offset = 0, bool draw=true);
 
 public slots:
 	void compute();

@@ -104,114 +104,9 @@ void SpecificWorker::compute()
 	{
 		rgbd_proxy->getRGB(rgbdImage, hState, bState);
 		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
-		
-		
-		auto tableCenterInWorld= innerModel->transform("world","tableD");
-		//project in screen coordinates
-		auto tableCenterInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableCenterInWorld);
-		cv::Point center;
-		center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
-		cv::circle(rgbdImageColor,center,6,Scalar(0,0,255),4);
-
-		///
-		auto worldCoordinates = tableCenterInWorld;
-		cv::Point coordinatesVector [8];
-		//read from model
-		int witdh=850, depth=850, height=80, offset=0;
-		
-		tableCenterInWorld.print("tableCenterInWorld");
-		for (int i=0; i<8; i++) 
-		{			
-			//p1 
-			if (i==0)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			
-			//p2 
-			if (i==1)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			//p3 
-			if (i==2)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p4 
-			if (i==3)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p5
-			if (i==4)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			
-			//p6 
-			if (i==5)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			//p7 
-			if (i==6)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + witdh/2 + offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p8 
-			if (i==7)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - witdh/2 - offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			worldCoordinates.print("worldCoordinates");
-			coordinatesVector[i].x=innerModel->getRGBD("rgbd")->project("world",worldCoordinates)[0];		
-			coordinatesVector[i].y=innerModel->getRGBD("rgbd")->project("world",worldCoordinates)[1];				
-		}
-				
-		for (int i=0; i<8; i++) 		
-		{
-			if (i<4)
-				cv::circle(rgbdImageColor,coordinatesVector[i],1,Scalar(255,0,0),8);
-			else 
-				cv::circle(rgbdImageColor,coordinatesVector[i],1,Scalar(0,255,0),8);
-		}
-		
-		/*
-		
-		
-		auto tableLeftCornerInWorld= innerModel->transform("world",QVec::vec3(1750/2,0,800/2) ,"tableB");
-		auto tableRightCornerInWorld= innerModel->transform("world",QVec::vec3(-(1750/2),0,-(800/2)) ,"tableB");
-		
-		
-		
-		
-		cv::Point p1,p2;
-		auto tableLeftCornerInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableLeftCornerInWorld);
-		p1.x=tableLeftCornerInScreenCoords[0];p1.y=tableLeftCornerInScreenCoords[1];
-		
-		auto tableRightCornerInScreenCoords = innerModel->getRGBD("rgbd")->project("world",tableRightCornerInWorld);
-		p2.x=tableRightCornerInScreenCoords[0];p2.y=tableRightCornerInScreenCoords[1];*/
-		
-// 		cv::line(rgbdImageColor,p1,p2,Scalar(255,0,0),4);
-		
-		
-		
+		//READ FROM MODEL int witdh=850, depth=850, height=80, offset=0;
+		extractRectangleROI(rgbdImageColor,"rgbd","tableD",850,850);		
 		imshow("RGB from ASUS", rgbdImageColor);
-		//cv::waitKey(10);
-		
 	}
 	catch(const Ice::Exception &e)
 	{
@@ -228,6 +123,7 @@ void SpecificWorker::compute()
 		for (auto i : images)
 		{		
 			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
+			extractRectangleROI(cameraImageColor,"camera","tableD", 850,850);		
 			imshow("RGB from CAMERA", cameraImageColor);
 		}
 	}
@@ -253,7 +149,6 @@ void SpecificWorker::compute()
 	osgView->frame();
 #endif
 }
-
 
 bool SpecificWorker::reloadConfigAgent()
 {
@@ -467,3 +362,129 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
+
+void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height, int offset, bool draw)
+{
+		auto tableCenterInWorld= innerModel->transform("world",imName);
+		//project in screen coordinates		
+		auto tableCenterInScreenCoords = innerModel->getCamera(sensorName)->project("world",tableCenterInWorld);	
+		auto worldCoordinates = tableCenterInWorld;
+		vector<Point> coordinatesVector;		
+		coordinatesVector.resize(8);
+	
+		tableCenterInWorld.print("tableCenterInWorld");
+		for (uint i=0; i<coordinatesVector.size(); i++) 
+		{			
+			//p1 
+			if (i==0)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			
+			//p2 
+			if (i==1)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			//p3 
+			if (i==2)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p4 
+			if (i==3)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p5
+			if (i==4)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			
+			//p6 
+			if (i==5)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
+			}
+			//p7 
+			if (i==6)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+			//p8 
+			if (i==7)
+			{
+				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
+				worldCoordinates[1] = tableCenterInWorld[1] + height;
+				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
+			}
+// 			worldCoordinates.print("worldCoordinates");
+			
+			coordinatesVector[i].x=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[0];		
+			coordinatesVector[i].y=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[1];				
+			
+			
+		}
+		
+		
+		//Convex HULL like example:https://github.com/opencv/opencv/blob/master/samples/cpp/convexhull.cpp				
+		vector<int> hull;
+		cv::convexHull(Mat(coordinatesVector), hull, true);
+		int hullcount = (int)hull.size();
+		Point pt0 = coordinatesVector[hull[hullcount-1]];
+// 		std::cout<<"hullcount"<<hullcount<<std::endl;
+		
+		//black will be the final image with only the content of the ConvexHull Region
+		Mat black(img.rows, img.cols, img.type(), cv::Scalar::all(0));
+		Mat mask(img.rows, img.cols, CV_8UC1, cv::Scalar(0));
+		
+		//hullpoints have the points themselves
+		vector< vector<Point> >  hullPoints;
+		hullPoints.push_back(vector<Point>());
+		cv::convexHull(Mat(coordinatesVector), hullPoints[0], true);
+		//std::cout<<hullPoints;
+		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );
+		img.copyTo(black,mask);  
+	
+		auto boundRect = boundingRect( Mat(hullPoints[0]) );
+		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
+		cv::Mat croppedImage = black(boundRect);
+		
+		//draw points, crow image and convexHull 
+		if(draw) 
+		{	
+			imshow("crop image", croppedImage);
+			cv::Point center;
+			center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
+			cv::circle(img,center,6,Scalar(0,0,255),4);
+		
+				for (uint i=0; i<coordinatesVector.size(); i++) 		
+				{
+					if (i<4)
+						cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
+					else 
+						cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
+				}
+				
+				//ConvexHull draw
+				for( int i = 0; i < hullcount; i++ )
+				{
+					Point pt = coordinatesVector[hull[i]];
+					line(img, pt0, pt, Scalar(255, 0, 0), 2);
+					pt0 = pt;
+					
+				}
+		}
+}
+
