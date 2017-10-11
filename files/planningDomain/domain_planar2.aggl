@@ -1,0 +1,1208 @@
+brickdspacePattern=3
+fontName=Arial
+fontSize=12
+lineThickness=2
+longPattern=3
+name=domain_planar2
+nodeThickness=2
+shortPattern=1
+spacePattern=3
+vertexDiameter=40
+===
+types
+{
+(obj)
+(person)
+(pose)
+(robot)
+(room)
+(sObj : obj)
+(table : sObj)
+(mObj : obj)
+(mug : mObj)
+(noodles : mObj)
+(brick : mObj)
+}
+===
+changeRoom : active(1)
+{
+	{
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
+		r1->r2(transitable)
+		robot->r1(in)
+	}
+	=>
+	{
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
+		r1->r2(transitable)
+		robot->r2(in)
+	}
+	effect
+	{
+		(and
+			(forall
+				something:mObj
+				(when
+					(in something robot)
+					(and
+						(not (in something r1))
+						(in something r2)
+					)
+				)
+			)
+			(forall
+				someobject:obj
+				(not (reach someobject someobject))
+			)
+			(forall
+				somepose:pose
+				(not (reach somepose somepose))
+			)
+		)
+	}
+}
+
+hierarchical changeRoom_hierarchical : active(1)
+{
+	{
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
+		robot->r1(in)
+	}
+	=>
+	{
+		r1:room(-120,100)
+		r2:room(120,100)
+		robot:robot(0,0)
+		robot->r2(in)
+	}
+}
+
+
+graspObject__object_brick : active(1)
+{
+	{
+		object:brick(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:brick(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->robot(in)
+		robot->object(know)
+		robot->robot(restArm)*
+		robot->room(in)
+		table->room(in)
+	}
+	precondition
+	{
+		(forall
+			someobject:mObj
+			(not
+				(in someobject robot)
+			)
+		)
+	}
+}
+
+graspObject__object_mug : active(1)
+{
+	{
+		object:mug(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:mug(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->robot(in)
+		robot->object(know)
+		robot->robot(restArm)*
+		robot->room(in)
+		table->room(in)
+	}
+	precondition
+	{
+		(forall
+			someobject:mObj
+			(not
+				(in someobject robot)
+			)
+		)
+	}
+}
+
+graspObject__object_noodles : active(1)
+{
+	{
+		object:noodles(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:noodles(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->object(reach)
+		object->robot(in)
+		robot->object(know)
+		robot->robot(restArm)*
+		robot->room(in)
+		table->room(in)
+	}
+	precondition
+	{
+		(forall
+			someobject:mObj
+			(not
+				(in someobject robot)
+			)
+		)
+	}
+}
+
+handObject__object_brick : active(1)
+{
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject__object_mug : active(1)
+{
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject__object_noodles : active(1)
+{
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_leave__object_brick : active(1)
+{
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_leave__object_mug : active(1)
+{
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_leave__object_noodles : active(1)
+{
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_offer__object_brick : active(1)
+{
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:brick(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_offer__object_mug : active(1)
+{
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:mug(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+handObject_offer__object_noodles : active(1)
+{
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+	=>
+	{
+		object:noodles(130,0)
+		person:person(0,110)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		object->person(offered)
+		object->robot(in)
+		person->room(in)
+		robot->object(know)
+		robot->room(in)
+	}
+}
+
+imaginaryObjNotFound__mObj_brick : passive(1)
+{
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+	}
+}
+
+imaginaryObjNotFound__mObj_mug : passive(1)
+{
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+	}
+}
+
+imaginaryObjNotFound__mObj_noodles : passive(1)
+{
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+	}
+}
+
+imagineMostLikelyObjInPosition__mObj_brick : active(2)
+{
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+		table->table(explored)*
+	}
+	=>
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+		table->table(explored)*
+	}
+}
+
+imagineMostLikelyObjInPosition__mObj_mug : active(2)
+{
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+		table->table(explored)*
+	}
+	=>
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+		table->table(explored)*
+	}
+}
+
+imagineMostLikelyObjInPosition__mObj_noodles : active(2)
+{
+	{
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		robot->robot(usedOracle)*
+		table->room(in)
+		table->table(explored)*
+	}
+	=>
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->mObj(reach)*
+		mObj->mObj(reachable)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+		table->table(explored)*
+	}
+}
+
+leaveObjectInTable__object_brick : active(1)
+{
+	{
+		object:brick(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		object:brick(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+leaveObjectInTable__object_mug : active(1)
+{
+	{
+		object:mug(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		object:mug(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+leaveObjectInTable__object_noodles : active(1)
+{
+	{
+		object:noodles(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->robot(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		object:noodles(160,0)
+		robot:robot(0,0)
+		room:room(0,110)
+		table:table(160,110)
+		object->table(in)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+hierarchical leaveObjectInTable_hierarchical__object_brick : active(1)
+{
+	{
+		object:brick(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->robot(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:brick(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+}
+
+
+hierarchical leaveObjectInTable_hierarchical__object_mug : active(1)
+{
+	{
+		object:mug(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->robot(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:mug(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+}
+
+
+hierarchical leaveObjectInTable_hierarchical__object_noodles : active(1)
+{
+	{
+		object:noodles(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->robot(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+	=>
+	{
+		object:noodles(130,0)
+		robot:robot(0,-110)
+		room:room(-130,0)
+		table:table(0,110)
+		object->table(in)
+		robot->object(know)
+		robot->room(in)
+		table->room(in)
+	}
+}
+
+
+hierarchical moveObjectToTable_hierarchical__movable_brick : active(1)
+{
+	{
+		movable:brick(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		robot->movable(know)
+		robot->table(know)
+	}
+	=>
+	{
+		movable:brick(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		movable->table(in)
+		robot->movable(know)
+		robot->table(know)
+	}
+}
+
+
+hierarchical moveObjectToTable_hierarchical__movable_mug : active(1)
+{
+	{
+		movable:mug(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		robot->movable(know)
+		robot->table(know)
+	}
+	=>
+	{
+		movable:mug(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		movable->table(in)
+		robot->movable(know)
+		robot->table(know)
+	}
+}
+
+
+hierarchical moveObjectToTable_hierarchical__movable_noodles : active(1)
+{
+	{
+		movable:noodles(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		robot->movable(know)
+		robot->table(know)
+	}
+	=>
+	{
+		movable:noodles(-100,110)
+		robot:robot(0,0)
+		table:table(100,110)
+		movable->table(in)
+		robot->movable(know)
+		robot->table(know)
+	}
+}
+
+
+reachPose : active(1)
+{
+	{
+		pose:pose(65,0)
+		robot:robot(-130,-125)
+		room:room(-130,0)
+		pose->pose(reach)*
+		pose->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		pose:pose(65,0)
+		robot:robot(-130,-125)
+		room:room(-130,0)
+		pose->pose(reach)
+		pose->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(and
+			(forall
+				someobject:obj
+				(not (reach someobject someobject))
+			)
+			(forall
+				somepose:pose
+				(when
+					(not (eq pose somepose) )
+					(not (reach somepose somepose))
+				)
+			)
+		)
+	}
+}
+
+setObjectReach__object_brick : active(1)
+{
+	{
+		object:brick(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)*
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		object:brick(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(and
+			(forall somepose:pose
+				(not (reach somepose somepose))
+			)
+			(forall someobject:obj
+				(when
+					(not (eq object someobject) )
+					(not (reach someobject someobject))
+				)
+			)
+		)
+	}
+}
+
+setObjectReach__object_mug : active(1)
+{
+	{
+		object:mug(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)*
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		object:mug(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(and
+			(forall somepose:pose
+				(not (reach somepose somepose))
+			)
+			(forall someobject:obj
+				(when
+					(not (eq object someobject) )
+					(not (reach someobject someobject))
+				)
+			)
+		)
+	}
+}
+
+setObjectReach__object_noodles : active(1)
+{
+	{
+		object:noodles(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)*
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		object:noodles(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(and
+			(forall somepose:pose
+				(not (reach somepose somepose))
+			)
+			(forall someobject:obj
+				(when
+					(not (eq object someobject) )
+					(not (reach someobject someobject))
+				)
+			)
+		)
+	}
+}
+
+setObjectReach__object_table : active(1)
+{
+	{
+		object:table(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)*
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	=>
+	{
+		object:table(160,130)
+		robot:robot(0,0)
+		room:room(0,130)
+		object->object(reach)
+		object->object(reachable)
+		object->room(in)
+		robot->room(in)
+	}
+	effect
+	{
+		(and
+			(forall somepose:pose
+				(not (reach somepose somepose))
+			)
+			(forall someobject:obj
+				(when
+					(not (eq object someobject) )
+					(not (reach someobject someobject))
+				)
+			)
+		)
+	}
+}
+
+setRestArmPosition : active(1)
+{
+	{
+		robot:robot(0,-110)
+		robot->robot(restArm)*
+	}
+	=>
+	{
+		robot:robot(0,-110)
+		robot->robot(restArm)
+	}
+}
+
+setStop : active(1)
+{
+	{
+		1:robot(0,0)
+		1->1(stop)*
+	}
+	=>
+	{
+		1:robot(0,0)
+		1->1(stop)
+	}
+}
+
+unsetRestArmPosition : passive(1)
+{
+	{
+		robot:robot(0,-110)
+		robot->robot(restArm)
+	}
+	=>
+	{
+		robot:robot(0,-110)
+		robot->robot(restArm)*
+	}
+}
+
+unsetStop : passive(1)
+{
+	{
+		1:robot(0,0)
+		1->1(stop)
+	}
+	=>
+	{
+		1:robot(0,0)
+		1->1(stop)*
+	}
+}
+
+verifyImaginaryObj__mObj_brick : active(1)
+{
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+verifyImaginaryObj__mObj_mug : active(1)
+{
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+verifyImaginaryObj__mObj_noodles : active(1)
+{
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+	=>
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		robot->room(in)
+		table->room(in)
+		table->table(reach)
+	}
+}
+
+hierarchical verifyImaginaryObj_hierarchical__mObj_brick : active(2)
+{
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		mObj:brick(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		table->room(in)
+	}
+}
+
+
+hierarchical verifyImaginaryObj_hierarchical__mObj_mug : active(2)
+{
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		mObj:mug(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		table->room(in)
+	}
+}
+
+
+hierarchical verifyImaginaryObj_hierarchical__mObj_noodles : active(2)
+{
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(imagine)
+		robot->robot(usedOracle)
+		table->room(in)
+	}
+	=>
+	{
+		mObj:noodles(0,0)
+		robot:robot(190,0)
+		room:room(190,130)
+		table:table(0,130)
+		mObj->room(in)
+		mObj->table(in)
+		robot->mObj(know)
+		table->room(in)
+	}
+}
+
+
