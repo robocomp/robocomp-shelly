@@ -100,18 +100,18 @@ void SpecificWorker::compute()
 			printf("The executive is probably not running, waiting for first AGM model publication...");
 		}
 	}
-	try
-	{
-		rgbd_proxy->getRGB(rgbdImage, hState, bState);
-		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
-		//READ FROM MODEL int witdh=850, depth=850, height=80, offset=0;
-		extractRectangleROI(rgbdImageColor,"rgbd","tableD",850,850);		
-		imshow("RGB from ASUS", rgbdImageColor);
-	}
-	catch(const Ice::Exception &e)
-	{
-		std::cout << "Error reading form RGBD " << e << std::endl;
-	}
+// 	try
+// 	{
+// 		rgbd_proxy->getRGB(rgbdImage, hState, bState);
+// 		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
+// 		//READ FROM MODEL int witdh=850, depth=850, height=80, offset=0;
+// 		//extractRectangleROI(rgbdImageColor,"rgbd","tableD",850,850);		
+// 		imshow("RGB from ASUS", rgbdImageColor);
+// 	}
+// 	catch(const Ice::Exception &e)
+// 	{
+// 		std::cout << "Error reading form RGBD " << e << std::endl;
+// 	}
 	
 	//For cameras
 	try
@@ -372,7 +372,7 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 		vector<Point> coordinatesVector;		
 		coordinatesVector.resize(8);
 	
-		tableCenterInWorld.print("tableCenterInWorld");
+		//tableCenterInWorld.print("tableCenterInWorld");
 		for (uint i=0; i<coordinatesVector.size(); i++) 
 		{			
 			//p1 
@@ -433,18 +433,13 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 			
 			coordinatesVector[i].x=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[0];		
 			coordinatesVector[i].y=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[1];				
-			
-			
 		}
-		
-		
 		//Convex HULL like example:https://github.com/opencv/opencv/blob/master/samples/cpp/convexhull.cpp				
 		vector<int> hull;
 		cv::convexHull(Mat(coordinatesVector), hull, true);
 		int hullcount = (int)hull.size();
 		Point pt0 = coordinatesVector[hull[hullcount-1]];
-// 		std::cout<<"hullcount"<<hullcount<<std::endl;
-		
+	
 		//black will be the final image with only the content of the ConvexHull Region
 		Mat black(img.rows, img.cols, img.type(), cv::Scalar::all(0));
 		Mat mask(img.rows, img.cols, CV_8UC1, cv::Scalar(0));
@@ -452,15 +447,20 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 		//hullpoints have the points themselves
 		vector< vector<Point> >  hullPoints;
 		hullPoints.push_back(vector<Point>());
-		cv::convexHull(Mat(coordinatesVector), hullPoints[0], true);
-		//std::cout<<hullPoints;
-		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );
-		img.copyTo(black,mask);  
-	
+		cv::convexHull(Mat(coordinatesVector), hullPoints[0], true);		
+// 		std::cout<<"hullPoints\n"<<hullPoints[0]<<"\n";
+		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );		
+		//copy to black from Img the pixels to nonZero in mask. 
+		img.copyTo(black,mask);  		
 		auto boundRect = boundingRect( Mat(hullPoints[0]) );
 		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
-		cv::Mat croppedImage = black(boundRect);
 		
+		auto total = cv::Rect (0,0,black.cols,black.rows);
+		boundRect = boundRect & total;		
+// 		std::cout<<"boundRect"<<boundRect<<"\n";
+
+		cv::Mat croppedImage;
+		croppedImage = black(boundRect);		
 		//draw points, crow image and convexHull 
 		if(draw) 
 		{	

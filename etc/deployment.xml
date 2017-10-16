@@ -29,16 +29,18 @@
   <color value="#AAAAAA" />
  </node>
 
- <node alias="objOracle" endpoint="agmcommonbehavior:tcp -h 10.0.30.22 -p 10338">
+ <node alias="oracleAgent" endpoint="objectoracle:tcp -h 10.0.30.11 -p 4000">
   <dependence alias="IS" />
   <dependence alias="rgbd" />
   <dependence alias="semantics" />
+  <dependence alias="camera" />
+  <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote 10.0.30.22 objectOracle /home/robocomp/robocomp/components/prp/components/objectOracle ./bin/objectoracle /home/robocomp/robocomp/components/robocomp-shelly/etc/objectoracle.conf" />
-  <downCommand command="rcremote 10.0.30.22 X /home/robocomp/robocomp/components/prp/components/objectOracle killall -9 objectoracle" />
-  <configFile path="kate /home/robocomp/robocomp/components/prp/etc/inneragent.conf" />
-  <xpos value="-107.375073902" />
-  <ypos value="-0.223081701317" />
+  <upCommand command="rcremote 10.0.30.11 oracleAgent /home/robocomp/robocomp/components/robocomp-shelly/components/oracleAgent ./bin/oracleAgent --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/oracleAgent.conf" />
+  <downCommand command="rcremote 10.0.30.11 X /home/robocomp/robocomp/components/robocomp-shelly/components/oracleAgent killall -9 oracleAgent" />
+  <configFile path="kate  /home/robocomp/robocomp/components/robocomp-shelly/etc/oracleAgent.conf" />
+   <xpos value="-137.419144251" />
+  <ypos value="-74.2062201369" />
   <radius value="10.0" />
   <color value="#33FF33" />
  </node>
@@ -51,6 +53,18 @@
   <configFile path="kate /home/robocomp/robocomp/components/prp/components/semanticSimilarity/etc/config" />
   <xpos value="-49.8058951575" />
   <ypos value="42.6745514225" />
+  <radius value="10.0" />
+  <color value="#33FF33" />
+ </node>
+ 
+  <node alias="camera" endpoint="commonbehavior:tcp -h 10.0.30.11 -p 12247">
+   <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote 10.0.30.11 CameraV4l /home/robocomp/robocomp/components/robocomp-robolab/components/cameraV4lComp
+ ./bin/CameraV4l --Ice.Config=/home/robocomp/robocomp/components/robocomp-shelly/etc/camera.conf" />
+  <downCommand command="rcremote 10.0.30.11 X /home/robocomp/robocomp/components/robocomp-robolab/components/cameraV4lComp killall -9 CameraV4l" />
+  <configFile path="kate  /home/robocomp/robocomp/components/robocomp-shelly/etc/camera.conf" />
+  <xpos value="-107.375073902" />
+  <ypos value="-0.223081701317" />
   <radius value="10.0" />
   <color value="#33FF33" />
  </node>
