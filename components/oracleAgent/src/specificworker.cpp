@@ -123,7 +123,10 @@ void SpecificWorker::compute()
 		for (auto i : images)
 		{		
 			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
-			extractRectangleROI(cameraImageColor,"camera","tableD", 850,850);		
+			QStringList symbolNameList;
+						
+			symbolNameList <<"table_20";symbolNameList <<"table_38";symbolNameList <<"table_35";symbolNameList <<"table_26";
+			extractContainers (cameraImageColor,"camera", symbolNameList);		
 			imshow("RGB from CAMERA", cameraImageColor);
 		}
 	}
@@ -251,7 +254,7 @@ void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &mod
 	QMutexLocker lockIM(mutex);
 	for (auto modification : modifications)
 	{
-		printf("%d--[%s]-->%d\n", modification.a, modification.edgeType.c_str(), modification.b);
+// 		printf("%d--[%s]-->%d\n", modification.a, modification.edgeType.c_str(), modification.b);
 		AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 		AGMInner::updateImNodeFromEdge(worldModel, modification, innerModel);
 	}
@@ -362,8 +365,27 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
+void SpecificWorker::extractContainers (Mat img, QString sensorName, QStringList symbolNameList )
+{
+	QMap <QString,Mat> croppedImageMap;
+	bool draw=true;
+	foreach (QString symbolName, symbolNameList)
+	{
+		QString imName =QString::fromStdString(worldModel->getSymbolByName (symbolName.toStdString())->getAttribute("imName"));
+		int depth = str2int(worldModel->getSymbolByName(symbolName.toStdString())->getAttribute("depth"));
+		int width = str2int(worldModel->getSymbolByName(symbolName.toStdString())->getAttribute("width"));
 
-void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height, int offset, bool draw)
+		croppedImageMap[imName]=extractRectangleROI(img,sensorName,imName,width,depth);
+	}
+	
+	if (draw)
+	{
+// 		qDebug()<<croppedImageMap.size()<<croppedImageMap.keys();
+		foreach (QString n, croppedImageMap.keys())
+			imshow(n.toStdString(),croppedImageMap[n]);
+	}
+}
+Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height, int offset, bool draw)
 {
 		auto tableCenterInWorld= innerModel->transform("world",imName);
 		//project in screen coordinates		
@@ -371,7 +393,7 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 		auto worldCoordinates = tableCenterInWorld;
 		vector<Point> coordinatesVector;		
 		coordinatesVector.resize(8);
-	
+		
 		//tableCenterInWorld.print("tableCenterInWorld");
 		for (uint i=0; i<coordinatesVector.size(); i++) 
 		{			
@@ -447,24 +469,29 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 		//hullpoints have the points themselves
 		vector< vector<Point> >  hullPoints;
 		hullPoints.push_back(vector<Point>());
+		
 		cv::convexHull(Mat(coordinatesVector), hullPoints[0], true);		
 // 		std::cout<<"hullPoints\n"<<hullPoints[0]<<"\n";
-		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );		
+		
+		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );	
+// 		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
 		//copy to black from Img the pixels to nonZero in mask. 
 		img.copyTo(black,mask);  		
-		auto boundRect = boundingRect( Mat(hullPoints[0]) );
-		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
+		Rect boundRect;		
+		cv::Mat croppedImage (img.rows/10, img.cols/10, img.type(), cv::Scalar(0,0,255));
 		
+		boundRect = boundingRect( Mat(hullPoints[0]) );
+		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
 		auto total = cv::Rect (0,0,black.cols,black.rows);
-		boundRect = boundRect & total;		
-// 		std::cout<<"boundRect"<<boundRect<<"\n";
-
-		cv::Mat croppedImage;
-		croppedImage = black(boundRect);		
-		//draw points, crow image and convexHull 
+		boundRect = boundRect & total;
+		//intersection could be empty
+		if (boundRect.area()>0)
+			croppedImage = black(boundRect);		
+		//draw points, crow image and convexHull 		
 		if(draw) 
 		{	
-			imshow("crop image", croppedImage);
+// 			printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+
 			cv::Point center;
 			center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
 			cv::circle(img,center,6,Scalar(0,0,255),4);
@@ -486,5 +513,6 @@ void SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString im
 					
 				}
 		}
+	return croppedImage;
 }
 

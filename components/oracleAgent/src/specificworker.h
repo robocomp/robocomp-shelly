@@ -44,7 +44,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-
+#include <qt4/QtCore/QMap>
 
 using namespace cv;
 
@@ -72,11 +72,13 @@ public:
 	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
 	
-	//Image, sensorName, InnerModel name of the object, width and depth: object parameters, height of ROI, offset=extra length in width and deepth
-	void extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 80, int offset = 0, bool draw=true);
+	//Image, sensorName, InnerModel names list of the containers, width and depth: object parameters, height of ROI, offset=extra length in width and deepth
+	Mat extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 80, int offset = 0, bool draw = true);
+	void extractContainers(Mat img, QString sensorName,QStringList QStringList);
 
 public slots:
 	void compute();
+	
 
 private:
 	InnerModel *innerModel;
