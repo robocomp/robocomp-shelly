@@ -71,11 +71,11 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="35" type="table">
-	<attribute key="depth" value="700" />
-	<attribute key="height" value="1200" />
+	<attribute key="depth" value="1000" />
+	<attribute key="height" value="760" />
 	<attribute key="imName" value="tableD" />
 	<attribute key="imType" value="transform" />
-	<attribute key="width" value="1200" />
+	<attribute key="width" value="1000" />
 </symbol>
 <symbol id="37" type="objectSt">
 	<attribute key="imName" value="tableD_reachPos" />
@@ -572,9 +572,9 @@
 	<attribute key="imType" value="mesh" />
 	<attribute key="path" value="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" />
 	<attribute key="render" value="NormalRendering" />
-	<attribute key="scalex" value="800" />
+	<attribute key="scalex" value="1820" />
 	<attribute key="scaley" value="20" />
-	<attribute key="scalez" value="1820" />
+	<attribute key="scalez" value="820" />
 </symbol>
 <symbol id="711" type="transform">
 	<attribute key="engine" value="static" />
@@ -2313,7 +2313,7 @@
 </link>
 <link src="3" dst="26" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="-0.05" />
+	<linkAttribute key="ry" value="1.5208" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="4880" />
 	<linkAttribute key="ty" value="760" />
