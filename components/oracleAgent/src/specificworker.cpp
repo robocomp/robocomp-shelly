@@ -73,8 +73,8 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 
 	try
 	{
-		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-		structuralChange(w);
+		RoboCompAGMWorldModel::World worldModel = agmexecutive_proxy->getModel();
+		structuralChange(worldModel);
 	}
 	catch(...)
 	{
@@ -120,13 +120,12 @@ void SpecificWorker::compute()
 		CameraList cameraList;
 		cameraList.push_back(std::string("default"));
 		rgbdbus_proxy->getImages(cameraList, images);
+		
 		for (auto i : images)
 		{		
 			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
-			QStringList symbolNameList;
-						
-			symbolNameList <<"table_20";symbolNameList <<"table_38";symbolNameList <<"table_35";symbolNameList <<"table_26";
-			extractContainers (cameraImageColor,"camera", symbolNameList);		
+			
+			extractContainers (cameraImageColor,"camera");		
 			imshow("RGB from CAMERA", cameraImageColor);
 		}
 	}
@@ -365,17 +364,41 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
-void SpecificWorker::extractContainers (Mat img, QString sensorName, QStringList symbolNameList )
+void SpecificWorker::extractContainers (Mat img, QString sensorName)
 {
-	QMap <QString,Mat> croppedImageMap;
+	QMap <QString,Mat> croppedImageMap;croppedImageMap.clear();
+	// 	QStringList symbolNameList; 
 	bool draw=true;
-	foreach (QString symbolName, symbolNameList)
+	cv::Mat aux;
+	//search rectangle table 
+// 	struct rectangleContainer{
+// 		QString imName;
+// 		int depth;
+// 		int width;
+// 	};
+	std::vector <AGMModelSymbol::SPtr> symbols  = worldModel->getSymbols();
+	//getSymbolsByType jejej
+	std::string symbolType ="table";
+	for (uint32_t i=0; i<symbols.size(); ++i)
 	{
-		QString imName =QString::fromStdString(worldModel->getSymbolByName (symbolName.toStdString())->getAttribute("imName"));
-		int depth = str2int(worldModel->getSymbolByName(symbolName.toStdString())->getAttribute("depth"));
-		int width = str2int(worldModel->getSymbolByName(symbolName.toStdString())->getAttribute("width"));
-
-		croppedImageMap[imName]=extractRectangleROI(img,sensorName,imName,width,depth);
+		if (symbols[i]->typeString() == symbolType)			
+		{
+			try
+			{
+				QString imName = QString::fromStdString(symbols[i]->getAttribute("imName"));
+				int depth = str2int(symbols[i]->getAttribute("depth"));
+				int width = str2int(symbols[i]->getAttribute("width"));
+				aux=extractRectangleROI(img,sensorName,imName,width,depth);
+				if (!aux.empty())
+					croppedImageMap.insert(imName,aux);
+			}
+			catch ( AGMModelException e)
+			{
+				//Debug
+// 				std::cout<<e.what();
+// 				std::cout<<"\nDon't have imName, depth or width attributes:\n"<<symbols[i]->toString(true)<<"\n"; 
+			}
+		}
 	}
 	
 	if (draw)
@@ -387,78 +410,73 @@ void SpecificWorker::extractContainers (Mat img, QString sensorName, QStringList
 }
 Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height, int offset, bool draw)
 {
-		auto tableCenterInWorld= innerModel->transform("world",imName);
-		//project in screen coordinates		
-		auto tableCenterInScreenCoords = innerModel->getCamera(sensorName)->project("world",tableCenterInWorld);	
-		auto worldCoordinates = tableCenterInWorld;
-		vector<Point> coordinatesVector;		
-		coordinatesVector.resize(8);
-		
-		//tableCenterInWorld.print("tableCenterInWorld");
-		for (uint i=0; i<coordinatesVector.size(); i++) 
-		{			
-			//p1 
-			if (i==0)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			
-			//p2 
-			if (i==1)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			//p3 
-			if (i==2)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p4 
-			if (i==3)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p5
-			if (i==4)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			
-			//p6 
-			if (i==5)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] + depth/2 + offset;
-			}
-			//p7 
-			if (i==6)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] + width/2 + offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-			//p8 
-			if (i==7)
-			{
-				worldCoordinates[0] = tableCenterInWorld[0] - width/2 - offset;
-				worldCoordinates[1] = tableCenterInWorld[1] + height;
-				worldCoordinates[2] = tableCenterInWorld[2] - depth/2 - offset;
-			}
-// 			worldCoordinates.print("worldCoordinates");
-			
-			coordinatesVector[i].x=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[0];		
-			coordinatesVector[i].y=innerModel->getCamera(sensorName)->project("world",worldCoordinates)[1];				
+	cv::Mat croppedImage;// (img.rows/10, img.cols/10, img.type(), cv::Scalar(0,0,255));
+	auto tableCenterInWorld= innerModel->transform("world",imName);
+	//project in screen coordinates	the center of the table	
+	auto tableCenterInScreenCoords = innerModel->getCamera(sensorName)->project("world",tableCenterInWorld);	
+	vector<Point> coordinatesVector;		
+	QVec coordsInSensor;
+
+	for (uint i=0; i<8; i++) 
+	{			
+		//p1 
+		if (i==0)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, 0, depth/2 + offset), imName);
 		}
+		
+		//p2 
+		if (i==1)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(width/2 + offset, 0, depth/2 + offset), imName);
+		}
+		//p3 
+		if (i==2)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(width/2 + offset, 0, - depth/2 - offset), imName);
+		}
+		//p4 
+		if (i==3)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(- width/2 - offset, 0, - depth/2 - offset), imName);
+		}
+		//p5
+		if (i==4)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, height, depth/2 + offset), imName);
+		}
+		
+		//p6 
+		if (i==5)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(width/2 + offset, height, depth/2 + offset), imName);
+		}
+		//p7 
+		if (i==6)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(width/2 + offset, height, - depth/2 - offset), imName);
+		}
+		//p8 
+		if (i==7)
+		{
+			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(- width/2 - offset, height, - depth/2 - offset), imName);
+		}
+// 			worldCoordinates.print("worldCoordinates");
+		if (coordsInSensor[2]>0.1)
+		{
+			Point p;
+			p.x=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[0];
+			p.y=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[1];
+			coordinatesVector.push_back(p);
+		}
+	}
+	
+// 	printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+	if (coordinatesVector.size() > 0)
+	{
 		//Convex HULL like example:https://github.com/opencv/opencv/blob/master/samples/cpp/convexhull.cpp				
 		vector<int> hull;
-		cv::convexHull(Mat(coordinatesVector), hull, true);
+		cv::convexHull(Mat(coordinatesVector), hull, true);		
 		int hullcount = (int)hull.size();
 		Point pt0 = coordinatesVector[hull[hullcount-1]];
 	
@@ -476,9 +494,8 @@ Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imN
 		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );	
 // 		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
 		//copy to black from Img the pixels to nonZero in mask. 
-		img.copyTo(black,mask);  		
-		Rect boundRect;		
-		cv::Mat croppedImage (img.rows/10, img.cols/10, img.type(), cv::Scalar(0,0,255));
+		img.copyTo(black,mask); 
+		Rect boundRect;
 		
 		boundRect = boundingRect( Mat(hullPoints[0]) );
 		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
@@ -486,33 +503,33 @@ Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imN
 		boundRect = boundRect & total;
 		//intersection could be empty
 		if (boundRect.area()>0)
-			croppedImage = black(boundRect);		
-		//draw points, crow image and convexHull 		
+			croppedImage = black(boundRect);				
+		//draw points and convexHull 	
 		if(draw) 
 		{	
 // 			printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
-
 			cv::Point center;
 			center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
 			cv::circle(img,center,6,Scalar(0,0,255),4);
 		
-				for (uint i=0; i<coordinatesVector.size(); i++) 		
-				{
-					if (i<4)
-						cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
-					else 
-						cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
-				}
+			for (uint i=0; i<coordinatesVector.size(); i++) 		
+			{
+				if (i<coordinatesVector.size()/2)
+					cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
+				else 
+					cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
+			}
+			
+			//ConvexHull draw
+			for( int i = 0; i < hullcount; i++ )
+			{
+				Point pt = coordinatesVector[hull[i]];
+				line(img, pt0, pt, Scalar(255, 0, 0), 2);
+				pt0 = pt;
 				
-				//ConvexHull draw
-				for( int i = 0; i < hullcount; i++ )
-				{
-					Point pt = coordinatesVector[hull[i]];
-					line(img, pt0, pt, Scalar(255, 0, 0), 2);
-					pt0 = pt;
-					
-				}
+			}
 		}
+	}
 	return croppedImage;
 }
 
