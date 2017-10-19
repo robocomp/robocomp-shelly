@@ -75,6 +75,7 @@ public:
 	//Image, sensorName, InnerModel names list of the containers, width and depth: object parameters, height of ROI, offset=extra length in width and deepth
 	Mat extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 80, int offset = 0, bool draw = true);
 	void extractContainers(Mat img, QString sensorName);
+	Mat extractPolygonalROI(Mat img, QString sensorName, QString imName, float radius, int sides,int height = 80, int offset = 0, bool draw = true);
 
 public slots:
 	void compute();

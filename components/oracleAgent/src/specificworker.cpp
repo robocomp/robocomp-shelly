@@ -124,8 +124,9 @@ void SpecificWorker::compute()
 		for (auto i : images)
 		{		
 			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
-			
+			qDebug()<<"------------------";
 			extractContainers (cameraImageColor,"camera");		
+			qDebug()<<"------------------";
 			imshow("RGB from CAMERA", cameraImageColor);
 		}
 	}
@@ -388,7 +389,9 @@ void SpecificWorker::extractContainers (Mat img, QString sensorName)
 				QString imName = QString::fromStdString(symbols[i]->getAttribute("imName"));
 				int depth = str2int(symbols[i]->getAttribute("depth"));
 				int width = str2int(symbols[i]->getAttribute("width"));
-				aux=extractRectangleROI(img,sensorName,imName,width,depth);
+				qDebug()<<"\tTable Name:"<<imName;
+// 				aux=extractRectangleROI(img,sensorName,imName,width,depth);
+				aux=extractPolygonalROI(img,sensorName,imName,800.0,8);				
 				if (!aux.empty())
 					croppedImageMap.insert(imName,aux);
 			}
@@ -533,3 +536,118 @@ Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imN
 	return croppedImage;
 }
 
+Mat SpecificWorker::extractPolygonalROI(Mat img, QString sensorName, QString imName, float radius, int sides, int height, int offset, bool draw )
+{
+	if (sides < 3)
+	{
+		qDebug()<<"Actual sides "<<sides<<"We need at least 3 sides\n";
+		qFatal ("fary");
+	}	
+	cv::Mat croppedImage;
+	auto tableCenterInWorld= innerModel->transform("world",imName);
+	//project in screen coordinates	the center of the table	
+	auto tableCenterInScreenCoords = innerModel->getCamera(sensorName)->project("world",tableCenterInWorld);	
+	vector<Point> coordinatesVector;
+	coordinatesVector.clear();
+	QVec coordsInSensor;
+	for (int i=0; i<sides; i++) 
+	{			
+		//p1 
+// 		if (i==0)
+// 		{
+// 			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, 0, depth/2 + offset), imName);
+// 		}
+		float alpha= i*(2*M_PI/sides);
+		radius = abs(radius);
+		float X = radius*cos(alpha);
+		float Z = radius*sin(alpha);
+		coordsInSensor = innerModel->transform(sensorName, QVec::vec3(X, 0,Z), imName);
+		if (coordsInSensor[2]>0.1)
+		{
+			Point p;
+			p.x=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[0];
+			p.y=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[1];
+			coordinatesVector.push_back(p);
+		}
+	}
+	for (int i=0; i<sides; i++) 
+	{			
+		//p1 
+// 		if (i==0)
+// 		{
+// 			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, 0, depth/2 + offset), imName);
+// 		}
+		float alpha=i*(2*M_PI/sides);
+		radius = abs(radius);
+		float X = radius*cos(alpha);
+		float Z = radius*sin(alpha);
+		coordsInSensor = innerModel->transform(sensorName, QVec::vec3(X, height,Z), imName);
+		if (coordsInSensor[2]>0.1)
+		{
+			Point p;
+			p.x=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[0];
+			p.y=innerModel->getCamera(sensorName)->project(sensorName,coordsInSensor)[1];
+			coordinatesVector.push_back(p);
+		}
+	}
+	if (coordinatesVector.size() > 0)
+	{
+		//Convex HULL like example:https://github.com/opencv/opencv/blob/master/samples/cpp/convexhull.cpp				
+		vector<int> hull;
+		cv::convexHull(Mat(coordinatesVector), hull, true);		
+		int hullcount = (int)hull.size();
+		Point pt0 = coordinatesVector[hull[hullcount-1]];
+	
+		//black will be the final image with only the content of the ConvexHull Region
+		Mat black(img.rows, img.cols, img.type(), cv::Scalar::all(0));
+		Mat mask(img.rows, img.cols, CV_8UC1, cv::Scalar(0));
+		
+		//hullpoints have the points themselves
+		vector< vector<Point> >  hullPoints;
+		hullPoints.push_back(vector<Point>());
+		
+		cv::convexHull(Mat(coordinatesVector), hullPoints[0], true);		
+// 		std::cout<<"hullPoints\n"<<hullPoints[0]<<"\n";
+		
+		drawContours( mask,hullPoints,0, Scalar(255),CV_FILLED, 8 );	
+// 		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+		//copy to black from Img the pixels to nonZero in mask. 
+		img.copyTo(black,mask); 
+		Rect boundRect;
+		
+		boundRect = boundingRect( Mat(hullPoints[0]) );
+		//minEnclosingCircle( (Mat)co_ordinates[0], center[i], radius[i] );
+		auto total = cv::Rect (0,0,black.cols,black.rows);
+		boundRect = boundRect & total;
+		//intersection could be empty
+		if (boundRect.area()>0)
+			croppedImage = black(boundRect);				
+		//draw points and convexHull 	
+		if(draw) 
+			{	
+		// 			printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+				cv::Point center;
+				center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
+				cv::circle(img,center,6,Scalar(0,0,255),4);
+				qDebug()<<"coordinatesVector size"<<coordinatesVector.size();
+				std::cout<<coordinatesVector<<std::endl;
+				for (uint i=0; i<coordinatesVector.size(); i++) 		
+				{
+					if (i<coordinatesVector.size()/2)
+						cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
+					else 
+						cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
+				}
+				
+				//ConvexHull draw
+				for( int i = 0; i < hullcount; i++ )
+				{
+					Point pt = coordinatesVector[hull[i]];
+					line(img, pt0, pt, Scalar(255, 0, 0), 2);
+					pt0 = pt;
+					
+				}
+			}
+	}
+	return croppedImage;
+}
