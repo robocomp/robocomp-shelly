@@ -2694,7 +2694,7 @@
 </link>
 <link src="5" dst="38" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="-0" />
+	<linkAttribute key="ry" value="1.5208" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="6400" />
 	<linkAttribute key="ty" value="740" />
