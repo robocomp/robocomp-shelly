@@ -25,6 +25,7 @@
 	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableA" />
 	<attribute key="imType" value="transform" />
+	<attribute key="tableType" value="rectangle" />
 	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="22" type="objectSt">
@@ -36,6 +37,7 @@
 	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableB" />
 	<attribute key="imType" value="transform" />
+	<attribute key="tableType" value="rectangle" />
 	<attribute key="tag" value="30" />
 	<attribute key="width" value="1200" />
 </symbol>
@@ -48,6 +50,7 @@
 	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableC" />
 	<attribute key="imType" value="transform" />
+	<attribute key="tableType" value="rectangle" />
 	<attribute key="width" value="1750" />
 </symbol>
 <symbol id="28" type="objectSt">
@@ -71,11 +74,12 @@
 	<attribute key="imType" value="transform" />
 </symbol>
 <symbol id="35" type="table">
-	<attribute key="depth" value="1000" />
 	<attribute key="height" value="760" />
 	<attribute key="imName" value="tableD" />
 	<attribute key="imType" value="transform" />
-	<attribute key="width" value="1000" />
+	<attribute key="radius" value="600" />
+	<attribute key="sides" value="30" />
+	<attribute key="tableType" value="polygonal" />
 </symbol>
 <symbol id="37" type="objectSt">
 	<attribute key="imName" value="tableD_reachPos" />
@@ -86,6 +90,7 @@
 	<attribute key="height" value="800" />
 	<attribute key="imName" value="tableE" />
 	<attribute key="imType" value="transform" />
+	<attribute key="tableType" value="rectangle" />
 	<attribute key="width" value="1800" />
 </symbol>
 <symbol id="40" type="objectSt">

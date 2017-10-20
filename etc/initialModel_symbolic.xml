@@ -37,6 +37,7 @@
 		<attribute key="width" value="1750" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
+		<attribute key="tableType" value="rectangle" />
 	</symbol>
 	<symbol id="22" type="objectSt">
 		<attribute key="imType" value="transform" />
@@ -57,6 +58,7 @@
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
 		<attribute key="tag" value="30" />
+		<attribute key="tableType" value="rectangle" />
 	</symbol>
 	<symbol id="25" type="objectSt">
 		<attribute key="imType" value="transform" />
@@ -88,6 +90,7 @@
 		<attribute key="width" value="1750" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
+		<attribute key="tableType" value="rectangle" />
 	</symbol>
 	<symbol id="28" type="objectSt">
 		<attribute key="imType" value="transform" />
@@ -135,9 +138,10 @@
 	<symbol id="35" type="table">
 		<attribute key="imType" value="transform" />
 		<attribute key="imName" value="tableD" />
-		<attribute key="width" value="1000" />
+		<attribute key="radius" value="600" />
 		<attribute key="height" value="760" />
-		<attribute key="depth" value="1000" />
+		<attribute key="sides" value="30" />
+		<attribute key="tableType" value="polygonal" />
 	</symbol>
 	<link src="1" dst="35" label="know" > </link>
 	<link src="35" dst="5" label="in" > </link>
@@ -158,6 +162,7 @@
 		<attribute key="width" value="1800" />
 		<attribute key="height" value="800" />
 		<attribute key="depth" value="700" />
+		<attribute key="tableType" value="rectangle" />
 	</symbol>
 	<link src="1" dst="38" label="know" />
 	<link src="38" dst="5" label="in" > </link>
@@ -169,10 +174,6 @@
 	<link src="38" dst="40" label="table" > </link>
 	<link src="38" dst="38" label="explored" > </link>
 	<link src="38" dst="38" label="reachable" />
-
-
-
-
 
 	<symbol id="52" type="pose">
 		<attribute key="imType" value="transform" />
