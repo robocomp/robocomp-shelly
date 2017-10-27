@@ -37,6 +37,7 @@
 #include <GenericBase.h>
 #include <SemanticSimilarity.h>
 #include <RGBDBus.h>
+#include <Yoloserver.h>
 #include <agm.h>
 
 #define CHECK_PERIOD 5000
@@ -47,6 +48,7 @@ typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 using namespace std;
 
 using namespace RoboCompGenericBase;
+using namespace RoboCompYoloServer;
 using namespace RoboCompAGMWorldModel;
 using namespace RoboCompObjectOracle;
 using namespace RoboCompSemanticSimilarity;
@@ -88,8 +90,9 @@ public:
 
 
 	RGBDPrx rgbd_proxy;
-	SemanticSimilarityPrx semanticsimilarity_proxy;
 	RGBDBusPrx rgbdbus_proxy;
+	SemanticSimilarityPrx semanticsimilarity_proxy;
+	YoloServerPrx yoloserver_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	virtual bool reloadConfigAgent() = 0;

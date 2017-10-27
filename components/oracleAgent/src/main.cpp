@@ -94,6 +94,7 @@
 #include <GenericBase.h>
 #include <SemanticSimilarity.h>
 #include <RGBDBus.h>
+#include <Yoloserver.h>
 
 
 // User includes here
@@ -145,9 +146,10 @@ int ::oracleAgent::run(int argc, char* argv[])
 
 	int status=EXIT_SUCCESS;
 
-	RGBDPrx rgbd_proxy;
-	RGBDBusPrx rgbdbus_proxy;
 	SemanticSimilarityPrx semanticsimilarity_proxy;
+	RGBDBusPrx rgbdbus_proxy;
+	YoloServerPrx yoloserver_proxy;
+	RGBDPrx rgbd_proxy;
 	AGMExecutivePrx agmexecutive_proxy;
 
 	string proxy, tmp;
@@ -156,19 +158,19 @@ int ::oracleAgent::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "RGBDProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "SemanticSimilarityProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy RGBDProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy SemanticSimilarityProxy\n";
 		}
-		rgbd_proxy = RGBDPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		semanticsimilarity_proxy = SemanticSimilarityPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("RGBDProxy initialized Ok!");
-	mprx["RGBDProxy"] = (::IceProxy::Ice::Object*)(&rgbd_proxy);//Remote server proxy creation example
+	rInfo("SemanticSimilarityProxy initialized Ok!");
+	mprx["SemanticSimilarityProxy"] = (::IceProxy::Ice::Object*)(&semanticsimilarity_proxy);//Remote server proxy creation example
 
 
 	try
@@ -190,19 +192,36 @@ int ::oracleAgent::run(int argc, char* argv[])
 
 	try
 	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "SemanticSimilarityProxy", proxy, ""))
+		if (not GenericMonitor::configGetString(communicator(), prefix, "YoloServerProxy", proxy, ""))
 		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy SemanticSimilarityProxy\n";
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy YoloServerProxy\n";
 		}
-		semanticsimilarity_proxy = SemanticSimilarityPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+		yoloserver_proxy = YoloServerPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
 	}
 	catch(const Ice::Exception& ex)
 	{
 		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
 		return EXIT_FAILURE;
 	}
-	rInfo("SemanticSimilarityProxy initialized Ok!");
-	mprx["SemanticSimilarityProxy"] = (::IceProxy::Ice::Object*)(&semanticsimilarity_proxy);//Remote server proxy creation example
+	rInfo("YoloServerProxy initialized Ok!");
+	mprx["YoloServerProxy"] = (::IceProxy::Ice::Object*)(&yoloserver_proxy);//Remote server proxy creation example
+
+
+	try
+	{
+		if (not GenericMonitor::configGetString(communicator(), prefix, "RGBDProxy", proxy, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy RGBDProxy\n";
+		}
+		rgbd_proxy = RGBDPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("RGBDProxy initialized Ok!");
+	mprx["RGBDProxy"] = (::IceProxy::Ice::Object*)(&rgbd_proxy);//Remote server proxy creation example
 
 
 	try

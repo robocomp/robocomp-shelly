@@ -100,12 +100,12 @@ void SpecificWorker::compute()
 			printf("The executive is probably not running, waiting for first AGM model publication...");
 		}
 	}
+	//Ready to work, online uncomment
 // 	try
 // 	{
 // 		rgbd_proxy->getRGB(rgbdImage, hState, bState);
 // 		memcpy(rgbdImageColor.data , &rgbdImage[0], RGBD_IMAGE_WIDTH*RGBD_IMAGE_HEIGHT*3);
-// 		//READ FROM MODEL int witdh=850, depth=850, height=80, offset=0;
-// 		//extractRectangleROI(rgbdImageColor,"rgbd","tableD",850,850);		
+// 		extractContainers (rgbdImage,"rgbd");					
 // 		imshow("RGB from ASUS", rgbdImageColor);
 // 	}
 // 	catch(const Ice::Exception &e)
@@ -114,39 +114,30 @@ void SpecificWorker::compute()
 // 	}
 	
 	//For cameras
+	RoboCompRGBDBus::ImageMap images;
 	try
 	{
-		RoboCompRGBDBus::ImageMap images;
+		
 		CameraList cameraList;
 		cameraList.push_back(std::string("default"));
 		rgbdbus_proxy->getImages(cameraList, images);
-		
-		for (auto i : images)
-		{		
-			memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);
-			qDebug()<<"------------------";
-			extractContainers (cameraImageColor,"camera");		
-			qDebug()<<"------------------";
-			imshow("RGB from CAMERA", cameraImageColor);
-		}
 	}
 	catch(const Ice::Exception &e)
 	{
 		std::cout << "Error reading from CAMERA" << e << std::endl;
+		return;
+	}
+
+		
+	for (auto i : images)
+	{		
+		memcpy(cameraImageColor.data, &i.second.colorImage[0], CAMERA_IMAGE_WIDTH*CAMERA_IMAGE_HEIGTH*3);			
+		//draw image with yolo		
+		showImage(cameraImageColor,true);
+		//extractContainers 
+		extractContainers (cameraImageColor,"camera","table");			
 	}
 	
-	//computeCODE
-// 	try
-// 	{
-// 		camera_proxy->getYImage(0,img, cState, bState);
-// 		memcpy(image_gray.data, &img[0], m_width*m_height*sizeof(uchar));
-// 		searchTags(image_gray);
-// 	}
-// 	catch(const Ice::Exception &e)
-// 	{
-// 		std::cout << "Error reading from Camera" << e << std::endl;
-// 	}
-
 #ifdef USE_QTGUI
 	if (innerModelViewer) innerModelViewer->update();
 	osgView->frame();
@@ -365,33 +356,45 @@ void SpecificWorker::sendModificationProposal(AGMModel::SPtr &worldModel, AGMMod
 		exit(1);
 	}
 }
-void SpecificWorker::extractContainers (Mat img, QString sensorName)
+void SpecificWorker::extractContainers (Mat img, QString sensorName,std::string containerType)
 {
-	QMap <QString,Mat> croppedImageMap;croppedImageMap.clear();
-	// 	QStringList symbolNameList; 
+	QMap <QString,Mat> croppedImageMap;croppedImageMap.clear();	
 	bool draw=true;
-	cv::Mat aux;
-	//search rectangle table 
-// 	struct rectangleContainer{
-// 		QString imName;
-// 		int depth;
-// 		int width;
-// 	};
-	std::vector <AGMModelSymbol::SPtr> symbols  = worldModel->getSymbols();
-	//getSymbolsByType jejej
-	std::string symbolType ="table";
-	for (uint32_t i=0; i<symbols.size(); ++i)
+// 	cameraImageColor.create(CAMERA_IMAGE_HEIGTH,CAMERA_IMAGE_WIDTH,CV_8UC3);
+ 	cv::Mat aux;
+	std::vector <AGMModelSymbol::SPtr> tableSymbols  = worldModel->getSymbolsByType(containerType);
+	if ( tableSymbols.empty() )
 	{
-		if (symbols[i]->typeString() == symbolType)			
+		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+		std::cout<<"\nWe don't have found any symbol of the type: "<<containerType<<"\n"; 
+		return;
+	}
+	for (uint32_t i=0; i<tableSymbols.size(); ++i)
+	{
+		if (tableSymbols[i]->typeString() == containerType)			
 		{
 			try
 			{
-				QString imName = QString::fromStdString(symbols[i]->getAttribute("imName"));
-				int depth = str2int(symbols[i]->getAttribute("depth"));
-				int width = str2int(symbols[i]->getAttribute("width"));
-				qDebug()<<"\tTable Name:"<<imName;
-// 				aux=extractRectangleROI(img,sensorName,imName,width,depth);
-				aux=extractPolygonalROI(img,sensorName,imName,800.0,8);				
+				QString imName = QString::fromStdString(tableSymbols[i]->getAttribute("imName"));
+				if (tableSymbols[i]->getAttribute("tableType") == "rectangle")
+				{
+					int depth = str2int(tableSymbols[i]->getAttribute("depth"));
+					int width = str2int(tableSymbols[i]->getAttribute("width"));
+// 					qDebug()<<"\tTable Name:"<<imName;
+					aux=extractRectangleROI(img,sensorName,imName,width,depth,300,100,true);				
+				}
+				else if (tableSymbols[i]->getAttribute("tableType") == "polygonal")
+				{
+					float radius = str2float(tableSymbols[i]->getAttribute("radius"));
+					int sides = str2int(tableSymbols[i]->getAttribute("sides"));
+// 					qDebug()<<"\tTable Name:"<<imName;
+					aux=extractPolygonalROI(img,sensorName,imName,radius, sides);				
+				}
+				else 
+				{
+					printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+					std::cout<<"\nUnknwon tableType. Showing all SYMBOL information:\n"<<tableSymbols[i]->toString(true)<<"\n"; 
+				}
 				if (!aux.empty())
 					croppedImageMap.insert(imName,aux);
 			}
@@ -399,21 +402,70 @@ void SpecificWorker::extractContainers (Mat img, QString sensorName)
 			{
 				//Debug
 // 				std::cout<<e.what();
-// 				std::cout<<"\nDon't have imName, depth or width attributes:\n"<<symbols[i]->toString(true)<<"\n"; 
+// 				std::cout<<"\nDon't have imName, depth or width attributes:\n"<<tableSymbols[i]->toString(true)<<"\n"; 
+								
 			}
 		}
-	}
-	
+	}	
 	if (draw)
 	{
 // 		qDebug()<<croppedImageMap.size()<<croppedImageMap.keys();
-		foreach (QString n, croppedImageMap.keys())
+		
+		foreach (QString n, croppedImageMap.keys()) 
+		{
+			RoboCompYoloServer::Labels labels;
+			RoboCompYoloServer::Image imgYolo;
+			
+			imgYolo.h = croppedImageMap[n].rows;
+			imgYolo.w = croppedImageMap[n].cols;
+			imgYolo.data.resize(imgYolo.h*imgYolo.w*3);			
+			memcpy(&imgYolo.data[0],croppedImageMap[n].data,imgYolo.h*imgYolo.w*3);					
+			try 
+			{
+				int id = yoloserver_proxy->addImage(imgYolo);
+				if (id <0)
+				{
+				 	printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+					qDebug()<<"yoloserver_proxy return id < 0"<<"id="<<id<<"we return";
+					return;
+				}
+				labels.isReady = false;
+				while (not labels.isReady)
+				{
+					labels = yoloserver_proxy->getData(id);
+					usleep(1000);
+				}
+				//ConvexHull draw
+				// 	struct Box
+				std::cout<<"original Image info: "<<img.type()<<" channels "<<img.channels()<<" step "<<img.step<< " \n";
+				std::cout<<"croppedImage Image info: "<<croppedImageMap[n].type()<<" channels "<<croppedImageMap[n].channels()<<" step "<<croppedImageMap[n].step<< " \n";
+				imwrite(n.toStdString()+".jpg",croppedImageMap[n]);
+				
+				qDebug()<<"imgYolo.h"<<imgYolo.h<<"imgYolo.w"<<imgYolo.w<<"imgYolo.data"<<imgYolo.data.size()<<"id"<<id<<"labels.size"<<labels.lBox.size();
+
+				for (auto &b : labels.lBox)
+				{
+					std::cout<<"Label: "<<b.label<<" prob "<<b.prob;
+					Point orig = Point(b.x,b.y);
+					Point end = Point(int(b.w),int(b.h));					
+					Point pointInitDrawLabel; 
+					pointInitDrawLabel.x = orig.x; pointInitDrawLabel.y = orig.y+(end.y-orig.y)/2; 
+					cv::putText(croppedImageMap[n],b.label,pointInitDrawLabel, cv::FONT_HERSHEY_SIMPLEX,1,Scalar(255,255,255),2);
+					cv::rectangle(croppedImageMap[n],orig,Point(b.w,b.h),Scalar(255,0,0));
+				}
+			}
+			catch(const Ice::Exception &e)
+			{
+				std::cout << "Error reading from Yolo" << e << std::endl;
+			}
 			imshow(n.toStdString(),croppedImageMap[n]);
+		}
 	}
 }
 Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height, int offset, bool draw)
 {
 	cv::Mat croppedImage;// (img.rows/10, img.cols/10, img.type(), cv::Scalar(0,0,255));
+	
 	auto tableCenterInWorld= innerModel->transform("world",imName);
 	//project in screen coordinates	the center of the table	
 	auto tableCenterInScreenCoords = innerModel->getCamera(sensorName)->project("world",tableCenterInWorld);	
@@ -505,8 +557,10 @@ Mat SpecificWorker::extractRectangleROI(Mat img, QString sensorName, QString imN
 		auto total = cv::Rect (0,0,black.cols,black.rows);
 		boundRect = boundRect & total;
 		//intersection could be empty
-		if (boundRect.area()>0)
+		if (boundRect.area()>0){
+			croppedImage.create(boundRect.height,boundRect.width, CV_8UC3);
 			croppedImage = black(boundRect);				
+		}
 		//draw points and convexHull 	
 		if(draw) 
 		{	
@@ -540,6 +594,7 @@ Mat SpecificWorker::extractPolygonalROI(Mat img, QString sensorName, QString imN
 {
 	if (sides < 3)
 	{
+		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
 		qDebug()<<"Actual sides "<<sides<<"We need at least 3 sides\n";
 		qFatal ("fary");
 	}	
@@ -550,17 +605,13 @@ Mat SpecificWorker::extractPolygonalROI(Mat img, QString sensorName, QString imN
 	vector<Point> coordinatesVector;
 	coordinatesVector.clear();
 	QVec coordsInSensor;
+	//base plane
 	for (int i=0; i<sides; i++) 
 	{			
-		//p1 
-// 		if (i==0)
-// 		{
-// 			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, 0, depth/2 + offset), imName);
-// 		}
 		float alpha= i*(2*M_PI/sides);
 		radius = abs(radius);
-		float X = radius*cos(alpha);
-		float Z = radius*sin(alpha);
+		float X = (offset + radius)*cos(alpha);
+		float Z = (offset + radius)*sin(alpha);
 		coordsInSensor = innerModel->transform(sensorName, QVec::vec3(X, 0,Z), imName);
 		if (coordsInSensor[2]>0.1)
 		{
@@ -570,17 +621,13 @@ Mat SpecificWorker::extractPolygonalROI(Mat img, QString sensorName, QString imN
 			coordinatesVector.push_back(p);
 		}
 	}
+	//height plane
 	for (int i=0; i<sides; i++) 
 	{			
-		//p1 
-// 		if (i==0)
-// 		{
-// 			coordsInSensor = innerModel->transform(sensorName, QVec::vec3(-width/2 - offset, 0, depth/2 + offset), imName);
-// 		}
 		float alpha=i*(2*M_PI/sides);
 		radius = abs(radius);
-		float X = radius*cos(alpha);
-		float Z = radius*sin(alpha);
+		float X = (offset + radius)*cos(alpha);
+		float Z = (offset + radius)*sin(alpha);
 		coordsInSensor = innerModel->transform(sensorName, QVec::vec3(X, height,Z), imName);
 		if (coordsInSensor[2]>0.1)
 		{
@@ -624,30 +671,82 @@ Mat SpecificWorker::extractPolygonalROI(Mat img, QString sensorName, QString imN
 			croppedImage = black(boundRect);				
 		//draw points and convexHull 	
 		if(draw) 
-			{	
-		// 			printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
-				cv::Point center;
-				center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
-				cv::circle(img,center,6,Scalar(0,0,255),4);
-				qDebug()<<"coordinatesVector size"<<coordinatesVector.size();
-				std::cout<<coordinatesVector<<std::endl;
-				for (uint i=0; i<coordinatesVector.size(); i++) 		
-				{
-					if (i<coordinatesVector.size()/2)
-						cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
-					else 
-						cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
-				}
-				
-				//ConvexHull draw
-				for( int i = 0; i < hullcount; i++ )
-				{
-					Point pt = coordinatesVector[hull[i]];
-					line(img, pt0, pt, Scalar(255, 0, 0), 2);
-					pt0 = pt;
-					
-				}
+		{	
+	// 		printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+			cv::Point center;
+			center.x=tableCenterInScreenCoords[0];center.y=tableCenterInScreenCoords[1];
+			cv::circle(img,center,6,Scalar(0,0,255),4);
+// 			qDebug()<<"coordinatesVector size"<<coordinatesVector.size();
+// 			std::cout<<coordinatesVector<<std::endl;
+			for (uint i=0; i<coordinatesVector.size(); i++) 		
+			{
+				if (i<coordinatesVector.size()/2)
+					cv::circle(img,coordinatesVector[i],1,Scalar(255,0,0),8);
+				else 
+					cv::circle(img,coordinatesVector[i],1,Scalar(0,255,0),8);
 			}
+			
+			//ConvexHull draw
+			for( int i = 0; i < hullcount; i++ )
+			{
+				Point pt = coordinatesVector[hull[i]];
+				line(img, pt0, pt, Scalar(255, 0, 0), 2);
+				pt0 = pt;
+				
+			}
+		}
 	}
 	return croppedImage;
 }
+
+void SpecificWorker::showImage(Mat img, bool drawYolo)
+{
+	if (drawYolo)
+		{
+			RoboCompYoloServer::Labels labels;
+			labels.isReady = false;
+			RoboCompYoloServer::Image imgYolo;
+			imgYolo.w = img.rows;
+			imgYolo.w = img.cols;
+			imgYolo.data.resize(imgYolo.h*imgYolo.w*3);			
+			memcpy(&imgYolo.data[0],img.data, imgYolo.w*imgYolo.h*3);			
+			try 
+			{
+				int id = yoloserver_proxy->addImage(imgYolo);
+				labels.isReady = false;
+				if (id <0)
+				{
+				 	printf ("This is line %d of file \"%s\".\n", __LINE__, __FILE__);
+					qDebug()<<"yoloserver_proxy return id < 0"<<"id="<<id<<"we return";
+					return;
+				}
+				qDebug()<<"showImage: imgYolo.h"<<imgYolo.h<<"imgYolo.w"<<imgYolo.w<<"imgYolo.data"<<imgYolo.data.size()<<"id"<<id<<"labels.size"<<labels.lBox.size();
+				while (not labels.isReady)
+				{
+					labels = yoloserver_proxy->getData(id);
+					usleep(1000);
+				}				
+
+				for (auto &b : labels.lBox)
+				{
+					printf("%s ", b.label.c_str());
+					Point orig = Point(int(b.x),int(b.y));
+					Point end = Point(int(b.w),int(b.h));
+					Point pointInitDrawLabel; 
+					pointInitDrawLabel.x = orig.x; pointInitDrawLabel.y = orig.y+(end.y-orig.y)/2; 
+// 					cv2.putText(img, box.label + " " + str(int(box.prob)) + "%", pt, FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+					cv::putText(img,b.label,pointInitDrawLabel, cv::FONT_HERSHEY_SIMPLEX,1,Scalar(255,255,255),2);
+					cv::rectangle(img,orig,end,Scalar(255,0,0));
+				}
+				printf("\n");
+			}
+			catch(const Ice::Exception &e)
+			{
+				std::cout << "Error reading from Yolo" << e << std::endl;
+			}
+		}		
+		imshow("RGB from CAMERA", img);
+
+}
+
+

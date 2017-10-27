@@ -73,9 +73,9 @@ public:
 	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
 	
 	//Image, sensorName, InnerModel names list of the containers, width and depth: object parameters, height of ROI, offset=extra length in width and deepth
-	Mat extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 80, int offset = 0, bool draw = true);
-	void extractContainers(Mat img, QString sensorName);
-	Mat extractPolygonalROI(Mat img, QString sensorName, QString imName, float radius, int sides,int height = 80, int offset = 0, bool draw = true);
+	Mat extractRectangleROI(Mat img, QString sensorName, QString imName, int width, int depth, int height = 300, int offset = 100, bool draw = true);
+	void extractContainers(Mat img, QString sensorName, string containerType="table");
+	Mat extractPolygonalROI(Mat img, QString sensorName, QString imName, float radius, int sides,int height = 300, int offset = 100, bool draw = true);
 
 public slots:
 	void compute();
@@ -92,20 +92,18 @@ private:
 	AGMModel::SPtr worldModel;
 	bool active;
 	
-	
 	RoboCompRGBD::ColorSeq rgbdImage;		
 	RoboCompRGBDBus::Image cameraImage;
 	cv::Mat rgbdImageColor, cameraImageColor;
 	
 	RoboCompGenericBase::TBaseState bState;
-	RoboCompJointMotor::MotorStateMap hState;
-	//RoboCompCommonHead::THeadState cState;
+	RoboCompJointMotor::MotorStateMap hState;	
 	RoboCompRGBDBus::CameraParams camParams;
 	
 	void regenerateInnerModelViewer();
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel);
-
+	void showImage(Mat img, bool drawYolo);
 };
 
 #endif

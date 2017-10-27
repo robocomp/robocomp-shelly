@@ -28,9 +28,10 @@ QObject()
 #endif
 
 {
-	semanticsimilarity_proxy = (*(SemanticSimilarityPrx*)mprx["SemanticSimilarityProxy"]);
-	rgbdbus_proxy = (*(RGBDBusPrx*)mprx["RGBDBusProxy"]);
 	rgbd_proxy = (*(RGBDPrx*)mprx["RGBDProxy"]);
+	rgbdbus_proxy = (*(RGBDBusPrx*)mprx["RGBDBusProxy"]);
+	yoloserver_proxy = (*(YoloServerPrx*)mprx["YoloServerProxy"]);
+	semanticsimilarity_proxy = (*(SemanticSimilarityPrx*)mprx["SemanticSimilarityProxy"]);
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
 
 	mutex = new QMutex(QMutex::Recursive);
