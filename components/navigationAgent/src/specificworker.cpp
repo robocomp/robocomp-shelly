@@ -325,7 +325,7 @@ void SpecificWorker::action_HandObject(bool newAction)
 		tgt.y = 0;
 		tgt.z = poseInRoom.z();
 		tgt.rx = 0;
-		tgt.ry = 0;
+		tgt.ry = poseInRoom.ry();
 		tgt.rz = 0;
 		tgt.doRotation = false;
 
@@ -614,7 +614,11 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 	RoboCompTrajectoryRobot2D::TargetPose tgt;
 	try
 	{
-		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))    return;
+		if (not (innerModel->getNode(roomIMID) and innerModel->getNode(objectIMID)))
+		{
+			printf("Cant find objects to reach %d\n", __LINE__);
+			return;
+		}
 		QVec poseInRoom = innerModel->transform6D(roomIMID, objectIMID); // FROM OBJECT TO ROOM
 		qDebug() << __FUNCTION__ <<" Target pose: "<< poseInRoom;
 
@@ -643,9 +647,9 @@ void SpecificWorker::action_SetObjectReach(bool newAction)
 				//O.print("	O pose relativa");
 				//qDebug() << __FUNCTION__ << "O norm:" << O.norm2();
 				QVec graspRef = innerModel->transform("robot", "shellyArm_grasp_pose");
-        graspRef.print("graspRef");
+				graspRef.print("graspRef");
 				float th=20;
-        tgt.ry = -3.1415926535/2.;
+				// tgt.ry = -3.1415926535/2.;
 				go(tgt.x, tgt.z, tgt.ry, tgt.doRotation, graspRef.x(), graspRef.z(), th);
 				qDebug() << __FUNCTION__ << "trajectoryrobot2d->go(" << tgt.x << ", " << tgt.z << ", " << tgt.ry << ", " << graspRef.x() << ", " << graspRef.z() << " )\n";
 				haveTarget = true;

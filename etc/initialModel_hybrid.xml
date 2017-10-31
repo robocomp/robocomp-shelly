@@ -2138,7 +2138,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="100" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-1300" />
+	<linkAttribute key="tz" value="-1000" />
 </link>
 <link src="22" dst="687" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -2218,7 +2218,7 @@
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="100" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-500" />
+	<linkAttribute key="tz" value="-400" />
 </link>
 <link src="25" dst="695" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -2326,11 +2326,11 @@
 </link>
 <link src="26" dst="28" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="0" />
+	<linkAttribute key="ry" value="-1.5208" />
 	<linkAttribute key="rz" value="0" />
-	<linkAttribute key="tx" value="0" />
+	<linkAttribute key="tx" value="1000" />
 	<linkAttribute key="ty" value="0" />
-	<linkAttribute key="tz" value="-1200" />
+	<linkAttribute key="tz" value="0" />
 </link>
 <link src="28" dst="707" label="RT">
 	<linkAttribute key="rx" value="0" />
@@ -2694,7 +2694,7 @@
 </link>
 <link src="5" dst="38" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="1.5208" />
+	<linkAttribute key="ry" value="-0.05" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="6400" />
 	<linkAttribute key="ty" value="740" />
@@ -2702,7 +2702,7 @@
 </link>
 <link src="38" dst="40" label="RT">
 	<linkAttribute key="rx" value="0" />
-	<linkAttribute key="ry" value="1.5707" />
+	<linkAttribute key="ry" value="1.5208" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="-500" />
 	<linkAttribute key="ty" value="0" />

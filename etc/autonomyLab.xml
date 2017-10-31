@@ -63,7 +63,7 @@
 
 			<!-- TABLE A -->
 			<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" >
-				<transform id="tableA_reachPos" tx="100" tz="-1300">
+				<transform id="tableA_reachPos" tx="100" tz="-1000">
 					<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede0" tz="100">
 						<plane id="tableA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
@@ -82,7 +82,7 @@
 
 			<!-- TABLE B -->
 			<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
-				<transform id="tableB_reachPos" tx="100" tz="-500">
+				<transform id="tableB_reachPos" tx="100" tz="-400">
 					<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede3" tz="100">
 						<plane id="tableB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
@@ -113,7 +113,7 @@
 
 			<!-- TABLE C -->
 			<transform id="tableC" tx="4880" tz="3320" ty="760" ry="1.5207963267948965" >
-				<transform id="tableC_reachPos" tz="-1200">
+				<transform id="tableC_reachPos" tx="1000" ry="-1.5207963267948965">
 					<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede4" tz="100">
 						<plane id="tableC_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
@@ -122,8 +122,8 @@
 				<mesh id="tableC_mesh" file="/home/robocomp/robocomp/files/osgModels/basics/cube2.3ds" scale="1820,20,820" collide="1" />
 			</transform>
 
-			
-			
+
+
 			<transform id="pared28" tx="4640.7512205" tz="3314.0805665" ty="380" >
 				<plane id="muro28" nx="1831.647461" nz="119.897949" size="1835.56747072,760,9"  texture="#998811" />
 			</transform>
@@ -200,8 +200,8 @@
 			</transform>
 
 			<!-- TABLE E -->
-			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="1.5207963267948965" >
-				<transform id="tableE_reachPos" tx="-500" ry="1.5707">
+			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.05" >
+				<transform id="tableE_reachPos" tx="-500" ry="1.5207963267948965">
 					<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede6" tz="100">
 						<plane id="tableE_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
