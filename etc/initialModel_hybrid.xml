@@ -339,7 +339,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -431,7 +431,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -543,7 +543,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -943,7 +943,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -1007,7 +1007,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -1119,7 +1119,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -1211,7 +1211,7 @@
 	<attribute key="ny" value="0" />
 	<attribute key="nz" value="0" />
 	<attribute key="px" value="0" />
-	<attribute key="py" value="0" />
+	<attribute key="py" value="1500" />
 	<attribute key="pz" value="0" />
 	<attribute key="repeat" value="1000" />
 	<attribute key="texture" value="#000000" />
@@ -2153,7 +2153,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="688" dst="689" label="RT">
@@ -2233,7 +2233,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="696" dst="697" label="RT">
@@ -2345,7 +2345,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="708" dst="709" label="RT">
@@ -2657,7 +2657,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="744" dst="745" label="RT">
@@ -2721,7 +2721,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="750" dst="751" label="RT">
@@ -2833,7 +2833,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="762" dst="763" label="RT">
@@ -2913,7 +2913,7 @@
 	<linkAttribute key="ry" value="0" />
 	<linkAttribute key="rz" value="0" />
 	<linkAttribute key="tx" value="0" />
-	<linkAttribute key="ty" value="0" />
+	<linkAttribute key="ty" value="1500" />
 	<linkAttribute key="tz" value="100" />
 </link>
 <link src="770" dst="771" label="RT">

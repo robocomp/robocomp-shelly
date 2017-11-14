@@ -89,12 +89,12 @@ void SpecificWorker::compute()
 		action_FindObjectVisuallyInTable(newAction);
 	}
 
-	if (action == "verifyimaginarymug")
+	if (action == "verifyimaginaryobj__mobj_mug")
 	{
-		printf("action verifyimaginarymug\n");
+		printf("action verifyimaginaryobj__mobj_mug\n");
 		try
 		{
-		printf("action verifyimaginarymug2 %d\n", __LINE__);
+		printf("action verifyimaginaryobj__mobj_mug 2 %d\n", __LINE__);
 			getObject();
 			//	printf("Found it!\n");
 			//else
@@ -115,7 +115,7 @@ void SpecificWorker::compute()
 		}
 		catch(...)
 		{
-			printf("objectAgent: Couldn't retrieve action's parameters\n");
+			printf("objectAgent: Couldn't retrieve action's parameters %d\n", __LINE__);
 			return;
 		}
 		bool moving = abs(str2float(symbols["robot"]->getAttribute("movedInLastSecond"))) > 10;
@@ -142,9 +142,6 @@ void SpecificWorker::compute()
 			getObject();
 		}
 	}
-
-
-
 
 	previousAction = action;
 
@@ -173,7 +170,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 	}
 	catch(...)
 	{
-		printf("objectAgent: Couldn't retrieve action's parameters\n");
+		printf("objectAgent: Couldn't retrieve action's parameters %d\n", __LINE__);
 		return false;
 	}
 
@@ -220,7 +217,7 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 
 	try
 	{
-		newModel->getEdge(symbols["robot"], symbols["status"], "usedOracle");
+		newModel->getEdge(symbols["robot"], symbols["robot"], "usedOracle");
 	}
 	catch(...)
 	{
@@ -261,11 +258,11 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 			// The oracle has been used, remove flagS
 			try
 			{
-				newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+				newModel->removeEdge(symbols["robot"], symbols["robot"], "usedOracle");
 			}
 			catch(...)
 			{
-				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 			}
 			//add mesh
 			AGMModelSymbol::SPtr mugMesh = newModel->newSymbol("mugMesh");
@@ -322,11 +319,11 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 		}
 		try
 		{
-			newModel->removeEdge(symbols["robot"], symbols["status"], "usedOracle");
+			newModel->removeEdge(symbols["robot"], symbols["robot"], "usedOracle");
 		}
 		catch(...)
 		{
-			printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+			printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 		}
 		try
 		{
@@ -788,13 +785,10 @@ bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &
 
 			symbolMugSt = newModel->newSymbol("objectSt");
 
-			newModel->addEdge(symbolMug, symbolMugSt, "hasStatus");
-			newModel->addEdge(symbolMug, symbolMugSt, "mug");
 			newModel->addEdge(symbolMug, symbolMugSt, "see");
 			newModel->addEdge(symbolMug, symbolMugSt, "position");
 			newModel->addEdge(symbolMug, symbolMugSt, "classified");
 			newModel->addEdge(symbolMug, symbolMugSt, "reachable");
-			newModel->addEdge(symbolMug, symbolMugSt, "noReach");
 			newModel->addEdge(robot, symbolMug, "know");
 
 			// mug reach position
@@ -1195,10 +1189,9 @@ bool SpecificWorker::updateCoffee(const RoboCompAprilTags::tag &t, AGMModel::SPt
 	return false;
 }
 
-void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID)
+void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID)
 {
 	objectSymbolID = -1;
-	objectStSymbolID = -1;
 
 	QStringList actions = QString::fromStdString(params["plan"].value).toLower().split("\n");
 
@@ -1210,11 +1203,10 @@ void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t
 			for (int32_t index=0; index<parts.size()-2; index++)
 			{
 				if      (parts[index] == "objectr") objectSymbolID   = parts[index+2].toInt();
-				else if (parts[index] == "statusr") objectStSymbolID = parts[index+2].toInt();
 			}
 		}
 	}
-	printf("------------------------------->%d %d\n", objectSymbolID, objectStSymbolID);
+	printf("------------------------------->%d\n", objectSymbolID);
 }
 
 void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
@@ -1342,31 +1334,27 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 	bool foundMug = false;
 	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug;
-	std::string mug_obj_name;
-
-	if(action == "verifyimaginarymug")
-		mug_obj_name = "mug";
-	else
-		mug_obj_name = "object";
 
 	std::map<std::string, AGMModelSymbol::SPtr> symbolsss;
 	try
 	{
-		symbolsss = newModel->getSymbolsMap(params, mug_obj_name);
-		symbolMug = symbolsss[mug_obj_name];
+		printf("objectAgent: %d\n", __LINE__);
+		symbolsss = newModel->getSymbolsMap(params, "mObj");
+		printf("objectAgent: C %d\n", __LINE__);
+		symbolMug = symbolsss["mObj"];
+		printf("objectAgent: C %d\n", __LINE__);
 		foundMug = true;
 	}
 	catch(...)
 	{
-		printf("objectAgent: Couldn't retrieve action's parameters\n");
+		printf("objectAgent: Couldn't retrieve action's parameters %d\n", __LINE__);
 		exit(1);
 	}
 
 
-	if(foundMug)
+	if (foundMug)
 	{
 		std::cout<<"Mug was found, updating biatch"<<std::endl;
-
 
 		//check mug table in
 		//Update innermodel pose
@@ -1379,7 +1367,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		QString symbolIMName;
 		try
 		{
-
+			printf("_%d_\n", __LINE__);
 			symbolIMName = QString::fromStdString(symbolMug->getAttribute("imName"));
 			qDebug()<<"Found mug's imName";
 		}
@@ -1390,6 +1378,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 			qDebug()<<"o no";
 		}
 
+		printf("_%d_\n", __LINE__);
 		InnerModelNode *nodeSymbolIM = innerModel->getNode(symbolIMName);
 		qDebug()<<"SI existe el im en el innermodel";
 
@@ -1464,39 +1453,38 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		}
 
 		//If mug was imagined remove image edge and add know
-		auto symbols = worldModel->getSymbolsMap(params, mug_obj_name, "robot");
+		auto symbols = worldModel->getSymbolsMap(params, "mObj", "robot");
 		try
 		{
-			newModel->removeEdge(symbols["robot"], symbols[mug_obj_name], "imagine");
+			newModel->removeEdge(symbols["robot"], symbols["mObj"], "imagine");
 		}
 		catch(...)
 		{
-			printf("No imagine %d -> %d found, was object imagined by oracle?\n", symbols["robot"]->identifier, symbols[mug_obj_name]->identifier);
+			printf("No imagine %d -> %d found, was object imagined by oracle?\n", symbols["robot"]->identifier, symbols["mObj"]->identifier);
 		}
 
 		try
 		{
-			newModel->addEdge(symbols["robot"], symbols[mug_obj_name], "know");
+			newModel->addEdge(symbols["robot"], symbols["mObj"], "know");
 		}
 		catch(...)
 		{
 			printf("Robot knows about the mug. Know edge can't be added to model.\n");
 		}
 printf("%d\n", __LINE__);
-		if(action == "verifyimaginarymug")
+		if(action == "verifyimaginaryobj__mobj_mug")
 		{
 			printf("%d\n", __LINE__);
-			auto symbols_status = worldModel->getSymbolsMap(params, "robot", "status");
 			try
 			{
 				printf("%d\n", __LINE__);
-				newModel->removeEdge(symbols_status["robot"], symbols_status["status"], "usedOracle");
+				newModel->removeEdgeByIdentifiers(1, 1, "usedOracle");
 				printf("%d\n", __LINE__);
 			}
 			catch(...)
 			{
 				printf("%d\n", __LINE__);
-				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["status"]->identifier);
+				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 				printf("%d\n", __LINE__);
 			}
 		}

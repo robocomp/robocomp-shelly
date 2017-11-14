@@ -180,6 +180,7 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 
 void SpecificWorker::compute()
 {
+	printf("dd\n");
 	static QTime reloj = QTime::currentTime();
 	QMutexLocker l(mutex);
 

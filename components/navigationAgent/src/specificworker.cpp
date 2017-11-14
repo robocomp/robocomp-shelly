@@ -19,8 +19,8 @@
 
  #include "specificworker.h"
 
-// #include <boost/xpressive/xpressive.hpp>
-// using namespace boost::xpressive;
+ #include <boost/algorithm/string/predicate.hpp>
+ #include <boost/lexical_cast.hpp>
 
 /**
 * \brief Default constructor
@@ -160,7 +160,7 @@ void SpecificWorker::actionExecution()
 	{
 		action_FindObjectVisuallyInTable(newAction);
 	}
-	else if (action == "setobjectreach" or action == "graspobject")
+	else if (boost::starts_with(action, "setobjectreach") or boost::starts_with(action, "graspobject"))
 	{
 		action_SetObjectReach(newAction);
 	}

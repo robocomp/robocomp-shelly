@@ -64,8 +64,8 @@
 			<!-- TABLE A -->
 			<transform id="tableA" tx="1274" tz="3167" ty="760" ry="-0.05" >
 				<transform id="tableA_reachPos" tx="100" tz="-1000">
-					<plane id="tableA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede0" tz="100">
+					<plane id="tableA_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede0" tz="100" ty="1500">
 						<plane id="tableA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -83,8 +83,8 @@
 			<!-- TABLE B -->
 			<transform id="tableB" tx="3250" tz="3770" ty="740" ry="-0.05" >
 				<transform id="tableB_reachPos" tx="100" tz="-400">
-					<plane id="tableB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede3" tz="100">
+					<plane id="tableB_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede3" tz="100" ty="1500">
 						<plane id="tableB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -114,8 +114,8 @@
 			<!-- TABLE C -->
 			<transform id="tableC" tx="4880" tz="3320" ty="760" ry="1.5207963267948965" >
 				<transform id="tableC_reachPos" tx="1000" ry="-1.5207963267948965">
-					<plane id="tableC_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede4" tz="100">
+					<plane id="tableC_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede4" tz="100" ty="1500" ty="1500">
 						<plane id="tableC_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -188,8 +188,8 @@
 			<!-- TABLE D MESA REDONDA DEL COMEDOR-->
 			<transform id="tableD" tx="3574" tz="-1767" ty="730" >
 				<transform id="tableD_reachPos" tz="500" ry="3.1415">
-					<plane id="tableD_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede5" tz="100">
+					<plane id="tableD_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede5" tz="100" ty="1500">
 						<plane id="tableD_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -202,8 +202,8 @@
 			<!-- TABLE E -->
 			<transform id="tableE" tx="6400" tz="-2260" ty="740" ry="-0.05" >
 				<transform id="tableE_reachPos" tx="-500" ry="1.5207963267948965">
-					<plane id="tableE_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede6" tz="100">
+					<plane id="tableE_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede6" tz="100" ty="1500">
 						<plane id="tableE_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -225,8 +225,8 @@
 			<!-- TABLE F -->
 			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" >
 				<transform id="countertopA_reachPos" tx="400" tz="500" ry="-1.5707">
-					<plane id="countertopA_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede1" tz="100">
+					<plane id="countertopA_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede1" tz="100" ty="1500">
 						<plane id="countertopA_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>
@@ -244,8 +244,8 @@
 			<!-- TABLE G -->
 			<transform id="countertopB" tx="1880" tz="-3800" ty="890" ry="-0.055" >
 				<transform id="countertopB_reachPos" tx="300" tz="600" ry="3.141592">
-					<plane id="countertopB_reachPos_X" nx="1" size="100,100,100"  texture="#000000" />
-					<transform id="dede2" tz="100">
+					<plane id="countertopB_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
+					<transform id="dede2" tz="100" ty="1500">
 						<plane id="countertopB_reachPos_X1" nx="1" size="80,80,80"  texture="#00ff00" />
 					</transform>
 				</transform>

@@ -58,7 +58,7 @@ private:
 
 	void action_FindObjectVisuallyInTable  (bool newAction);
 
-	void getIDsFor(std::string obj, int32_t &objectSymbolID, int32_t &objectStSymbolID);
+	void getIDsFor(std::string obj, int32_t &objectSymbolID);
 
 	void updateTag(const tagsList &list);
 	void newAprilTag(const tagsList &list);

@@ -91,7 +91,7 @@ void SpecificWorker::compute( )
 {
 	QMutexLocker locker(mutex);
 
-	printf ("compute\n");
+	printf ("compute %s\n", action.c_str());
 	bool doReturn = false;
 	if (agm_types.size() == 0)
  	{
@@ -101,10 +101,12 @@ void SpecificWorker::compute( )
 	}
 	if (worldModel->symbols.size() == 0)
 	{
+		printf("No world model yet\n");
 		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
 		structuralChange(w);
 		doReturn = true;
 	}
+	printf("_\n");
 	if (doReturn)
 		return;
 
@@ -175,10 +177,10 @@ void SpecificWorker::manageReachedObjects()
 			printf("%d\n", node->identifier);
 			printf("isNodeType obj %d\n", isNodeType(node, "obj"));
 		}
-				// printf("%s %d\n", __FILE__, __LINE__);
+		// printf("%s %d\n", __FILE__, __LINE__);
 		if ( isNodeType(node, "obj")  ) // or isNodeType(node, "person")
 		{
-				printf("%s %d\n", __FILE__, __LINE__);
+			printf("%s %d\n", __FILE__, __LINE__);
 			//if the object is in robot continue
 			try
 			{
@@ -202,7 +204,7 @@ void SpecificWorker::manageReachedObjects()
 				{
 					const std::pair<int32_t, int32_t> symbolPair = edge->getSymbolPair();
 					nodeReach = newModel->getSymbolByIdentifier(symbolPair.second);
-//					qDebug()<<"Using reachPosition instead of object position"<<node->getAttribute("imName").c_str();
+					qDebug()<<"Using reachPosition instead of object position " << nodeReach->identifier;
 				}
 			}
 			// if (node->identifier == 29) printf("%d %d \n", __LINE__, node->identifier);
@@ -271,7 +273,7 @@ void SpecificWorker::manageReachedObjects()
 			{
 				qFatal("dededcef or4j ");
 			}
-				printf("%s %d\n", __FILE__, __LINE__);
+			printf("%s %d\n", __FILE__, __LINE__);
 
 			try
 			{
@@ -317,7 +319,8 @@ void SpecificWorker::manageReachedObjects()
 			}
 			if (addE and d2n < THRESHOLD-schmittTriggerThreshold)
 			{
-				printf("object %d STARTS REACH\n", node->identifier);
+				printf("object %d REACH\n", node->identifier);
+				bool alreadyReaches = false;
 				try
 				{
 					newModel->addEdgeByIdentifiers(node->identifier, node->identifier, "reach");
@@ -329,17 +332,16 @@ void SpecificWorker::manageReachedObjects()
 						AGMModelEdge &edge = *edge_itr;
 						if (edge->getLabel() == "reach")
 						{
-							printf ("Yes, reach is here WTF\n");
+							alreadyReaches = true;
 						}
 					}
-					printf("EXCEPTION %s\n", e.what());
-					// exit(1);
 				}
-				changed = true;
-				rDebug2(("object %d reach") % node->identifier);
+				if (not alreadyReaches)
+				{
+					changed = true;
+					rDebug2(("object %d reach") % node->identifier);
+				}
 			}
-
-
 		}
 	}
 
