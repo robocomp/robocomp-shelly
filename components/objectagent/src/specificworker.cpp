@@ -47,7 +47,6 @@ SpecificWorker::~SpecificWorker()
 
 bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 {
-
 	try
 	{
 		QMutexLocker l(mutex);
@@ -59,7 +58,6 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 		printf("The executive is probably not running, waiting for first AGM model publication...");
 	}
 
-// 	timer.start(Period);
 	timer.start(1000);
 	return true;
 }
@@ -81,20 +79,17 @@ void SpecificWorker::compute()
 
 	bool newAction = (previousAction != action);
 	if (newAction)
-		printf("New action: %s\n", action.c_str());
-	printf("action: %s\n", action.c_str());
-
-	if (action == "findobjectvisuallyintable")
 	{
-		action_FindObjectVisuallyInTable(newAction);
+		printf("New action: %s\n", action.c_str());
 	}
+	printf("action: %s\n", action.c_str());
 
 	if (action == "verifyimaginaryobj__mobj_mug")
 	{
 		printf("action verifyimaginaryobj__mobj_mug\n");
 		try
 		{
-		printf("action verifyimaginaryobj__mobj_mug 2 %d\n", __LINE__);
+			printf("action verifyimaginaryobj__mobj_mug 2 %d\n", __LINE__);
 			getObject();
 			//	printf("Found it!\n");
 			//else
@@ -146,8 +141,8 @@ void SpecificWorker::compute()
 	previousAction = action;
 
 	worker_params_mutex->lock();
-		//save framerate in params
-		worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
+	//save framerate in params
+	worker_params["frameRate"].value = std::to_string(reloj.restart()/1000.f);
 	worker_params_mutex->unlock();
 }
 
@@ -991,7 +986,6 @@ exit(1);
 				}
 				try{
 					newModel->addEdge(symbolMug, symbolNewTable, "in");
-//					newModel->addEdge(symbolMug, symbolNewTable, "wasIn");
 					newModel->addEdge(symbolNewTable, symbolMug, "RT");
 					qDebug()<<"--> now in: "<<symbolNewTable->getAttribute("imName").c_str();
 				}catch(...)
@@ -1209,37 +1203,7 @@ void SpecificWorker::getIDsFor(std::string obj, int32_t &objectSymbolID)
 	printf("------------------------------->%d\n", objectSymbolID);
 }
 
-void SpecificWorker::action_FindObjectVisuallyInTable(bool newAction)
-{
-	printf("me cago en mi vida\n");
-	QMutexLocker l(mutex);
 
-	static QTime lastTime;
-
-	if (newAction)
-		lastTime = QTime::currentTime();
-
-	if (lastTime.elapsed() > 5000)
-	{
- 		AGMModel::SPtr newModel(new AGMModel(worldModel));
-		auto symbols = newModel->getSymbolsMap(params, "container");
-		auto node = symbols["container"];
-
-		for (AGMModelSymbol::iterator edge_itr=node->edgesBegin(newModel); edge_itr!=node->edgesEnd(newModel); edge_itr++)
-		{
-			if ((*edge_itr)->getLabel() == "noExplored")
-			{
-				getObject();
-				(*edge_itr)->setLabel("explored");
-				rDebug2(("objectAgent action_FindObjectVisuallyInTable"));
-exit(1);
-				sendModificationProposal(worldModel, newModel);
-				return;
-			}
-		}
-
-	}
-}
 
 RoboCompCommonBehavior::ParameterList SpecificWorker::getWorkerParams()
 {
@@ -1384,13 +1348,13 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 
 		if (nodeSymbolIM)
 		{
-			qDebug()<<"El hiueputa no tiene padre";
+
 			InnerModelNode *parentNodeIM = nodeSymbolIM->parent;
-			qDebug()<<"SI existe el im en el innermodel";
+			qDebug()<<"El padre existe en el innermodel";
 			if (parentNodeIM)
 			{
 				QString parentIMName    = parentNodeIM->id;
-// 				qDebug() << "Mug's parent: " << parentIMName;
+				qDebug() << "Mug's parent: " << parentIMName;
 				QVec positionFromParent  = innerModel->transform(parentIMName, positionTag, "rgbd");
 				QMat rotationTag         = Rot3D(t.rx, t.ry, t.rz); //rotacion propia de la marca
 				QMat rotationRGBD2Parent = innerModel->getRotationMatrixTo(parentIMName, "rgbd"); //matriz rotacion del nodo padre a la rgbd
@@ -1408,7 +1372,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 				for(AGMModel::iterator symbol_it=newModel->begin(); symbol_it!=newModel->end(); symbol_it++)
 				{
 					symbolParent = *symbol_it;
-					if (symbolParent->symbolType == "object" and symbolParent->attributes["imName"]==parentIMName.toStdString())
+					if (symbolParent->symbolType == "table" and symbolParent->attributes["imName"]==parentIMName.toStdString())
 					{
  						qDebug() << "parent in AGM: " << QString::fromStdString(symbolParent->attributes["imName"]);
 						parentFound = true;
@@ -1420,6 +1384,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 					// Si el padre existe en AGM sacamos el enlace RT que va desde el padre hasta el hijo y actualizamos sus valores
 					try
 					{
+						printf("%s %d\n", __FILE__, __LINE__);
 						AGMModelEdge &edgeRT  = newModel->getEdgeByIdentifiers(symbolParent->identifier, symbolMug->identifier, "RT");
 						edgeRT->setAttribute("tx", float2str(poseFromParent.x()));
 						edgeRT->setAttribute("ty", float2str(poseFromParent.y()));
@@ -1456,6 +1421,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		auto symbols = worldModel->getSymbolsMap(params, "mObj", "robot");
 		try
 		{
+			printf("%d: Remove 'imagine' edge %d->%d\n", __LINE__, symbols["robot"]->identifier, symbols["mObj"]->identifier);
 			newModel->removeEdge(symbols["robot"], symbols["mObj"], "imagine");
 		}
 		catch(...)
@@ -1466,14 +1432,6 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		try
 		{
 			newModel->addEdge(symbols["robot"], symbols["mObj"], "know");
-		}
-		catch(...)
-		{
-			printf("Robot knows about the mug. Know edge can't be added to model.\n");
-		}
-printf("%d\n", __LINE__);
-		if(action == "verifyimaginaryobj__mobj_mug")
-		{
 			printf("%d\n", __LINE__);
 			try
 			{
@@ -1486,8 +1444,12 @@ printf("%d\n", __LINE__);
 				printf("%d\n", __LINE__);
 				printf("Can't remove edge %d--[usedOracle]-->%d\n", symbols["robot"]->identifier, symbols["robot"]->identifier);
 				printf("%d\n", __LINE__);
-			}
+			}		}
+		catch(...)
+		{
+			printf("Robot knows about the mug. Know edge can't be added to model.\n");
 		}
+printf("%d\n", __LINE__);
 
 		//add the mesh
 		try

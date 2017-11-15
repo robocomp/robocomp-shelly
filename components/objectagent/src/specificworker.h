@@ -56,8 +56,6 @@ private:
 	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
 	void sendModificationProposal(AGMModel::SPtr &worldModel, AGMModel::SPtr &newModel, string c="");
 
-	void action_FindObjectVisuallyInTable  (bool newAction);
-
 	void getIDsFor(std::string obj, int32_t &objectSymbolID);
 
 	void updateTag(const tagsList &list);

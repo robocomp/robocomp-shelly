@@ -224,6 +224,9 @@
 
 			<!-- TABLE F -->
 			<transform id="countertopA" tx="450" tz="-2920" ty="890" ry="-0.092" >
+				<transform id="jdfwege" ty="600">
+					<axes id="hanxfbsdfgsdfgdAxes" length="80" width="20" />
+				</transform>
 				<transform id="countertopA_reachPos" tx="400" tz="500" ry="-1.5707">
 					<plane id="countertopA_reachPos_X" py="1500" nx="1" size="100,100,100"  texture="#000000" />
 					<transform id="dede1" tz="100" ty="1500">
