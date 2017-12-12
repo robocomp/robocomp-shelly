@@ -1,0 +1,14 @@
+import "AGMExecutive.idsl";
+import "ShellyMission.idsl";
+
+Component shellymission
+{
+	Communications
+	{
+		implements ShellyMission;
+		requires AGMExecutive;
+	};
+	language python;
+	gui Qt(QWidget);
+};
+
