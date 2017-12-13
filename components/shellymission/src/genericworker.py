@@ -92,7 +92,9 @@ if not ice_ShellyMission:
 from RoboCompShellyMission import *
 
 
+from agmcommonbehaviorI import *
 from shellymissionI import *
+from agmexecutivetopicI import *
 
 try:
 	from ui_mainUI import *
@@ -109,6 +111,7 @@ class GenericWorker(QtGui.QWidget):
 		super(GenericWorker, self).__init__()
 
 
+		self.agmexecutive_proxy = mprx["AGMExecutiveProxy"]
 		self.agmexecutive_proxy = mprx["AGMExecutiveProxy"]
 		self.ui = Ui_guiDlg()
 		self.ui.setupUi(self)

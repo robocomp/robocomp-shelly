@@ -1,8 +1,14 @@
 # Endpoints for implemented interfaces
+AGMCommonBehavior.Endpoints=tcp -p 0
 ShellyMission.Endpoints=tcp -p 0
 
 
+# Endpoints for subscriptions
+AGMExecutiveTopicTopic.Endpoints=tcp -p 0
+
+
 # Proxies for required interfaces
+AGMExecutiveProxy = agmexecutive:tcp -h localhost -p 0
 AGMExecutiveProxy = agmexecutive:tcp -h localhost -p 0
 
 

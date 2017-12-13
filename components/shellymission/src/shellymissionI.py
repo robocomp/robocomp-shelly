@@ -53,6 +53,30 @@ if not ice_AGMExecutive:
 	print 'Couldn\'t load AGMExecutive'
 	sys.exit(-1)
 from RoboCompAGMExecutive import *
+ice_AGMCommonBehavior = False
+for p in icePaths:
+	if os.path.isfile(p+'/AGMCommonBehavior.ice'):
+		preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ " + additionalPathStr + " --all "+p+'/'
+		wholeStr = preStr+"AGMCommonBehavior.ice"
+		Ice.loadSlice(wholeStr)
+		ice_AGMCommonBehavior = True
+		break
+if not ice_AGMCommonBehavior:
+	print 'Couldn\'t load AGMCommonBehavior'
+	sys.exit(-1)
+from RoboCompAGMCommonBehavior import *
+ice_AGMWorldModel = False
+for p in icePaths:
+	if os.path.isfile(p+'/AGMWorldModel.ice'):
+		preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ " + additionalPathStr + " --all "+p+'/'
+		wholeStr = preStr+"AGMWorldModel.ice"
+		Ice.loadSlice(wholeStr)
+		ice_AGMWorldModel = True
+		break
+if not ice_AGMWorldModel:
+	print 'Couldn\'t load AGMWorldModel'
+	sys.exit(-1)
+from RoboCompAGMWorldModel import *
 ice_ShellyMission = False
 for p in icePaths:
 	if os.path.isfile(p+'/ShellyMission.ice'):

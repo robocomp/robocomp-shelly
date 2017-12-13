@@ -10,4 +10,5 @@ Component shellymission
 	};
 	language python;
 	gui Qt(QWidget);
+	options agmagent;
 };

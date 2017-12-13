@@ -106,6 +106,32 @@ if __name__ == '__main__':
 	for i in ic.getProperties():
 		parameters[str(i)] = str(ic.getProperties().getProperty(i))
 
+	# Topic Manager
+	proxy = ic.getProperties().getProperty("TopicManager.Proxy")
+	obj = ic.stringToProxy(proxy)
+	try:
+		topicManager = IceStorm.TopicManagerPrx.checkedCast(obj)
+	except Ice.ConnectionRefusedException, e:
+		print 'Cannot connect to IceStorm! ('+proxy+')'
+		sys.exit(-1)
+
+	# Remote object connection for AGMExecutive
+	try:
+		proxyString = ic.getProperties().getProperty('AGMExecutiveProxy')
+		try:
+			basePrx = ic.stringToProxy(proxyString)
+			agmexecutive_proxy = AGMExecutivePrx.checkedCast(basePrx)
+			mprx["AGMExecutiveProxy"] = agmexecutive_proxy
+		except Ice.Exception:
+			print 'Cannot connect to the remote object (AGMExecutive)', proxyString
+			#traceback.print_exc()
+			status = 1
+	except Ice.Exception, e:
+		print e
+		print 'Cannot get AGMExecutiveProxy property.'
+		status = 1
+
+
 	# Remote object connection for AGMExecutive
 	try:
 		proxyString = ic.getProperties().getProperty('AGMExecutiveProxy')
@@ -126,9 +152,32 @@ if __name__ == '__main__':
 		worker = SpecificWorker(mprx)
 		worker.setParams(parameters)
 
+	adapter = ic.createObjectAdapter('AGMCommonBehavior')
+	adapter.add(AGMCommonBehaviorI(worker), ic.stringToIdentity('agmcommonbehavior'))
+	adapter.activate()
+
+
 	adapter = ic.createObjectAdapter('ShellyMission')
 	adapter.add(ShellyMissionI(worker), ic.stringToIdentity('shellymission'))
 	adapter.activate()
+
+
+	AGMExecutiveTopic_adapter = ic.createObjectAdapter("AGMExecutiveTopicTopic")
+	agmexecutivetopicI_ = AGMExecutiveTopicI(worker)
+	agmexecutivetopic_proxy = AGMExecutiveTopic_adapter.addWithUUID(agmexecutivetopicI_).ice_oneway()
+
+	subscribeDone = False
+	while not subscribeDone:
+		try:
+			agmexecutivetopic_topic = topicManager.retrieve("AGMExecutiveTopic")
+			subscribeDone = True
+		except Ice.Exception, e:
+			print "Error. Topic does not exist (yet)"
+			status = 0
+			time.sleep(1)
+	qos = {}
+	agmexecutivetopic_topic.subscribeAndGetPublisher(qos, agmexecutivetopic_proxy)
+	AGMExecutiveTopic_adapter.activate()
 
 
 	signal.signal(signal.SIGINT, signal.SIG_DFL)
