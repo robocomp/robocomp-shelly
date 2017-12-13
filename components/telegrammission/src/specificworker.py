@@ -22,7 +22,7 @@ import telepot
 import speech_recognition as sr
 import unicodedata
 
-from PySide import *
+from PySide import QtCore, QtGui
 from genericworker import *
 from compConfig import *
 
@@ -38,7 +38,7 @@ class SpecificWorker(GenericWorker):
 		self.timer.timeout.connect(self.compute)
 		self.Period = 10000
 		self.timer.start(self.Period)
-		
+
 
 	def setParams(self, params):
 		try:
@@ -69,8 +69,8 @@ class SpecificWorker(GenericWorker):
 			traceback.print_exc()
 			print "Error reading config param: LANGUAGE"
 			return False
-		
-		
+
+
 
 		self.goSet, self.graspSet, self.bringSet, self.objects = getLanguageParams(self.LANGUAGE)
 		print 'goSet'
@@ -81,7 +81,7 @@ class SpecificWorker(GenericWorker):
 		print self.bringSet
 		print 'objects'
 		print self.objects
-		
+
 
 
 		# Telegram stuff
@@ -120,7 +120,7 @@ class SpecificWorker(GenericWorker):
 
 	def handle_text(self, message):
 		self.do(message['text'])
-		
+
 	def remove_weird_chars_and_lower(self, s):
 		return ''.join((c for c in unicodedata.normalize('NFD', s.lower()) if unicodedata.category(c) != 'Mn'))
 
@@ -128,7 +128,7 @@ class SpecificWorker(GenericWorker):
 		text = self.remove_weird_chars_and_lower(text)
 		print 'do:', text
 		output_message = 'RECIBIDO: "'+text+'"\n'
-		
+
 		mission, output_message = self.missionFromKnownSentences(text, output_message)
 		if mission == None:
 			mission, output_message = self.missionFromAnalysis(text, output_message)
@@ -137,7 +137,7 @@ class SpecificWorker(GenericWorker):
 
 		if mission != None:
 			target = '/home/robocomp/robocomp/components/robocomp-shelly/etc/target' + mission + '.aggt'
-			self.agmexecutive_proxy.setMission(target)
+			self.shellymission_proxy.setMission(target)
 			self.bot.sendMessage(self.TELEGRAM_ID, target)
 
 
@@ -209,10 +209,3 @@ class SpecificWorker(GenericWorker):
 			output_message = output_message[:-1]
 
 		return mission, output_message
-
-
-
-
-
-
-

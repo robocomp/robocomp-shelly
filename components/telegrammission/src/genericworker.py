@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2016 by YOUR NAME HERE
+# Copyright (C) 2017 by YOUR NAME HERE
 #
 #    This file is part of RoboComp
 #
@@ -17,7 +17,7 @@
 #    along with RoboComp.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys, Ice, os
-from PySide import *
+from PySide import QtGui, QtCore
 
 ROBOCOMP = ''
 try:
@@ -30,15 +30,30 @@ preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robo
 Ice.loadSlice(preStr+"CommonBehavior.ice")
 import RoboCompCommonBehavior
 
-preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
-Ice.loadSlice(preStr+"AGMExecutive.ice")
-from RoboCompAGMExecutive import *
-preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
-Ice.loadSlice(preStr+"AGMWorldModel.ice")
-from RoboCompAGMWorldModel import *
-preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ --all /opt/robocomp/interfaces/"
-Ice.loadSlice(preStr+"Planning.ice")
-from RoboCompPlanning import *
+additionalPathStr = ''
+icePaths = [ '/opt/robocomp/interfaces' ]
+try:
+	SLICE_PATH = os.environ['SLICE_PATH'].split(':')
+	for p in SLICE_PATH:
+		icePaths.append(p)
+		additionalPathStr += ' -I' + p + ' '
+	icePaths.append('/opt/robocomp/interfaces')
+except:
+	print 'SLICE_PATH environment variable was not exported. Using only the default paths'
+	pass
+
+ice_ShellyMission = False
+for p in icePaths:
+	if os.path.isfile(p+'/ShellyMission.ice'):
+		preStr = "-I/opt/robocomp/interfaces/ -I"+ROBOCOMP+"/interfaces/ " + additionalPathStr + " --all "+p+'/'
+		wholeStr = preStr+"ShellyMission.ice"
+		Ice.loadSlice(wholeStr)
+		ice_ShellyMission = True
+		break
+if not ice_ShellyMission:
+	print 'Couln\'t load ShellyMission'
+	sys.exit(-1)
+from RoboCompShellyMission import *
 
 
 
@@ -51,9 +66,9 @@ class GenericWorker(QtCore.QObject):
 		super(GenericWorker, self).__init__()
 
 
-		self.agmexecutive_proxy = mprx["AGMExecutiveProxy"]
-		
-		
+		self.shellymission_proxy = mprx["ShellyMissionProxy"]
+
+
 		self.mutex = QtCore.QMutex(QtCore.QMutex.Recursive)
 		self.Period = 30
 		self.timer = QtCore.QTimer(self)

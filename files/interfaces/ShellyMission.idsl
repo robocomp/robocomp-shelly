@@ -1,0 +1,8 @@
+module RoboCompShellyMission
+{
+	interface ShellyMission
+	{
+		void setMission(string path);
+	};
+};
+

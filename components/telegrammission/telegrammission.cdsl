@@ -1,10 +1,10 @@
-import "/robocomp/interfaces/IDSLs/AGMExecutive.idsl";
+import "ShellyMission.idsl";
 
 Component telegrammission
 {
 	Communications
 	{
-		requires AGMExecutive;
+		requires ShellyMission;
 	};
 	language python;
 };

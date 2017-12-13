@@ -41,9 +41,9 @@
  </node>
 
  <node alias="telegram" endpoint="commonbehavior:tcp -p 12070">
-  <dependence alias="executive" />
+  <dependence alias="SHELLY" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost rclogger /home/robocomp/ rclogger" />
+  <upCommand command="rcremote localhost telegram /home/robocomp/robocomp/components/robocomp-shelly/components/telegrammission python src/telegrammission.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/telegrammission.conf" />
   <downCommand command="killall -9 rclogger" />
   <configFile path="" />
   <xpos value="53.0543371069" />
@@ -124,6 +124,18 @@
   <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/mission.conf" />
   <xpos value="-12.6898628644" />
   <ypos value="-256.528683211" />
+  <radius value="10.0" />
+  <color value="#AAAAAA" />
+ </node>
+
+ <node alias="SHELLY" endpoint="shellymission:tcp -h localhost -p 13452">
+  <dependence alias="executive" />
+  <workingDir path="/home/robocomp/" />
+  <upCommand command="rcremote localhost shellymission /home/robocomp/robocomp/components/robocomp-shelly/components/shellymission python src/shellymission.py /home/robocomp/robocomp/components/robocomp-shelly/etcSim/shellyMission.conf" />
+  <downCommand command="killall -9 agmmission" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/shellyMission.conf" />
+  <xpos value="-12.6898628644" />
+  <ypos value="-300.528683211" />
   <radius value="10.0" />
   <color value="#AAAAAA" />
  </node>

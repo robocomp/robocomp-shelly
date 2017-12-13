@@ -11,4 +11,3 @@ Component shellymission
 	language python;
 	gui Qt(QWidget);
 };
-
