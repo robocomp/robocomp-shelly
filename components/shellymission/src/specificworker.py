@@ -32,6 +32,7 @@ class MissionQueue(object):
 		self.generators = []
 	def addMission(self, mission):
 		self.data.append(mission)
+		self.data = sorted(self.data, key=lambda x: x.time)
 	def addGenerator(self, generator):
 		self.generators.append(generator)
 	def runGenerators(self):
@@ -40,16 +41,19 @@ class MissionQueue(object):
 	def get(self):
 		got = None
 		now = datetime.datetime.now()
-
 		for mission in self.data:
 			if mission.time < now:
 				got = mission
 				break
 		if got != None:
 			self.data.remove(mission)
-
 		return got
 
+	def getText(self):
+		ret = ''
+		for m in self.data:
+			ret += str(m.time) + ': ' + str(m.name) + '\n'
+		return ret
 
 class PeriodicMissionGenerator(object):
 	def __init__(self, name, period, path):
@@ -69,6 +73,26 @@ class PeriodicMissionGenerator(object):
 		if n == 1:
 			queue.addMission(Mission(self.name,                  m.time + self.period, self.path))
 
+class TimedMissionGenerator(object):
+	def __init__(self, name, timesOfDay, path):
+		self.name   = name
+		self.path   = path
+		self.time  = time
+	def handleMissionQueue(self, queue):
+		n = 0
+		stored = None
+		for m in queue.data:
+			if m.name == self.name:
+				n += 1
+				stored = m
+		if n == 0:
+			day = datetime.date.today()
+			nextTime = datetime.combine(day, self.time)
+			if nextTime < datetime.datetime.now():
+				day += datetime.timedelta(days=1)
+				nextTime = datetime.combine(day, self.time)
+			queue.addMission(Mission(self.name, nextTime, self.path))
+
 
 
 class SpecificWorker(GenericWorker):
@@ -81,19 +105,27 @@ class SpecificWorker(GenericWorker):
 		self.worldVersion = int(self.agmexecutive_proxy.getModel().version)
 		self.planVersion = -1
 
+		self.currentMission = None
 		self.plan = ''
 		self.inhibition = False
 		print 'init inhibition as false', self.inhibition
 
 		self.queue = MissionQueue()
-		self.queue.addGenerator(PeriodicMissionGenerator('goToTableA', datetime.timedelta(seconds=100), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableA.aggt'))
-		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=100), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
+		self.queue.addGenerator(PeriodicMissionGenerator('goToTableA', datetime.timedelta(seconds=120), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableA.aggt'))
+		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=120), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
+		self.queue.addGenerator(TimedMissionGenerator(   'goToTableC', datetime.time(12, 30),           '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableC.aggt'))
 
 	def setParams(self, params):
 		return True
 
 	@QtCore.Slot()
 	def compute(self):
+		#
+		# Set label's content using the missions in the queue
+		#
+		self.ui.label.setText(self.queue.getText())
+
+
 		#
 		#  Update mission queue with the new missions that the mission generators might trigger
 		#
@@ -123,15 +155,16 @@ class SpecificWorker(GenericWorker):
 		# If we get here, it's time to move to the next task
 
 		print 'NEXT MISSION!'
-		nextMission = self.queue.get()
-		if nextMission != None:
-			self.setMission(nextMission.path)
+		self.currentMission = self.queue.get()
+		if self.currentMission != None:
+			self.setMission(self.currentMission.path)
 
 		return True
 
 	def setMission(self, path):
 		print 'Sending new mission', path
 		self.inhibition = True
+		self.queue.addMission(self.currentMission)
 		print 'set inhibition as true __setMission__', self.inhibition
 		self.agmexecutive_proxy.setMission(path)
 
@@ -144,6 +177,7 @@ class SpecificWorker(GenericWorker):
 				# self.inhibition = False
 				# print 'set inhibition as false __activateAgent__', self.inhibition
 			if nextPlanVersion == self.worldVersion and len(plan) == 0:
+				self.currentMission = None
 				self.inhibition = False
 				print 'set inhibition as false __activateAgent__', self.inhibition
 			self.planVersion = nextPlanVersion
