@@ -42,12 +42,21 @@ class MissionQueue(object):
 		got = None
 		now = datetime.datetime.now()
 		for mission in self.data:
-			if mission.time < now:
+			if mission.time <= now:
 				got = mission
 				break
+		print 'returning misssion', got
+		print 'queue'
+ 		print self.data, '\n'
 		if got != None:
-			self.data.remove(mission)
+			print 'removing mission', got
+			self.data.remove(got)
+		print 'queue'
+ 		print self.data, '\n'
 		return got
+
+	def __str__(self):
+		return self.getText()
 
 	def getText(self):
 		ret = ''
@@ -71,13 +80,13 @@ class PeriodicMissionGenerator(object):
 			queue.addMission(Mission(self.name, datetime.datetime.now(),               self.path))
 			queue.addMission(Mission(self.name, datetime.datetime.now() + self.period, self.path))
 		if n == 1:
-			queue.addMission(Mission(self.name,                  m.time + self.period, self.path))
+			queue.addMission(Mission(self.name,             stored.time + self.period, self.path))
 
 class TimedMissionGenerator(object):
-	def __init__(self, name, timesOfDay, path):
+	def __init__(self, name, timeOfDay, path):
 		self.name   = name
 		self.path   = path
-		self.time  = time
+		self.time  = timeOfDay
 	def handleMissionQueue(self, queue):
 		n = 0
 		stored = None
@@ -87,10 +96,10 @@ class TimedMissionGenerator(object):
 				stored = m
 		if n == 0:
 			day = datetime.date.today()
-			nextTime = datetime.combine(day, self.time)
+			nextTime = datetime.datetime.combine(day, self.time)
 			if nextTime < datetime.datetime.now():
 				day += datetime.timedelta(days=1)
-				nextTime = datetime.combine(day, self.time)
+				nextTime = datetime.datetime.combine(day, self.time)
 			queue.addMission(Mission(self.name, nextTime, self.path))
 
 
@@ -115,11 +124,17 @@ class SpecificWorker(GenericWorker):
 		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=120), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
 		self.queue.addGenerator(TimedMissionGenerator(   'goToTableC', datetime.time(12, 30),           '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableC.aggt'))
 
+		self.ui.currentLabel.setText('<b>none</b>')
+
 	def setParams(self, params):
 		return True
 
 	@QtCore.Slot()
 	def compute(self):
+		try:
+			print self.planVersion, self.worldVersion, len(plan)
+		except NameError:
+			self.agmexecutive_proxy.broadcastPlan()
 		#
 		# Set label's content using the missions in the queue
 		#
@@ -156,15 +171,23 @@ class SpecificWorker(GenericWorker):
 
 		print 'NEXT MISSION!'
 		self.currentMission = self.queue.get()
+
+		print self.currentMission
 		if self.currentMission != None:
 			self.setMission(self.currentMission.path)
 
+		if self.currentMission == None:
+			self.ui.currentLabel.setText('<b>none</b>')
+		else:
+			self.ui.currentLabel.setText(str(self.currentMission.time) + ': ' + str(self.currentMission.name) + '\n')
+
 		return True
 
-	def setMission(self, path):
+	def setMission(self, path, enqueueCurrentIfAny=False):
 		print 'Sending new mission', path
 		self.inhibition = True
-		self.queue.addMission(self.currentMission)
+		if enqueueCurrentIfAny and self.currentMission != None:
+			self.queue.addMission(self.currentMission)
 		print 'set inhibition as true __setMission__', self.inhibition
 		self.agmexecutive_proxy.setMission(path)
 
