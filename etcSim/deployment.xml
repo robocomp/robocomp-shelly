@@ -80,9 +80,9 @@
  <node alias="humanFakeA" endpoint="agmcommonbehavior:tcp -h localhost -p 10210">
   <dependence alias="executive" />
   <workingDir path="/home/robocomp/" />
-  <upCommand command="rcremote localhost humanFakeA /home/robocomp/robocomp/components/robocomp-shelly/components/fakeHumanAgent ./bin/fakeHumanAgent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/humanFake.conf" />
+  <upCommand command="rcremote localhost humanFakeA /home/robocomp/robocomp/components/robocomp-arashelly/components/fakeHumanAgent ./bin/fakeHumanAgent /home/robocomp/robocomp/components/robocomp-shelly/etcSim/fakeHuman.conf" />
   <downCommand command="killall -9 fakeHumanAgent" />
-  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/humanFake.conf" />
+  <configFile path="/home/robocomp/robocomp/components/robocomp-shelly/etcSim/fakeHuman.conf" />
   <xpos value="-138.76481473" />
   <ypos value="-219.638126022" />
   <radius value="13.0" />

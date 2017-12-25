@@ -27,7 +27,8 @@ import datetime
 Mission = namedtuple('Mission', ['name', 'time', 'path'])
 
 class MissionQueue(object):
-	def __init__(self):
+	def __init__(self, defaultMissionPath=None):
+		self.defaultMissionPath = defaultMissionPath
 		self.data = []
 		self.generators = []
 	def addMission(self, mission):
@@ -46,13 +47,15 @@ class MissionQueue(object):
 				got = mission
 				break
 		print 'returning misssion', got
-		print 'queue'
  		print self.data, '\n'
 		if got != None:
 			print 'removing mission', got
 			self.data.remove(got)
 		print 'queue'
  		print self.data, '\n'
+		if got == None:
+			got = Mission('default mission', datetime.datetime.now(), self.defaultMissionPath)
+			print 'No mission found in the queue, using the default mission provided:', got
 		return got
 
 	def __str__(self):
@@ -119,9 +122,9 @@ class SpecificWorker(GenericWorker):
 		self.inhibition = False
 		print 'init inhibition as false', self.inhibition
 
-		self.queue = MissionQueue()
-		self.queue.addGenerator(PeriodicMissionGenerator('goToTableA', datetime.timedelta(seconds=120), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableA.aggt'))
-		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=120), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
+		self.queue = MissionQueue(defaultMissionPath='/home/robocomp/robocomp/components/robocomp-shelly/etc/targetGoRoom5.aggt')
+		self.queue.addGenerator(PeriodicMissionGenerator('goToTableA', datetime.timedelta(seconds=300), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableA.aggt'))
+		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=300), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
 		self.queue.addGenerator(TimedMissionGenerator(   'goToTableC', datetime.time(12, 30),           '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableC.aggt'))
 
 		self.ui.currentLabel.setText('<b>none</b>')
@@ -131,24 +134,27 @@ class SpecificWorker(GenericWorker):
 
 	@QtCore.Slot()
 	def compute(self):
+		print 'compute'
+		#
+		#  Make sure we've got the plan
+		#
 		try:
 			print self.planVersion, self.worldVersion, len(plan)
 		except NameError:
 			self.agmexecutive_proxy.broadcastPlan()
+			# return
 		#
-		# Set label's content using the missions in the queue
+		#  Set label's content using the missions in the queue
 		#
 		self.ui.label.setText(self.queue.getText())
-
-
 		#
 		#  Update mission queue with the new missions that the mission generators might trigger
 		#
+		print 'run generators'
 		self.queue.runGenerators()
 		if self.inhibition:
 			print 'return by inhibition'
 			return
-
 		#
 		#  Send a new mission in case
 		#
