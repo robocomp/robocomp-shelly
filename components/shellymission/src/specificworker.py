@@ -122,7 +122,7 @@ class SpecificWorker(GenericWorker):
 		self.inhibition = False
 		print 'init inhibition as false', self.inhibition
 
-		self.queue = MissionQueue(defaultMissionPath='/home/robocomp/robocomp/components/robocomp-shelly/etc/targetGoRoom5.aggt')
+		self.queue = MissionQueue(defaultMissionPath='/home/robocomp/robocomp/components/robocomp-shelly/etc/targetGoPoseWhereHuman.aggt')
 		self.queue.addGenerator(PeriodicMissionGenerator('goToTableA', datetime.timedelta(seconds=300), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableA.aggt'))
 		self.queue.addGenerator(PeriodicMissionGenerator('goToTableB', datetime.timedelta(seconds=300), '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableB.aggt'))
 		self.queue.addGenerator(TimedMissionGenerator(   'goToTableC', datetime.time(12, 30),           '/home/robocomp/robocomp/components/robocomp-shelly/etc/targetReachTableC.aggt'))

@@ -105,10 +105,6 @@
 	<attribute key="imName" value="Pose2" />
 	<attribute key="imType" value="transform" />
 </symbol>
-<symbol id="666" type="person">
-	<attribute key="imName" value="person" />
-	<attribute key="imType" value="transform" />
-</symbol>
 <symbol id="667" type="transform">
 	<attribute key="engine" value="static" />
 	<attribute key="imName" value="floor" />
@@ -2008,8 +2004,6 @@
 	<linkAttribute key="y" value="0" />
 	<linkAttribute key="z" value="0" />
 </link>
-<link src="666" dst="3" label="in"/>
-<link src="666" dst="666" label="reachable"/>
 <link src="100" dst="667" label="RT">
 	<linkAttribute key="rx" value="0" />
 	<linkAttribute key="ry" value="0" />

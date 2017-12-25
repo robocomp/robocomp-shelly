@@ -1,6 +1,6 @@
 {
 	p:pose(1,1)
-	h:human(1,1)
+	h:person(1,1)
 	r:room(1,1)
 	p->p(reach)
 	h->r(in)

@@ -178,9 +178,9 @@ void SpecificWorker::manageReachedObjects()
 			printf("isNodeType obj %d\n", isNodeType(node, "obj"));
 		}
 		// printf("%s %d\n", __FILE__, __LINE__);
-		if ( isNodeType(node, "obj")  ) // or isNodeType(node, "person")
+		if ( isNodeType(node, "obj") or isNodeType(node, "pose") )
 		{
-			printf("%s %d\n", __FILE__, __LINE__);
+			// printf("%s %d\n", __FILE__, __LINE__);
 			//if the object is in robot continue
 			try
 			{
@@ -213,7 +213,18 @@ void SpecificWorker::manageReachedObjects()
 			float d2n;
 			try
 			{
-				d2n = distanceToNode("shellyArm_grasp_pose", newModel, nodeReach);
+				if ( isNodeType(node, "mObj") or isNodeType(node, "sObj") )
+				{
+					d2n = distanceToNode("shellyArm_grasp_pose", newModel, nodeReach);
+				}
+				else if ( isNodeType(node, "person") or isNodeType(node, "pose") )
+				{
+					d2n = distanceToNode("robot", newModel, nodeReach);
+				}
+				else
+				{
+					qFatal("dededcef or4j ");
+				}
 			}
 			catch(...)
 			{
@@ -224,7 +235,7 @@ void SpecificWorker::manageReachedObjects()
 				return;
 			}
 
-				printf("%s %d\n", __FILE__, __LINE__);
+			if (isNodeType(node, "pose")) printf("%s %d\n", __FILE__, __LINE__);
 
 // 			printf("%d distance %f\n", node->identifier, d2n);
 // // // // // // 			innerModel->transformS("robot", "armY").print("armY in r");
@@ -269,18 +280,22 @@ void SpecificWorker::manageReachedObjects()
 			{
 				THRESHOLD = THRESHOLD_person;
 			}
+			else if (node->symbolType == "pose")
+			{
+				THRESHOLD = 100;
+			}
 			else
 			{
 				qFatal("dededcef or4j ");
 			}
-			printf("%s %d\n", __FILE__, __LINE__);
+			if (isNodeType(node, "pose")) printf("THRESHOLD %f           %s %d\n", THRESHOLD, __FILE__, __LINE__);
 
 			try
 			{
-				printf("%s %d\n", __FILE__, __LINE__);
+				// printf("%s %d\n", __FILE__, __LINE__);
 				// std::map<std::string, AGMModelSymbol::SPtr> symbols = newModel->getSymbolsMap(params, "object");
 				// if (node->identifier == symbols["object"]->identifier)
-					// qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
+				if (isNodeType(node, "pose")) qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
 			}
 			catch(...)
 			{
@@ -294,8 +309,8 @@ void SpecificWorker::manageReachedObjects()
 
 
 			QString name = QString::fromStdString(node->toString());
-			if (node->identifier == 29)
-				qDebug()<<"Distance To Node (" << node->identifier << ") :"<< name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
+			// if (node->identifier == 29)
+				// qDebug()<<"Distance To Node (" << node->identifier << ") :"<< name <<" d2n "<<d2n<<"THRESHOLD"<<THRESHOLD;
 
 
 			bool removeE = false;
@@ -989,7 +1004,7 @@ void SpecificWorker::action_GraspObject(bool first)
 		case 0:
 			//reset intermediate steps
 			actualSteps = 1;
-			printf("%d\n", __LINE__);
+			// printf("%d\n", __LINE__);
 			//check if object is visible
 			current_time = QTime::currentTime();
 			try
@@ -1036,7 +1051,7 @@ void SpecificWorker::action_GraspObject(bool first)
 		// Wait for last movement (it can be the first one or a intermediate one)
 		//
 		case 1:
-			printf("%d\n", __LINE__);
+			// printf("%d\n", __LINE__);
 			ikState = inversekinematics_proxy->getTargetState("ARM", lastTargetId);
 			if (ikState.finish)
 			{
