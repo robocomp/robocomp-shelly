@@ -1,0 +1,12 @@
+{
+	i:robot(1,1)
+	p:person(1,1)
+	r:room(1,1)
+	p->r(in)
+	i->r(in)
+	p->p(reach)
+
+}
+precondition
+{
+}

@@ -196,7 +196,12 @@
 		<linkAttribute key="rz" value="0" />
 	</link>
 
-
+	<symbol id="666" type="person" >
+		<attribute key="imType" value="transform" />
+		<attribute key="imName" value="person" />
+	</symbol>
+	<link src="666" dst="3" label="in" />
+	<link src="666" dst="666" label="reachable" />
 <!--
 	<symbol id="999" type="object" > </symbol>
 	<link src="999" dst="999" label="mug"> </link>
