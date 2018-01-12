@@ -82,7 +82,7 @@ void SpecificWorker::compute()
 	{
 		printf("New action: %s\n", action.c_str());
 	}
-	printf("action: %s\n", action.c_str());
+	// printf("action: %s\n", action.c_str());
 
 	if (action == "verifyimaginaryobj__mobj_mug")
 	{
@@ -148,6 +148,8 @@ void SpecificWorker::compute()
 
 bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool first)
 {
+	printf("detectAndLocateObject\n");
+	exit(-183);
 	AGMModel::SPtr newModel(new AGMModel(worldModel));
 	QVec poseFromParent;
 	static QTime waitTime;
@@ -266,9 +268,9 @@ bool SpecificWorker::detectAndLocateObject(std::string objectToDetect, bool firs
 			mugMesh->setAttribute("imType", "mesh");
 			mugMesh->setAttribute("path", "/home/robocomp/robocomp/components/prp/experimentFiles/simulation/mug_blue.3ds");
 			mugMesh->setAttribute("render", "NormalRendering");
-			mugMesh->setAttribute("scalex", "100");
-			mugMesh->setAttribute("scaley", "100");
-			mugMesh->setAttribute("scalez", "100");
+			mugMesh->setAttribute("scalex", "501");
+			mugMesh->setAttribute("scaley", "501");
+			mugMesh->setAttribute("scalez", "501");
 			//model offset
 			std::map<std::string, std::string> edgeRTMeshAtrs;
 			edgeRTMeshAtrs["tx"] = "0";
@@ -742,6 +744,7 @@ bool SpecificWorker::updateTable(const RoboCompAprilTags::tag &t, AGMModel::SPtr
 bool SpecificWorker::updateMug(const RoboCompAprilTags::tag &t, AGMModel::SPtr &newModel)
 {
 	printf("===========================\n===   updateMug   =========\n===========================\n");
+	exit(-209);
 	bool existing = false;
 	float THRESHOLD_mugInTable = 750;
 	AGMModelSymbol::SPtr symbolMug,symbolMugSt;
@@ -1350,7 +1353,7 @@ void SpecificWorker::updateOracleMug(const RoboCompAprilTags::tag &t, AGMModel::
 		{
 
 			InnerModelNode *parentNodeIM = nodeSymbolIM->parent;
-			qDebug()<<"El padre existe en el innermodel";
+			qDebug()<<"El padre existe en el innermodel" << nodeSymbolIM->id;
 			if (parentNodeIM)
 			{
 				QString parentIMName    = parentNodeIM->id;
@@ -1463,9 +1466,9 @@ printf("%d\n", __LINE__);
 			mugMesh->setAttribute("imType", "mesh");
 			mugMesh->setAttribute("path", "/home/robocomp/robocomp/components/prp/experimentFiles/simulation/mug_blue.3ds");
 			mugMesh->setAttribute("render", "NormalRendering");
-			mugMesh->setAttribute("scalex", "100");
-			mugMesh->setAttribute("scaley", "100");
-			mugMesh->setAttribute("scalez", "100");
+			mugMesh->setAttribute("scalex", "550");
+			mugMesh->setAttribute("scaley", "550");
+			mugMesh->setAttribute("scalez", "550");
 			//model offset
 			std::map<std::string, std::string> edgeRTMeshAtrs;
 			edgeRTMeshAtrs["tx"] = "0";

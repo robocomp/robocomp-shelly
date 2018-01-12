@@ -295,7 +295,7 @@ void SpecificWorker::manageReachedObjects()
 				// printf("%s %d\n", __FILE__, __LINE__);
 				// std::map<std::string, AGMModelSymbol::SPtr> symbols = newModel->getSymbolsMap(params, "object");
 				// if (node->identifier == symbols["object"]->identifier)
-				if (isNodeType(node, "pose")) qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
+				if (isNodeType(node, "mug")) qDebug()<<"Distance To Node (" << node->identifier << ") :" << d2n <<"THRESHOLD"<<THRESHOLD;
 			}
 			catch(...)
 			{

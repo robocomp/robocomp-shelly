@@ -1,7 +1,7 @@
 {
 	1:robot(1,1)
 	mug:mug(1,1)
-	1->mug(imagines)
+	1->mug(imagine)
 }
 precondition
 {
