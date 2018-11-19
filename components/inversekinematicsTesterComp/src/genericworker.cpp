@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
+ *    Copyright (C)2018 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -22,23 +22,25 @@
 */
 GenericWorker::GenericWorker(MapPrx& mprx) :
 #ifdef USE_QTGUI
-Ui_Form()
+Ui_guiDlg()
 #else
 QObject()
 #endif
 
 {
-	innermodelmanager_proxy = (*(InnerModelManagerPrx*)mprx["InnerModelManagerProxy"]);
+	inversekinematics_proxy = (*(InverseKinematicsPrx*)mprx["InverseKinematicsProxy"]);
 	jointmotor_proxy = (*(JointMotorPrx*)mprx["JointMotorProxy"]);
-	bodyinversekinematics_proxy = (*(BodyInverseKinematicsPrx*)mprx["BodyInverseKinematicsProxy"]);
+	innermodelmanager_proxy = (*(InnerModelManagerPrx*)mprx["InnerModelManagerProxy"]);
 
-	mutex = new QMutex();
-#ifdef USE_QTGUI
-this->setupUi(this);
-show();
-#endif
+	mutex = new QMutex(QMutex::Recursive);
+
+	#ifdef USE_QTGUI
+		setupUi(this);
+		show();
+	#endif
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
+
 }
 
 /**
@@ -63,3 +65,4 @@ void GenericWorker::setPeriod(int p)
 	Period = p;
 	timer.start(Period);
 }
+
