@@ -22,7 +22,7 @@
 #include <genericworker.h>
 #include <innermodel/innermodel.h>
 
-#include "../../inversekinematicsComp/src/target.h"
+#include "target.h"
 #include <qt4/Qt/qcheckbox.h>
 #include <qt4/Qt/qwidget.h>
 #include <qt4/QtGui/qcombobox.h>

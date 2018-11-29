@@ -36,7 +36,7 @@ void Metric::moveInnerModelFromMillimetersToMeters(InnerModelNode* node)
 	
 	if ((transformation = dynamic_cast<InnerModelTransform *>(node)))   /// WE DO A CASTING OF THE NODE: TRANSFORM
 	{
-		if( (joint = dynamic_cast<InnerModelJoint *>(node)) == false)
+		if( (joint = dynamic_cast<InnerModelJoint *>(node)) == nullptr)
 		{
 			transformation->setTr(transformation->getTr() / FACTOR);
 			qDebug() << transformation->id << transformation->getTr();

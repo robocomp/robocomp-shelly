@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2006-2010 by RoboLab - University of Extremadura
+ *    Copyright (C)2018 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -19,35 +19,39 @@
 #ifndef GENERICWORKER_H
 #define GENERICWORKER_H
 
-// #include <ipp.h>
 #include "config.h"
-#include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
+
+#if Qt5_FOUND
+	#include <QtWidgets>
+#else
+	#include <QtGui>
+#endif
+#include <ui_mainUI.h>
+
 #include <CommonBehavior.h>
-#include <ui_guiDlg.h>
-#include "config.h"
-#include <InnerModelManager.h>
+
 #include <JointMotor.h>
-#include <BodyInverseKinematics.h>
+#include <InnerModelManager.h>
+#include <InverseKinematics.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
 
+using namespace std;
+using namespace RoboCompInverseKinematics;
+using namespace RoboCompJointMotor;
+using namespace RoboCompInnerModelManager;
+
 typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
-using namespace std;
 
-/**
-       \brief
-       @author authorname
-*/
-using namespace RoboCompInnerModelManager;
-using namespace RoboCompJointMotor;
-using namespace RoboCompBodyInverseKinematics;
+
+
 class GenericWorker :
 #ifdef USE_QTGUI
-public QDialog, public Ui_Form
+public QWidget, public Ui_guiDlg
 #else
 public QObject
 #endif
@@ -58,18 +62,26 @@ public:
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);
-	
+
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
-	QMutex *mutex;                //Shared mutex with servant
+	QMutex *mutex;
+
 
 	InnerModelManagerPrx innermodelmanager_proxy;
 	JointMotorPrx jointmotor_proxy;
-	BodyInverseKinematicsPrx bodyinversekinematics_proxy;
+	InverseKinematicsPrx inversekinematics_proxy;
+
+
 protected:
 	QTimer timer;
 	int Period;
+
+private:
+
+
 public slots:
 	virtual void compute() = 0;
+	virtual void initialize(int period) = 0;
 signals:
 	void kill();
 };
