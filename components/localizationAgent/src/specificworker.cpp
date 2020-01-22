@@ -594,7 +594,7 @@ void SpecificWorker::AGMExecutiveTopic_selfEdgeAdded(const int nodeid, const str
     QMutexLocker lockIM(mutex);
     try { worldModel->addEdgeByIdentifiers(nodeid, nodeid, edgeType, attributes); } catch(...){ printf("Couldn't add an edge. Duplicate?\n"); }
 
-    try { innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
+    try { innerModel.reset(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
 }
 
 void SpecificWorker::AGMExecutiveTopic_selfEdgeDeleted(const int nodeid, const string &edgeType)
@@ -603,7 +603,7 @@ void SpecificWorker::AGMExecutiveTopic_selfEdgeDeleted(const int nodeid, const s
     QMutexLocker lockIM(mutex);
     try { worldModel->removeEdgeByIdentifiers(nodeid, nodeid, edgeType); } catch(...) { printf("Couldn't remove an edge\n"); }
 
-    try { innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
+    try { innerModel.reset(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
 }
 
 void SpecificWorker::AGMExecutiveTopic_structuralChange(const RoboCompAGMWorldModel::World &w)
@@ -612,7 +612,7 @@ void SpecificWorker::AGMExecutiveTopic_structuralChange(const RoboCompAGMWorldMo
  	AGMModelConverter::fromIceToInternal(w, worldModel);
 
 //	if (innerModel) delete innerModel;
-	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
+	innerModel.reset(AGMInner::extractInnerModel(worldModel));
 	mutex->unlock();
 }
 
@@ -622,7 +622,7 @@ void SpecificWorker::AGMExecutiveTopic_edgesUpdated(const RoboCompAGMWorldModel:
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
 //	delete innerModel;
-	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
+	innerModel.reset(AGMInner::extractInnerModel(worldModel));
 }
 
 void SpecificWorker::AGMExecutiveTopic_edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
@@ -631,7 +631,7 @@ void SpecificWorker::AGMExecutiveTopic_edgeUpdated(const RoboCompAGMWorldModel::
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
 //	delete innerModel;
-	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
+	innerModel.reset(AGMInner::extractInnerModel(worldModel));
 }
 
 void SpecificWorker::AGMExecutiveTopic_symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
@@ -640,7 +640,7 @@ void SpecificWorker::AGMExecutiveTopic_symbolUpdated(const RoboCompAGMWorldModel
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
 //	delete innerModel;
-	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
+	innerModel.reset(AGMInner::extractInnerModel(worldModel));
 }
 
 void SpecificWorker::AGMExecutiveTopic_symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
@@ -649,7 +649,7 @@ void SpecificWorker::AGMExecutiveTopic_symbolsUpdated(const RoboCompAGMWorldMode
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
 //	delete innerModel;
-	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
+	innerModel.reset(AGMInner::extractInnerModel(worldModel));
 }
 
 
