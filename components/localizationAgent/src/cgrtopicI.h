@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2019 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -31,11 +31,11 @@ using namespace RoboCompCGR;
 class CGRTopicI : public virtual RoboCompCGR::CGRTopic
 {
 public:
-	CGRTopicI(GenericWorker *_worker);
+CGRTopicI(GenericWorker *_worker);
 	~CGRTopicI();
-	
-	void newCGRPose(const float  poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
+
 	void newCGRCorrection(const float  poseUncertainty, const float  x1, const float  z1, const float  alpha1, const float  x2, const float  z2, const float  alpha2, const Ice::Current&);
+	void newCGRPose(const float  poseUncertainty, const float  x, const float  z, const float  alpha, const Ice::Current&);
 
 private:
 

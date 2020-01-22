@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -71,6 +71,7 @@
 #include <Ice/Application.h>
 
 #include <rapplication/rapplication.h>
+#include <sigwatch/sigwatch.h>
 #include <qlog/qlog.h>
 
 #include "config.h"
@@ -83,12 +84,10 @@
 #include <agmcommonbehaviorI.h>
 #include <agmexecutivetopicI.h>
 #include <aprilbasedlocalizationI.h>
-#include <cgrtopicI.h>
+#include <cgrI.h>
 
-#include <Logger.h>
-#include <OmniRobot.h>
-#include <AprilBasedLocalization.h>
-#include <CGR.h>
+#include <Planning.h>
+#include <GenericBase.h>
 
 
 // User includes here
@@ -129,33 +128,19 @@ int ::localizationAgent::run(int argc, char* argv[])
 	sigaddset(&sigs, SIGTERM);
 	sigprocmask(SIG_UNBLOCK, &sigs, 0);
 
-
+	UnixSignalWatcher sigwatch;
+	sigwatch.watchForSignal(SIGINT);
+	sigwatch.watchForSignal(SIGTERM);
+	QObject::connect(&sigwatch, SIGNAL(unixSignal(int)), &a, SLOT(quit()));
 
 	int status=EXIT_SUCCESS;
 
-	LoggerPrx logger_proxy;
-	OmniRobotPrx omnirobot_proxy;
+	LoggerPrx logger_pubproxy;
 	AGMExecutivePrx agmexecutive_proxy;
+	OmniRobotPrx omnirobot_proxy;
 
 	string proxy, tmp;
 	initialize();
-
-
-	try
-	{
-		if (not GenericMonitor::configGetString(communicator(), prefix, "OmniRobotProxy", proxy, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy OmniRobotProxy\n";
-		}
-		omnirobot_proxy = OmniRobotPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
-	}
-	catch(const Ice::Exception& ex)
-	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
-		return EXIT_FAILURE;
-	}
-	rInfo("OmniRobotProxy initialized Ok!");
-	mprx["OmniRobotProxy"] = (::IceProxy::Ice::Object*)(&omnirobot_proxy);//Remote server proxy creation example
 
 
 	try
@@ -168,15 +153,41 @@ int ::localizationAgent::run(int argc, char* argv[])
 	}
 	catch(const Ice::Exception& ex)
 	{
-		cout << "[" << PROGRAM_NAME << "]: Exception: " << ex;
+		cout << "[" << PROGRAM_NAME << "]: Exception creating proxy AGMExecutive: " << ex;
 		return EXIT_FAILURE;
 	}
 	rInfo("AGMExecutiveProxy initialized Ok!");
+
 	mprx["AGMExecutiveProxy"] = (::IceProxy::Ice::Object*)(&agmexecutive_proxy);//Remote server proxy creation example
 
-	IceStorm::TopicManagerPrx topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	try
+	{
+		if (not GenericMonitor::configGetString(communicator(), prefix, "OmniRobotProxy", proxy, ""))
+		{
+			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy OmniRobotProxy\n";
+		}
+		omnirobot_proxy = OmniRobotPrx::uncheckedCast( communicator()->stringToProxy( proxy ) );
+	}
+	catch(const Ice::Exception& ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception creating proxy OmniRobot: " << ex;
+		return EXIT_FAILURE;
+	}
+	rInfo("OmniRobotProxy initialized Ok!");
 
+	mprx["OmniRobotProxy"] = (::IceProxy::Ice::Object*)(&omnirobot_proxy);//Remote server proxy creation example
+	IceStorm::TopicManagerPrx topicManager;
+	try
+	{
+		topicManager = IceStorm::TopicManagerPrx::checkedCast(communicator()->propertyToProxy("TopicManager.Proxy"));
+	}
+	catch (const Ice::Exception &ex)
+	{
+		cout << "[" << PROGRAM_NAME << "]: Exception: STORM not running: " << ex << endl;
+		return EXIT_FAILURE;
+	}
 	IceStorm::TopicPrx logger_topic;
+
 	while (!logger_topic)
 	{
 		try
@@ -185,20 +196,21 @@ int ::localizationAgent::run(int argc, char* argv[])
 		}
 		catch (const IceStorm::NoSuchTopic&)
 		{
+			cout << "[" << PROGRAM_NAME << "]: ERROR retrieving Logger topic. \n";
 			try
 			{
 				logger_topic = topicManager->create("Logger");
 			}
 			catch (const IceStorm::TopicExists&){
 				// Another client created the topic.
+				cout << "[" << PROGRAM_NAME << "]: ERROR publishing the Logger topic. It's possible that other component have created\n";
 			}
 		}
 	}
+
 	Ice::ObjectPrx logger_pub = logger_topic->getPublisher()->ice_oneway();
-	LoggerPrx logger = LoggerPrx::uncheckedCast(logger_pub);
-	mprx["LoggerPub"] = (::IceProxy::Ice::Object*)(&logger);
-
-
+	logger_pubproxy = LoggerPrx::uncheckedCast(logger_pub);
+	mprx["LoggerPub"] = (::IceProxy::Ice::Object*)(&logger_pubproxy);
 
 	SpecificWorker *worker = new SpecificWorker(mprx);
 	//Monitor thread
@@ -209,137 +221,214 @@ int ::localizationAgent::run(int argc, char* argv[])
 
 	if ( !monitor->isRunning() )
 		return status;
-	
+
 	while (!monitor->ready)
 	{
 		usleep(10000);
 	}
-	
+
 	try
 	{
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "CommonBehavior.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy CommonBehavior\n";
-		}
-		Ice::ObjectAdapterPtr adapterCommonBehavior = communicator()->createObjectAdapterWithEndpoints("commonbehavior", tmp);
-		CommonBehaviorI *commonbehaviorI = new CommonBehaviorI(monitor );
-		adapterCommonBehavior->add(commonbehaviorI, communicator()->stringToIdentity("commonbehavior"));
-		adapterCommonBehavior->activate();
-
-
-
-
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "AGMCommonBehavior.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AGMCommonBehavior";
-		}
-		Ice::ObjectAdapterPtr adapterAGMCommonBehavior = communicator()->createObjectAdapterWithEndpoints("AGMCommonBehavior", tmp);
-		AGMCommonBehaviorI *agmcommonbehavior = new AGMCommonBehaviorI(worker);
-		adapterAGMCommonBehavior->add(agmcommonbehavior, communicator()->stringToIdentity("agmcommonbehavior"));
-		adapterAGMCommonBehavior->activate();
-		cout << "[" << PROGRAM_NAME << "]: AGMCommonBehavior adapter created in port " << tmp << endl;
-
-
-
-
-
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "CGRTopicTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy CGRTopicProxy";
-		}
-		Ice::ObjectAdapterPtr CGRTopic_adapter = communicator()->createObjectAdapterWithEndpoints("cgrtopic", tmp);
-		CGRTopicPtr cgrtopicI_ = new CGRTopicI(worker);
-		Ice::ObjectPrx cgrtopic = CGRTopic_adapter->addWithUUID(cgrtopicI_)->ice_oneway();
-		IceStorm::TopicPrx cgrtopic_topic;
-		if(!cgrtopic_topic){
 		try {
-			cgrtopic_topic = topicManager->create("CGRTopic");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			cgrtopic_topic = topicManager->retrieve("CGRTopic");
-		}
-		catch(const IceStorm::NoSuchTopic&)
-		{
-			//Error. Topic does not exist
+			// Server adapter creation and publication
+			if (not GenericMonitor::configGetString(communicator(), prefix, "CommonBehavior.Endpoints", tmp, "")) {
+				cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy CommonBehavior\n";
 			}
+			Ice::ObjectAdapterPtr adapterCommonBehavior = communicator()->createObjectAdapterWithEndpoints("commonbehavior", tmp);
+			CommonBehaviorI *commonbehaviorI = new CommonBehaviorI(monitor);
+			adapterCommonBehavior->add(commonbehaviorI, Ice::stringToIdentity("commonbehavior"));
+			adapterCommonBehavior->activate();
 		}
-		IceStorm::QoS qos;
-		cgrtopic_topic->subscribeAndGetPublisher(qos, cgrtopic);
+		catch(const Ice::Exception& ex)
+		{
+			status = EXIT_FAILURE;
+
+			cout << "[" << PROGRAM_NAME << "]: Exception raised while creating CommonBehavior adapter: " << endl;
+			cout << ex;
+
 		}
-		CGRTopic_adapter->activate();
+
+
+
+		try
+		{
+			// Server adapter creation and publication
+			if (not GenericMonitor::configGetString(communicator(), prefix, "AGMCommonBehavior.Endpoints", tmp, ""))
+			{
+				cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AGMCommonBehavior";
+			}
+			Ice::ObjectAdapterPtr adapterAGMCommonBehavior = communicator()->createObjectAdapterWithEndpoints("AGMCommonBehavior", tmp);
+			AGMCommonBehaviorI *agmcommonbehavior = new AGMCommonBehaviorI(worker);
+			adapterAGMCommonBehavior->add(agmcommonbehavior, Ice::stringToIdentity("agmcommonbehavior"));
+			adapterAGMCommonBehavior->activate();
+			cout << "[" << PROGRAM_NAME << "]: AGMCommonBehavior adapter created in port " << tmp << endl;
+			}
+			catch (const IceStorm::TopicExists&){
+				cout << "[" << PROGRAM_NAME << "]: ERROR creating or activating adapter for AGMCommonBehavior\n";
+			}
+
+
 
 		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "AprilBasedLocalizationTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AprilBasedLocalizationProxy";
-		}
-		Ice::ObjectAdapterPtr AprilBasedLocalization_adapter = communicator()->createObjectAdapterWithEndpoints("aprilbasedlocalization", tmp);
-		AprilBasedLocalizationPtr aprilbasedlocalizationI_ = new AprilBasedLocalizationI(worker);
-		Ice::ObjectPrx aprilbasedlocalization = AprilBasedLocalization_adapter->addWithUUID(aprilbasedlocalizationI_)->ice_oneway();
-		IceStorm::TopicPrx aprilbasedlocalization_topic;
-		if(!aprilbasedlocalization_topic){
-		try {
-			aprilbasedlocalization_topic = topicManager->create("AprilBasedLocalization");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			aprilbasedlocalization_topic = topicManager->retrieve("AprilBasedLocalization");
-		}
-		catch(const IceStorm::NoSuchTopic&)
-		{
-			//Error. Topic does not exist
-			}
-		}
-		IceStorm::QoS qos;
-		aprilbasedlocalization_topic->subscribeAndGetPublisher(qos, aprilbasedlocalization);
-		}
-		AprilBasedLocalization_adapter->activate();
-
-		// Server adapter creation and publication
-		if (not GenericMonitor::configGetString(communicator(), prefix, "AGMExecutiveTopicTopic.Endpoints", tmp, ""))
-		{
-			cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AGMExecutiveTopicProxy";
-		}
-		Ice::ObjectAdapterPtr AGMExecutiveTopic_adapter = communicator()->createObjectAdapterWithEndpoints("agmexecutivetopic", tmp);
-		AGMExecutiveTopicPtr agmexecutivetopicI_ = new AGMExecutiveTopicI(worker);
-		Ice::ObjectPrx agmexecutivetopic = AGMExecutiveTopic_adapter->addWithUUID(agmexecutivetopicI_)->ice_oneway();
 		IceStorm::TopicPrx agmexecutivetopic_topic;
-		if(!agmexecutivetopic_topic){
-		try {
-			agmexecutivetopic_topic = topicManager->create("AGMExecutiveTopic");
-		}
-		catch (const IceStorm::TopicExists&) {
-		//Another client created the topic
-		try{
-			agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
+		Ice::ObjectPrx agmexecutivetopic;
+		try
+		{
+			if (not GenericMonitor::configGetString(communicator(), prefix, "AGMExecutiveTopicTopic.Endpoints", tmp, ""))
+			{
+				cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AGMExecutiveTopicProxy";
+			}
+			Ice::ObjectAdapterPtr AGMExecutiveTopic_adapter = communicator()->createObjectAdapterWithEndpoints("agmexecutivetopic", tmp);
+			AGMExecutiveTopicPtr agmexecutivetopicI_ =  new AGMExecutiveTopicI(worker);
+			Ice::ObjectPrx agmexecutivetopic = AGMExecutiveTopic_adapter->addWithUUID(agmexecutivetopicI_)->ice_oneway();
+			if(!agmexecutivetopic_topic)
+			{
+				try {
+					agmexecutivetopic_topic = topicManager->create("AGMExecutiveTopic");
+				}
+				catch (const IceStorm::TopicExists&) {
+					//Another client created the topic
+					try{
+						cout << "[" << PROGRAM_NAME << "]: Probably other client already opened the topic. Trying to connect.\n";
+						agmexecutivetopic_topic = topicManager->retrieve("AGMExecutiveTopic");
+					}
+					catch(const IceStorm::NoSuchTopic&)
+					{
+						cout << "[" << PROGRAM_NAME << "]: Topic doesn't exists and couldn't be created.\n";
+						//Error. Topic does not exist
+					}
+				}
+				IceStorm::QoS qos;
+				agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic);
+			}
+			AGMExecutiveTopic_adapter->activate();
 		}
 		catch(const IceStorm::NoSuchTopic&)
 		{
+			cout << "[" << PROGRAM_NAME << "]: Error creating AGMExecutiveTopic topic.\n";
 			//Error. Topic does not exist
+		}
+
+		// Server adapter creation and publication
+		IceStorm::TopicPrx aprilbasedlocalization_topic;
+		Ice::ObjectPrx aprilbasedlocalization;
+		try
+		{
+			if (not GenericMonitor::configGetString(communicator(), prefix, "AprilBasedLocalizationTopic.Endpoints", tmp, ""))
+			{
+				cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy AprilBasedLocalizationProxy";
 			}
+			Ice::ObjectAdapterPtr AprilBasedLocalization_adapter = communicator()->createObjectAdapterWithEndpoints("aprilbasedlocalization", tmp);
+			AprilBasedLocalizationPtr aprilbasedlocalizationI_ =  new AprilBasedLocalizationI(worker);
+			Ice::ObjectPrx aprilbasedlocalization = AprilBasedLocalization_adapter->addWithUUID(aprilbasedlocalizationI_)->ice_oneway();
+			if(!aprilbasedlocalization_topic)
+			{
+				try {
+					aprilbasedlocalization_topic = topicManager->create("AprilBasedLocalization");
+				}
+				catch (const IceStorm::TopicExists&) {
+					//Another client created the topic
+					try{
+						cout << "[" << PROGRAM_NAME << "]: Probably other client already opened the topic. Trying to connect.\n";
+						aprilbasedlocalization_topic = topicManager->retrieve("AprilBasedLocalization");
+					}
+					catch(const IceStorm::NoSuchTopic&)
+					{
+						cout << "[" << PROGRAM_NAME << "]: Topic doesn't exists and couldn't be created.\n";
+						//Error. Topic does not exist
+					}
+				}
+				IceStorm::QoS qos;
+				aprilbasedlocalization_topic->subscribeAndGetPublisher(qos, aprilbasedlocalization);
+			}
+			AprilBasedLocalization_adapter->activate();
 		}
-		IceStorm::QoS qos;
-		agmexecutivetopic_topic->subscribeAndGetPublisher(qos, agmexecutivetopic);
+		catch(const IceStorm::NoSuchTopic&)
+		{
+			cout << "[" << PROGRAM_NAME << "]: Error creating AprilBasedLocalization topic.\n";
+			//Error. Topic does not exist
 		}
-		AGMExecutiveTopic_adapter->activate();
+
+		// Server adapter creation and publication
+		IceStorm::TopicPrx cgr_topic;
+		Ice::ObjectPrx cgr;
+		try
+		{
+			if (not GenericMonitor::configGetString(communicator(), prefix, "CGRTopic.Endpoints", tmp, ""))
+			{
+				cout << "[" << PROGRAM_NAME << "]: Can't read configuration for proxy CGRProxy";
+			}
+			Ice::ObjectAdapterPtr CGR_adapter = communicator()->createObjectAdapterWithEndpoints("cgr", tmp);
+			CGRPtr cgrI_ =  new CGRI(worker);
+			Ice::ObjectPrx cgr = CGR_adapter->addWithUUID(cgrI_)->ice_oneway();
+			if(!cgr_topic)
+			{
+				try {
+					cgr_topic = topicManager->create("CGR");
+				}
+				catch (const IceStorm::TopicExists&) {
+					//Another client created the topic
+					try{
+						cout << "[" << PROGRAM_NAME << "]: Probably other client already opened the topic. Trying to connect.\n";
+						cgr_topic = topicManager->retrieve("CGR");
+					}
+					catch(const IceStorm::NoSuchTopic&)
+					{
+						cout << "[" << PROGRAM_NAME << "]: Topic doesn't exists and couldn't be created.\n";
+						//Error. Topic does not exist
+					}
+				}
+				IceStorm::QoS qos;
+				cgr_topic->subscribeAndGetPublisher(qos, cgr);
+			}
+			CGR_adapter->activate();
+		}
+		catch(const IceStorm::NoSuchTopic&)
+		{
+			cout << "[" << PROGRAM_NAME << "]: Error creating CGR topic.\n";
+			//Error. Topic does not exist
+		}
 
 		// Server adapter creation and publication
 		cout << SERVER_FULL_NAME " started" << endl;
 
 		// User defined QtGui elements ( main window, dialogs, etc )
 
-#ifdef USE_QTGUI
-		//ignoreInterrupt(); // Uncomment if you want the component to ignore console SIGINT signal (ctrl+c).
-		a.setQuitOnLastWindowClosed( true );
-#endif
+		#ifdef USE_QTGUI
+			//ignoreInterrupt(); // Uncomment if you want the component to ignore console SIGINT signal (ctrl+c).
+			a.setQuitOnLastWindowClosed( true );
+		#endif
 		// Run QT Application Event Loop
 		a.exec();
+
+		try
+		{
+			std::cout << "Unsubscribing topic: agmexecutivetopic " <<std::endl;
+			agmexecutivetopic_topic->unsubscribe( agmexecutivetopic );
+		}
+		catch(const Ice::Exception& ex)
+		{
+			std::cout << "ERROR Unsubscribing topic: agmexecutivetopic " <<std::endl;
+		}
+		try
+		{
+			std::cout << "Unsubscribing topic: aprilbasedlocalization " <<std::endl;
+			aprilbasedlocalization_topic->unsubscribe( aprilbasedlocalization );
+		}
+		catch(const Ice::Exception& ex)
+		{
+			std::cout << "ERROR Unsubscribing topic: aprilbasedlocalization " <<std::endl;
+		}
+		try
+		{
+			std::cout << "Unsubscribing topic: cgr " <<std::endl;
+			cgr_topic->unsubscribe( cgr );
+		}
+		catch(const Ice::Exception& ex)
+		{
+			std::cout << "ERROR Unsubscribing topic: cgr " <<std::endl;
+		}
+
 		status = EXIT_SUCCESS;
 	}
 	catch(const Ice::Exception& ex)
@@ -349,12 +438,16 @@ int ::localizationAgent::run(int argc, char* argv[])
 		cout << "[" << PROGRAM_NAME << "]: Exception raised on main thread: " << endl;
 		cout << ex;
 
-#ifdef USE_QTGUI
+	}
+	#ifdef USE_QTGUI
 		a.quit();
-#endif
-		monitor->exit(0);
-}
+	#endif
 
+	status = EXIT_SUCCESS;
+	monitor->terminate();
+	monitor->wait();
+	delete worker;
+	delete monitor;
 	return status;
 }
 
@@ -396,4 +489,3 @@ int main(int argc, char* argv[])
 
 	return app.main(argc, argv, configFile.c_str());
 }
-

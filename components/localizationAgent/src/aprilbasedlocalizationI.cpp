@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -30,11 +30,6 @@ AprilBasedLocalizationI::~AprilBasedLocalizationI()
 
 void AprilBasedLocalizationI::newAprilBasedPose(const float  x, const float  z, const float  alpha, const Ice::Current&)
 {
-	worker->newAprilBasedPose(x, z, alpha);
+	worker->AprilBasedLocalization_newAprilBasedPose(x, z, alpha);
 }
-
-
-
-
-
 

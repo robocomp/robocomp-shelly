@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,33 +28,38 @@ AGMExecutiveTopicI::~AGMExecutiveTopicI()
 {
 }
 
-void AGMExecutiveTopicI::structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&)
-{
-	worker->structuralChange(w);
-}
-
-void AGMExecutiveTopicI::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modification, const Ice::Current&)
-{
-	worker->edgesUpdated(modification);
-}
-
 void AGMExecutiveTopicI::edgeUpdated(const RoboCompAGMWorldModel::Edge  &modification, const Ice::Current&)
 {
-	worker->edgeUpdated(modification);
+	worker->AGMExecutiveTopic_edgeUpdated(modification);
+}
+
+void AGMExecutiveTopicI::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modifications, const Ice::Current&)
+{
+	worker->AGMExecutiveTopic_edgesUpdated(modifications);
+}
+
+void AGMExecutiveTopicI::selfEdgeAdded(const int  nodeid, const string  &edgeType, const RoboCompAGMWorldModel::StringDictionary  &attributes, const Ice::Current&)
+{
+	worker->AGMExecutiveTopic_selfEdgeAdded(nodeid, edgeType, attributes);
+}
+
+void AGMExecutiveTopicI::selfEdgeDeleted(const int  nodeid, const string  &edgeType, const Ice::Current&)
+{
+	worker->AGMExecutiveTopic_selfEdgeDeleted(nodeid, edgeType);
+}
+
+void AGMExecutiveTopicI::structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&)
+{
+	worker->AGMExecutiveTopic_structuralChange(w);
 }
 
 void AGMExecutiveTopicI::symbolUpdated(const RoboCompAGMWorldModel::Node  &modification, const Ice::Current&)
 {
-	worker->symbolUpdated(modification);
+	worker->AGMExecutiveTopic_symbolUpdated(modification);
 }
 
-void AGMExecutiveTopicI::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modification, const Ice::Current&)
+void AGMExecutiveTopicI::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modifications, const Ice::Current&)
 {
-	worker->symbolsUpdated(modification);
+	worker->AGMExecutiveTopic_symbolsUpdated(modifications);
 }
-
-
-
-
-
 

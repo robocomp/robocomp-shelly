@@ -40,25 +40,33 @@ public:
 	bool setParams(RoboCompCommonBehavior::ParameterList params);
 	RoboCompCommonBehavior::ParameterList getWorkerParams();
 	
-	bool reloadConfigAgent();
-	bool activateAgent(const ParameterMap &prs);
-	bool setAgentParameters(const ParameterMap &prs);
-	ParameterMap getAgentParameters();
-	void killAgent();
-	int uptimeAgent();
-	bool deactivateAgent();
-	StateStruct getAgentState();
-	void structuralChange(const RoboCompAGMWorldModel::World &w);
-	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification);
-	void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
-	void symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
-	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification);
-	void newAprilBasedPose(const float x, const float z, const float alpha);
+
 	void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha);
 	void newCGRCorrection(float poseUncertainty, float x1, float z1, float alpha1, float x2, float z2, float alpha2);
 
+
+	bool AGMCommonBehavior_activateAgent(const ParameterMap &prs);
+	bool AGMCommonBehavior_deactivateAgent();
+	ParameterMap AGMCommonBehavior_getAgentParameters();
+	StateStruct AGMCommonBehavior_getAgentState();
+	void AGMCommonBehavior_killAgent();
+	bool AGMCommonBehavior_reloadConfigAgent();
+	bool AGMCommonBehavior_setAgentParameters(const ParameterMap &prs);
+	int AGMCommonBehavior_uptimeAgent();
+	void AGMExecutiveTopic_edgeUpdated(const RoboCompAGMWorldModel::Edge &modification);
+	void AGMExecutiveTopic_edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications);
+	void AGMExecutiveTopic_structuralChange(const RoboCompAGMWorldModel::World &w);
+	void AGMExecutiveTopic_symbolUpdated(const RoboCompAGMWorldModel::Node &modification);
+void AGMExecutiveTopic_selfEdgeAdded(const int nodeid, const string &edgeType, const RoboCompAGMWorldModel::StringDictionary &attributes);
+	void AGMExecutiveTopic_selfEdgeDeleted(const int nodeid, const string &edgeType);
+	void AGMExecutiveTopic_symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications);
+	void AprilBasedLocalization_newAprilBasedPose(const float x, const float z, const float alpha);
+	void CGR_resetPose(const float x, const float z, const float alpha);
+
 public slots:
-	void compute(); 
+	void compute();
+	void initialize(int period);
+
 
 private:
 	RoboCompGenericBase::TBaseState lastState, cgrState, aprilState, omniState;
@@ -66,7 +74,7 @@ private:
 	bool useCGR, useApril;
 	float CGRWeight, aprilWeight;
 	
-	InnerModel *innerModel;
+	std::shared_ptr<InnerModel> innerModel;
 	std::string action;
 	ParameterMap params;
 	AGMModel::SPtr worldModel;

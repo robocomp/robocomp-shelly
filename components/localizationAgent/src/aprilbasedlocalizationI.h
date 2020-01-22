@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -31,9 +31,9 @@ using namespace RoboCompAprilBasedLocalization;
 class AprilBasedLocalizationI : public virtual RoboCompAprilBasedLocalization::AprilBasedLocalization
 {
 public:
-	AprilBasedLocalizationI(GenericWorker *_worker);
+AprilBasedLocalizationI(GenericWorker *_worker);
 	~AprilBasedLocalizationI();
-	
+
 	void newAprilBasedPose(const float  x, const float  z, const float  alpha, const Ice::Current&);
 
 private:

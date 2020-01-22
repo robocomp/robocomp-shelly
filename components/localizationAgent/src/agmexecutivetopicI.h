@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -21,24 +21,26 @@
 
 // Ice includes
 #include <Ice/Ice.h>
-#include <AGMExecutive.h>
+#include <AGMExecutiveTopic.h>
 
 #include <config.h>
 #include "genericworker.h"
 
-using namespace RoboCompAGMExecutive;
+using namespace RoboCompAGMExecutiveTopic;
 
-class AGMExecutiveTopicI : public virtual RoboCompAGMExecutive::AGMExecutiveTopic
+class AGMExecutiveTopicI : public virtual RoboCompAGMExecutiveTopic::AGMExecutiveTopic
 {
 public:
-	AGMExecutiveTopicI(GenericWorker *_worker);
+AGMExecutiveTopicI(GenericWorker *_worker);
 	~AGMExecutiveTopicI();
-	
-	void structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&);
-	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modification, const Ice::Current&);
+
 	void edgeUpdated(const RoboCompAGMWorldModel::Edge  &modification, const Ice::Current&);
+	void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence  &modifications, const Ice::Current&);
+	void selfEdgeAdded(const int  nodeid, const string  &edgeType, const RoboCompAGMWorldModel::StringDictionary  &attributes, const Ice::Current&);
+	void selfEdgeDeleted(const int  nodeid, const string  &edgeType, const Ice::Current&);
+	void structuralChange(const RoboCompAGMWorldModel::World  &w, const Ice::Current&);
 	void symbolUpdated(const RoboCompAGMWorldModel::Node  &modification, const Ice::Current&);
-	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modification, const Ice::Current&);
+	void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence  &modifications, const Ice::Current&);
 
 private:
 

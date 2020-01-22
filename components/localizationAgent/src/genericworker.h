@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -20,45 +20,50 @@
 #define GENERICWORKER_H
 
 #include "config.h"
-#include <QtGui>
 #include <stdint.h>
 #include <qlog/qlog.h>
 
-
 #include <CommonBehavior.h>
 
-#include <Logger.h>
+#include <Planning.h>
+#include <GenericBase.h>
 #include <OmniRobot.h>
+#include <Logger.h>
 #include <AprilBasedLocalization.h>
 #include <CGR.h>
+#include <AGMCommonBehavior.h>
+#include <AGMExecutive.h>
+#include <AGMExecutiveTopic.h>
+#include <AGMWorldModel.h>
+#include <agm.h>
+
 #include <agm.h>
 
 #define CHECK_PERIOD 5000
 #define BASIC_PERIOD 100
 
+using namespace std;
+using namespace RoboCompPlanning;
+using namespace RoboCompGenericBase;
+using namespace RoboCompOmniRobot;
+using namespace RoboCompLogger;
+using namespace RoboCompAprilBasedLocalization;
+using namespace RoboCompCGR;
+using namespace RoboCompAGMCommonBehavior;
+using namespace RoboCompAGMExecutive;
+using namespace RoboCompAGMExecutiveTopic;
+using namespace RoboCompAGMWorldModel;
+
 typedef map <string,::IceProxy::Ice::Object*> MapPrx;
 
-using namespace std;
 
-using namespace RoboCompAGMWorldModel;
-using namespace RoboCompOmniRobot;
-using namespace RoboCompAGMExecutive;
-using namespace RoboCompPlanning;
-using namespace RoboCompLogger;
-using namespace RoboCompCGR;
-using namespace RoboCompAprilBasedLocalization;
-using namespace RoboCompAGMCommonBehavior;
-
-
-struct BehaviorParameters 
+struct BehaviorParameters
 {
 	RoboCompPlanning::Action action;
 	std::vector< std::vector <std::string> > plan;
 };
 
-
-
-class GenericWorker : 
+class GenericWorker :
 public QObject
 {
 Q_OBJECT
@@ -67,36 +72,38 @@ public:
 	virtual ~GenericWorker();
 	virtual void killYourSelf();
 	virtual void setPeriod(int p);
-	
+
 	virtual bool setParams(RoboCompCommonBehavior::ParameterList params) = 0;
 	QMutex *mutex;
 	bool activate(const BehaviorParameters& parameters);
 	bool deactivate();
 	bool isActive() { return active; }
-	
 
-	LoggerPrx logger_proxy;
-	OmniRobotPrx omnirobot_proxy;
+
 	AGMExecutivePrx agmexecutive_proxy;
+	OmniRobotPrx omnirobot_proxy;
+	LoggerPrx logger_pubproxy;
 
-	virtual bool reloadConfigAgent() = 0;
-	virtual bool activateAgent(const ParameterMap &prs) = 0;
-	virtual bool setAgentParameters(const ParameterMap &prs) = 0;
-	virtual ParameterMap getAgentParameters() = 0;
-	virtual void killAgent() = 0;
-	virtual int uptimeAgent() = 0;
-	virtual bool deactivateAgent() = 0;
-	virtual StateStruct getAgentState() = 0;
-	virtual void structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
-	virtual void edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification) = 0;
-	virtual void edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
-	virtual void symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
-	virtual void symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification) = 0;
-	virtual void newAprilBasedPose(const float x, const float z, const float alpha) = 0;
-	virtual void newCGRPose(const float poseUncertainty, const float x, const float z, const float alpha) = 0;
-	virtual void newCGRCorrection(const float poseUncertainty, const float x1, const float z1, const float alpha1, const float x2, const float z2, const float alpha2) = 0;
-	virtual RoboCompCommonBehavior::ParameterList getWorkerParams() = 0;
+	virtual bool AGMCommonBehavior_activateAgent(const ParameterMap &prs) = 0;
+	virtual bool AGMCommonBehavior_deactivateAgent() = 0;
+	virtual ParameterMap AGMCommonBehavior_getAgentParameters() = 0;
+	virtual StateStruct AGMCommonBehavior_getAgentState() = 0;
+	virtual void AGMCommonBehavior_killAgent() = 0;
+	virtual bool AGMCommonBehavior_reloadConfigAgent() = 0;
+	virtual bool AGMCommonBehavior_setAgentParameters(const ParameterMap &prs) = 0;
+	virtual int AGMCommonBehavior_uptimeAgent() = 0;
+	virtual void AGMExecutiveTopic_edgeUpdated(const RoboCompAGMWorldModel::Edge &modification) = 0;
+	virtual void AGMExecutiveTopic_edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modifications) = 0;
+	virtual void AGMExecutiveTopic_selfEdgeAdded(const int nodeid, const string &edgeType, const RoboCompAGMWorldModel::StringDictionary &attributes) = 0;
+	virtual void AGMExecutiveTopic_selfEdgeDeleted(const int nodeid, const string &edgeType) = 0;
+	virtual void AGMExecutiveTopic_structuralChange(const RoboCompAGMWorldModel::World &w) = 0;
+	virtual void AGMExecutiveTopic_symbolUpdated(const RoboCompAGMWorldModel::Node &modification) = 0;
+	virtual void AGMExecutiveTopic_symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modifications) = 0;
+	virtual void AprilBasedLocalization_newAprilBasedPose(const float x, const float z, const float alpha) = 0;
+	virtual void CGR_resetPose(const float x, const float z, const float alpha) = 0;
+
 protected:
+
 	QTimer timer;
 	int Period;
 	bool active;
@@ -104,7 +111,7 @@ protected:
 	BehaviorParameters p;
 	ParameterMap params;
 	int iter;
-	bool setParametersAndPossibleActivation(const ParameterMap &prs, bool &reactivated);
+	bool setParametersAndPossibleActivation(const RoboCompAGMCommonBehavior::ParameterMap &prs, bool &reactivated);
 	RoboCompPlanning::Action createAction(std::string s);
 
 private:
@@ -112,6 +119,8 @@ private:
 
 public slots:
 	virtual void compute() = 0;
+    virtual void initialize(int period) = 0;
+	
 signals:
 	void kill();
 };

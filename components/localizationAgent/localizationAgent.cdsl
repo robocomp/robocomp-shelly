@@ -9,7 +9,7 @@ Component localizationAgent
 	Communications
 	{
 		requires OmniRobot;
-		subscribesTo AprilBasedLocalization, CGRTopic;
+		subscribesTo AprilBasedLocalization, CGR;
 		publishes Logger;
 	};
 	language Cpp;

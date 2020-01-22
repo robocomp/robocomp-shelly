@@ -69,7 +69,7 @@ SpecificWorker::SpecificWorker(MapPrx& mprx) : GenericWorker(mprx)
 	active = false;
 	worldModel = AGMModel::SPtr(new AGMModel());
 	worldModel->name = "worldModel";
-	innerModel = new InnerModel();
+	innerModel = std::make_shared<InnerModel>();
 	newCGR = false;
 	newApril = false;
 	useCGR = false;
@@ -100,12 +100,10 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	aprilWeight = QString::fromStdString(params["AprilWeight"].value).toFloat();
 
 
-	timer.start(Period);
-
 	try
 	{
 		RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-		structuralChange(w);
+		AGMExecutiveTopic_structuralChange(w);
 	}
 	catch(...)
 	{
@@ -115,8 +113,16 @@ bool SpecificWorker::setParams(RoboCompCommonBehavior::ParameterList params)
 	return true;
 }
 
+void SpecificWorker::initialize(int period)
+{
+	std::cout << "Initialize worker" << std::endl;
+	this->Period = period;
+//	timer.start(Period);
+	timer.start(1000);
 
-void SpecificWorker::newAprilBasedPose(const float x, const float z, const float alpha)
+}
+
+void SpecificWorker::AprilBasedLocalization_newAprilBasedPose(const float x, const float z, const float alpha)
 {
 	QMutexLocker l(mutex);
 	newApril = true;
@@ -146,7 +152,8 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 
 	if (innermodel == NULL)
 	{
-		innermodel = new InnerModel();
+		innerModel = std::make_shared<InnerModel>();
+
 		corrSLAMBack = innermodel->newTransform("corrSLAMBack", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
 		innermodel->getRoot()->addChild(corrSLAMBack);
 		corrSLAMNew = innermodel->newTransform("corrSLAMNew", "static", innermodel->getRoot(), 0,0,0, 0,0,0, 0);
@@ -177,10 +184,15 @@ void SpecificWorker::newCGRCorrection(float poseUncertainty, float x1, float z1,
 	cgrState.correctedAlpha = result(4);
 }
 
+void SpecificWorker::CGR_resetPose(const float x, const float z, const float alpha)
+{
+//subscribesToCODE
+
+}
+
 
 void SpecificWorker::compute()
 {
-	printf("dd\n");
 	static QTime reloj = QTime::currentTime();
 	QMutexLocker l(mutex);
 
@@ -188,7 +200,7 @@ void SpecificWorker::compute()
 	static bool first=true;
 	if (first)
 	{
-		qLog::getInstance()->setProxy("both", logger_proxy);
+		qLog::getInstance()->setProxy("both", logger_pubproxy);
 		rDebug2(("localizationAgent started"));
 		first = false;
 	}
@@ -199,7 +211,7 @@ void SpecificWorker::compute()
 		try
 		{
 			RoboCompAGMWorldModel::World w = agmexecutive_proxy->getModel();
-			structuralChange(w);
+			AGMExecutiveTopic_structuralChange(w);
 		}
 		catch(...)
 		{
@@ -341,18 +353,20 @@ bool SpecificWorker::odometryAndLocationIssues(bool force)
 	// Query which should actually be the current room based on the corrected odometry odometry
 	int32_t robotIsActuallyInRoom;
 	float schmittTriggerLikeThreshold = 80;
-	if (bState.correctedZ < -schmittTriggerLikeThreshold)
-	{
-		robotIsActuallyInRoom = 5;
-	}
-	else if (bState.correctedZ > schmittTriggerLikeThreshold)
-	{
-		robotIsActuallyInRoom = 3;
-	}
-	else
-	{
-		robotIsActuallyInRoom = roomId;
-	}
+    robotIsActuallyInRoom = roomId;
+
+//    if (bState.correctedZ < -schmittTriggerLikeThreshold)
+//	{
+//		robotIsActuallyInRoom = 5;
+//	}
+//	else if (bState.correctedZ > schmittTriggerLikeThreshold)
+//	{
+//		robotIsActuallyInRoom = 3;
+//	}
+//	else
+//	{
+//		robotIsActuallyInRoom = roomId;
+//	}
 
 
 	if (roomId != robotIsActuallyInRoom)
@@ -509,12 +523,12 @@ void SpecificWorker::includeMovementInRobotSymbol(AGMModelSymbol::SPtr robot)
 
 
 //AGENT RELATED
-bool SpecificWorker::reloadConfigAgent()
+bool SpecificWorker::AGMCommonBehavior_reloadConfigAgent()
 {
 	return true;
 }
 
-bool SpecificWorker::activateAgent(const ParameterMap &prs)
+bool SpecificWorker::AGMCommonBehavior_activateAgent(const ParameterMap &prs)
 {
 	bool activated = false;
 	printf("<<activateAgent\n");
@@ -533,33 +547,33 @@ bool SpecificWorker::activateAgent(const ParameterMap &prs)
 	return true;
 }
 
-bool SpecificWorker::setAgentParameters(const ParameterMap &prs)
+bool SpecificWorker::AGMCommonBehavior_setAgentParameters(const ParameterMap &prs)
 {
 	bool activated = false;
 	return setParametersAndPossibleActivation(prs, activated);
 }
 
-ParameterMap SpecificWorker::getAgentParameters()
+ParameterMap SpecificWorker::AGMCommonBehavior_getAgentParameters()
 {
 	return params;
 }
 
-void SpecificWorker::killAgent()
+void SpecificWorker::AGMCommonBehavior_killAgent()
 {
 
 }
 
-int SpecificWorker::uptimeAgent()
+int SpecificWorker::AGMCommonBehavior_uptimeAgent()
 {
 	return 0;
 }
 
-bool SpecificWorker::deactivateAgent()
+bool SpecificWorker::AGMCommonBehavior_deactivateAgent()
 {
 	return deactivate();
 }
 
-StateStruct SpecificWorker::getAgentState()
+StateStruct SpecificWorker::AGMCommonBehavior_getAgentState()
 {
 	StateStruct s;
 	if (isActive())
@@ -574,50 +588,68 @@ StateStruct SpecificWorker::getAgentState()
 	return s;
 }
 
-void SpecificWorker::structuralChange(const RoboCompAGMWorldModel::World &w)
+void SpecificWorker::AGMExecutiveTopic_selfEdgeAdded(const int nodeid, const string &edgeType, const RoboCompAGMWorldModel::StringDictionary &attributes)
+{
+//subscribesToCODE
+    QMutexLocker lockIM(mutex);
+    try { worldModel->addEdgeByIdentifiers(nodeid, nodeid, edgeType, attributes); } catch(...){ printf("Couldn't add an edge. Duplicate?\n"); }
+
+    try { innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
+}
+
+void SpecificWorker::AGMExecutiveTopic_selfEdgeDeleted(const int nodeid, const string &edgeType)
+{
+//subscribesToCODE
+    QMutexLocker lockIM(mutex);
+    try { worldModel->removeEdgeByIdentifiers(nodeid, nodeid, edgeType); } catch(...) { printf("Couldn't remove an edge\n"); }
+
+    try { innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel)); } catch(...) { printf("Can't extract an InnerModel from the current model.\n"); }
+}
+
+void SpecificWorker::AGMExecutiveTopic_structuralChange(const RoboCompAGMWorldModel::World &w)
 {
 	mutex->lock();
  	AGMModelConverter::fromIceToInternal(w, worldModel);
 
-	if (innerModel) delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
+//	if (innerModel) delete innerModel;
+	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
 	mutex->unlock();
 }
 
-void SpecificWorker::edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification)
+void SpecificWorker::AGMExecutiveTopic_edgesUpdated(const RoboCompAGMWorldModel::EdgeSequence &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
+//	delete innerModel;
+	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
 }
 
-void SpecificWorker::edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
+void SpecificWorker::AGMExecutiveTopic_edgeUpdated(const RoboCompAGMWorldModel::Edge &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
+//	delete innerModel;
+	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
 }
 
-void SpecificWorker::symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
+void SpecificWorker::AGMExecutiveTopic_symbolUpdated(const RoboCompAGMWorldModel::Node &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
+//	delete innerModel;
+	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
 }
 
-void SpecificWorker::symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
+void SpecificWorker::AGMExecutiveTopic_symbolsUpdated(const RoboCompAGMWorldModel::NodeSequence &modification)
 {
 	QMutexLocker locker(mutex);
 	AGMModelConverter::includeIceModificationInInternalModel(modification, worldModel);
 
-	delete innerModel;
-	innerModel = AGMInner::extractInnerModel(worldModel, "world", true);
+//	delete innerModel;
+	innerModel = std::make_shared<InnerModel>(AGMInner::extractInnerModel(worldModel));
 }
 
 

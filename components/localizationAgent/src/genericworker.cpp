@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C)2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -23,15 +23,16 @@
 GenericWorker::GenericWorker(MapPrx& mprx) :
 QObject()
 {
-	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
+
 	agmexecutive_proxy = (*(AGMExecutivePrx*)mprx["AGMExecutiveProxy"]);
-	logger_proxy = (*(LoggerPrx*)mprx["LoggerPub"]);
+	omnirobot_proxy = (*(OmniRobotPrx*)mprx["OmniRobotProxy"]);
+	logger_pubproxy = (*(LoggerPrx*)mprx["LoggerPub"]);
 
 	mutex = new QMutex(QMutex::Recursive);
 
 	Period = BASIC_PERIOD;
 	connect(&timer, SIGNAL(timeout()), this, SLOT(compute()));
-// 	timer.start(Period);
+
 }
 
 /**
@@ -89,7 +90,7 @@ RoboCompPlanning::Action GenericWorker::createAction(std::string s)
 	} while (iss);
 
 	return ret;
-}	
+}
 
 
 bool GenericWorker::activate(const BehaviorParameters &prs)
@@ -103,7 +104,7 @@ bool GenericWorker::activate(const BehaviorParameters &prs)
 	return active;
 }
 
-bool GenericWorker::deactivate() 
+bool GenericWorker::deactivate()
 {
 	printf("Worker::deactivate\n");
 	mutex->lock();

@@ -1,5 +1,5 @@
 /*
- *    Copyright (C) 2016 by YOUR NAME HERE
+ *    Copyright (C) 2020 by YOUR NAME HERE
  *
  *    This file is part of RoboComp
  *
@@ -28,48 +28,43 @@ AGMCommonBehaviorI::~AGMCommonBehaviorI()
 {
 }
 
-bool AGMCommonBehaviorI::reloadConfigAgent(const Ice::Current&)
-{
-	return worker->reloadConfigAgent();
-}
-
 bool AGMCommonBehaviorI::activateAgent(const ParameterMap  &prs, const Ice::Current&)
 {
-	return worker->activateAgent(prs);
-}
-
-bool AGMCommonBehaviorI::setAgentParameters(const ParameterMap  &prs, const Ice::Current&)
-{
-	return worker->setAgentParameters(prs);
-}
-
-ParameterMap AGMCommonBehaviorI::getAgentParameters(const Ice::Current&)
-{
-	return worker->getAgentParameters();
-}
-
-void AGMCommonBehaviorI::killAgent(const Ice::Current&)
-{
-	worker->killAgent();
-}
-
-int AGMCommonBehaviorI::uptimeAgent(const Ice::Current&)
-{
-	return worker->uptimeAgent();
+	return worker->AGMCommonBehavior_activateAgent(prs);
 }
 
 bool AGMCommonBehaviorI::deactivateAgent(const Ice::Current&)
 {
-	return worker->deactivateAgent();
+	return worker->AGMCommonBehavior_deactivateAgent();
+}
+
+ParameterMap AGMCommonBehaviorI::getAgentParameters(const Ice::Current&)
+{
+	return worker->AGMCommonBehavior_getAgentParameters();
 }
 
 StateStruct AGMCommonBehaviorI::getAgentState(const Ice::Current&)
 {
-	return worker->getAgentState();
+	return worker->AGMCommonBehavior_getAgentState();
 }
 
+void AGMCommonBehaviorI::killAgent(const Ice::Current&)
+{
+	worker->AGMCommonBehavior_killAgent();
+}
 
+bool AGMCommonBehaviorI::reloadConfigAgent(const Ice::Current&)
+{
+	return worker->AGMCommonBehavior_reloadConfigAgent();
+}
 
+bool AGMCommonBehaviorI::setAgentParameters(const ParameterMap  &prs, const Ice::Current&)
+{
+	return worker->AGMCommonBehavior_setAgentParameters(prs);
+}
 
-
+int AGMCommonBehaviorI::uptimeAgent(const Ice::Current&)
+{
+	return worker->AGMCommonBehavior_uptimeAgent();
+}
 
